@@ -49,7 +49,7 @@ fn main() {
 
 - Covers nearly the entire raylib 2.0 API. The only omissions are `SubText` and `FormatText`, which are covered by Rust's string slicing and Rust's `format!` macro, respectively.
 - Functions dealing with string data take in `&str` and/or return an owned `String`, for the sake of safety.
-- In C, `LoadFontData` returns a pointer to a heap-allocated `CharInfo` struct. In this Rust binding, said struct is copied into an owned struct, the original data is freed, and the owned struct is returned.
+- In C, `LoadFontData` returns a pointer to a heap-allocated array of `CharInfo` structs. In this Rust binding, said array is copied into an owned `Vec<CharInfo>`, the original data is freed, and the owned Vec is returned.
 - In C, `GetDroppedFiles` returns a pointer to an array of strings owned by raylib. Again, for safety and also ease of use, this binding copies said array into a `Vec<String>` which is returned to the caller.
 - For the sake of FFI safety, the `RayHitInfo` struct uses a `CBool` (defined in `raylib.rs`) for the `hit` field, which can be used by doing `hit.is_true()`.
 - `TraceLog` functionality is actually reimplemented in Rust since the language does not have variadic functions in safe code, nor a way to unpack sequences into arguments (to my knowledge). However, since `format!` is variadic, one could use that macro in combination with `trace_log` to achieve the same effect.
