@@ -159,8 +159,27 @@ pub struct Font {
     pub chars_count: i32,
     pub chars: *mut CharInfo,
 }
-
 pub type SpriteFont = Font;
+
+impl Font {
+    pub fn from_data(chars: &Vec<CharInfo>, base_size: i32, padding: i32, pack_method: i32) -> Font {
+        unsafe {
+            let mut f = ::std::mem::zeroed::<Font>();
+            f.base_size = base_size;
+            f.chars_count = chars.len() as i32;
+            
+            let data_size = f.chars_count as usize * ::std::mem::size_of::<CharInfo>();
+            let ci_arr_ptr = libc::malloc(data_size); // raylib frees this data in UnloadFont
+            ::std::ptr::copy(chars.as_ptr(), ci_arr_ptr as *mut CharInfo, data_size);
+            f.chars = ci_arr_ptr as *mut CharInfo;
+
+            let atlas = GenImageFontAtlas(f.chars, f.base_size, f.chars_count, padding, pack_method);
+            f.texture = LoadTextureFromImage(atlas);
+            UnloadImage(atlas);
+            f
+        }
+    }
+}
 
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
