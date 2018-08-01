@@ -170,7 +170,7 @@ impl Font {
             
             let data_size = f.chars_count as usize * ::std::mem::size_of::<CharInfo>();
             let ci_arr_ptr = libc::malloc(data_size); // raylib frees this data in UnloadFont
-            ::std::ptr::copy(chars.as_ptr(), ci_arr_ptr as *mut CharInfo, data_size);
+            ::std::ptr::copy(chars.as_ptr(), ci_arr_ptr as *mut CharInfo, chars.len());
             f.chars = ci_arr_ptr as *mut CharInfo;
 
             let atlas = GenImageFontAtlas(f.chars, f.base_size, f.chars_count, padding, pack_method);
