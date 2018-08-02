@@ -59,7 +59,7 @@ fn main() {
 
 # Extras
 
-In addition to the base library, there is also a convenient `ease` module which contains various interpolation/easing functions ported from raylib's `easings.h`, as well as `Tweener` and `TweenGroup` structs that hopefully allow for easier use of these functions.
+In addition to the base library, there is also a convenient `ease` module which contains various interpolation/easing functions ported from raylib's `easings.h`, as well as a `Tween` struct to assist in using these functions.
 
 # Future Goals
 

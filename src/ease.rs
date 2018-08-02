@@ -14,115 +14,30 @@ Permission is granted to anyone to use this software for any purpose, including 
   3. This notice may not be removed or altered from any source distribution.
 */
 
-use std::mem;
 use std::f32::consts::PI;
 
 pub type EaseFn = fn(f32, f32, f32, f32) -> f32;
-pub fn interp(easer: EaseFn, start_value: f32, end_value: f32, current_time: f32, duration: f32) -> f32 {
-    easer(current_time, start_value, end_value - start_value, duration)
-}
 
-pub struct Tweener<'a> {
-    pub target: &'a mut f32,
-    pub duration: f32,
+pub struct Tween {
+    pub easer: EaseFn,
     pub start_value: f32,
     pub end_value: f32,
     pub current_time: f32,
-    pub tween: EaseFn,
-    pub finished: bool,
-    pub paused: bool,
+    pub duration: f32,
 }
 
-impl<'a> Tweener<'a> {
-    pub fn new(target: &mut f32, tween: EaseFn, start_value: f32, end_value: f32, duration: f32) -> Tweener {
-        Tweener {
-            target,
-            duration,
-            start_value,
-            end_value,
-            current_time: 0.0,
-            tween,
-            finished: false,
-            paused: false,
-        }
-    }
-
-    pub fn start(&mut self) {
-        self.current_time = 0.0;
-        self.finished = false;
-        self.paused = false;
-        self.update_target();
-    }
-
-    pub fn pause(&mut self) {
-        self.paused = true;
-    }
-
-    pub fn resume(&mut self) {
-        self.paused = false;
-    }
-
-    pub fn reverse(&mut self) {
-        mem::swap(&mut self.start_value, &mut self.end_value);
-        self.current_time = self.duration - self.current_time;
-        self.update_target();
-    }
-
-    pub fn update(&mut self, dt: f32) {
-        if self.finished || self.paused { return; }
-
-        self.current_time += dt;
-        if self.current_time >= self.duration {
-            self.finished = true;
+impl Tween {
+    pub fn apply(&mut self, time_advance: f32) -> f32 {
+        self.current_time += time_advance;
+        if self.current_time > self.duration {
             self.current_time = self.duration;
         }
-        self.update_target();
-    }
-
-    fn update_target(&mut self) {
-        *self.target = interp(self.tween, self.start_value, self.end_value, self.current_time, self.duration);
-    }
-}
-
-pub struct TweenGroup<'a> {
-    pub group: Vec<Tweener<'a>>,
-}
-
-impl<'a> TweenGroup<'a> {
-    pub fn new() -> TweenGroup<'a> {
-        TweenGroup {
-            group: Vec::new()
-        }
-    }
-
-    pub fn start(&mut self) {
-        for t in &mut self.group {
-            t.start();
-        }
-    }
-
-    pub fn pause(&mut self) {
-        for t in &mut self.group {
-            t.pause();
-        }
-    }
-
-    pub fn resume(&mut self) {
-        for t in &mut self.group {
-            t.resume();
-        }
+        (self.easer)(self.current_time, self.start_value, self.end_value - self.start_value, self.duration)
     }
 
     pub fn reverse(&mut self) {
-        for t in &mut self.group {
-            t.reverse();
-        }
-    }
-
-    pub fn update(&mut self, dt: f32) {
-        for t in &mut self.group {
-            t.update(dt);
-        }
+        self.current_time = self.duration - self.current_time;
+        ::std::mem::swap(&mut self.start_value, &mut self.end_value);
     }
 }
 
