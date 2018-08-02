@@ -339,6 +339,12 @@ pub const HMD_VALVE_HTC_VIVE: VrDeviceType = 4;
 pub const HMD_SONY_PSVR: VrDeviceType = 5;
 pub type VrDeviceType = i32;
 
+/// A marker trait specifying an audio sample (`u8`, `i16`, or `f32`).
+pub trait AudioSample { }
+impl AudioSample for u8 { }
+impl AudioSample for i16 { }
+impl AudioSample for f32 { }
+
 pub fn init_window(width: i32, height: i32, title: &str) {
     let c_title = CString::new(title).unwrap();
     unsafe {
@@ -2409,9 +2415,9 @@ pub fn init_audio_stream(sample_rate: u32, sample_size: u32, channels: u32) -> A
     }
 }
 
-pub fn update_audio_stream(stream: AudioStream, data: &[u8], samples_count: i32) {
+pub fn update_audio_stream(stream: AudioStream, data: &[impl AudioSample]) {
     unsafe {
-        raylib::UpdateAudioStream(stream, data.as_ptr() as *const std::os::raw::c_void, samples_count);
+        raylib::UpdateAudioStream(stream, data.as_ptr() as *const std::os::raw::c_void, data.len() as i32);
     }
 }
 

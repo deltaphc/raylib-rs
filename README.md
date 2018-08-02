@@ -1,6 +1,6 @@
 # raylib-rs
 
-raylib-rs is a simple, minimal Rust binding for [raylib](http://www.raylib.com/) 2.0.
+raylib-rs is a simple, minimal Rust binding for [raylib](http://www.raylib.com/) 2.0. It currently targets the *stable* Rust toolchain, version 1.26 or higher.
 
 Do note that this binding is not fully idiomatic. Much like in the C version of raylib, you must handle the loading and unloading of resources manually. Higher-level facilities such as RAII or other resource management methods are left as an exercise to the reader/coder.
 
