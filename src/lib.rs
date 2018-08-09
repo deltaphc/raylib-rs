@@ -18,6 +18,7 @@ extern crate libc;
 
 use std::ffi::{CString, CStr};
 
+mod raymath;
 mod raylib;
 pub use raylib::{
     CBool, Image, Color,
