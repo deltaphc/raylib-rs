@@ -2542,9 +2542,9 @@ pub fn load_sound_from_wave(wave: Wave) -> Sound {
 }
 
 /// Updates sound buffer with new data.
-pub fn update_sound(sound: Sound, data: &[u8], samples_count: i32) {
+pub fn update_sound(sound: Sound, data: &[impl AudioSample]) {
     unsafe {
-        raylib::UpdateSound(sound, data.as_ptr() as *const std::os::raw::c_void, samples_count);
+        raylib::UpdateSound(sound, data.as_ptr() as *const std::os::raw::c_void, data.len() as i32);
     }
 }
 
