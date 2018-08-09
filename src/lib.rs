@@ -1349,13 +1349,13 @@ pub fn load_image_ex(pixels: &mut [Color], width: i32, height: i32) -> Image {
 }
 
 /// Loads image from raw data with parameters.
-pub fn load_image_pro(data: &mut [u8], width: i32, height: i32, format: PixelFormat) -> Image {
+pub fn load_image_pro(data: &[u8], width: i32, height: i32, format: PixelFormat) -> Image {
     let expected_len = get_pixel_data_size(width, height, format) as usize;
     if data.len() != expected_len {
         panic!("load_image_pro: Data is wrong size. Expected {}, got {}", expected_len, data.len());
     }
     unsafe {
-        raylib::LoadImagePro(data.as_mut_ptr() as *mut std::os::raw::c_void, width, height, format)
+        raylib::LoadImagePro(data.as_ptr() as *mut std::os::raw::c_void, width, height, format)
     }
 }
 
@@ -2520,9 +2520,9 @@ pub fn load_wave(filename: &str) -> Wave {
 }
 
 /// Loads wave data from raw array data.
-pub fn load_wave_ex(data: &mut [u8], sample_count: i32, sample_rate: i32, sample_size: i32, channels: i32) -> Wave {
+pub fn load_wave_ex(data: &[u8], sample_count: i32, sample_rate: i32, sample_size: i32, channels: i32) -> Wave {
     unsafe {
-        raylib::LoadWaveEx(data.as_mut_ptr() as *mut std::os::raw::c_void, sample_count, sample_rate, sample_size, channels)
+        raylib::LoadWaveEx(data.as_ptr() as *mut std::os::raw::c_void, sample_count, sample_rate, sample_size, channels)
     }
 }
 
