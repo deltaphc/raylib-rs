@@ -1805,29 +1805,29 @@ pub fn load_font(filename: &str) -> Font {
 }
 
 /// Loads font from file with extended parameters.
-pub fn load_font_ex(filename: &str, font_size: i32, chars: Option<&mut [i32]>) -> Font {
+pub fn load_font_ex(filename: &str, font_size: i32, chars: Option<&[i32]>) -> Font {
     let c_filename = CString::new(filename).unwrap();
     unsafe {
         match chars {
-            Some(c) => raylib::LoadFontEx(c_filename.as_ptr(), font_size, c.len() as i32, c.as_mut_ptr()),
+            Some(c) => raylib::LoadFontEx(c_filename.as_ptr(), font_size, c.len() as i32, c.as_ptr() as *mut i32),
             None => raylib::LoadFontEx(c_filename.as_ptr(), font_size, 0, std::ptr::null_mut())
         }
     }
 }
 
 /// Loads font data for further use (see also `Font::from_data`).
-pub fn load_font_data(filename: &str, font_size: i32, mut chars: Option<&mut [i32]>, sdf: bool) -> Vec<CharInfo> {
+pub fn load_font_data(filename: &str, font_size: i32, chars: Option<&[i32]>, sdf: bool) -> Vec<CharInfo> {
     let c_filename = CString::new(filename).unwrap();
     unsafe {
         let ci_arr_ptr = match chars {
-            Some(ref mut c) => {
-                raylib::LoadFontData(c_filename.as_ptr(), font_size, c.as_mut_ptr(), c.len() as i32, sdf)
+            Some(c) => {
+                raylib::LoadFontData(c_filename.as_ptr(), font_size, c.as_ptr() as *mut i32, c.len() as i32, sdf)
             }
             None => {
                 raylib::LoadFontData(c_filename.as_ptr(), font_size, std::ptr::null_mut(), 0, sdf)
             }
         };
-        let ci_size = if let Some(ref mut c) = chars { c.len() } else { 95 }; // raylib assumes 95 if none given
+        let ci_size = if let Some(c) = chars { c.len() } else { 95 }; // raylib assumes 95 if none given
         let mut ci_vec = Vec::with_capacity(ci_size);
         for i in 0..ci_size {
             ci_vec.push(*ci_arr_ptr.offset(i as isize));
