@@ -17,6 +17,9 @@ Permission is granted to anyone to use this software for any purpose, including 
 
 extern crate libc;
 
+use std::f32::consts::PI;
+use std::ops::{Add, AddAssign, Sub, SubAssign, Mul, MulAssign, Div, DivAssign, Neg};
+
 #[repr(u32)]
 #[derive(Debug, Copy, Clone)]
 pub enum CBool {
@@ -51,6 +54,194 @@ impl From<bool> for CBool {
 pub struct Vector2 {
     pub x: f32,
     pub y: f32,
+}
+
+impl Vector2 {
+    /// Returns a new `Vector2` containing both components set to zero.
+    pub fn zero() -> Vector2 {
+        Vector2 {
+            x: 0.0,
+            y: 0.0,
+        }
+    }
+
+    /// Returns a new `Vector2` containing both components set to one.
+    pub fn one() -> Vector2 {
+        Vector2 {
+            x: 1.0,
+            y: 1.0,
+        }
+    }
+
+    /// Calculates the vector length.
+    pub fn length(&self) -> f32 {
+        ((self.x * self.x) + (self.y * self.y)).sqrt()
+    }
+
+    /// Calculates the dot product with vector `v`.
+    pub fn dot(&self, v: Vector2) -> f32 {
+        (self.x * v.x + self.y * v.y)
+    }
+
+    /// Calculates the distance towards vector `v`.
+    pub fn distance_to(&self, v: Vector2) -> f32 {
+        ((self.x - v.x) * (self.x - v.x) + (self.y - v.y) * (self.y - v.y)).sqrt()
+    }
+
+    /// Calculates the angle towards vector `v` in radians.
+    pub fn angle_to(&self, v: Vector2) -> f32 {
+        let mut result = (v.y - self.y).atan2(v.x - self.x);
+        if result < 0.0 { result += 2.0 * PI; }
+        result
+    }
+
+    /// Scales the vector by multiplying both components by `scale`.
+    pub fn scale(&mut self, scale: f32) {
+        *self *= scale;
+    }
+
+    /// Normalizes the vector.
+    pub fn normalize(&mut self) {
+        *self /= self.length();
+    }
+}
+
+impl Add for Vector2 {
+    type Output = Vector2;
+    fn add(self, v: Vector2) -> Self {
+        Vector2 {
+            x: self.x + v.x,
+            y: self.y + v.y,
+        }
+    }
+}
+
+impl Add<f32> for Vector2 {
+    type Output = Vector2;
+    fn add(self, value: f32) -> Self {
+        Vector2 {
+            x: self.x + value,
+            y: self.y + value,
+        }
+    }
+}
+
+impl AddAssign for Vector2 {
+    fn add_assign(&mut self, v: Vector2) {
+        *self = *self + v;
+    }
+}
+
+impl AddAssign<f32> for Vector2 {
+    fn add_assign(&mut self, value: f32) {
+        *self = *self + value;
+    }
+}
+
+impl Sub for Vector2 {
+    type Output = Vector2;
+    fn sub(self, v: Vector2) -> Self {
+        Vector2 {
+            x: self.x - v.x,
+            y: self.y - v.y,
+        }
+    }
+}
+
+impl Sub<f32> for Vector2 {
+    type Output = Vector2;
+    fn sub(self, value: f32) -> Self {
+        Vector2 {
+            x: self.x - value,
+            y: self.y - value,
+        }
+    }
+}
+
+impl SubAssign for Vector2 {
+    fn sub_assign(&mut self, v: Vector2) {
+        *self = *self - v;
+    }
+}
+
+impl SubAssign<f32> for Vector2 {
+    fn sub_assign(&mut self, value: f32) {
+        *self = *self - value;
+    }
+}
+
+impl Mul for Vector2 {
+    type Output = Vector2;
+    fn mul(self, v: Vector2) -> Self {
+        Vector2 {
+            x: self.x * v.x,
+            y: self.y * v.y,
+        }
+    }
+}
+
+impl Mul<f32> for Vector2 {
+    type Output = Vector2;
+    fn mul(self, value: f32) -> Self {
+        Vector2 {
+            x: self.x * value,
+            y: self.y * value,
+        }
+    }
+}
+
+impl MulAssign for Vector2 {
+    fn mul_assign(&mut self, v: Vector2) {
+        *self = *self * v;
+    }
+}
+
+impl MulAssign<f32> for Vector2 {
+    fn mul_assign(&mut self, value: f32) {
+        *self = *self * value;
+    }
+}
+
+impl Div for Vector2 {
+    type Output = Vector2;
+    fn div(self, v: Vector2) -> Self {
+        Vector2 {
+            x: self.x / v.x,
+            y: self.y / v.y,
+        }
+    }
+}
+
+impl Div<f32> for Vector2 {
+    type Output = Vector2;
+    fn div(self, value: f32) -> Self {
+        Vector2 {
+            x: self.x / value,
+            y: self.y / value,
+        }
+    }
+}
+
+impl DivAssign for Vector2 {
+    fn div_assign(&mut self, v: Vector2) {
+        *self = *self / v;
+    }
+}
+
+impl DivAssign<f32> for Vector2 {
+    fn div_assign(&mut self, value: f32) {
+        *self = *self / value;
+    }
+}
+
+impl Neg for Vector2 {
+    type Output = Vector2;
+    fn neg(self) -> Self {
+        Vector2 {
+            x: -self.x,
+            y: -self.y,
+        }
+    }
 }
 
 #[repr(C)]
