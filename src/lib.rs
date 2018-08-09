@@ -21,7 +21,7 @@ use std::ffi::{CString, CStr};
 mod raymath;
 mod raylib;
 pub use raylib::{
-    CBool, Image, Color,
+    Image, Color,
     Camera2D, Camera3D, Camera,
     RenderTexture2D, Texture2D,
     Texture, RenderTexture,
@@ -364,21 +364,21 @@ pub fn close_window() {
 /// Checks if window has been initialized successfully.
 pub fn is_window_ready() -> bool {
     unsafe {
-        raylib::IsWindowReady().is_true()
+        raylib::IsWindowReady()
     }
 }
 
 /// Checks if KEY_ESCAPE or Close icon was pressed.
 pub fn window_should_close() -> bool {
     unsafe {
-        raylib::WindowShouldClose().is_true()
+        raylib::WindowShouldClose()
     }
 }
 
 /// Checks if window has been minimized (or lost focus).
 pub fn is_window_minimized() -> bool {
     unsafe {
-        raylib::IsWindowMinimized().is_true()
+        raylib::IsWindowMinimized()
     }
 }
 
@@ -463,7 +463,7 @@ pub fn hide_cursor() {
 /// Checks if mouse cursor is not visible.
 pub fn is_cursor_hidden() -> bool {
     unsafe {
-        raylib::IsCursorHidden().is_true()
+        raylib::IsCursorHidden()
     }
 }
 
@@ -698,7 +698,7 @@ pub fn is_file_extension(filename: &str, ext: &str) -> bool {
     let c_filename = CString::new(filename).unwrap();
     let c_ext = CString::new(ext).unwrap();
     unsafe {
-        raylib::IsFileExtension(c_filename.as_ptr(), c_ext.as_ptr()).is_true()
+        raylib::IsFileExtension(c_filename.as_ptr(), c_ext.as_ptr())
     }
 }
 
@@ -741,14 +741,14 @@ pub fn get_working_directory() -> String {
 pub fn change_directory(dir: &str) -> bool {
     let c_dir = CString::new(dir).unwrap();
     unsafe {
-        raylib::ChangeDirectory(c_dir.as_ptr()).is_true()
+        raylib::ChangeDirectory(c_dir.as_ptr())
     }
 }
 
 /// Checks if a file has been dropped into the window.
 pub fn is_file_dropped() -> bool {
     unsafe {
-        raylib::IsFileDropped().is_true()
+        raylib::IsFileDropped()
     }
 }
 
@@ -791,28 +791,28 @@ pub fn storage_load_value(position: i32) -> i32 {
 /// Detect if a key has been pressed once.
 pub fn is_key_pressed(key: i32) -> bool {
     unsafe {
-        raylib::IsKeyPressed(key).is_true()
+        raylib::IsKeyPressed(key)
     }
 }
 
 /// Detect if a key is being pressed.
 pub fn is_key_down(key: i32) -> bool {
     unsafe {
-        raylib::IsKeyDown(key).is_true()
+        raylib::IsKeyDown(key)
     }
 }
 
 /// Detect if a key has been released once.
 pub fn is_key_released(key: i32) -> bool {
     unsafe {
-        raylib::IsKeyReleased(key).is_true()
+        raylib::IsKeyReleased(key)
     }
 }
 
 /// Detect if a key is NOT being pressed.
 pub fn is_key_up(key: i32) -> bool {
     unsafe {
-        raylib::IsKeyUp(key).is_true()
+        raylib::IsKeyUp(key)
     }
 }
 
@@ -833,7 +833,7 @@ pub fn set_exit_key(key: i32) {
 /// Detect if a gamepad is available.
 pub fn is_gamepad_available(gamepad: i32) -> bool {
     unsafe {
-        raylib::IsGamepadAvailable(gamepad).is_true()
+        raylib::IsGamepadAvailable(gamepad)
     }
 }
 
@@ -841,7 +841,7 @@ pub fn is_gamepad_available(gamepad: i32) -> bool {
 pub fn is_gamepad_name(gamepad: i32, name: &str) -> bool {
     let c_name = CString::new(name).unwrap();
     unsafe {
-        raylib::IsGamepadName(gamepad, c_name.as_ptr()).is_true()
+        raylib::IsGamepadName(gamepad, c_name.as_ptr())
     }
 }
 
@@ -859,28 +859,28 @@ pub fn get_gamepad_name(gamepad: i32) -> Option<String> {
 /// Detect if a gamepad button has been pressed once.
 pub fn is_gamepad_button_pressed(gamepad: i32, button: i32) -> bool {
     unsafe {
-        raylib::IsGamepadButtonPressed(gamepad, button).is_true()
+        raylib::IsGamepadButtonPressed(gamepad, button)
     }
 }
 
 /// Detect if a gamepad button is being pressed.
 pub fn is_gamepad_button_down(gamepad: i32, button: i32) -> bool {
     unsafe {
-        raylib::IsGamepadButtonDown(gamepad, button).is_true()
+        raylib::IsGamepadButtonDown(gamepad, button)
     }
 }
 
 /// Detect if a gamepad button has been released once.
 pub fn is_gamepad_button_released(gamepad: i32, button: i32) -> bool {
     unsafe {
-        raylib::IsGamepadButtonReleased(gamepad, button).is_true()
+        raylib::IsGamepadButtonReleased(gamepad, button)
     }
 }
 
 /// Detect if a gamepad button is NOT being pressed.
 pub fn is_gamepad_button_up(gamepad: i32, button: i32) -> bool {
     unsafe {
-        raylib::IsGamepadButtonUp(gamepad, button).is_true()
+        raylib::IsGamepadButtonUp(gamepad, button)
     }
 }
 
@@ -908,28 +908,28 @@ pub fn get_gamepad_axis_movement(gamepad: i32, axis: i32) -> f32 {
 /// Detect if a mouse button has been pressed once.
 pub fn is_mouse_button_pressed(button: i32) -> bool {
     unsafe {
-        raylib::IsMouseButtonPressed(button).is_true()
+        raylib::IsMouseButtonPressed(button)
     }
 }
 
 /// Detect if a mouse button is being pressed.
 pub fn is_mouse_button_down(button: i32) -> bool {
     unsafe {
-        raylib::IsMouseButtonDown(button).is_true()
+        raylib::IsMouseButtonDown(button)
     }
 }
 
 /// Detect if a mouse button has been released once.
 pub fn is_mouse_button_released(button: i32) -> bool {
     unsafe {
-        raylib::IsMouseButtonReleased(button).is_true()
+        raylib::IsMouseButtonReleased(button)
     }
 }
 
 /// Detect if a mouse button is NOT being pressed.
 pub fn is_mouse_button_up(button: i32) -> bool {
     unsafe {
-        raylib::IsMouseButtonUp(button).is_true()
+        raylib::IsMouseButtonUp(button)
     }
 }
 
@@ -1006,7 +1006,7 @@ pub fn set_gestures_enabled(gesture_flags: Gestures) {
 /// Checks if a gesture have been detected.
 pub fn is_gesture_detected(gesture: Gestures) -> bool {
     unsafe {
-        raylib::IsGestureDetected(gesture as i32).is_true()
+        raylib::IsGestureDetected(gesture as i32)
     }
 }
 
@@ -1284,21 +1284,21 @@ pub fn draw_poly_ex_lines(points: &mut [Vector2], color: Color) {
 /// Checks collision between two rectangles.
 pub fn check_collision_recs(rec1: Rectangle, rec2: Rectangle) -> bool {
     unsafe {
-        raylib::CheckCollisionRecs(rec1, rec2).is_true()
+        raylib::CheckCollisionRecs(rec1, rec2)
     }
 }
 
 /// Checks collision between two circles.
 pub fn check_collision_circles(center1: Vector2, radius1: f32, center2: Vector2, radius2: f32) -> bool {
     unsafe {
-        raylib::CheckCollisionCircles(center1, radius1, center2, radius2).is_true()
+        raylib::CheckCollisionCircles(center1, radius1, center2, radius2)
     }
 }
 
 /// Checks collision between circle and rectangle.
 pub fn check_collision_circle_rec(center: Vector2, radius: f32, rec: Rectangle) -> bool {
     unsafe {
-        raylib::CheckCollisionCircleRec(center, radius, rec).is_true()
+        raylib::CheckCollisionCircleRec(center, radius, rec)
     }
 }
 
@@ -1312,21 +1312,21 @@ pub fn get_collision_rec(rec1: Rectangle, rec2: Rectangle) -> Rectangle {
 /// Checks if point is inside rectangle.
 pub fn check_collision_point_rec(point: Vector2, rec: Rectangle) -> bool {
     unsafe {
-        raylib::CheckCollisionPointRec(point, rec).is_true()
+        raylib::CheckCollisionPointRec(point, rec)
     }
 }
 
 /// Checks if point is inside circle.
 pub fn check_collision_point_circle(point: Vector2, center: Vector2, radius: f32) -> bool {
     unsafe {
-        raylib::CheckCollisionPointCircle(point, center, radius).is_true()
+        raylib::CheckCollisionPointCircle(point, center, radius)
     }
 }
 
 /// Checks if point is inside a triangle.
 pub fn check_collision_point_triangle(point: Vector2, p1: Vector2, p2: Vector2, p3: Vector2) -> bool {
     unsafe {
-        raylib::CheckCollisionPointTriangle(point, p1, p2, p3).is_true()
+        raylib::CheckCollisionPointTriangle(point, p1, p2, p3)
     }
 }
 
@@ -1821,10 +1821,10 @@ pub fn load_font_data(filename: &str, font_size: i32, mut chars: Option<&mut [i3
     unsafe {
         let ci_arr_ptr = match chars {
             Some(ref mut c) => {
-                raylib::LoadFontData(c_filename.as_ptr(), font_size, c.as_mut_ptr(), c.len() as i32, CBool::from(sdf))
+                raylib::LoadFontData(c_filename.as_ptr(), font_size, c.as_mut_ptr(), c.len() as i32, sdf)
             }
             None => {
-                raylib::LoadFontData(c_filename.as_ptr(), font_size, std::ptr::null_mut(), 0, CBool::from(sdf))
+                raylib::LoadFontData(c_filename.as_ptr(), font_size, std::ptr::null_mut(), 0, sdf)
             }
         };
         let ci_size = if let Some(ref mut c) = chars { c.len() } else { 95 }; // raylib assumes 95 if none given
@@ -2205,42 +2205,42 @@ pub fn draw_billboard_rec(camera: Camera3D, texture: Texture2D, source_rec: Rect
 /// Detects collision between two spheres.
 pub fn check_collision_spheres(center_a: Vector3, radius_a: f32, center_b: Vector3, radius_b: f32) -> bool {
     unsafe {
-        raylib::CheckCollisionSpheres(center_a, radius_a, center_b, radius_b).is_true()
+        raylib::CheckCollisionSpheres(center_a, radius_a, center_b, radius_b)
     }
 }
 
 /// Detects collision between two boxes.
 pub fn check_collision_boxes(box1: BoundingBox, box2: BoundingBox) -> bool {
     unsafe {
-        raylib::CheckCollisionBoxes(box1, box2).is_true()
+        raylib::CheckCollisionBoxes(box1, box2)
     }
 }
 
 /// Detects collision between box and sphere.
 pub fn check_collision_box_sphere(bbox: BoundingBox, center_sphere: Vector3, radius_sphere: f32) -> bool {
     unsafe {
-        raylib::CheckCollisionBoxSphere(bbox, center_sphere, radius_sphere).is_true()
+        raylib::CheckCollisionBoxSphere(bbox, center_sphere, radius_sphere)
     }
 }
 
 /// Detects collision between ray and sphere.
 pub fn check_collision_ray_sphere(ray: Ray, sphere_position: Vector3, sphere_radius: f32) -> bool {
     unsafe {
-        raylib::CheckCollisionRaySphere(ray, sphere_position, sphere_radius).is_true()
+        raylib::CheckCollisionRaySphere(ray, sphere_position, sphere_radius)
     }
 }
 
 /// Detects collision between ray and sphere, and returns the collision point.
 pub fn check_collision_ray_sphere_ex(ray: Ray, sphere_position: Vector3, sphere_radius: f32, collision_point: &mut Vector3) -> bool {
     unsafe {
-        raylib::CheckCollisionRaySphereEx(ray, sphere_position, sphere_radius, collision_point).is_true()
+        raylib::CheckCollisionRaySphereEx(ray, sphere_position, sphere_radius, collision_point)
     }
 }
 
 /// Detects collision between ray and box.
 pub fn check_collision_ray_box(ray: Ray, bbox: BoundingBox) -> bool {
     unsafe {
-        raylib::CheckCollisionRayBox(ray, bbox).is_true()
+        raylib::CheckCollisionRayBox(ray, bbox)
     }
 }
 
@@ -2445,7 +2445,7 @@ pub fn close_vr_simulator() {
 /// Detects if VR simulator is ready.
 pub fn is_vr_simulator_ready() -> bool {
     unsafe {
-        raylib::IsVrSimulatorReady().is_true()
+        raylib::IsVrSimulatorReady()
     }
 }
 
@@ -2501,7 +2501,7 @@ pub fn close_audio_device() {
 /// Checks if audio device is ready.
 pub fn is_audio_device_ready() -> bool {
     unsafe {
-        raylib::IsAudioDeviceReady().is_true()
+        raylib::IsAudioDeviceReady()
     }
 }
 
@@ -2594,7 +2594,7 @@ pub fn stop_sound(sound: Sound) {
 /// Checks if a sound is currently playing.
 pub fn is_sound_playing(sound: Sound) -> bool {
     unsafe {
-        raylib::IsSoundPlaying(sound).is_true()
+        raylib::IsSoundPlaying(sound)
     }
 }
 
@@ -2699,7 +2699,7 @@ pub fn resume_music_stream(music: Music) {
 /// Checks if music is playing.
 pub fn is_music_playing(music: Music) -> bool {
     unsafe {
-        raylib::IsMusicPlaying(music).is_true()
+        raylib::IsMusicPlaying(music)
     }
 }
 
@@ -2762,7 +2762,7 @@ pub fn close_audio_stream(stream: AudioStream) {
 /// Checks if any audio stream buffers requires refill.
 pub fn is_audio_buffer_processed(stream: AudioStream) -> bool {
     unsafe {
-        raylib::IsAudioBufferProcessed(stream).is_true()
+        raylib::IsAudioBufferProcessed(stream)
     }
 }
 
@@ -2790,7 +2790,7 @@ pub fn resume_audio_stream(stream: AudioStream) {
 /// Checks if audio stream is currently playing.
 pub fn is_audio_stream_playing(stream: AudioStream) -> bool {
     unsafe {
-        raylib::IsAudioStreamPlaying(stream).is_true()
+        raylib::IsAudioStreamPlaying(stream)
     }
 }
 

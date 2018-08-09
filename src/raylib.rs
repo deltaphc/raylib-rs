@@ -19,35 +19,6 @@ extern crate libc;
 
 pub use raymath::*;
 
-#[repr(u32)]
-#[derive(Debug, Copy, Clone)]
-pub enum CBool {
-    False = 0,
-    True = 1,
-}
-
-impl CBool {
-    pub fn is_true(&self) -> bool {
-        match self {
-            CBool::True => true,
-            CBool::False => false,
-        }
-    }
-
-    pub fn is_false(&self) -> bool {
-        !self.is_true()
-    }
-}
-
-impl From<bool> for CBool {
-    fn from(b: bool) -> Self {
-        match b {
-            true => CBool::True,
-            false => CBool::False,
-        }
-    }
-}
-
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct Color {
@@ -222,7 +193,7 @@ pub struct Ray {
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct RayHitInfo {
-    pub hit: CBool,
+    pub hit: bool,
     pub distance: f32,
     pub position: Vector3,
     pub normal: Vector3,
@@ -291,11 +262,11 @@ extern "C" {
 
     pub fn CloseWindow();
 
-    pub fn IsWindowReady() -> CBool;
+    pub fn IsWindowReady() -> bool;
 
-    pub fn WindowShouldClose() -> CBool;
+    pub fn WindowShouldClose() -> bool;
 
-    pub fn IsWindowMinimized() -> CBool;
+    pub fn IsWindowMinimized() -> bool;
 
     pub fn ToggleFullscreen();
 
@@ -319,7 +290,7 @@ extern "C" {
 
     pub fn HideCursor();
 
-    pub fn IsCursorHidden() -> CBool;
+    pub fn IsCursorHidden() -> bool;
 
     pub fn EnableCursor();
 
@@ -385,7 +356,7 @@ extern "C" {
     pub fn IsFileExtension(
         fileName: *const ::std::os::raw::c_char,
         ext: *const ::std::os::raw::c_char,
-    ) -> CBool;
+    ) -> bool;
 
     pub fn GetExtension(fileName: *const ::std::os::raw::c_char) -> *const ::std::os::raw::c_char;
 
@@ -397,9 +368,9 @@ extern "C" {
 
     pub fn GetWorkingDirectory() -> *const ::std::os::raw::c_char;
 
-    pub fn ChangeDirectory(dir: *const ::std::os::raw::c_char) -> CBool;
+    pub fn ChangeDirectory(dir: *const ::std::os::raw::c_char) -> bool;
 
-    pub fn IsFileDropped() -> CBool;
+    pub fn IsFileDropped() -> bool;
 
     pub fn GetDroppedFiles(count: *mut ::std::os::raw::c_int) -> *mut *mut ::std::os::raw::c_char;
 
@@ -409,46 +380,46 @@ extern "C" {
 
     pub fn StorageLoadValue(position: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
 
-    pub fn IsKeyPressed(key: ::std::os::raw::c_int) -> CBool;
+    pub fn IsKeyPressed(key: ::std::os::raw::c_int) -> bool;
 
-    pub fn IsKeyDown(key: ::std::os::raw::c_int) -> CBool;
+    pub fn IsKeyDown(key: ::std::os::raw::c_int) -> bool;
 
-    pub fn IsKeyReleased(key: ::std::os::raw::c_int) -> CBool;
+    pub fn IsKeyReleased(key: ::std::os::raw::c_int) -> bool;
 
-    pub fn IsKeyUp(key: ::std::os::raw::c_int) -> CBool;
+    pub fn IsKeyUp(key: ::std::os::raw::c_int) -> bool;
 
     pub fn GetKeyPressed() -> ::std::os::raw::c_int;
 
     pub fn SetExitKey(key: ::std::os::raw::c_int);
 
-    pub fn IsGamepadAvailable(gamepad: ::std::os::raw::c_int) -> CBool;
+    pub fn IsGamepadAvailable(gamepad: ::std::os::raw::c_int) -> bool;
 
     pub fn IsGamepadName(
         gamepad: ::std::os::raw::c_int,
         name: *const ::std::os::raw::c_char,
-    ) -> CBool;
+    ) -> bool;
 
     pub fn GetGamepadName(gamepad: ::std::os::raw::c_int) -> *const ::std::os::raw::c_char;
 
     pub fn IsGamepadButtonPressed(
         gamepad: ::std::os::raw::c_int,
         button: ::std::os::raw::c_int,
-    ) -> CBool;
+    ) -> bool;
 
     pub fn IsGamepadButtonDown(
         gamepad: ::std::os::raw::c_int,
         button: ::std::os::raw::c_int,
-    ) -> CBool;
+    ) -> bool;
 
     pub fn IsGamepadButtonReleased(
         gamepad: ::std::os::raw::c_int,
         button: ::std::os::raw::c_int,
-    ) -> CBool;
+    ) -> bool;
 
     pub fn IsGamepadButtonUp(
         gamepad: ::std::os::raw::c_int,
         button: ::std::os::raw::c_int,
-    ) -> CBool;
+    ) -> bool;
 
     pub fn GetGamepadButtonPressed() -> ::std::os::raw::c_int;
 
@@ -459,13 +430,13 @@ extern "C" {
         axis: ::std::os::raw::c_int,
     ) -> f32;
 
-    pub fn IsMouseButtonPressed(button: ::std::os::raw::c_int) -> CBool;
+    pub fn IsMouseButtonPressed(button: ::std::os::raw::c_int) -> bool;
 
-    pub fn IsMouseButtonDown(button: ::std::os::raw::c_int) -> CBool;
+    pub fn IsMouseButtonDown(button: ::std::os::raw::c_int) -> bool;
 
-    pub fn IsMouseButtonReleased(button: ::std::os::raw::c_int) -> CBool;
+    pub fn IsMouseButtonReleased(button: ::std::os::raw::c_int) -> bool;
 
-    pub fn IsMouseButtonUp(button: ::std::os::raw::c_int) -> CBool;
+    pub fn IsMouseButtonUp(button: ::std::os::raw::c_int) -> bool;
 
     pub fn GetMouseX() -> ::std::os::raw::c_int;
 
@@ -487,7 +458,7 @@ extern "C" {
 
     pub fn SetGesturesEnabled(gestureFlags: ::std::os::raw::c_uint);
 
-    pub fn IsGestureDetected(gesture: ::std::os::raw::c_int) -> CBool;
+    pub fn IsGestureDetected(gesture: ::std::os::raw::c_int) -> bool;
 
     pub fn GetGestureDetected() -> ::std::os::raw::c_int;
 
@@ -630,29 +601,29 @@ extern "C" {
 
     pub fn DrawPolyExLines(points: *mut Vector2, numPoints: ::std::os::raw::c_int, color: Color);
 
-    pub fn CheckCollisionRecs(rec1: Rectangle, rec2: Rectangle) -> CBool;
+    pub fn CheckCollisionRecs(rec1: Rectangle, rec2: Rectangle) -> bool;
 
     pub fn CheckCollisionCircles(
         center1: Vector2,
         radius1: f32,
         center2: Vector2,
         radius2: f32,
-    ) -> CBool;
+    ) -> bool;
 
-    pub fn CheckCollisionCircleRec(center: Vector2, radius: f32, rec: Rectangle) -> CBool;
+    pub fn CheckCollisionCircleRec(center: Vector2, radius: f32, rec: Rectangle) -> bool;
 
     pub fn GetCollisionRec(rec1: Rectangle, rec2: Rectangle) -> Rectangle;
 
-    pub fn CheckCollisionPointRec(point: Vector2, rec: Rectangle) -> CBool;
+    pub fn CheckCollisionPointRec(point: Vector2, rec: Rectangle) -> bool;
 
-    pub fn CheckCollisionPointCircle(point: Vector2, center: Vector2, radius: f32) -> CBool;
+    pub fn CheckCollisionPointCircle(point: Vector2, center: Vector2, radius: f32) -> bool;
 
     pub fn CheckCollisionPointTriangle(
         point: Vector2,
         p1: Vector2,
         p2: Vector2,
         p3: Vector2,
-    ) -> CBool;
+    ) -> bool;
 
     pub fn LoadImage(fileName: *const ::std::os::raw::c_char) -> Image;
 
@@ -918,7 +889,7 @@ extern "C" {
         fontSize: ::std::os::raw::c_int,
         fontChars: *mut ::std::os::raw::c_int,
         charsCount: ::std::os::raw::c_int,
-        sdf: CBool,
+        sdf: bool,
     ) -> *mut CharInfo;
 
     pub fn GenImageFontAtlas(
@@ -1152,26 +1123,26 @@ extern "C" {
         radiusA: f32,
         centerB: Vector3,
         radiusB: f32,
-    ) -> CBool;
+    ) -> bool;
 
-    pub fn CheckCollisionBoxes(box1: BoundingBox, box2: BoundingBox) -> CBool;
+    pub fn CheckCollisionBoxes(box1: BoundingBox, box2: BoundingBox) -> bool;
 
     pub fn CheckCollisionBoxSphere(
         box_: BoundingBox,
         centerSphere: Vector3,
         radiusSphere: f32,
-    ) -> CBool;
+    ) -> bool;
 
-    pub fn CheckCollisionRaySphere(ray: Ray, spherePosition: Vector3, sphereRadius: f32) -> CBool;
+    pub fn CheckCollisionRaySphere(ray: Ray, spherePosition: Vector3, sphereRadius: f32) -> bool;
 
     pub fn CheckCollisionRaySphereEx(
         ray: Ray,
         spherePosition: Vector3,
         sphereRadius: f32,
         collisionPoint: *mut Vector3,
-    ) -> CBool;
+    ) -> bool;
 
-    pub fn CheckCollisionRayBox(ray: Ray, box_: BoundingBox) -> CBool;
+    pub fn CheckCollisionRayBox(ray: Ray, box_: BoundingBox) -> bool;
 
     pub fn GetCollisionRayModel(ray: Ray, model: *mut Model) -> RayHitInfo;
 
@@ -1262,7 +1233,7 @@ extern "C" {
 
     pub fn CloseVrSimulator();
 
-    pub fn IsVrSimulatorReady() -> CBool;
+    pub fn IsVrSimulatorReady() -> bool;
 
     pub fn SetVrDistortionShader(shader: Shader);
 
@@ -1278,7 +1249,7 @@ extern "C" {
 
     pub fn CloseAudioDevice();
 
-    pub fn IsAudioDeviceReady() -> CBool;
+    pub fn IsAudioDeviceReady() -> bool;
 
     pub fn SetMasterVolume(volume: f32);
 
@@ -1314,7 +1285,7 @@ extern "C" {
 
     pub fn StopSound(sound: Sound);
 
-    pub fn IsSoundPlaying(sound: Sound) -> CBool;
+    pub fn IsSoundPlaying(sound: Sound) -> bool;
 
     pub fn SetSoundVolume(sound: Sound, volume: f32);
 
@@ -1351,7 +1322,7 @@ extern "C" {
 
     pub fn ResumeMusicStream(music: Music);
 
-    pub fn IsMusicPlaying(music: Music) -> CBool;
+    pub fn IsMusicPlaying(music: Music) -> bool;
 
     pub fn SetMusicVolume(music: Music, volume: f32);
 
@@ -1377,7 +1348,7 @@ extern "C" {
 
     pub fn CloseAudioStream(stream: AudioStream);
 
-    pub fn IsAudioBufferProcessed(stream: AudioStream) -> CBool;
+    pub fn IsAudioBufferProcessed(stream: AudioStream) -> bool;
 
     pub fn PlayAudioStream(stream: AudioStream);
 
@@ -1385,7 +1356,7 @@ extern "C" {
 
     pub fn ResumeAudioStream(stream: AudioStream);
 
-    pub fn IsAudioStreamPlaying(stream: AudioStream) -> CBool;
+    pub fn IsAudioStreamPlaying(stream: AudioStream) -> bool;
 
     pub fn StopAudioStream(stream: AudioStream);
 
