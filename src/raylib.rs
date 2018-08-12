@@ -89,6 +89,7 @@ pub struct Font {
 pub type SpriteFont = Font;
 
 impl Font {
+    /// Returns a new `Font` using provided `CharInfo` data and parameters.
     pub fn from_data(chars: &Vec<CharInfo>, base_size: i32, padding: i32, pack_method: i32) -> Font {
         unsafe {
             let mut f = ::std::mem::zeroed::<Font>();
