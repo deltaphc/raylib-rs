@@ -68,9 +68,19 @@ impl Vector2 {
         *self *= scale;
     }
 
+    /// Returns a new `Vector2` with components scaled by `scale`.
+    pub fn scale_by(&self, scale: f32) -> Vector2 {
+        *self * scale
+    }
+
     /// Normalizes the vector.
     pub fn normalize(&mut self) {
         *self /= self.length();
+    }
+
+    /// Returns a new `Vector2` with normalized components from the current vector.
+    pub fn normalized(&self) -> Vector2 {
+        *self / self.length()
     }
 }
 
@@ -283,9 +293,19 @@ impl Vector3 {
         (dx * dx + dy * dy + dz * dz).sqrt()
     }
 
+    /// Scales the vector by multiplying both components by `scale`.
+    pub fn scale(&mut self, scale: f32) {
+        *self *= scale;
+    }
+
     /// Returns a new `Vector3` with components scaled by `scale`.
     pub fn scale_by(&self, scale: f32) -> Vector3 {
         *self * scale
+    }
+
+    /// Normalizes the current vector.
+    pub fn normalize(&mut self) {
+        *self = self.normalized();
     }
 
     /// Returns a new `Vector3` with normalized components from the current vector.
@@ -308,13 +328,23 @@ impl Vector3 {
         *v = vn.cross(*self);
     }
 
+    /// Transforms the current vector using Matrix `mat`.
+    pub fn transform(&mut self, mat: Matrix) {
+        *self = self.transform_with(mat);
+    }
+
     /// Returns a new `Vector3` containing components transformed by Matrix `mat`.
-    pub fn transform(&self, mat: Matrix) -> Vector3 {
+    pub fn transform_with(&self, mat: Matrix) -> Vector3 {
         Vector3 {
             x: mat.m0 * self.x + mat.m4 * self.y + mat.m8 * self.z + mat.m12,
             y: mat.m1 * self.x + mat.m5 * self.y + mat.m9 * self.z + mat.m13,
             z: mat.m2 * self.x + mat.m6 * self.y + mat.m10 * self.z + mat.m14,
         }
+    }
+
+    /// Rotates the current vector using Quaternion `q`.
+    pub fn rotate(&mut self, q: Quaternion) {
+        *self = self.rotate_by(q);
     }
 
     /// Returns a new `Vector3` with components rotated by Quaternion `q`.
@@ -341,8 +371,13 @@ impl Vector3 {
         }
     }
 
+    /// Reflects the current vector from `normal`.
+    pub fn reflect(&mut self, normal: Vector3) {
+        *self = self.reflect_from(normal);
+    }
+
     /// Returns a new `Vector3` reflected from the current vector using `normal`.
-    pub fn reflect(&self, normal: Vector3) -> Vector3 {
+    pub fn reflect_from(&self, normal: Vector3) -> Vector3 {
         let dot_product = self.dot(normal);
         Vector3 {
             x: self.x - (2.0 * normal.x) * dot_product,
