@@ -588,6 +588,321 @@ pub struct Vector4 {
 }
 pub type Quaternion = Vector4;
 
+impl Quaternion {
+    /// Returns the identity quaternion.
+    pub fn identity() -> Quaternion {
+        Quaternion {
+            x: 0.0,
+            y: 0.0,
+            z: 0.0,
+            w: 1.0,
+        }
+    }
+
+    /// Returns quaternion based on the rotation from one vector to another.
+    pub fn from_vec3_pair(from: Vector3, to: Vector3) -> Quaternion {
+        let cross = from.cross(to);
+        Quaternion {
+            x: cross.x,
+            y: cross.y,
+            z: cross.y,
+            w: 1.0 + from.dot(to),
+        }.normalized()
+    }
+
+    /// Returns a quaternion for a given rotation matrix.
+    pub fn from_matrix(mat: Matrix) -> Quaternion {
+        let trace = mat.trace();
+
+        if trace > 0.0 {
+            let s = (trace + 1.0).sqrt() * 2.0;
+            let inv_s = 1.0 / s;
+
+            Quaternion {
+                w: s * 0.25,
+                x: (mat.m6 - mat.m9) * inv_s,
+                y: (mat.m8 - mat.m2) * inv_s,
+                z: (mat.m1 - mat.m4) * inv_s,
+            }
+        }
+        else {
+            let m00 = mat.m0; let m11 = mat.m5; let m22 = mat.m10;
+
+            if m00 > m11 && m00 > m22 {
+                let s = (1.0 + m00 - m11 - m22).sqrt() * 2.0;
+                let inv_s = 1.0 / s;
+
+                Quaternion {
+                    w: (mat.m6 - mat.m9) * inv_s,
+                    x: s * 0.25,
+                    y: (mat.m4 + mat.m1) * inv_s,
+                    z: (mat.m8 + mat.m2) * inv_s,
+                }
+            }
+            else if m11 > m22 {
+                let s = (1.0 + m11 - m00 - m22).sqrt() * 2.0;
+                let inv_s = 1.0 / s;
+
+                Quaternion {
+                    w: (mat.m8 - mat.m2) * inv_s,
+                    x: (mat.m4 + mat.m1) * inv_s,
+                    y: s * 0.25,
+                    z: (mat.m9 + mat.m6) * inv_s,
+                }
+            }
+            else {
+                let s = (1.0 + m22 - m00 - m11).sqrt() * 2.0;
+                let inv_s = 1.0 / s;
+
+                Quaternion {
+                    w: (mat.m1 - mat.m4) * inv_s,
+                    x: (mat.m8 + mat.m2) * inv_s,
+                    y: (mat.m9 + mat.m6) * inv_s,
+                    z: s * 0.25,
+                }
+            }
+        }
+    }
+
+    /// Returns a rotation matrix for the current quaternion.
+    pub fn to_matrix(&self) -> Matrix {
+        let x = self.x; let y = self.y; let z = self.z; let w = self.w;
+
+        let x2 = x + x;
+        let y2 = y + y;
+        let z2 = z + z;
+
+        let length = self.length();
+        let length_squared = length * length;
+
+        let xx = x * x2 / length_squared;
+        let xy = x * y2 / length_squared;
+        let xz = x * z2 / length_squared;
+
+        let yy = y * y2 / length_squared;
+        let yz = y * z2 / length_squared;
+        let zz = z * z2 / length_squared;
+
+        let wx = w * x2 / length_squared;
+        let wy = w * y2 / length_squared;
+        let wz = w * z2 / length_squared;
+
+        Matrix {
+            m0: 1.0 - (yy + zz),
+            m1: xy - wz,
+            m2: xz + wy,
+            m3: 0.0,
+            m4: xy + wz,
+            m5: 1.0 - (xx + zz),
+            m6: yz - wx,
+            m7: 0.0,
+            m8: xz - wy,
+            m9: yz + wx,
+            m10: 1.0 - (xx + yy),
+            m11: 0.0,
+            m12: 0.0,
+            m13: 0.0,
+            m14: 0.0,
+            m15: 1.0,
+        }
+    }
+
+    /// Returns a quaternion equivalent to Euler angles.
+    pub fn from_euler(roll: f32, pitch: f32, yaw: f32) -> Quaternion {
+        let x0 = (roll * 0.5).cos();
+        let x1 = (roll * 0.5).sin();
+        let y0 = (pitch * 0.5).cos();
+        let y1 = (pitch * 0.5).sin();
+        let z0 = (yaw * 0.5).cos();
+        let z1 = (yaw * 0.5).sin();
+
+        Quaternion {
+            x: (x1 * y0 * z0) - (x0 * y1 * z1),
+            y: (x0 * y1 * z0) + (x1 * y0 * z1),
+            z: (x0 * y0 * z1) - (x1 * y1 * z0),
+            w: (x0 * y0 * z0) + (x1 * y1 * z1),
+        }
+    }
+
+    /// Returns a vector containing Euler angles in radians (roll, pitch, yaw), based on the current quaternion.
+    pub fn to_euler(&self) -> Vector3 {
+        // roll (x-axis rotation)
+        let x0 = 2.0 * (self.w * self.x + self.y * self.z);
+        let x1 = 1.0 - 2.0*(self.x * self.x + self.y * self.y);
+
+        // pitch (y-axis rotation)
+        let mut y0 = 2.0 * (self.w * self.y - self.z * self.x);
+        y0 = if y0 > 1.0 { 1.0 } else { y0 };
+        y0 = if y0 < -1.0 { -1.0 } else { y0 };
+
+        // yaw (z-axis rotation)
+        let z0 = 2.0 * (self.w * self.z + self.x * self.y);
+        let z1 = 1.0 - 2.0 * (self.y * self.y + self.z * self.z);
+
+        Vector3 {
+            x: x0.atan2(x1),
+            y: y0.asin(),
+            z: z0.atan2(z1),
+        }
+    }
+
+    /// Returns rotation quaternion for an `axis` and `angle` (in radians).
+    pub fn from_axis_angle(axis: Vector3, angle: f32) -> Quaternion {
+        let mut result = Quaternion::identity();
+        let mut axis = axis;
+        let mut angle = angle;
+
+        if axis.length() != 0.0 { angle *= 0.5; }
+
+        axis.normalize();
+
+        let sinres = angle.sin();
+        let cosres = angle.cos();
+
+        result.x = axis.x*sinres;
+        result.y = axis.y*sinres;
+        result.z = axis.z*sinres;
+        result.w = cosres;
+        result.normalized()
+    }
+
+    /// Returns a 2-tuple containing the axis (`Vector3`) and angle (`f32` in radians) for the current quaternion.
+    pub fn to_axis_angle(&self) -> (Vector3, f32) {
+        let mut q = *self;
+        if q.w.abs() > 1.0 { q = q.normalized(); }
+
+        let mut res_axis = Vector3::zero();
+        let res_angle = 2.0 * q.w.acos();
+        let den = (1.0 - q.w * q.w).sqrt();
+
+        if den > 0.0001 {
+            res_axis.x = q.x / den;
+            res_axis.y = q.y / den;
+            res_axis.z = q.z / den;
+        }
+        else {
+            // This occurs when the angle is zero.
+            // Not a problem: just set an arbitrary normalized axis.
+            res_axis.x = 1.0;
+        }
+
+        (res_axis, res_angle)
+    }
+
+    /// Computes the length of the current quaternion.
+    pub fn length(&self) -> f32 {
+        (self.x * self.x + self.y * self.y + self.z * self.z + self.w * self.w).sqrt()
+    }
+
+    /// Returns a normalized version of the current quaternion.
+    pub fn normalized(&self) -> Quaternion {
+        let mut length = self.length();
+        if length == 0.0 { length = 1.0; }
+        let ilength = 1.0 / length;
+
+        Quaternion {
+            x: self.x * ilength,
+            y: self.y * ilength,
+            z: self.z * ilength,
+            w: self.w * ilength,
+        }
+    }
+
+    /// Returns an inverted version of the current quaternion.
+    pub fn inverted(&self) -> Quaternion {
+        let mut result = *self;
+        let length = self.length();
+        let length_sq = length * length;
+
+        if length_sq != 0.0 {
+            let i = 1.0 / length_sq;
+            result.x *= -i;
+            result.y *= -i;
+            result.z *= -i;
+            result.w *= i;
+        }
+        result
+    }
+
+    /// Calculates linear interpolation between current and `q` quaternions.
+    pub fn lerp(&self, q: Quaternion, amount: f32) -> Quaternion {
+        Quaternion {
+            x: self.x + amount * (q.x - self.x),
+            y: self.y + amount * (q.y - self.y),
+            z: self.z + amount * (q.z - self.z),
+            w: self.w + amount * (q.w - self.w),
+        }
+    }
+
+    /// Calculates slerp-optimized interpolation between current and `q` quaternions.
+    pub fn nlerp(&self, q: Quaternion, amount: f32) -> Quaternion {
+        self.lerp(q, amount).normalized()
+    }
+
+    /// Calculates spherical linear interpolation between current and `q` quaternions.
+    pub fn slerp(&self, q: Quaternion, amount: f32) -> Quaternion {
+        let cos_half_theta = self.x * q.x + self.y * q.y + self.z * q.z + self.w * q.w;
+
+        if cos_half_theta.abs() >= 1.0 { *self }
+        else if cos_half_theta > 0.95 { self.nlerp(q, amount) }
+        else {
+            let half_theta = cos_half_theta.acos();
+            let sin_half_theta = (1.0 - cos_half_theta * cos_half_theta).sqrt();
+
+            if sin_half_theta.abs() < 0.001 {
+                Quaternion {
+                    x: (self.x * 0.5 + q.x * 0.5),
+                    y: (self.y * 0.5 + q.y * 0.5),
+                    z: (self.z * 0.5 + q.z * 0.5),
+                    w: (self.w * 0.5 + q.w * 0.5),
+                }
+            }
+            else {
+                let ratio_a = ((1.0 - amount) * half_theta).sin() / sin_half_theta;
+                let ratio_b = (amount * half_theta).sin() / sin_half_theta;
+
+                Quaternion {
+                    x: (self.x * ratio_a + q.x * ratio_b),
+                    y: (self.y * ratio_a + q.y * ratio_b),
+                    z: (self.z * ratio_a + q.z * ratio_b),
+                    w: (self.w * ratio_a + q.w * ratio_b),
+                }
+            }
+        }
+    }
+
+    /// Returns a transformed version of the current quaternion given a transformation matrix.
+    pub fn transform(&self, mat: Matrix) -> Quaternion {
+        Quaternion {
+            x: mat.m0 * self.x + mat.m4 * self.y + mat.m8 * self.z + mat.m12 * self.w,
+            y: mat.m1 * self.x + mat.m5 * self.y + mat.m9 * self.z + mat.m13 * self.w,
+            z: mat.m2 * self.x + mat.m6 * self.y + mat.m10 * self.z + mat.m14 * self.w,
+            w: mat.m3 * self.x + mat.m7 * self.y + mat.m11 * self.z + mat.m15 * self.w,
+        }
+    }
+}
+
+impl Mul for Quaternion {
+    type Output = Quaternion;
+    fn mul(self, q: Quaternion) -> Quaternion {
+        let qax = self.x; let qay = self.y; let qaz = self.z; let qaw = self.w;
+        let qbx = q.x; let qby = q.y; let qbz = q.z; let qbw = q.w;
+
+        Quaternion {
+            x: (qax * qbw) + (qaw * qbx) + (qay * qbz) - (qaz * qby),
+            y: (qay * qbw) + (qaw * qby) + (qaz * qbx) - (qax * qbz),
+            z: (qaz * qbw) + (qaw * qbz) + (qax * qby) - (qay * qbx),
+            w: (qaw * qbw) - (qax * qbx) - (qay * qby) - (qaz * qbz),
+        }
+    }
+}
+
+impl MulAssign for Quaternion {
+    fn mul_assign(&mut self, q: Quaternion) {
+        *self = *self * q;
+    }
+}
+
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct Matrix {
