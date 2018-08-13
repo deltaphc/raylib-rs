@@ -608,3 +608,411 @@ pub struct Matrix {
     pub m11: f32,
     pub m15: f32,
 }
+
+impl Matrix {
+    /// Returns the identity matrix.
+    pub fn identity() -> Matrix {
+        Matrix {
+            m0: 1.0, m4: 0.0, m8: 0.0, m12: 0.0,
+            m1: 0.0, m5: 1.0, m9: 0.0, m13: 0.0,
+            m2: 0.0, m6: 0.0, m10: 1.0, m14: 0.0,
+            m3: 0.0, m7: 0.0, m11: 0.0, m15: 1.0,
+        }
+    }
+
+    /// Returns a translation matrix.
+    pub fn translate(x: f32, y: f32, z: f32) -> Matrix {
+        Matrix {
+            m0: 1.0, m4: 0.0, m8: 0.0, m12: x,
+            m1: 0.0, m5: 1.0, m9: 0.0, m13: y,
+            m2: 0.0, m6: 0.0, m10: 1.0, m14: z,
+            m3: 0.0, m7: 0.0, m11: 0.0, m15: 1.0,
+        }
+    }
+
+    /// Returns a rotation matrix.
+    pub fn rotate(axis: Vector3, angle: f32) -> Matrix {
+        let mut x = axis.x;
+        let mut y = axis.y;
+        let mut z = axis.z;
+        let mut length = (x * x + y * y + z * z).sqrt();
+
+        if (length != 1.0) && (length != 0.0) {
+            length = 1.0 / length;
+            x *= length;
+            y *= length;
+            z *= length;
+        }
+
+        let sinres = angle.sin();
+        let cosres = angle.cos();
+        let t = 1.0 - cosres;
+
+        Matrix {
+            m0: (x * x * t) + cosres,
+            m1: (y * x * t) + (z * sinres),
+            m2: (z * x * t) - (y * sinres),
+            m3: 0.0,
+
+            m4: (x * y * t) - (z * sinres),
+            m5: (y * y * t) + cosres,
+            m6: (z * y * t) + (x * sinres),
+            m7: 0.0,
+
+            m8: (x * z * t) + (y * sinres),
+            m9: (y * z * t) - (x * sinres),
+            m10: (z * z * t) + cosres,
+            m11: 0.0,
+
+            m12: 0.0,
+            m13: 0.0,
+            m14: 0.0,
+            m15: 1.0,
+        }
+    }
+
+    /// Returns a translation matrix around the X axis.
+    pub fn rotate_x(angle: f32) -> Matrix {
+        let mut result = Matrix::identity();
+
+        let cosres = angle.cos();
+        let sinres = angle.sin();
+
+        result.m5 = cosres;
+        result.m6 = -sinres;
+        result.m9 = sinres;
+        result.m10 = cosres;
+        result
+    }
+
+    /// Returns a translation matrix around the Y axis.
+    pub fn rotate_y(angle: f32) -> Matrix {
+        let mut result = Matrix::identity();
+
+        let cosres = angle.cos();
+        let sinres = angle.sin();
+
+        result.m0 = cosres;
+        result.m2 = sinres;
+        result.m8 = -sinres;
+        result.m10 = cosres;
+        result
+    }
+
+    /// Returns a translation matrix around the Z axis.
+    pub fn rotate_z(angle: f32) -> Matrix {
+        let mut result = Matrix::identity();
+
+        let cosres = angle.cos();
+        let sinres = angle.sin();
+
+        result.m0 = cosres;
+        result.m1 = -sinres;
+        result.m4 = sinres;
+        result.m5 = cosres;
+        result
+    }
+
+    /// Returns a scaling matrix.
+    pub fn scale(x: f32, y: f32, z: f32) -> Matrix {
+        Matrix {
+            m0: x, m4: 0.0, m8: 0.0, m12: 0.0,
+            m1: 0.0, m5: y, m9: 0.0, m13: 0.0,
+            m2: 0.0, m6: 0.0, m10: z, m14: 0.0,
+            m3: 0.0, m7: 0.0, m11: 0.0, m15: 1.0,
+        }
+    }
+
+    /// Returns perspective projection matrix based on frustum parameters.
+    pub fn frustum(left: f32, right: f32, bottom: f32, top: f32, near: f32, far: f32) -> Matrix {
+        let rl = right - left;
+        let tb = top - bottom;
+        let fne = far - near;
+
+        Matrix {
+            m0: (near * 2.0) / rl,
+            m1: 0.0,
+            m2: 0.0,
+            m3: 0.0,
+
+            m4: 0.0,
+            m5: (near * 2.0) / tb,
+            m6: 0.0,
+            m7: 0.0,
+
+            m8: (right + left) / rl,
+            m9: (top + bottom) / tb,
+            m10: -(far + near) / fne,
+            m11: -1.0,
+
+            m12: 0.0,
+            m13: 0.0,
+            m14: -(far * near * 2.0)/fne,
+            m15: 0.0,
+        }
+    }
+
+    /// Returns perspective projection matrix.
+    pub fn perspective(fovy: f32, aspect: f32, near: f32, far: f32) -> Matrix {
+        let top = near * (fovy * 0.5).tan();
+        let right = top * aspect;
+        Matrix::frustum(-right, right, -top, top, near, far)
+    }
+
+    /// Returns orthographic projection matrix.
+    pub fn ortho(left: f32, right: f32, bottom: f32, top: f32, near: f32, far: f32) -> Matrix {
+        let rl = right - left;
+        let tb = top - bottom;
+        let fne = far - near;
+
+        Matrix {
+            m0: 2.0 / rl,
+            m1: 0.0,
+            m2: 0.0,
+            m3: 0.0,
+            m4: 0.0,
+            m5: 2.0 / tb,
+            m6: 0.0,
+            m7: 0.0,
+            m8: 0.0,
+            m9: 0.0,
+            m10: -2.0 / fne,
+            m11: 0.0,
+            m12: -(left + right) / rl,
+            m13: -(top + bottom) / tb,
+            m14: -(far + near) / fne,
+            m15: 1.0,
+        }
+    }
+
+    /// Returns camera look-at matrix (view matrix).
+    pub fn look_at(eye: Vector3, target: Vector3, up: Vector3) -> Matrix {
+        let z = (eye - target).normalized();
+        let x = up.cross(z).normalized();
+        let y = z.cross(x).normalized();
+
+        Matrix {
+            m0: x.x,
+            m1: x.y,
+            m2: x.z,
+            m3: 0.0,
+            m4: y.x,
+            m5: y.y,
+            m6: y.z,
+            m7: 0.0,
+            m8: z.x,
+            m9: z.y,
+            m10: z.z,
+            m11: 0.0,
+            m12: eye.x,
+            m13: eye.y,
+            m14: eye.z,
+            m15: 1.0,
+        }.inverted()
+    }
+
+    /// Calculates the determinant of the current matrix.
+    pub fn determinant(&self) -> f32 {
+        let a00 = self.m0; let a01 = self.m1; let a02 = self.m2; let a03 = self.m3;
+        let a10 = self.m4; let a11 = self.m5; let a12 = self.m6; let a13 = self.m7;
+        let a20 = self.m8; let a21 = self.m9; let a22 = self.m10; let a23 = self.m11;
+        let a30 = self.m12; let a31 = self.m13; let a32 = self.m14; let a33 = self.m15;
+
+        a30*a21*a12*a03 - a20*a31*a12*a03 - a30*a11*a22*a03 + a10*a31*a22*a03 +
+        a20*a11*a32*a03 - a10*a21*a32*a03 - a30*a21*a02*a13 + a20*a31*a02*a13 +
+        a30*a01*a22*a13 - a00*a31*a22*a13 - a20*a01*a32*a13 + a00*a21*a32*a13 +
+        a30*a11*a02*a23 - a10*a31*a02*a23 - a30*a01*a12*a23 + a00*a31*a12*a23 +
+        a10*a01*a32*a23 - a00*a11*a32*a23 - a20*a11*a02*a33 + a10*a21*a02*a33 +
+        a20*a01*a12*a33 - a00*a21*a12*a33 - a10*a01*a22*a33 + a00*a11*a22*a33
+    }
+
+    /// Calculates the trace of the matrix (sum of the values along the diagonal).
+    pub fn trace(&self) -> f32 {
+        self.m0 + self.m5 + self.m10 + self.m15
+    }
+
+    /// Returns a new `Matrix` transposed from the current one.
+    pub fn transposed(&self) -> Matrix {
+        Matrix {
+            m0: self.m0,
+            m1: self.m4,
+            m2: self.m8,
+            m3: self.m12,
+            m4: self.m1,
+            m5: self.m5,
+            m6: self.m9,
+            m7: self.m13,
+            m8: self.m2,
+            m9: self.m6,
+            m10: self.m10,
+            m11: self.m14,
+            m12: self.m3,
+            m13: self.m7,
+            m14: self.m11,
+            m15: self.m15,
+        }
+    }
+
+    /// Returns a new `Matrix` inverted from the current one.
+    pub fn inverted(&self) -> Matrix {
+        let a00 = self.m0; let a01 = self.m1; let a02 = self.m2; let a03 = self.m3;
+        let a10 = self.m4; let a11 = self.m5; let a12 = self.m6; let a13 = self.m7;
+        let a20 = self.m8; let a21 = self.m9; let a22 = self.m10; let a23 = self.m11;
+        let a30 = self.m12; let a31 = self.m13; let a32 = self.m14; let a33 = self.m15;
+
+        let b00 = (a00 * a11) - (a01 * a10);
+        let b01 = (a00 * a12) - (a02 * a10);
+        let b02 = (a00 * a13) - (a03 * a10);
+        let b03 = (a01 * a12) - (a02 * a11);
+        let b04 = (a01 * a13) - (a03 * a11);
+        let b05 = (a02 * a13) - (a03 * a12);
+        let b06 = (a20 * a31) - (a21 * a30);
+        let b07 = (a20 * a32) - (a22 * a30);
+        let b08 = (a20 * a33) - (a23 * a30);
+        let b09 = (a21 * a32) - (a22 * a31);
+        let b10 = (a21 * a33) - (a23 * a31);
+        let b11 = (a22 * a33) - (a23 * a32);
+
+        let inv_det = 1.0 / ((b00 * b11) - (b01 * b10) + (b02 * b09) + (b03 * b08) - (b04 * b07) + (b05 * b06));
+
+        Matrix {
+            m0: ((a11 * b11) - (a12 * b10) + (a13 * b09)) * inv_det,
+            m1: ((-a01 * b11) + (a02 * b10) - (a03 * b09)) * inv_det,
+            m2: ((a31 * b05) - (a32 * b04) + (a33 * b03)) * inv_det,
+            m3: ((-a21 * b05) + (a22 * b04) - (a23 * b03)) * inv_det,
+            m4: ((-a10 * b11) + (a12 * b08) - (a13 * b07)) * inv_det,
+            m5: ((a00 * b11) - (a02 * b08) + (a03 * b07)) * inv_det,
+            m6: ((-a30 * b05) + (a32 * b02) - (a33 * b01)) * inv_det,
+            m7: ((a20 * b05) - (a22 * b02) + (a23 * b01)) * inv_det,
+            m8: ((a10 * b10) - (a11 * b08) + (a13 * b06)) * inv_det,
+            m9: ((-a00 * b10) + (a01 * b08) - (a03 * b06)) * inv_det,
+            m10: ((a30 * b04) - (a31 * b02) + (a33 * b00)) * inv_det,
+            m11: ((-a20 * b04) + (a21 * b02) - (a23 * b00)) * inv_det,
+            m12: ((-a10 * b09) + (a11 * b07) - (a12 * b06)) * inv_det,
+            m13: ((a00 * b09) - (a01 * b07) + (a02 * b06)) * inv_det,
+            m14: ((-a30 * b03) + (a31 * b01) - (a32 * b00)) * inv_det,
+            m15: ((a20 * b03) - (a21 * b01) + (a22 * b00)) * inv_det,
+        }
+    }
+
+    /// Returns a new `Matrix` normalized from the current one.
+    pub fn normalized(&self) -> Matrix {
+        let det = self.determinant();
+        Matrix {
+            m0: self.m0 / det,
+            m1: self.m1 / det,
+            m2: self.m2 / det,
+            m3: self.m3 / det,
+            m4: self.m4 / det,
+            m5: self.m5 / det,
+            m6: self.m6 / det,
+            m7: self.m7 / det,
+            m8: self.m8 / det,
+            m9: self.m9 / det,
+            m10: self.m10 / det,
+            m11: self.m11 / det,
+            m12: self.m12 / det,
+            m13: self.m13 / det,
+            m14: self.m14 / det,
+            m15: self.m15 / det,
+        }
+    }
+
+    /// Returns a 16-length `f32` array containing the current matrix data.
+    pub fn to_array(&self) -> [f32; 16] {
+        [self.m0, self.m1, self.m2, self.m3,
+        self.m4, self.m5, self.m6, self.m7,
+        self.m8, self.m9, self.m10, self.m11,
+        self.m12, self.m13, self.m14, self.m15]
+    }
+}
+
+impl Add for Matrix {
+    type Output = Matrix;
+    fn add(self, mat: Matrix) -> Matrix {
+        Matrix {
+            m0: self.m0 + mat.m0,
+            m1: self.m1 + mat.m1,
+            m2: self.m2 + mat.m2,
+            m3: self.m3 + mat.m3,
+            m4: self.m4 + mat.m4,
+            m5: self.m5 + mat.m5,
+            m6: self.m6 + mat.m6,
+            m7: self.m7 + mat.m7,
+            m8: self.m8 + mat.m8,
+            m9: self.m9 + mat.m9,
+            m10: self.m10 + mat.m10,
+            m11: self.m11 + mat.m11,
+            m12: self.m12 + mat.m12,
+            m13: self.m13 + mat.m13,
+            m14: self.m14 + mat.m14,
+            m15: self.m15 + mat.m15,
+        }
+    }
+}
+
+impl AddAssign for Matrix {
+    fn add_assign(&mut self, mat: Matrix) {
+        *self = *self + mat;
+    }
+}
+
+impl Sub for Matrix {
+    type Output = Matrix;
+    fn sub(self, mat: Matrix) -> Matrix {
+        Matrix {
+            m0: self.m0 - mat.m0,
+            m1: self.m1 - mat.m1,
+            m2: self.m2 - mat.m2,
+            m3: self.m3 - mat.m3,
+            m4: self.m4 - mat.m4,
+            m5: self.m5 - mat.m5,
+            m6: self.m6 - mat.m6,
+            m7: self.m7 - mat.m7,
+            m8: self.m8 - mat.m8,
+            m9: self.m9 - mat.m9,
+            m10: self.m10 - mat.m10,
+            m11: self.m11 - mat.m11,
+            m12: self.m12 - mat.m12,
+            m13: self.m13 - mat.m13,
+            m14: self.m14 - mat.m14,
+            m15: self.m15 - mat.m15,
+        }
+    }
+}
+
+impl SubAssign for Matrix {
+    fn sub_assign(&mut self, mat: Matrix) {
+        *self = *self - mat;
+    }
+}
+
+impl Mul for Matrix {
+    type Output = Matrix;
+    fn mul(self, mat: Matrix) -> Matrix {
+        Matrix {
+            m0: self.m0 * mat.m0 + self.m1 * mat.m4 + self.m2 * mat.m8 + self.m3 * mat.m12,
+            m1: self.m0 * mat.m1 + self.m1 * mat.m5 + self.m2 * mat.m9 + self.m3 * mat.m13,
+            m2: self.m0 * mat.m2 + self.m1 * mat.m6 + self.m2 * mat.m10 + self.m3 * mat.m14,
+            m3: self.m0 * mat.m3 + self.m1 * mat.m7 + self.m2 * mat.m11 + self.m3 * mat.m15,
+            m4: self.m4 * mat.m0 + self.m5 * mat.m4 + self.m6 * mat.m8 + self.m7 * mat.m12,
+            m5: self.m4 * mat.m1 + self.m5 * mat.m5 + self.m6 * mat.m9 + self.m7 * mat.m13,
+            m6: self.m4 * mat.m2 + self.m5 * mat.m6 + self.m6 * mat.m10 + self.m7 * mat.m14,
+            m7: self.m4 * mat.m3 + self.m5 * mat.m7 + self.m6 * mat.m11 + self.m7 * mat.m15,
+            m8: self.m8 * mat.m0 + self.m9 * mat.m4 + self.m10 * mat.m8 + self.m11 * mat.m12,
+            m9: self.m8 * mat.m1 + self.m9 * mat.m5 + self.m10 * mat.m9 + self.m11 * mat.m13,
+            m10: self.m8 * mat.m2 + self.m9 * mat.m6 + self.m10 * mat.m10 + self.m11 * mat.m14,
+            m11: self.m8 * mat.m3 + self.m9 * mat.m7 + self.m10 * mat.m11 + self.m11 * mat.m15,
+            m12: self.m12 * mat.m0 + self.m13 * mat.m4 + self.m14 * mat.m8 + self.m15 * mat.m12,
+            m13: self.m12 * mat.m1 + self.m13 * mat.m5 + self.m14 * mat.m9 + self.m15 * mat.m13,
+            m14: self.m12 * mat.m2 + self.m13 * mat.m6 + self.m14 * mat.m10 + self.m15 * mat.m14,
+            m15: self.m12 * mat.m3 + self.m13 * mat.m7 + self.m14 * mat.m11 + self.m15 * mat.m15,
+        }
+    }
+}
+
+impl MulAssign for Matrix {
+    fn mul_assign(&mut self, mat: Matrix) {
+        *self = *self * mat;
+    }
+}
