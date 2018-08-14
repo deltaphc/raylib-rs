@@ -20,7 +20,7 @@ extern crate libc;
 pub use raymath::*;
 
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub struct Color {
     pub r: u8,
     pub g: u8,
@@ -29,7 +29,7 @@ pub struct Color {
 }
 
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct Rectangle {
     pub x: f32,
     pub y: f32,
@@ -38,7 +38,7 @@ pub struct Rectangle {
 }
 
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub struct Image {
     pub data: *mut libc::c_void,
     pub width: i32,
@@ -48,7 +48,7 @@ pub struct Image {
 }
 
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub struct Texture2D {
     pub id: u32,
     pub width: i32,
@@ -59,7 +59,7 @@ pub struct Texture2D {
 pub type Texture = Texture2D;
 
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub struct RenderTexture2D {
     pub id: u32,
     pub texture: Texture2D,
@@ -68,7 +68,7 @@ pub struct RenderTexture2D {
 pub type RenderTexture = RenderTexture2D;
 
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct CharInfo {
     pub value: i32,
     pub rec: Rectangle,
@@ -79,7 +79,7 @@ pub struct CharInfo {
 }
 
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub struct Font {
     pub texture: Texture2D,
     pub base_size: i32,
@@ -110,7 +110,7 @@ impl Font {
 }
 
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct Camera3D {
     pub position: Vector3,
     pub target: Vector3,
@@ -122,7 +122,7 @@ pub struct Camera3D {
 pub type Camera = Camera3D;
 
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct Camera2D {
     pub offset: Vector2,
     pub target: Vector2,
@@ -131,14 +131,14 @@ pub struct Camera2D {
 }
 
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct BoundingBox {
     pub min: Vector3,
     pub max: Vector3,
 }
 
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub struct Mesh {
     pub vertex_count: i32,
     pub triangle_count: i32,
@@ -154,14 +154,14 @@ pub struct Mesh {
 }
 
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub struct Shader {
     pub id: u32,
     pub locs: [i32; 32],
 }
 
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct MaterialMap {
     pub texture: Texture2D,
     pub color: Color,
@@ -169,7 +169,7 @@ pub struct MaterialMap {
 }
 
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct Material {
     pub shader: Shader,
     pub maps: [MaterialMap; 12],
@@ -177,7 +177,7 @@ pub struct Material {
 }
 
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct Model {
     pub mesh: Mesh,
     pub transform: Matrix,
@@ -185,14 +185,14 @@ pub struct Model {
 }
 
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct Ray {
     pub position: Vector3,
     pub direction: Vector3,
 }
 
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct RayHitInfo {
     pub hit: bool,
     pub distance: f32,
@@ -201,7 +201,7 @@ pub struct RayHitInfo {
 }
 
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub struct Wave {
     pub sample_count: u32,
     pub sample_rate: u32,
@@ -211,7 +211,7 @@ pub struct Wave {
 }
 
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub struct Sound {
     pub audio_buffer: *mut libc::c_void,
     pub source: u32,
@@ -220,14 +220,14 @@ pub struct Sound {
 }
 
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub struct MusicData {
     _unused: [u8; 0],
 }
 pub type Music = *mut MusicData;
 
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub struct AudioStream {
     pub sample_rate: u32,
     pub sample_size: u32,
@@ -239,7 +239,7 @@ pub struct AudioStream {
 }
 
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct VrDeviceInfo {
     pub h_resolution: i32,
     pub v_resolution: i32,

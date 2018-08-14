@@ -18,7 +18,7 @@ use std::f32::consts::PI;
 use std::ops::{Add, AddAssign, Sub, SubAssign, Mul, MulAssign, Div, DivAssign, Neg};
 
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct Vector2 {
     pub x: f32,
     pub y: f32,
@@ -223,7 +223,7 @@ impl Neg for Vector2 {
 }
 
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct Vector3 {
     pub x: f32,
     pub y: f32,
@@ -579,7 +579,7 @@ impl Neg for Vector3 {
 }
 
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct Vector4 {
     pub x: f32,
     pub y: f32,
@@ -904,7 +904,7 @@ impl MulAssign for Quaternion {
 }
 
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct Matrix {
     pub m0: f32,
     pub m4: f32,
