@@ -25,6 +25,11 @@ pub struct Vector2 {
 }
 
 impl Vector2 {
+    /// Returns a new `Vector2` with specified components.
+    pub fn new(x: f32, y: f32) -> Vector2 {
+        Vector2 { x, y }
+    }
+
     /// Returns a new `Vector2` with both components set to zero.
     pub fn zero() -> Vector2 {
         Vector2 {
@@ -231,6 +236,11 @@ pub struct Vector3 {
 }
 
 impl Vector3 {
+    /// Returns a new `Vector3` with specified components.
+    pub fn new(x: f32, y: f32, z: f32) -> Vector3 {
+        Vector3 { x, y, z }
+    }
+
     /// Returns a new `Vector3` with all components set to zero.
     pub fn zero() -> Vector3 {
         Vector3 {
@@ -589,6 +599,11 @@ pub struct Vector4 {
 pub type Quaternion = Vector4;
 
 impl Quaternion {
+    /// Returns a new `Quaternion` with specified components.
+    pub fn new(x: f32, y: f32, z: f32, w: f32) -> Quaternion {
+        Quaternion { x, y, z, w }
+    }
+
     /// Returns the identity quaternion.
     pub fn identity() -> Quaternion {
         Quaternion {
