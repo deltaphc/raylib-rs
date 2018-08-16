@@ -15,22 +15,22 @@ Permission is granted to anyone to use this software for any purpose, including 
 */
 
 extern crate libc;
+#[macro_use] extern crate lazy_static;
 
 use std::ffi::{CString, CStr};
 
+mod raiiwrap;
 mod raymath;
 mod raylib;
+pub use raiiwrap::*;
 pub use raylib::{
-    Image, Color,
+    Color,
     Camera2D, Camera3D, Camera,
-    RenderTexture2D, Texture2D,
-    Texture, RenderTexture,
     Vector2, Vector3, Vector4, Quaternion,
     Ray, Matrix, Rectangle, RayHitInfo,
-    Font, SpriteFont, CharInfo, Shader,
-    Model, Mesh, BoundingBox, Material,
+    CharInfo,
+    BoundingBox,
     VrDeviceInfo,
-    Sound, Wave, Music, AudioStream
 };
 
 pub mod ease;
@@ -390,9 +390,9 @@ pub fn toggle_fullscreen() {
 }
 
 /// Sets icon for window (only on desktop platforms).
-pub fn set_window_icon(image: Image) {
+pub fn set_window_icon(image: &Image) {
     unsafe {
-        raylib::SetWindowIcon(image);
+        raylib::SetWindowIcon(image.0);
     }
 }
 
@@ -531,9 +531,9 @@ pub fn end_mode_3d() {
 }
 
 /// Initializes render texture for drawing.
-pub fn begin_texture_mode(target: RenderTexture2D) {
+pub fn begin_texture_mode(target: &RenderTexture2D) {
     unsafe {
-        raylib::BeginTextureMode(target);
+        raylib::BeginTextureMode(target.0);
     }
 }
 
@@ -1334,7 +1334,7 @@ pub fn check_collision_point_triangle(point: Vector2, p1: Vector2, p2: Vector2, 
 pub fn load_image(filename: &str) -> Image {
     let c_filename = CString::new(filename).unwrap();
     unsafe {
-        raylib::LoadImage(c_filename.as_ptr())
+        Image(raylib::LoadImage(c_filename.as_ptr()))
     }
 }
 
@@ -1345,7 +1345,7 @@ pub fn load_image_ex(pixels: &mut [Color], width: i32, height: i32) -> Image {
         panic!("load_image_ex: Data is wrong size. Expected {}, got {}", expected_len, pixels.len());
     }
     unsafe {
-        raylib::LoadImageEx(pixels.as_mut_ptr(), width, height)
+        Image(raylib::LoadImageEx(pixels.as_mut_ptr(), width, height))
     }
 }
 
@@ -1356,7 +1356,7 @@ pub fn load_image_pro(data: &[u8], width: i32, height: i32, format: PixelFormat)
         panic!("load_image_pro: Data is wrong size. Expected {}, got {}", expected_len, data.len());
     }
     unsafe {
-        raylib::LoadImagePro(data.as_ptr() as *mut std::os::raw::c_void, width, height, format)
+        Image(raylib::LoadImagePro(data.as_ptr() as *mut std::os::raw::c_void, width, height, format))
     }
 }
 
@@ -1364,15 +1364,15 @@ pub fn load_image_pro(data: &[u8], width: i32, height: i32, format: PixelFormat)
 pub fn load_image_raw(filename: &str, width: i32, height: i32, format: i32, header_size: i32) -> Image {
     let c_filename = CString::new(filename).unwrap();
     unsafe {
-        raylib::LoadImageRaw(c_filename.as_ptr(), width, height, format, header_size)
+        Image(raylib::LoadImageRaw(c_filename.as_ptr(), width, height, format, header_size))
     }
 }
 
 /// Exports image as a PNG file.
-pub fn export_image(filename: &str, image: Image) {
+pub fn export_image(filename: &str, image: &Image) {
     let c_filename = CString::new(filename).unwrap();
     unsafe {
-        raylib::ExportImage(c_filename.as_ptr(), image);
+        raylib::ExportImage(c_filename.as_ptr(), image.0);
     }
 }
 
@@ -1380,49 +1380,28 @@ pub fn export_image(filename: &str, image: Image) {
 pub fn load_texture(filename: &str) -> Texture2D {
     let c_filename = CString::new(filename).unwrap();
     unsafe {
-        raylib::LoadTexture(c_filename.as_ptr())
+        Texture2D(raylib::LoadTexture(c_filename.as_ptr()))
     }
 }
 
 /// Loads texture from image data.
-pub fn load_texture_from_image(image: Image) -> Texture2D {
+pub fn load_texture_from_image(image: &Image) -> Texture2D {
     unsafe {
-        raylib::LoadTextureFromImage(image)
+        Texture2D(raylib::LoadTextureFromImage(image.0))
     }
 }
 
 /// Loads texture for rendering (framebuffer).
 pub fn load_render_texture(width: i32, height: i32) -> RenderTexture2D {
     unsafe {
-        raylib::LoadRenderTexture(width, height)
-    }
-}
-
-/// Unloads image from CPU memory (RAM).
-pub fn unload_image(image: Image) {
-    unsafe {
-        raylib::UnloadImage(image);
-    }
-}
-
-/// Unloads texture from GPU memory (VRAM).
-pub fn unload_texture(texture: Texture2D) {
-    unsafe {
-        raylib::UnloadTexture(texture);
-    }
-}
-
-/// Unloads render texture from GPU memory (VRAM).
-pub fn unload_render_texture(target: RenderTexture2D) {
-    unsafe {
-        raylib::UnloadRenderTexture(target);
+        RenderTexture2D(raylib::LoadRenderTexture(width, height))
     }
 }
 
 /// Gets pixel data from `image` as a Vec of Color structs.
-pub fn get_image_data(image: Image) -> Vec<Color> {
+pub fn get_image_data(image: &Image) -> Vec<Color> {
     unsafe {
-        let image_data = raylib::GetImageData(image);
+        let image_data = raylib::GetImageData(image.0);
         let image_data_len = (image.width * image.height) as usize;
         let mut safe_image_data = Vec::with_capacity(image_data_len);
         safe_image_data.set_len(image_data_len);
@@ -1433,9 +1412,9 @@ pub fn get_image_data(image: Image) -> Vec<Color> {
 }
 
 /// Gets normalized (`0.0` to `1.0`) pixel data from `image` as a Vec of Vector4 structs.
-pub fn get_image_data_normalized(image: Image) -> Vec<Vector4> {
+pub fn get_image_data_normalized(image: &Image) -> Vec<Vector4> {
     unsafe {
-        let image_data = raylib::GetImageDataNormalized(image);
+        let image_data = raylib::GetImageDataNormalized(image.0);
         let image_data_len = (image.width * image.height) as usize;
         let mut safe_image_data = Vec::with_capacity(image_data_len);
         safe_image_data.set_len(image_data_len);
@@ -1453,111 +1432,111 @@ pub fn get_pixel_data_size(width: i32, height: i32, format: PixelFormat) -> i32 
 }
 
 /// Gets pixel data from GPU texture and returns an `Image`.
-pub fn get_texture_data(texture: Texture2D) -> Image {
+pub fn get_texture_data(texture: &Texture2D) -> Image {
     unsafe {
-        raylib::GetTextureData(texture)
+        Image(raylib::GetTextureData(texture.0))
     }
 }
 
 /// Updates GPU texture with new data.
-pub fn update_texture(texture: Texture2D, pixels: &[u8]) {
+pub fn update_texture(texture: &mut Texture2D, pixels: &[u8]) {
     let expected_len = get_pixel_data_size(texture.width, texture.height, texture.format) as usize;
     if pixels.len() != expected_len {
         panic!("update_texture: Data is wrong size. Expected {}, got {}", expected_len, pixels.len());
     }
     unsafe {
-        raylib::UpdateTexture(texture, pixels.as_ptr() as *const std::os::raw::c_void);
+        raylib::UpdateTexture(texture.0, pixels.as_ptr() as *const std::os::raw::c_void);
     }
 }
 
 /// Creates an image duplicate (useful for transformations).
-pub fn image_copy(image: Image) -> Image {
+pub fn image_copy(image: &Image) -> Image {
     unsafe {
-        raylib::ImageCopy(image)
+        Image(raylib::ImageCopy(image.0))
     }
 }
 
 /// Converts `image` to POT (power-of-two).
 pub fn image_to_pot(image: &mut Image, fill_color: Color) {
     unsafe {
-        raylib::ImageToPOT(image, fill_color);
+        raylib::ImageToPOT(&mut image.0, fill_color);
     }
 }
 
 /// Converts `image` data to desired pixel format.
 pub fn image_format(image: &mut Image, new_format: PixelFormat) {
     unsafe {
-        raylib::ImageFormat(image, new_format);
+        raylib::ImageFormat(&mut image.0, new_format);
     }
 }
 
 /// Applies alpha mask to `image`.
-pub fn image_alpha_mask(image: &mut Image, alpha_mask: Image) {
+pub fn image_alpha_mask(image: &mut Image, alpha_mask: &Image) {
     unsafe {
-        raylib::ImageAlphaMask(image, alpha_mask);
+        raylib::ImageAlphaMask(&mut image.0, alpha_mask.0);
     }
 }
 
 /// Clears alpha channel on `image` to desired color.
 pub fn image_alpha_clear(image: &mut Image, color: Color, threshold: f32) {
     unsafe {
-        raylib::ImageAlphaClear(image, color, threshold);
+        raylib::ImageAlphaClear(&mut image.0, color, threshold);
     }
 }
 
 /// Crops `image` depending on alpha value.
 pub fn image_alpha_crop(image: &mut Image, threshold: f32) {
     unsafe {
-        raylib::ImageAlphaCrop(image, threshold);
+        raylib::ImageAlphaCrop(&mut image.0, threshold);
     }
 }
 
 /// Premultiplies alpha channel on `image`.
 pub fn image_alpha_premultiply(image: &mut Image) {
     unsafe {
-        raylib::ImageAlphaPremultiply(image);
+        raylib::ImageAlphaPremultiply(&mut image.0);
     }
 }
 
 /// Crops `image` to a defined rectangle.
 pub fn image_crop(image: &mut Image, crop: Rectangle) {
     unsafe {
-        raylib::ImageCrop(image, crop);
+        raylib::ImageCrop(&mut image.0, crop);
     }
 }
 
 /// Resizes `image` (bilinear filtering).
 pub fn image_resize(image: &mut Image, new_width: i32, new_height: i32) {
     unsafe {
-        raylib::ImageResize(image, new_width, new_height);
+        raylib::ImageResize(&mut image.0, new_width, new_height);
     }
 }
 
 /// Resizes `image` (nearest-neighbor scaling).
 pub fn image_resize_nn(image: &mut Image, new_width: i32, new_height: i32) {
     unsafe {
-        raylib::ImageResizeNN(image, new_width, new_height);
+        raylib::ImageResizeNN(&mut image.0, new_width, new_height);
     }
 }
 
 /// Resizes `image` canvas and fills with `color`.
 pub fn image_resize_canvas(image: &mut Image, new_width: i32, new_height: i32, offset_x: i32, offset_y: i32, color: Color) {
     unsafe {
-        raylib::ImageResizeCanvas(image, new_width, new_height, offset_x, offset_y, color);
+        raylib::ImageResizeCanvas(&mut image.0, new_width, new_height, offset_x, offset_y, color);
     }
 }
 
 /// Generates all mipmap levels for a provided `image`.
 pub fn image_mipmaps(image: &mut Image) {
     unsafe {
-        raylib::ImageMipmaps(image);
+        raylib::ImageMipmaps(&mut image.0);
     }
 }
 
 /// Dithers `image` data to 16bpp or lower (Floyd-Steinberg dithering).
 pub fn image_dither(image: &mut Image, r_bpp: i32, g_bpp: i32, b_bpp: i32, a_bpp: i32) {
     unsafe {
-        raylib::ImageDither(image, r_bpp, g_bpp, b_bpp, a_bpp);
+        raylib::ImageDither(&mut image.0, r_bpp, g_bpp, b_bpp, a_bpp);
     }
 }
 
@@ -1565,29 +1544,29 @@ pub fn image_dither(image: &mut Image, r_bpp: i32, g_bpp: i32, b_bpp: i32, a_bpp
 pub fn image_text(text: &str, font_size: i32, color: Color) -> Image {
     let c_text = CString::new(text).unwrap();
     unsafe {
-        raylib::ImageText(c_text.as_ptr(), font_size, color)
+        Image(raylib::ImageText(c_text.as_ptr(), font_size, color))
     }
 }
 
 /// Creates an image from `text` (custom font).
-pub fn image_text_ex(font: Font, text: &str, font_size: f32, spacing: f32, tint: Color) -> Image {
+pub fn image_text_ex(font: &Font, text: &str, font_size: f32, spacing: f32, tint: Color) -> Image {
     let c_text = CString::new(text).unwrap();
     unsafe {
-        raylib::ImageTextEx(font, c_text.as_ptr(), font_size, spacing, tint)
+        Image(raylib::ImageTextEx(font.0, c_text.as_ptr(), font_size, spacing, tint))
     }
 }
 
 /// Draws a source image within a destination image.
-pub fn image_draw(dst: &mut Image, src: Image, src_rec: Rectangle, dst_rec: Rectangle) {
+pub fn image_draw(dst: &mut Image, src: &Image, src_rec: Rectangle, dst_rec: Rectangle) {
     unsafe {
-        raylib::ImageDraw(dst, src, src_rec, dst_rec);
+        raylib::ImageDraw(&mut dst.0, src.0, src_rec, dst_rec);
     }
 }
 
 /// Draws a rectangle within an image.
 pub fn image_draw_rectangle(dst: &mut Image, position: Vector2, rec: Rectangle, color: Color) {
     unsafe {
-        raylib::ImageDrawRectangle(dst, position, rec, color);
+        raylib::ImageDrawRectangle(&mut dst.0, position, rec, color);
     }
 }
 
@@ -1595,212 +1574,216 @@ pub fn image_draw_rectangle(dst: &mut Image, position: Vector2, rec: Rectangle, 
 pub fn image_draw_text(dst: &mut Image, position: Vector2, text: &str, font_size: i32, color: Color) {
     let c_text = CString::new(text).unwrap();
     unsafe {
-        raylib::ImageDrawText(dst, position, c_text.as_ptr(), font_size, color);
+        raylib::ImageDrawText(&mut dst.0, position, c_text.as_ptr(), font_size, color);
     }
 }
 
 /// Draws text (custom font) within an image (destination).
-pub fn image_draw_text_ex(dst: &mut Image, position: Vector2, font: Font, text: &str, font_size: f32, spacing: f32, color: Color) {
+pub fn image_draw_text_ex(dst: &mut Image, position: Vector2, font: &Font, text: &str, font_size: f32, spacing: f32, color: Color) {
     let c_text = CString::new(text).unwrap();
     unsafe {
-        raylib::ImageDrawTextEx(dst, position, font, c_text.as_ptr(), font_size, spacing, color);
+        raylib::ImageDrawTextEx(&mut dst.0, position, font.0, c_text.as_ptr(), font_size, spacing, color);
     }
 }
 
 /// Flips `image` vertically.
 pub fn image_flip_vertical(image: &mut Image) {
     unsafe {
-        raylib::ImageFlipVertical(image);
+        raylib::ImageFlipVertical(&mut image.0);
     }
 }
 
 /// Flips `image` horizontally.
 pub fn image_flip_horizontal(image: &mut Image) {
     unsafe {
-        raylib::ImageFlipHorizontal(image);
+        raylib::ImageFlipHorizontal(&mut image.0);
     }
 }
 
 /// Rotates `image` clockwise by 90 degrees (PI/2 radians).
 pub fn image_rotate_cw(image: &mut Image) {
     unsafe {
-        raylib::ImageRotateCW(image);
+        raylib::ImageRotateCW(&mut image.0);
     }
 }
 
 /// Rotates `image` counterclockwise by 90 degrees (PI/2 radians).
 pub fn image_rotate_ccw(image: &mut Image) {
     unsafe {
-        raylib::ImageRotateCCW(image);
+        raylib::ImageRotateCCW(&mut image.0);
     }
 }
 
 /// Tints colors in `image` using specified `color`.
 pub fn image_color_tint(image: &mut Image, color: Color) {
     unsafe {
-        raylib::ImageColorTint(image, color);
+        raylib::ImageColorTint(&mut image.0, color);
     }
 }
 
 /// Inverts the colors in `image`.
 pub fn image_color_invert(image: &mut Image) {
     unsafe {
-        raylib::ImageColorInvert(image);
+        raylib::ImageColorInvert(&mut image.0);
     }
 }
 
 /// Converts `image color to grayscale.
 pub fn image_color_grayscale(image: &mut Image) {
     unsafe {
-        raylib::ImageColorGrayscale(image);
+        raylib::ImageColorGrayscale(&mut image.0);
     }
 }
 
 /// Adjusts the contrast of `image`.
 pub fn image_color_contrast(image: &mut Image, contrast: f32) {
     unsafe {
-        raylib::ImageColorContrast(image, contrast);
+        raylib::ImageColorContrast(&mut image.0, contrast);
     }
 }
 
 /// Adjusts the brightness of `image`.
 pub fn image_color_brightness(image: &mut Image, brightness: i32) {
     unsafe {
-        raylib::ImageColorBrightness(image, brightness);
+        raylib::ImageColorBrightness(&mut image.0, brightness);
     }
 }
 
 /// Searches `image` for all occurences of `color` and replaces them with `replace` color.
 pub fn image_color_replace(image: &mut Image, color: Color, replace: Color) {
     unsafe {
-        raylib::ImageColorReplace(image, color, replace);
+        raylib::ImageColorReplace(&mut image.0, color, replace);
     }
 }
 
 /// Generates a plain `color` Image.
 pub fn gen_image_color(width: i32, height: i32, color: Color) -> Image {
     unsafe {
-        raylib::GenImageColor(width, height, color)
+        Image(raylib::GenImageColor(width, height, color))
     }
 }
 
 /// Generates an Image containing a vertical gradient.
 pub fn gen_image_gradient_v(width: i32, height: i32, top: Color, bottom: Color) -> Image {
     unsafe {
-        raylib::GenImageGradientV(width, height, top, bottom)
+        Image(raylib::GenImageGradientV(width, height, top, bottom))
     }
 }
 
 /// Generates an Image containing a horizonal gradient.
 pub fn gen_image_gradient_h(width: i32, height: i32, left: Color, right: Color) -> Image {
     unsafe {
-        raylib::GenImageGradientH(width, height, left, right)
+        Image(raylib::GenImageGradientH(width, height, left, right))
     }
 }
 
 /// Generates an Image containing a radial gradient.
 pub fn gen_image_gradient_radial(width: i32, height: i32, density: f32, inner: Color, outer: Color) -> Image {
     unsafe {
-        raylib::GenImageGradientRadial(width, height, density, inner, outer)
+        Image(raylib::GenImageGradientRadial(width, height, density, inner, outer))
     }
 }
 
 /// Generates an Image containing a checkerboard pattern.
 pub fn gen_image_checked(width: i32, height: i32, checks_x: i32, checks_y: i32, col1: Color, col2: Color) -> Image {
     unsafe {
-        raylib::GenImageChecked(width, height, checks_x, checks_y, col1, col2)
+        Image(raylib::GenImageChecked(width, height, checks_x, checks_y, col1, col2))
     }
 }
 
 /// Generates an Image containing white noise.
 pub fn gen_image_white_noise(width: i32, height: i32, factor: f32) -> Image {
     unsafe {
-        raylib::GenImageWhiteNoise(width, height, factor)
+        Image(raylib::GenImageWhiteNoise(width, height, factor))
     }
 }
 
 /// Generates an Image containing perlin noise.
 pub fn gen_image_perlin_noise(width: i32, height: i32, offset_x: i32, offset_y: i32, scale: f32) -> Image {
     unsafe {
-        raylib::GenImagePerlinNoise(width, height, offset_x, offset_y, scale)
+        Image(raylib::GenImagePerlinNoise(width, height, offset_x, offset_y, scale))
     }
 }
 
 /// Generates an Image using a cellular algorithm. Bigger `tile_size` means bigger cells.
 pub fn gen_image_cellular(width: i32, height: i32, tile_size: i32) -> Image {
     unsafe {
-        raylib::GenImageCellular(width, height, tile_size)
+        Image(raylib::GenImageCellular(width, height, tile_size))
     }
 }
 
 /// Generates GPU mipmaps for a `texture`.
 pub fn gen_texture_mipmaps(texture: &mut Texture2D) {
     unsafe {
-        raylib::GenTextureMipmaps(texture);
+        raylib::GenTextureMipmaps(&mut texture.0);
     }
 }
 
 /// Sets `texture` scaling filter mode.
-pub fn set_texture_filter(texture: Texture2D, filter_mode: TextureFilterMode) {
+pub fn set_texture_filter(texture: &mut Texture2D, filter_mode: TextureFilterMode) {
     unsafe {
-        raylib::SetTextureFilter(texture, filter_mode);
+        raylib::SetTextureFilter(texture.0, filter_mode);
     }
 }
 
 /// Sets texture wrapping mode.
-pub fn set_texture_wrap(texture: Texture2D, wrap_mode: TextureWrapMode) {
+pub fn set_texture_wrap(texture: &mut Texture2D, wrap_mode: TextureWrapMode) {
     unsafe {
-        raylib::SetTextureWrap(texture, wrap_mode);
+        raylib::SetTextureWrap(texture.0, wrap_mode);
     }
 }
 
 /// Draws a `texture` using specified position and `tint` color.
-pub fn draw_texture(texture: Texture2D, x: i32, y: i32, tint: Color) {
+pub fn draw_texture(texture: &Texture2D, x: i32, y: i32, tint: Color) {
     unsafe {
-        raylib::DrawTexture(texture, x, y, tint);
+        raylib::DrawTexture(texture.0, x, y, tint);
     }
 }
 
 /// Draws a `texture` using specified `position` vector and `tint` color.
-pub fn draw_texture_v(texture: Texture2D, position: Vector2, tint: Color) {
+pub fn draw_texture_v(texture: &Texture2D, position: Vector2, tint: Color) {
     unsafe {
-        raylib::DrawTextureV(texture, position, tint);
+        raylib::DrawTextureV(texture.0, position, tint);
     }
 }
 
 /// Draws a `texture` with extended parameters.
-pub fn draw_texture_ex(texture: Texture2D, position: Vector2, rotation: f32, scale: f32, tint: Color) {
+pub fn draw_texture_ex(texture: &Texture2D, position: Vector2, rotation: f32, scale: f32, tint: Color) {
     unsafe {
-        raylib::DrawTextureEx(texture, position, rotation, scale, tint);
+        raylib::DrawTextureEx(texture.0, position, rotation, scale, tint);
     }
 }
 
 /// Draws from a region of `texture` defined by the `source_rec` rectangle.
-pub fn draw_texture_rec(texture: Texture2D, source_rec: Rectangle, position: Vector2, tint: Color) {
+pub fn draw_texture_rec(texture: &Texture2D, source_rec: Rectangle, position: Vector2, tint: Color) {
     unsafe {
-        raylib::DrawTextureRec(texture, source_rec, position, tint);
+        raylib::DrawTextureRec(texture.0, source_rec, position, tint);
     }
 }
 
 /// Draw from a region of `texture` defined by the `source_rec` rectangle with pro parameters.
-pub fn draw_texture_pro(texture: Texture2D, source_rec: Rectangle, dest_rec: Rectangle, origin: Vector2, rotation: f32, tint: Color) {
+pub fn draw_texture_pro(texture: &Texture2D, source_rec: Rectangle, dest_rec: Rectangle, origin: Vector2, rotation: f32, tint: Color) {
     unsafe {
-        raylib::DrawTexturePro(texture, source_rec, dest_rec, origin, rotation, tint);
+        raylib::DrawTexturePro(texture.0, source_rec, dest_rec, origin, rotation, tint);
     }
 }
 
+lazy_static! {
+    static ref FONT_DEFAULT: Font = {
+        unsafe { Font(raylib::GetFontDefault()) }
+    };
+}
+
 /// Gets the default font.
-pub fn get_font_default() -> Font {
-    unsafe {
-        raylib::GetFontDefault()
-    }
+pub fn get_font_default() -> &'static Font {
+    &FONT_DEFAULT
 }
 
 /// Loads font from file into GPU memory (VRAM).
 pub fn load_font(filename: &str) -> Font {
     let c_filename = CString::new(filename).unwrap();
     unsafe {
-        raylib::LoadFont(c_filename.as_ptr())
+        Font(raylib::LoadFont(c_filename.as_ptr()))
     }
 }
 
@@ -1809,8 +1792,8 @@ pub fn load_font_ex(filename: &str, font_size: i32, chars: Option<&[i32]>) -> Fo
     let c_filename = CString::new(filename).unwrap();
     unsafe {
         match chars {
-            Some(c) => raylib::LoadFontEx(c_filename.as_ptr(), font_size, c.len() as i32, c.as_ptr() as *mut i32),
-            None => raylib::LoadFontEx(c_filename.as_ptr(), font_size, 0, std::ptr::null_mut())
+            Some(c) => Font(raylib::LoadFontEx(c_filename.as_ptr(), font_size, c.len() as i32, c.as_ptr() as *mut i32)),
+            None => Font(raylib::LoadFontEx(c_filename.as_ptr(), font_size, 0, std::ptr::null_mut()))
         }
     }
 }
@@ -1840,14 +1823,7 @@ pub fn load_font_data(filename: &str, font_size: i32, chars: Option<&[i32]>, sdf
 /// Generates image font atlas using `chars` info.
 pub fn gen_image_font_atlas(chars: &mut [CharInfo], font_size: i32, padding: i32, pack_method: i32) -> Image {
     unsafe {
-        raylib::GenImageFontAtlas(chars.as_mut_ptr(), font_size, chars.len() as i32, padding, pack_method)
-    }
-}
-
-/// Unloads Font from GPU memory (VRAM).
-pub fn unload_font(font: Font) {
-    unsafe {
-        raylib::UnloadFont(font);
+        Image(raylib::GenImageFontAtlas(chars.as_mut_ptr(), font_size, chars.len() as i32, padding, pack_method))
     }
 }
 
@@ -1867,10 +1843,10 @@ pub fn draw_text(text: &str, x: i32, y: i32, font_size: i32, color: Color) {
 }
 
 /// Draws text using `font` and additional parameters.
-pub fn draw_text_ex(font: Font, text: &str, position: Vector2, font_size: f32, spacing: f32, tint: Color) {
+pub fn draw_text_ex(font: &Font, text: &str, position: Vector2, font_size: f32, spacing: f32, tint: Color) {
     let c_text = CString::new(text).unwrap();
     unsafe {
-        raylib::DrawTextEx(font, c_text.as_ptr(), position, font_size, spacing, tint);
+        raylib::DrawTextEx(font.0, c_text.as_ptr(), position, font_size, spacing, tint);
     }
 }
 
@@ -1883,17 +1859,17 @@ pub fn measure_text(text: &str, font_size: i32) -> i32 {
 }
 
 /// Measures string width in pixels for `font`.
-pub fn measure_text_ex(font: Font, text: &str, font_size: f32, spacing: f32) -> Vector2 {
+pub fn measure_text_ex(font: &Font, text: &str, font_size: f32, spacing: f32) -> Vector2 {
     let c_text = CString::new(text).unwrap();
     unsafe {
-        raylib::MeasureTextEx(font, c_text.as_ptr(), font_size, spacing)
+        raylib::MeasureTextEx(font.0, c_text.as_ptr(), font_size, spacing)
     }
 }
 
 /// Gets index position for a unicode character on `font`.
-pub fn get_glyph_index(font: Font, character: i32) -> i32 {
+pub fn get_glyph_index(font: &Font, character: i32) -> i32 {
     unsafe {
-        raylib::GetGlyphIndex(font, character)
+        raylib::GetGlyphIndex(font.0, character)
     }
 }
 
@@ -1933,9 +1909,9 @@ pub fn draw_cube_wires(position: Vector3, width: f32, height: f32, length: f32, 
 }
 
 /// Draws a textured cube.
-pub fn draw_cube_texture(texture: Texture2D, position: Vector3, width: f32, height: f32, length: f32, color: Color) {
+pub fn draw_cube_texture(texture: &Texture2D, position: Vector3, width: f32, height: f32, length: f32, color: Color) {
     unsafe {
-        raylib::DrawCubeTexture(texture, position, width, height, length, color);
+        raylib::DrawCubeTexture(texture.0, position, width, height, length, color);
     }
 }
 
@@ -2006,21 +1982,14 @@ pub fn draw_gizmo(position: Vector3) {
 pub fn load_model(filename: &str) -> Model {
     let c_filename = CString::new(filename).unwrap();
     unsafe {
-        raylib::LoadModel(c_filename.as_ptr())
+        Model(raylib::LoadModel(c_filename.as_ptr()))
     }
 }
 
 /// Loads model from generated mesh.
-pub fn load_model_from_mesh(mesh: Mesh) -> Model {
+pub fn load_model_from_mesh(mesh: &Mesh) -> Model {
     unsafe {
-        raylib::LoadModelFromMesh(mesh)
-    }
-}
-
-/// Unloads model from memory (RAM and/or VRAM).
-pub fn unload_model(model: Model) {
-    unsafe {
-        raylib::UnloadModel(model);
+        Model(raylib::LoadModelFromMesh(mesh.0))
     }
 }
 
@@ -2028,106 +1997,99 @@ pub fn unload_model(model: Model) {
 pub fn load_mesh(filename: &str) -> Mesh {
     let c_filename = CString::new(filename).unwrap();
     unsafe {
-        raylib::LoadMesh(c_filename.as_ptr())
-    }
-}
-
-/// Unloads mesh from memory (RAM and/or VRAM).
-pub fn unload_mesh(mesh: &mut Mesh) {
-    unsafe {
-        raylib::UnloadMesh(mesh);
+        Mesh(raylib::LoadMesh(c_filename.as_ptr()))
     }
 }
 
 /// Exports mesh as an OBJ file.
-pub fn export_mesh(filename: &str, mesh: Mesh) {
+pub fn export_mesh(filename: &str, mesh: &Mesh) {
     let c_filename = CString::new(filename).unwrap();
     unsafe {
-        raylib::ExportMesh(c_filename.as_ptr(), mesh);
+        raylib::ExportMesh(c_filename.as_ptr(), mesh.0);
     }
 }
 
 /// Computes mesh bounding box limits.
-pub fn mesh_bounding_box(mesh: Mesh) -> BoundingBox {
+pub fn mesh_bounding_box(mesh: &Mesh) -> BoundingBox {
     unsafe {
-        raylib::MeshBoundingBox(mesh)
+        raylib::MeshBoundingBox(mesh.0)
     }
 }
 
 /// Computes mesh tangents.
 pub fn mesh_tangents(mesh: &mut Mesh) {
     unsafe {
-        raylib::MeshTangents(mesh);
+        raylib::MeshTangents(&mut mesh.0);
     }
 }
 
 /// Computes mesh binormals.
 pub fn mesh_binormals(mesh: &mut Mesh) {
     unsafe {
-        raylib::MeshBinormals(mesh);
+        raylib::MeshBinormals(&mut mesh.0);
     }
 }
 
 /// Generates plane mesh (with subdivisions).
 pub fn gen_mesh_plane(width: f32, length: f32, res_x: i32, res_z: i32) -> Mesh {
     unsafe {
-        raylib::GenMeshPlane(width, length, res_x, res_z)
+        Mesh(raylib::GenMeshPlane(width, length, res_x, res_z))
     }
 }
 
 /// Generates cuboid mesh.
 pub fn gen_mesh_cube(width: f32, height: f32, length: f32) -> Mesh {
     unsafe {
-        raylib::GenMeshCube(width, height, length)
+        Mesh(raylib::GenMeshCube(width, height, length))
     }
 }
 
 /// Generates sphere mesh (standard sphere).
 pub fn gen_mesh_sphere(radius: f32, rings: i32, slices: i32) -> Mesh {
     unsafe {
-        raylib::GenMeshSphere(radius, rings, slices)
+        Mesh(raylib::GenMeshSphere(radius, rings, slices))
     }
 }
 
 /// Generates half-sphere mesh (no bottom cap).
 pub fn gen_mesh_hemisphere(radius: f32, rings: i32, slices: i32) -> Mesh {
     unsafe {
-        raylib::GenMeshHemiSphere(radius, rings, slices)
+        Mesh(raylib::GenMeshHemiSphere(radius, rings, slices))
     }
 }
 
 /// Generates cylinder mesh.
 pub fn gen_mesh_cylinder(radius: f32, height: f32, slices: i32) -> Mesh {
     unsafe {
-        raylib::GenMeshCylinder(radius, height, slices)
+        Mesh(raylib::GenMeshCylinder(radius, height, slices))
     }
 }
 
 /// Generates torus mesh.
 pub fn gen_mesh_torus(radius: f32, size: f32, rad_seg: i32, sides: i32) -> Mesh {
     unsafe {
-        raylib::GenMeshTorus(radius, size, rad_seg, sides)
+        Mesh(raylib::GenMeshTorus(radius, size, rad_seg, sides))
     }
 }
 
 /// Generates trefoil knot mesh.
 pub fn gen_mesh_knot(radius: f32, size: f32, rad_seg: i32, sides: i32) -> Mesh {
     unsafe {
-        raylib::GenMeshKnot(radius, size, rad_seg, sides)
+        Mesh(raylib::GenMeshKnot(radius, size, rad_seg, sides))
     }
 }
 
 /// Generates heightmap mesh from image data.
-pub fn gen_mesh_heightmap(heightmap: Image, size: Vector3) -> Mesh {
+pub fn gen_mesh_heightmap(heightmap: &Image, size: Vector3) -> Mesh {
     unsafe {
-        raylib::GenMeshHeightmap(heightmap, size)
+        Mesh(raylib::GenMeshHeightmap(heightmap.0, size))
     }
 }
 
 /// Generates cubes-based map mesh from image data.
-pub fn gen_mesh_cubicmap(cubicmap: Image, cube_size: Vector3) -> Mesh {
+pub fn gen_mesh_cubicmap(cubicmap: &Image, cube_size: Vector3) -> Mesh {
     unsafe {
-        raylib::GenMeshCubicmap(cubicmap, cube_size)
+        Mesh(raylib::GenMeshCubicmap(cubicmap.0, cube_size))
     }
 }
 
@@ -2135,49 +2097,46 @@ pub fn gen_mesh_cubicmap(cubicmap: Image, cube_size: Vector3) -> Mesh {
 pub fn load_material(filename: &str) -> Material {
     let c_filename = CString::new(filename).unwrap();
     unsafe {
-        raylib::LoadMaterial(c_filename.as_ptr())
+        Material(raylib::LoadMaterial(c_filename.as_ptr()))
     }
+}
+
+lazy_static! {
+    static ref MATERIAL_DEFAULT: Material = {
+        unsafe { Material(raylib::LoadMaterialDefault()) }
+    };
 }
 
 /// Loads default material (supports `DIFFUSE`, `SPECULAR`, and `NORMAL` maps).
-pub fn load_material_default() -> Material {
-    unsafe {
-        raylib::LoadMaterialDefault()
-    }
-}
-
-/// Unloads material from GPU memory (VRAM).
-pub fn unload_material(material: Material) {
-    unsafe {
-        raylib::UnloadMaterial(material);
-    }
+pub fn load_material_default() -> &'static Material {
+    &MATERIAL_DEFAULT
 }
 
 /// Draws a model (with texture if set).
-pub fn draw_model(model: Model, position: Vector3, scale: f32, tint: Color) {
+pub fn draw_model(model: &Model, position: Vector3, scale: f32, tint: Color) {
     unsafe {
-        raylib::DrawModel(model, position, scale, tint);
+        raylib::DrawModel(model.0, position, scale, tint);
     }
 }
 
 /// Draws a model with extended parameters.
-pub fn draw_model_ex(model: Model, position: Vector3, rotation_axis: Vector3, rotation_angle: f32, scale: Vector3, tint: Color) {
+pub fn draw_model_ex(model: &Model, position: Vector3, rotation_axis: Vector3, rotation_angle: f32, scale: Vector3, tint: Color) {
     unsafe {
-        raylib::DrawModelEx(model, position, rotation_axis, rotation_angle, scale, tint);
+        raylib::DrawModelEx(model.0, position, rotation_axis, rotation_angle, scale, tint);
     }
 }
 
 /// Draws a model with wires (with texture if set).
-pub fn draw_model_wires(model: Model, position: Vector3, scale: f32, tint: Color) {
+pub fn draw_model_wires(model: &Model, position: Vector3, scale: f32, tint: Color) {
     unsafe {
-        raylib::DrawModelWires(model, position, scale, tint);
+        raylib::DrawModelWires(model.0, position, scale, tint);
     }
 }
 
 /// Draws a model with wires.
-pub fn draw_model_wires_ex(model: Model, position: Vector3, rotation_axis: Vector3, rotation_angle: f32, scale: Vector3, tint: Color) {
+pub fn draw_model_wires_ex(model: &Model, position: Vector3, rotation_axis: Vector3, rotation_angle: f32, scale: Vector3, tint: Color) {
     unsafe {
-        raylib::DrawModelWiresEx(model, position, rotation_axis, rotation_angle, scale, tint);
+        raylib::DrawModelWiresEx(model.0, position, rotation_axis, rotation_angle, scale, tint);
     }
 }
 
@@ -2189,16 +2148,16 @@ pub fn draw_bounding_box(bbox: BoundingBox, color: Color) {
 }
 
 /// Draws a billboard texture.
-pub fn draw_billboard(camera: Camera3D, texture: Texture2D, center: Vector3, size: f32, tint: Color) {
+pub fn draw_billboard(camera: Camera3D, texture: &Texture2D, center: Vector3, size: f32, tint: Color) {
     unsafe {
-        raylib::DrawBillboard(camera, texture, center, size, tint);
+        raylib::DrawBillboard(camera, texture.0, center, size, tint);
     }
 }
 
 /// Draws a billboard texture defined by `source_rec`.
-pub fn draw_billboard_rec(camera: Camera3D, texture: Texture2D, source_rec: Rectangle, center: Vector3, size: f32, tint: Color) {
+pub fn draw_billboard_rec(camera: Camera3D, texture: &Texture2D, source_rec: Rectangle, center: Vector3, size: f32, tint: Color) {
     unsafe {
-        raylib::DrawBillboardRec(camera, texture, source_rec, center, size, tint);
+        raylib::DrawBillboardRec(camera, texture.0, source_rec, center, size, tint);
     }
 }
 
@@ -2245,9 +2204,10 @@ pub fn check_collision_ray_box(ray: Ray, bbox: BoundingBox) -> bool {
 }
 
 /// Gets collision info between ray and model.
-pub fn get_collision_ray_model(ray: Ray, model: &mut Model) -> RayHitInfo {
+pub fn get_collision_ray_model(ray: Ray, model: &Model) -> RayHitInfo {
     unsafe {
-        raylib::GetCollisionRayModel(ray, model)
+        let mut model = model.0;
+        raylib::GetCollisionRayModel(ray, &mut model)
     }
 }
 
@@ -2281,7 +2241,7 @@ pub fn load_shader(vs_filename: &str, fs_filename: &str) -> Shader {
     let c_vs_filename = CString::new(vs_filename).unwrap();
     let c_fs_filename = CString::new(fs_filename).unwrap();
     unsafe {
-        raylib::LoadShader(c_vs_filename.as_ptr(), c_fs_filename.as_ptr())
+        Shader(raylib::LoadShader(c_vs_filename.as_ptr(), c_fs_filename.as_ptr()))
     }
 }
 
@@ -2290,57 +2250,60 @@ pub fn load_shader_code(vs_code: &str, fs_code: &str) -> Shader {
     let c_vs_code = CString::new(vs_code).unwrap();
     let c_fs_code = CString::new(fs_code).unwrap();
     unsafe {
-        raylib::LoadShaderCode(c_vs_code.as_ptr() as *mut i8, c_fs_code.as_ptr() as *mut i8)
+        Shader(raylib::LoadShaderCode(c_vs_code.as_ptr() as *mut i8, c_fs_code.as_ptr() as *mut i8))
     }
 }
 
-/// Unloads a custom shader from memory.
-pub fn unload_shader(shader: Shader) {
-    unsafe {
-        raylib::UnloadShader(shader);
-    }
+lazy_static! {
+    static ref SHADER_DEFAULT: Shader = {
+        unsafe { Shader(raylib::GetShaderDefault()) }
+    };
 }
 
 /// Gets default shader.
-pub fn get_shader_default() -> Shader {
-    unsafe {
-        raylib::GetShaderDefault()
-    }
+pub fn get_shader_default() -> &'static Shader {
+    &SHADER_DEFAULT
+}
+
+lazy_static! {
+    static ref TEXTURE_DEFAULT: Texture2D = {
+        unsafe {
+            Texture2D(raylib::GetTextureDefault())
+        }
+    };
 }
 
 /// Gets default texture.
-pub fn get_texture_default() -> Texture2D {
-    unsafe {
-        raylib::GetTextureDefault()
-    }
+pub fn get_texture_default() -> &'static Texture2D {
+    &TEXTURE_DEFAULT
 }
 
 /// Gets shader uniform location by name.
-pub fn get_shader_location(shader: Shader, uniform_name: &str) -> i32 {
+pub fn get_shader_location(shader: &Shader, uniform_name: &str) -> i32 {
     let c_uniform_name = CString::new(uniform_name).unwrap();
     unsafe {
-        raylib::GetShaderLocation(shader, c_uniform_name.as_ptr())
+        raylib::GetShaderLocation(shader.0, c_uniform_name.as_ptr())
     }
 }
 
 /// Sets shader uniform value (`f32`).
-pub fn set_shader_value(shader: Shader, uniform_loc: i32, value: &[f32]) {
+pub fn set_shader_value(shader: &mut Shader, uniform_loc: i32, value: &[f32]) {
     unsafe {
-        raylib::SetShaderValue(shader, uniform_loc, value.as_ptr(), value.len() as i32);
+        raylib::SetShaderValue(shader.0, uniform_loc, value.as_ptr(), value.len() as i32);
     }
 }
 
 /// Sets shader uniform value (`i32`).
-pub fn set_shader_value_i(shader: Shader, uniform_loc: i32, value: &[i32]) {
+pub fn set_shader_value_i(shader: &mut Shader, uniform_loc: i32, value: &[i32]) {
     unsafe {
-        raylib::SetShaderValuei(shader, uniform_loc, value.as_ptr(), value.len() as i32);
+        raylib::SetShaderValuei(shader.0, uniform_loc, value.as_ptr(), value.len() as i32);
     }
 }
 
 /// Sets shader uniform value (matrix 4x4).
-pub fn set_shader_value_matrix(shader: Shader, uniform_loc: i32, mat: Matrix) {
+pub fn set_shader_value_matrix(shader: &mut Shader, uniform_loc: i32, mat: Matrix) {
     unsafe {
-        raylib::SetShaderValueMatrix(shader, uniform_loc, mat);
+        raylib::SetShaderValueMatrix(shader.0, uniform_loc, mat);
     }
 }
 
@@ -2366,37 +2329,37 @@ pub fn get_matrix_modelview() -> Matrix {
 }
 
 /// Generates cubemap texture from HDR texture.
-pub fn gen_texture_cubemap(shader: Shader, sky_hdr: Texture2D, size: i32) -> Texture2D {
+pub fn gen_texture_cubemap(shader: &Shader, sky_hdr: &Texture2D, size: i32) -> Texture2D {
     unsafe {
-        raylib::GenTextureCubemap(shader, sky_hdr, size)
+        Texture2D(raylib::GenTextureCubemap(shader.0, sky_hdr.0, size))
     }
 }
 
 /// Generates irradiance texture using cubemap data.
-pub fn gen_texture_irradiance(shader: Shader, cubemap: Texture2D, size: i32) -> Texture2D {
+pub fn gen_texture_irradiance(shader: &Shader, cubemap: &Texture2D, size: i32) -> Texture2D {
     unsafe {
-        raylib::GenTextureIrradiance(shader, cubemap, size)
+        Texture2D(raylib::GenTextureIrradiance(shader.0, cubemap.0, size))
     }
 }
 
 /// Generates prefilter texture using cubemap data.
-pub fn gen_texture_prefilter(shader: Shader, cubemap: Texture2D, size: i32) -> Texture2D {
+pub fn gen_texture_prefilter(shader: &Shader, cubemap: &Texture2D, size: i32) -> Texture2D {
     unsafe {
-        raylib::GenTexturePrefilter(shader, cubemap, size)
+        Texture2D(raylib::GenTexturePrefilter(shader.0, cubemap.0, size))
     }
 }
 
 /// Generates BRDF texture using cubemap data.
-pub fn gen_texture_brdf(shader: Shader, cubemap: Texture2D, size: i32) -> Texture2D {
+pub fn gen_texture_brdf(shader: &Shader, cubemap: &Texture2D, size: i32) -> Texture2D {
     unsafe {
-        raylib::GenTextureBRDF(shader, cubemap, size)
+        Texture2D(raylib::GenTextureBRDF(shader.0, cubemap.0, size))
     }
 }
 
 /// Begins custom shader drawing.
-pub fn begin_shader_mode(shader: Shader) {
+pub fn begin_shader_mode(shader: &Shader) {
     unsafe {
-        raylib::BeginShaderMode(shader);
+        raylib::BeginShaderMode(shader.0);
     }
 }
 
@@ -2450,9 +2413,9 @@ pub fn is_vr_simulator_ready() -> bool {
 }
 
 /// Sets VR distortion shader for stereoscopic rendering.
-pub fn set_vr_distortion_shader(shader: Shader) {
+pub fn set_vr_distortion_shader(shader: &Shader) {
     unsafe {
-        raylib::SetVrDistortionShader(shader);
+        raylib::SetVrDistortionShader(shader.0);
     }
 }
 
@@ -2516,14 +2479,14 @@ pub fn set_master_volume(volume: f32) {
 pub fn load_wave(filename: &str) -> Wave {
     let c_filename = CString::new(filename).unwrap();
     unsafe {
-        raylib::LoadWave(c_filename.as_ptr())
+        Wave(raylib::LoadWave(c_filename.as_ptr()))
     }
 }
 
 /// Loads wave data from raw array data.
 pub fn load_wave_ex(data: &[u8], sample_count: i32, sample_rate: i32, sample_size: i32, channels: i32) -> Wave {
     unsafe {
-        raylib::LoadWaveEx(data.as_ptr() as *mut std::os::raw::c_void, sample_count, sample_rate, sample_size, channels)
+        Wave(raylib::LoadWaveEx(data.as_ptr() as *mut std::os::raw::c_void, sample_count, sample_rate, sample_size, channels))
     }
 }
 
@@ -2531,112 +2494,98 @@ pub fn load_wave_ex(data: &[u8], sample_count: i32, sample_rate: i32, sample_siz
 pub fn load_sound(filename: &str) -> Sound {
     let c_filename = CString::new(filename).unwrap();
     unsafe {
-        raylib::LoadSound(c_filename.as_ptr())
+        Sound(raylib::LoadSound(c_filename.as_ptr()))
     }
 }
 
 /// Loads sound from wave data.
-pub fn load_sound_from_wave(wave: Wave) -> Sound {
+pub fn load_sound_from_wave(wave: &Wave) -> Sound {
     unsafe {
-        raylib::LoadSoundFromWave(wave)
+        Sound(raylib::LoadSoundFromWave(wave.0))
     }
 }
 
 /// Updates sound buffer with new data.
-pub fn update_sound(sound: Sound, data: &[impl AudioSample]) {
+pub fn update_sound(sound: &mut Sound, data: &[impl AudioSample]) {
     unsafe {
-        raylib::UpdateSound(sound, data.as_ptr() as *const std::os::raw::c_void, data.len() as i32);
-    }
-}
-
-/// Unloads wave data.
-pub fn unload_wave(wave: Wave) {
-    unsafe {
-        raylib::UnloadWave(wave);
-    }
-}
-
-/// Unloads sound.
-pub fn unload_sound(sound: Sound) {
-    unsafe {
-        raylib::UnloadSound(sound);
+        raylib::UpdateSound(sound.0, data.as_ptr() as *const std::os::raw::c_void, data.len() as i32);
     }
 }
 
 /// Plays a sound.
-pub fn play_sound(sound: Sound) {
+pub fn play_sound(sound: &Sound) {
     unsafe {
-        raylib::PlaySound(sound);
+        raylib::PlaySound(sound.0);
     }
 }
 
 /// Pauses a sound.
-pub fn pause_sound(sound: Sound) {
+pub fn pause_sound(sound: &Sound) {
     unsafe {
-        raylib::PauseSound(sound);
+        raylib::PauseSound(sound.0);
     }
 }
 
 /// Resumes a paused sound.
-pub fn resume_sound(sound: Sound) {
+pub fn resume_sound(sound: &Sound) {
     unsafe {
-        raylib::ResumeSound(sound);
+        raylib::ResumeSound(sound.0);
     }
 }
 
 /// Stops playing a sound.
-pub fn stop_sound(sound: Sound) {
+pub fn stop_sound(sound: &Sound) {
     unsafe {
-        raylib::StopSound(sound);
+        raylib::StopSound(sound.0);
     }
 }
 
 /// Checks if a sound is currently playing.
-pub fn is_sound_playing(sound: Sound) -> bool {
+pub fn is_sound_playing(sound: &Sound) -> bool {
     unsafe {
-        raylib::IsSoundPlaying(sound)
+        raylib::IsSoundPlaying(sound.0)
     }
 }
 
 /// Sets volume for a sound (`1.0` is max level).
-pub fn set_sound_volume(sound: Sound, volume: f32) {
+pub fn set_sound_volume(sound: &Sound, volume: f32) {
     unsafe {
-        raylib::SetSoundVolume(sound, volume);
+        raylib::SetSoundVolume(sound.0, volume);
     }
 }
 
 /// Sets pitch for a sound (`1.0` is base level).
-pub fn set_sound_pitch(sound: Sound, pitch: f32) {
+pub fn set_sound_pitch(sound: &Sound, pitch: f32) {
     unsafe {
-        raylib::SetSoundPitch(sound, pitch);
+        raylib::SetSoundPitch(sound.0, pitch);
     }
 }
 
 /// Converts wave data to desired format.
 pub fn wave_format(wave: &mut Wave, sample_rate: i32, sample_size: i32, channels: i32) {
     unsafe {
-        raylib::WaveFormat(wave, sample_rate, sample_size, channels);
+        raylib::WaveFormat(&mut wave.0, sample_rate, sample_size, channels);
     }
 }
 
 /// Copies a wave to a new wave.
-pub fn wave_copy(wave: Wave) -> Wave {
+pub fn wave_copy(wave: &Wave) -> Wave {
     unsafe {
-        raylib::WaveCopy(wave)
+        Wave(raylib::WaveCopy(wave.0))
     }
 }
 
 /// Crops a wave to defined sample range.
 pub fn wave_crop(wave: &mut Wave, init_sample: i32, final_sample: i32) {
     unsafe {
-        raylib::WaveCrop(wave, init_sample, final_sample);
+        raylib::WaveCrop(&mut wave.0, init_sample, final_sample);
     }
 }
 
 /// Gets sample data from wave as an `f32` array.
-pub fn get_wave_data(wave: Wave) -> Vec<f32> {
+pub fn get_wave_data(wave: &Wave) -> Vec<f32> {
     unsafe {
-        let data = raylib::GetWaveData(wave);
+        let data = raylib::GetWaveData(wave.0);
         let data_size = (wave.sample_count * wave.channels) as usize;
         let mut samples = Vec::with_capacity(data_size);
         samples.set_len(data_size);
@@ -2650,167 +2599,153 @@ pub fn get_wave_data(wave: Wave) -> Vec<f32> {
 pub fn load_music_stream(filename: &str) -> Music {
     let c_filename = CString::new(filename).unwrap();
     unsafe {
-        raylib::LoadMusicStream(c_filename.as_ptr())
-    }
-}
-
-/// Unloads music stream.
-pub fn unload_music_stream(music: Music) {
-    unsafe {
-        raylib::UnloadMusicStream(music);
+        Music(raylib::LoadMusicStream(c_filename.as_ptr()))
     }
 }
 
 /// Starts music playing.
-pub fn play_music_stream(music: Music) {
+pub fn play_music_stream(music: &mut Music) {
     unsafe {
-        raylib::PlayMusicStream(music);
+        raylib::PlayMusicStream(music.0);
     }
 }
 
 /// Updates buffers for music streaming.
-pub fn update_music_stream(music: Music) {
+pub fn update_music_stream(music: &mut Music) {
     unsafe {
-        raylib::UpdateMusicStream(music);
+        raylib::UpdateMusicStream(music.0);
     }
 }
 
 /// Stops music playing.
-pub fn stop_music_stream(music: Music) {
+pub fn stop_music_stream(music: &mut Music) {
     unsafe {
-        raylib::StopMusicStream(music);
+        raylib::StopMusicStream(music.0);
     }
 }
 
 /// Pauses music playing.
-pub fn pause_music_stream(music: Music) {
+pub fn pause_music_stream(music: &mut Music) {
     unsafe {
-        raylib::PauseMusicStream(music);
+        raylib::PauseMusicStream(music.0);
     }
 }
 
 /// Resumes playing paused music.
-pub fn resume_music_stream(music: Music) {
+pub fn resume_music_stream(music: &mut Music) {
     unsafe {
-        raylib::ResumeMusicStream(music);
+        raylib::ResumeMusicStream(music.0);
     }
 }
 
 /// Checks if music is playing.
-pub fn is_music_playing(music: Music) -> bool {
+pub fn is_music_playing(music: &Music) -> bool {
     unsafe {
-        raylib::IsMusicPlaying(music)
+        raylib::IsMusicPlaying(music.0)
     }
 }
 
 /// Sets volume for music (`1.0` is max level).
-pub fn set_music_volume(music: Music, volume: f32) {
+pub fn set_music_volume(music: &mut Music, volume: f32) {
     unsafe {
-        raylib::SetMusicVolume(music, volume);
+        raylib::SetMusicVolume(music.0, volume);
     }
 }
 
 /// Sets pitch for music (`1.0` is base level).
-pub fn set_music_pitch(music: Music, pitch: f32) {
+pub fn set_music_pitch(music: &mut Music, pitch: f32) {
     unsafe {
-        raylib::SetMusicPitch(music, pitch);
+        raylib::SetMusicPitch(music.0, pitch);
     }
 }
 
 /// Sets music loop count (loop repeats).
-pub fn set_music_loop_count(music: Music, count: i32) {
+pub fn set_music_loop_count(music: &mut Music, count: i32) {
     unsafe {
-        raylib::SetMusicLoopCount(music, count);
+        raylib::SetMusicLoopCount(music.0, count);
     }
 }
 
 /// Gets music time length in seconds.
-pub fn get_music_time_length(music: Music) -> f32 {
+pub fn get_music_time_length(music: &Music) -> f32 {
     unsafe {
-        raylib::GetMusicTimeLength(music)
+        raylib::GetMusicTimeLength(music.0)
     }
 }
 
 /// Gets current music time played in seconds.
-pub fn get_music_time_played(music: Music) -> f32 {
+pub fn get_music_time_played(music: &Music) -> f32 {
     unsafe {
-        raylib::GetMusicTimePlayed(music)
+        raylib::GetMusicTimePlayed(music.0)
     }
 }
 
 /// Initializes audio stream (to stream raw PCM data).
 pub fn init_audio_stream(sample_rate: u32, sample_size: u32, channels: u32) -> AudioStream {
     unsafe {
-        raylib::InitAudioStream(sample_rate, sample_size, channels)
+        AudioStream(raylib::InitAudioStream(sample_rate, sample_size, channels))
     }
 }
 
 /// Updates audio stream buffers with data.
-pub fn update_audio_stream(stream: AudioStream, data: &[impl AudioSample]) {
+pub fn update_audio_stream(stream: &mut AudioStream, data: &[impl AudioSample]) {
     unsafe {
-        raylib::UpdateAudioStream(stream, data.as_ptr() as *const std::os::raw::c_void, data.len() as i32);
-    }
-}
-
-/// Closes audio stream and frees memory.
-pub fn close_audio_stream(stream: AudioStream) {
-    unsafe {
-        raylib::CloseAudioStream(stream);
+        raylib::UpdateAudioStream(stream.0, data.as_ptr() as *const std::os::raw::c_void, data.len() as i32);
     }
 }
 
 /// Checks if any audio stream buffers requires refill.
-pub fn is_audio_buffer_processed(stream: AudioStream) -> bool {
+pub fn is_audio_buffer_processed(stream: &AudioStream) -> bool {
     unsafe {
-        raylib::IsAudioBufferProcessed(stream)
+        raylib::IsAudioBufferProcessed(stream.0)
     }
 }
 
 /// Plays audio stream.
-pub fn play_audio_stream(stream: AudioStream) {
+pub fn play_audio_stream(stream: &mut AudioStream) {
     unsafe {
-        raylib::PlayAudioStream(stream);
+        raylib::PlayAudioStream(stream.0);
     }
 }
 
 /// Pauses audio stream.
-pub fn pause_audio_stream(stream: AudioStream) {
+pub fn pause_audio_stream(stream: &mut AudioStream) {
     unsafe {
-        raylib::PauseAudioStream(stream);
+        raylib::PauseAudioStream(stream.0);
     }
 }
 
 /// Resumes audio stream.
-pub fn resume_audio_stream(stream: AudioStream) {
+pub fn resume_audio_stream(stream: &mut AudioStream) {
     unsafe {
-        raylib::ResumeAudioStream(stream);
+        raylib::ResumeAudioStream(stream.0);
     }
 }
 
 /// Checks if audio stream is currently playing.
-pub fn is_audio_stream_playing(stream: AudioStream) -> bool {
+pub fn is_audio_stream_playing(stream: &AudioStream) -> bool {
     unsafe {
-        raylib::IsAudioStreamPlaying(stream)
+        raylib::IsAudioStreamPlaying(stream.0)
     }
 }
 
 /// Stops audio stream.
-pub fn stop_audio_stream(stream: AudioStream) {
+pub fn stop_audio_stream(stream: &mut AudioStream) {
     unsafe {
-        raylib::StopAudioStream(stream);
+        raylib::StopAudioStream(stream.0);
     }
 }
 
 /// Sets volume for audio stream (`1.0` is max level).
-pub fn set_audio_stream_volume(stream: AudioStream, volume: f32) {
+pub fn set_audio_stream_volume(stream: &mut AudioStream, volume: f32) {
     unsafe {
-        raylib::SetAudioStreamVolume(stream, volume);
+        raylib::SetAudioStreamVolume(stream.0, volume);
     }
 }
 
 /// Sets pitch for audio stream (`1.0` is base level).
-pub fn set_audio_stream_pitch(stream: AudioStream, pitch: f32) {
+pub fn set_audio_stream_pitch(stream: &mut AudioStream, pitch: f32) {
     unsafe {
-        raylib::SetAudioStreamPitch(stream, pitch);
+        raylib::SetAudioStreamPitch(stream.0, pitch);
     }
 }

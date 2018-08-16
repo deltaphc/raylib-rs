@@ -56,7 +56,6 @@ pub struct Texture2D {
     pub mipmaps: i32,
     pub format: i32,
 }
-pub type Texture = Texture2D;
 
 #[repr(C)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
@@ -65,7 +64,6 @@ pub struct RenderTexture2D {
     pub texture: Texture2D,
     pub depth: Texture2D,
 }
-pub type RenderTexture = RenderTexture2D;
 
 #[repr(C)]
 #[derive(Debug, Copy, Clone, PartialEq)]
@@ -86,7 +84,6 @@ pub struct Font {
     pub chars_count: i32,
     pub chars: *mut CharInfo,
 }
-pub type SpriteFont = Font;
 
 impl Font {
     /// Returns a new `Font` using provided `CharInfo` data and parameters.

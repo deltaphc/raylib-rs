@@ -2,10 +2,7 @@
 
 raylib-rs is a simple, minimal Rust binding for [raylib](http://www.raylib.com/) 2.0. It currently targets the *stable* Rust toolchain, version 1.26 or higher.
 
-Do note that this binding is not fully idiomatic:
-- Much like in the C version of raylib, you must handle the loading and unloading of resources manually. Higher-level facilities such as RAII or other resource management methods are left as an exercise to the reader/coder.
-- The library structs all derive `Copy`, which means they all have copy semantics like in C. Also like in C raylib, this does *not* mean that pointed-to resources are copied.
-- It is more or less a 1:1 mapping of raylib functions to C functions, so there are functions that seem like they can be `impl`ed on a struct, but aren't. This may change in the future, but currently this is intentionally kept simple to keep familiarity with the C API.
+Do note that this binding is not fully idiomatic. It is more or less a 1:1 mapping of raylib functions to C functions, so there are functions that seem like they can be `impl`ed on a struct, but aren't. This may change in the future, but currently this is intentionally kept simple to keep familiarity with the C API.
 
 **Disclaimer: I created this binding as a way to learn Rust. There may be some things I can do better, or make more ergonomic for users. Feel free to make suggestions!**
 
@@ -51,6 +48,7 @@ fn main() {
 # Tech Notes and Differences from C raylib
 
 - Covers nearly the entire raylib 2.0 API. The only omissions are `SubText` and `FormatText`, which are covered by Rust's string slicing and Rust's `format!` macro, respectively.
+- Structs holding resources have RAII/move semantics, including: `Image`, `Texture2D`, `RenderTexture2D`, `Font`, `Mesh`, `Shader`, `Material`, `Model`, `Wave`, `Sound`, `Music`, and `AudioStream`. Thus, there are no `Unload` functions. You can, however, call `std::mem::drop` manually if you so desire.
 - Functions dealing with string data take in `&str` and/or return an owned `String`, for the sake of safety.
 - In C, `LoadFontData` returns a pointer to a heap-allocated array of `CharInfo` structs. In this Rust binding, said array is copied into an owned `Vec<CharInfo>`, the original data is freed, and the owned Vec is returned.
 - A `Font::from_data` method was added to create a `Font` from loaded `CharInfo` data.
