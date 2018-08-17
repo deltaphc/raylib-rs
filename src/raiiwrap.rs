@@ -14,6 +14,7 @@ Permission is granted to anyone to use this software for any purpose, including 
   3. This notice may not be removed or altered from any source distribution.
 */
 
+extern crate libc;
 use std::ops::{Deref, DerefMut};
 use raylib;
 
@@ -53,6 +54,27 @@ make_raii_wrapper!(Wave, raylib::Wave, raylib::UnloadWave);
 make_raii_wrapper!(Sound, raylib::Sound, raylib::UnloadSound);
 make_raii_wrapper!(Music, raylib::Music, raylib::UnloadMusicStream);
 make_raii_wrapper!(AudioStream, raylib::AudioStream, raylib::CloseAudioStream);
+
+impl Font {
+    /// Returns a new `Font` using provided `CharInfo` data and parameters.
+    pub fn from_data(chars: &Vec<raylib::CharInfo>, base_size: i32, padding: i32, pack_method: i32) -> Font {
+        unsafe {
+            let mut f = ::std::mem::zeroed::<raylib::Font>();
+            f.base_size = base_size;
+            f.chars_count = chars.len() as i32;
+            
+            let data_size = f.chars_count as usize * ::std::mem::size_of::<raylib::CharInfo>();
+            let ci_arr_ptr = libc::malloc(data_size); // raylib frees this data in UnloadFont
+            ::std::ptr::copy(chars.as_ptr(), ci_arr_ptr as *mut raylib::CharInfo, chars.len());
+            f.chars = ci_arr_ptr as *mut raylib::CharInfo;
+
+            let atlas = raylib::GenImageFontAtlas(f.chars, f.base_size, f.chars_count, padding, pack_method);
+            f.texture = raylib::LoadTextureFromImage(atlas);
+            raylib::UnloadImage(atlas);
+            Font(f)
+        }
+    }
+}
 
 impl Model {
     /// Sets the material on the current Model and takes ownership.
