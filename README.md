@@ -4,7 +4,7 @@ raylib-rs is a simple, minimal Rust binding for [raylib](http://www.raylib.com/)
 
 This is more or less a 1:1 mapping of C functions to Rust functions. *However*, resources are automatically cleaned up when they go out of scope (or when `std::mem::drop` is called), just like all other resources in Rust. This means that "Unload" functions are not exposed (and not necessary). Additional changes include:
 - `Model::set_material`, `Material::set_shader`, and `MaterialMap::set_texture` methods were added since one cannot set the fields directly. Also enforces correct ownership semantics.
-- `Font::from_data` method was added to create a `Font` from loaded `CharInfo` data.
+- `Font::from_data`, `Font::set_chars`, and `Font::set_texture` methods were added to create a `Font` from loaded `CharInfo` data.
 - `SubText` and `FormatText` are omitted, and are instead covered by Rust's string slicing and Rust's `format!` macro, respectively.
 
 **Disclaimer: I created this binding as a way to learn Rust. There may be some things I can do better, or make more ergonomic for users. Feel free to make suggestions!**

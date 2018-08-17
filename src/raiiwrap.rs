@@ -61,18 +61,30 @@ impl raylib::Font {
         unsafe {
             let mut f = ::std::mem::zeroed::<raylib::Font>();
             f.base_size = base_size;
-            f.chars_count = chars.len() as i32;
-            
-            let data_size = f.chars_count as usize * ::std::mem::size_of::<raylib::CharInfo>();
-            let ci_arr_ptr = libc::malloc(data_size); // raylib frees this data in UnloadFont
-            ::std::ptr::copy(chars.as_ptr(), ci_arr_ptr as *mut raylib::CharInfo, chars.len());
-            f.chars = ci_arr_ptr as *mut raylib::CharInfo;
+            f.set_chars(chars);
 
             let atlas = raylib::GenImageFontAtlas(f.chars, f.base_size, f.chars_count, padding, pack_method);
             f.texture = raylib::LoadTextureFromImage(atlas);
             raylib::UnloadImage(atlas);
             Font(f)
         }
+    }
+
+    /// Sets the character data on the current Font.
+    pub fn set_chars(&mut self, chars: &Vec<raylib::CharInfo>) {
+        unsafe {
+            self.chars_count = chars.len() as i32;
+            let data_size = self.chars_count as usize * ::std::mem::size_of::<raylib::CharInfo>();
+            let ci_arr_ptr = libc::malloc(data_size); // raylib frees this data in UnloadFont
+            ::std::ptr::copy(chars.as_ptr(), ci_arr_ptr as *mut raylib::CharInfo, chars.len());
+            self.chars = ci_arr_ptr as *mut raylib::CharInfo;
+        }
+    }
+
+    /// Sets the texture on the current Font, and takes ownership of `tex`.
+    pub fn set_texture(&mut self, tex: Texture2D) {
+        self.texture = tex.0;
+        ::std::mem::forget(tex); // UnloadFont will also unload the texture
     }
 }
 
