@@ -252,7 +252,7 @@ pub const LOC_MAP_CUBEMAP: ShaderLocationIndex = 21;
 pub const LOC_MAP_IRRADIANCE: ShaderLocationIndex = 22;
 pub const LOC_MAP_PREFILTER: ShaderLocationIndex = 23;
 pub const LOC_MAP_BRDF: ShaderLocationIndex = 24;
-pub type ShaderLocationIndex = i32;
+pub type ShaderLocationIndex = usize;
 
 pub const MAP_ALBEDO: TexmapIndex = 0;
 pub const MAP_METALNESS: TexmapIndex = 1;
@@ -265,7 +265,7 @@ pub const MAP_CUBEMAP: TexmapIndex = 7;
 pub const MAP_IRRADIANCE: TexmapIndex = 8;
 pub const MAP_PREFILTER: TexmapIndex = 9;
 pub const MAP_BRDF: TexmapIndex = 10;
-pub type TexmapIndex = i32;
+pub type TexmapIndex = usize;
 
 pub const UNCOMPRESSED_GRAYSCALE: PixelFormat = 1;
 pub const UNCOMPRESSED_GRAY_ALPHA: PixelFormat = 2;

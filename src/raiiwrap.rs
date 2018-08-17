@@ -55,7 +55,7 @@ make_raii_wrapper!(Sound, raylib::Sound, raylib::UnloadSound);
 make_raii_wrapper!(Music, raylib::Music, raylib::UnloadMusicStream);
 make_raii_wrapper!(AudioStream, raylib::AudioStream, raylib::CloseAudioStream);
 
-impl Font {
+impl raylib::Font {
     /// Returns a new `Font` using provided `CharInfo` data and parameters.
     pub fn from_data(chars: &Vec<raylib::CharInfo>, base_size: i32, padding: i32, pack_method: i32) -> Font {
         unsafe {
@@ -76,11 +76,27 @@ impl Font {
     }
 }
 
-impl Model {
-    /// Sets the material on the current Model and takes ownership.
-    pub fn use_material(&mut self, m: Material) {
-        self.material = m.0;
-        ::std::mem::forget(m);
+impl raylib::MaterialMap {
+    /// Sets the texture on the current MaterialMap, and takes ownership of `tex`.
+    pub fn set_texture(&mut self, tex: Texture2D) {
+        self.texture = tex.0;
+        ::std::mem::forget(tex); // Since MaterialMaps are only used inside Materials, they will be dropped by Material
+    }
+}
+
+impl raylib::Material {
+    /// Sets the shader on the current Material, and takes ownership of `shader`.
+    pub fn set_shader(&mut self, shader: Shader) {
+        self.shader = shader.0;
+        ::std::mem::forget(shader); // UnloadMaterial will also unload the shader
+    }
+}
+
+impl raylib::Model {
+    /// Sets the material on the current Model and takes ownership of `material`.
+    pub fn set_material(&mut self, material: Material) {
+        self.material = material.0;
+        ::std::mem::forget(material); // UnloadModel will also unload the material
     }
 }
 
