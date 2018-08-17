@@ -16,6 +16,6 @@ Permission is granted to anyone to use this software for any purpose, including 
 
 fn main() {
     if cfg!(windows) {
-        println!("cargo:rustc-link-lib=static=gdi32");
+        println!("cargo:rustc-link-lib=dylib=gdi32");
     }
 }
