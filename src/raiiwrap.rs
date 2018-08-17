@@ -18,7 +18,7 @@ use std::ops::{Deref, DerefMut};
 use raylib;
 
 macro_rules! make_raii_wrapper {
-    ($name:ident, $t:ty, $dropfunc:path) => (
+    ($name:ident, $t:ty, $dropfunc:expr) => (
         #[repr(transparent)]
         #[derive(Debug, PartialEq)]
         pub struct $name(pub(crate) $t);
@@ -26,7 +26,7 @@ macro_rules! make_raii_wrapper {
         impl Drop for $name {
             #[allow(unused_unsafe)]
             fn drop(&mut self) {
-                unsafe { $dropfunc(self.0); }
+                unsafe { ($dropfunc)(self.0); }
             }
         }
 
@@ -41,16 +41,11 @@ macro_rules! make_raii_wrapper {
     )
 }
 
-// Needed because UnloadMesh takes a pointer to a Mesh
-fn drop_mesh(mut mesh: raylib::Mesh) {
-    unsafe { raylib::UnloadMesh(&mut mesh); }
-}
-
 make_raii_wrapper!(Image, raylib::Image, raylib::UnloadImage);
 make_raii_wrapper!(Texture2D, raylib::Texture2D, raylib::UnloadTexture);
 make_raii_wrapper!(RenderTexture2D, raylib::RenderTexture2D, raylib::UnloadRenderTexture);
 make_raii_wrapper!(Font, raylib::Font, raylib::UnloadFont);
-make_raii_wrapper!(Mesh, raylib::Mesh, drop_mesh);
+make_raii_wrapper!(Mesh, raylib::Mesh, |mut mesh| raylib::UnloadMesh(&mut mesh));
 make_raii_wrapper!(Shader, raylib::Shader, raylib::UnloadShader);
 make_raii_wrapper!(Material, raylib::Material, raylib::UnloadMaterial);
 make_raii_wrapper!(Model, raylib::Model, raylib::UnloadModel);
