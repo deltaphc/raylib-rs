@@ -1986,10 +1986,12 @@ pub fn load_model(filename: &str) -> Model {
     }
 }
 
-/// Loads model from generated mesh.
-pub fn load_model_from_mesh(mesh: &Mesh) -> Model {
+/// Loads model from generated mesh. Returned Model takes ownership of `mesh`.
+pub fn load_model_from_mesh(mesh: Mesh) -> Model {
     unsafe {
-        Model(raylib::LoadModelFromMesh(mesh.0))
+        let m = mesh.0;
+        std::mem::forget(mesh);
+        Model(raylib::LoadModelFromMesh(m))
     }
 }
 

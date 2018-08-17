@@ -54,6 +54,14 @@ make_raii_wrapper!(Sound, raylib::Sound, raylib::UnloadSound);
 make_raii_wrapper!(Music, raylib::Music, raylib::UnloadMusicStream);
 make_raii_wrapper!(AudioStream, raylib::AudioStream, raylib::CloseAudioStream);
 
+impl Model {
+    /// Sets the material on the current Model and takes ownership.
+    pub fn use_material(&mut self, m: Material) {
+        self.material = m.0;
+        ::std::mem::forget(m);
+    }
+}
+
 // Workarounds for lazy_static
 unsafe impl Sync for Font {}
 unsafe impl Sync for Material {}
