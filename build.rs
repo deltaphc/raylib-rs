@@ -18,4 +18,5 @@ fn main() {
     if cfg!(windows) {
         println!("cargo:rustc-link-lib=dylib=gdi32");
     }
+    println!("cargo:rustc-link-lib=static=raylib");
 }
