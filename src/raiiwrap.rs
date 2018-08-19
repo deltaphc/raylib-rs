@@ -18,42 +18,48 @@ extern crate libc;
 use std::ops::{Deref, DerefMut};
 use raylib;
 
-macro_rules! make_raii_wrapper {
-    ($name:ident, $t:ty, $dropfunc:expr) => (
-        #[repr(transparent)]
-        #[derive(Debug, PartialEq)]
-        pub struct $name(pub(crate) $t);
-
+macro_rules! impl_wrapper {
+    ($name:ident, $t:ty, $dropfunc:expr, $rawfield:tt) => (
         impl Drop for $name {
             #[allow(unused_unsafe)]
             fn drop(&mut self) {
-                unsafe { ($dropfunc)(self.0); }
+                unsafe { ($dropfunc)(self.$rawfield); }
             }
         }
 
         impl Deref for $name {
             type Target = $t;
-            fn deref(&self) -> &Self::Target { &self.0 }
+            fn deref(&self) -> &Self::Target { &self.$rawfield }
         }
 
         impl DerefMut for $name {
-            fn deref_mut(&mut self) -> &mut Self::Target { &mut self.0 }
+            fn deref_mut(&mut self) -> &mut Self::Target { &mut self.$rawfield }
         }
     )
 }
 
-make_raii_wrapper!(Image, raylib::Image, raylib::UnloadImage);
-make_raii_wrapper!(Texture2D, raylib::Texture2D, raylib::UnloadTexture);
-make_raii_wrapper!(RenderTexture2D, raylib::RenderTexture2D, raylib::UnloadRenderTexture);
-make_raii_wrapper!(Font, raylib::Font, raylib::UnloadFont);
-make_raii_wrapper!(Mesh, raylib::Mesh, |mut mesh| raylib::UnloadMesh(&mut mesh));
-make_raii_wrapper!(Shader, raylib::Shader, raylib::UnloadShader);
-make_raii_wrapper!(Material, raylib::Material, raylib::UnloadMaterial);
-make_raii_wrapper!(Model, raylib::Model, raylib::UnloadModel);
-make_raii_wrapper!(Wave, raylib::Wave, raylib::UnloadWave);
-make_raii_wrapper!(Sound, raylib::Sound, raylib::UnloadSound);
-make_raii_wrapper!(Music, raylib::Music, raylib::UnloadMusicStream);
-make_raii_wrapper!(AudioStream, raylib::AudioStream, raylib::CloseAudioStream);
+macro_rules! make_thin_wrapper {
+    ($name:ident, $t:ty, $dropfunc:expr) => (
+        #[repr(transparent)]
+        #[derive(Debug, PartialEq)]
+        pub struct $name(pub(crate) $t);
+
+        impl_wrapper!($name, $t, $dropfunc, 0);
+    )
+}
+
+make_thin_wrapper!(Image, raylib::Image, raylib::UnloadImage);
+make_thin_wrapper!(Texture2D, raylib::Texture2D, raylib::UnloadTexture);
+make_thin_wrapper!(RenderTexture2D, raylib::RenderTexture2D, raylib::UnloadRenderTexture);
+make_thin_wrapper!(Font, raylib::Font, raylib::UnloadFont);
+make_thin_wrapper!(Mesh, raylib::Mesh, |mut mesh| raylib::UnloadMesh(&mut mesh));
+make_thin_wrapper!(Shader, raylib::Shader, raylib::UnloadShader);
+make_thin_wrapper!(Material, raylib::Material, raylib::UnloadMaterial);
+make_thin_wrapper!(Model, raylib::Model, raylib::UnloadModel);
+make_thin_wrapper!(Wave, raylib::Wave, raylib::UnloadWave);
+make_thin_wrapper!(Sound, raylib::Sound, raylib::UnloadSound);
+make_thin_wrapper!(Music, raylib::Music, raylib::UnloadMusicStream);
+make_thin_wrapper!(AudioStream, raylib::AudioStream, raylib::CloseAudioStream);
 
 impl raylib::Font {
     /// Returns a new `Font` using provided `CharInfo` data and parameters.
