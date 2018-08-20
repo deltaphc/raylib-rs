@@ -29,10 +29,12 @@ macro_rules! impl_wrapper {
 
         impl Deref for $name {
             type Target = $t;
+            #[inline]
             fn deref(&self) -> &Self::Target { &self.$rawfield }
         }
 
         impl DerefMut for $name {
+            #[inline]
             fn deref_mut(&mut self) -> &mut Self::Target { &mut self.$rawfield }
         }
     )
