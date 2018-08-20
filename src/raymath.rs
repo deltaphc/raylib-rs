@@ -89,6 +89,16 @@ impl Vector2 {
     }
 }
 
+impl From<(f32, f32)> for Vector2 {
+    #[inline]
+    fn from(t: (f32, f32)) -> Vector2 {
+        Vector2 {
+            x: t.0,
+            y: t.1,
+        }
+    }
+}
+
 impl Add for Vector2 {
     type Output = Vector2;
     fn add(self, v: Vector2) -> Self {
@@ -438,6 +448,17 @@ impl Vector3 {
     /// Returns a 3-length `f32` array containing components `[x, y, z]` of the current vector.
     pub fn to_array(&self) -> [f32; 3] {
         [self.x, self.y, self.z]
+    }
+}
+
+impl From<(f32, f32, f32)> for Vector3 {
+    #[inline]
+    fn from(t: (f32, f32, f32)) -> Vector3 {
+        Vector3 {
+            x: t.0,
+            y: t.1,
+            z: t.2,
+        }
     }
 }
 
@@ -893,6 +914,18 @@ impl Quaternion {
             y: mat.m1 * self.x + mat.m5 * self.y + mat.m9 * self.z + mat.m13 * self.w,
             z: mat.m2 * self.x + mat.m6 * self.y + mat.m10 * self.z + mat.m14 * self.w,
             w: mat.m3 * self.x + mat.m7 * self.y + mat.m11 * self.z + mat.m15 * self.w,
+        }
+    }
+}
+
+impl From<(f32, f32, f32, f32)> for Quaternion {
+    #[inline]
+    fn from(t: (f32, f32, f32, f32)) -> Quaternion {
+        Quaternion {
+            x: t.0,
+            y: t.1,
+            z: t.2,
+            w: t.3,
         }
     }
 }
