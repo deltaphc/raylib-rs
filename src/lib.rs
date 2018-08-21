@@ -574,17 +574,17 @@ pub fn end_texture_mode() {
 
 /// Returns a ray trace from mouse position.
 #[inline]
-pub fn get_mouse_ray(mouse_position: Vector2, camera: Camera3D) -> Ray {
+pub fn get_mouse_ray(mouse_position: impl Into<Vector2>, camera: Camera3D) -> Ray {
     unsafe {
-        raylib::GetMouseRay(mouse_position, camera)
+        raylib::GetMouseRay(mouse_position.into(), camera)
     }
 }
 
 /// Returns the screen space position for a 3D world space position.
 #[inline]
-pub fn get_world_to_screen(position: Vector3, camera: Camera3D) -> Vector2 {
+pub fn get_world_to_screen(position: impl Into<Vector3>, camera: Camera3D) -> Vector2 {
     unsafe {
-        raylib::GetWorldToScreen(position, camera)
+        raylib::GetWorldToScreen(position.into(), camera)
     }
 }
 
@@ -1036,9 +1036,9 @@ pub fn get_mouse_position() -> Vector2 {
 
 /// Sets mouse position.
 #[inline]
-pub fn set_mouse_position(position: Vector2) {
+pub fn set_mouse_position(position: impl Into<Vector2>) {
     unsafe {
-        raylib::SetMousePosition(position);
+        raylib::SetMousePosition(position.into());
     }
 }
 
@@ -1218,9 +1218,9 @@ pub fn draw_pixel(x: i32, y: i32, color: Color) {
 
 /// Draws a pixel (Vector version).
 #[inline]
-pub fn draw_pixel_v(position: Vector2, color: Color) {
+pub fn draw_pixel_v(position: impl Into<Vector2>, color: Color) {
     unsafe {
-        raylib::DrawPixelV(position, color);
+        raylib::DrawPixelV(position.into(), color);
     }
 }
 
@@ -1234,25 +1234,25 @@ pub fn draw_line(start_pos_x: i32, start_pos_y: i32, end_pos_x: i32, end_pos_y: 
 
 /// Draws a line (Vector version).
 #[inline]
-pub fn draw_line_v(start_pos: Vector2, end_pos: Vector2, color: Color) {
+pub fn draw_line_v(start_pos: impl Into<Vector2>, end_pos: impl Into<Vector2>, color: Color) {
     unsafe {
-        raylib::DrawLineV(start_pos, end_pos, color);
+        raylib::DrawLineV(start_pos.into(), end_pos.into(), color);
     }
 }
 
 /// Draws a line with thickness.
 #[inline]
-pub fn draw_line_ex(start_pos: Vector2, end_pos: Vector2, thick: f32, color: Color) {
+pub fn draw_line_ex(start_pos: impl Into<Vector2>, end_pos: impl Into<Vector2>, thick: f32, color: Color) {
     unsafe {
-        raylib::DrawLineEx(start_pos, end_pos, thick, color);
+        raylib::DrawLineEx(start_pos.into(), end_pos.into(), thick, color);
     }
 }
 
 /// Draws a line using cubic-bezier curves in-out.
 #[inline]
-pub fn draw_line_bezier(start_pos: Vector2, end_pos: Vector2, thick: f32, color: Color) {
+pub fn draw_line_bezier(start_pos: impl Into<Vector2>, end_pos: impl Into<Vector2>, thick: f32, color: Color) {
     unsafe {
-        raylib::DrawLineBezier(start_pos, end_pos, thick, color);
+        raylib::DrawLineBezier(start_pos.into(), end_pos.into(), thick, color);
     }
 }
 
@@ -1274,9 +1274,9 @@ pub fn draw_circle_gradient(center_x: i32, center_y: i32, radius: f32, color1: C
 
 /// Draws a color-filled circle (Vector version).
 #[inline]
-pub fn draw_circle_v(center: Vector2, radius: f32, color: Color) {
+pub fn draw_circle_v(center: impl Into<Vector2>, radius: f32, color: Color) {
     unsafe {
-        raylib::DrawCircleV(center, radius, color);
+        raylib::DrawCircleV(center.into(), radius, color);
     }
 }
 
@@ -1298,9 +1298,9 @@ pub fn draw_rectangle(x: i32, y: i32, width: i32, height: i32, color: Color) {
 
 /// Draws a color-filled rectangle (Vector version).
 #[inline]
-pub fn draw_rectangle_v(position: Vector2, size: Vector2, color: Color) {
+pub fn draw_rectangle_v(position: impl Into<Vector2>, size: impl Into<Vector2>, color: Color) {
     unsafe {
-        raylib::DrawRectangleV(position, size, color);
+        raylib::DrawRectangleV(position.into(), size.into(), color);
     }
 }
 
@@ -1314,9 +1314,9 @@ pub fn draw_rectangle_rec(rec: Rectangle, color: Color) {
 
 /// Draws a color-filled rectangle with pro parameters.
 #[inline]
-pub fn draw_rectangle_pro(rec: Rectangle, origin: Vector2, rotation: f32, color: Color) {
+pub fn draw_rectangle_pro(rec: Rectangle, origin: impl Into<Vector2>, rotation: f32, color: Color) {
     unsafe {
-        raylib::DrawRectanglePro(rec, origin, rotation, color);
+        raylib::DrawRectanglePro(rec, origin.into(), rotation, color);
     }
 }
 
@@ -1368,25 +1368,25 @@ pub fn draw_rectangle_lines_ex(rec: Rectangle, line_thick: i32, color: Color) {
 
 /// Draws a triangle.
 #[inline]
-pub fn draw_triangle(v1: Vector2, v2: Vector2, v3: Vector2, color: Color) {
+pub fn draw_triangle(v1: impl Into<Vector2>, v2: impl Into<Vector2>, v3: impl Into<Vector2>, color: Color) {
     unsafe {
-        raylib::DrawTriangle(v1, v2, v3, color);
+        raylib::DrawTriangle(v1.into(), v2.into(), v3.into(), color);
     }
 }
 
 /// Draws a triangle using lines.
 #[inline]
-pub fn draw_triangle_lines(v1: Vector2, v2: Vector2, v3: Vector2, color: Color) {
+pub fn draw_triangle_lines(v1: impl Into<Vector2>, v2: impl Into<Vector2>, v3: impl Into<Vector2>, color: Color) {
     unsafe {
-        raylib::DrawTriangleLines(v1, v2, v3, color);
+        raylib::DrawTriangleLines(v1.into(), v2.into(), v3.into(), color);
     }
 }
 
 /// Draws a regular polygon of n sides (Vector version).
 #[inline]
-pub fn draw_poly(center: Vector2, sides: i32, radius: f32, rotation: f32, color: Color) {
+pub fn draw_poly(center: impl Into<Vector2>, sides: i32, radius: f32, rotation: f32, color: Color) {
     unsafe {
-        raylib::DrawPoly(center, sides, radius, rotation, color);
+        raylib::DrawPoly(center.into(), sides, radius, rotation, color);
     }
 }
 
@@ -1416,17 +1416,17 @@ pub fn check_collision_recs(rec1: Rectangle, rec2: Rectangle) -> bool {
 
 /// Checks collision between two circles.
 #[inline]
-pub fn check_collision_circles(center1: Vector2, radius1: f32, center2: Vector2, radius2: f32) -> bool {
+pub fn check_collision_circles(center1: impl Into<Vector2>, radius1: f32, center2: impl Into<Vector2>, radius2: f32) -> bool {
     unsafe {
-        raylib::CheckCollisionCircles(center1, radius1, center2, radius2)
+        raylib::CheckCollisionCircles(center1.into(), radius1, center2.into(), radius2)
     }
 }
 
 /// Checks collision between circle and rectangle.
 #[inline]
-pub fn check_collision_circle_rec(center: Vector2, radius: f32, rec: Rectangle) -> bool {
+pub fn check_collision_circle_rec(center: impl Into<Vector2>, radius: f32, rec: Rectangle) -> bool {
     unsafe {
-        raylib::CheckCollisionCircleRec(center, radius, rec)
+        raylib::CheckCollisionCircleRec(center.into(), radius, rec)
     }
 }
 
@@ -1440,25 +1440,25 @@ pub fn get_collision_rec(rec1: Rectangle, rec2: Rectangle) -> Rectangle {
 
 /// Checks if point is inside rectangle.
 #[inline]
-pub fn check_collision_point_rec(point: Vector2, rec: Rectangle) -> bool {
+pub fn check_collision_point_rec(point: impl Into<Vector2>, rec: Rectangle) -> bool {
     unsafe {
-        raylib::CheckCollisionPointRec(point, rec)
+        raylib::CheckCollisionPointRec(point.into(), rec)
     }
 }
 
 /// Checks if point is inside circle.
 #[inline]
-pub fn check_collision_point_circle(point: Vector2, center: Vector2, radius: f32) -> bool {
+pub fn check_collision_point_circle(point: impl Into<Vector2>, center: impl Into<Vector2>, radius: f32) -> bool {
     unsafe {
-        raylib::CheckCollisionPointCircle(point, center, radius)
+        raylib::CheckCollisionPointCircle(point.into(), center.into(), radius)
     }
 }
 
 /// Checks if point is inside a triangle.
 #[inline]
-pub fn check_collision_point_triangle(point: Vector2, p1: Vector2, p2: Vector2, p3: Vector2) -> bool {
+pub fn check_collision_point_triangle(point: impl Into<Vector2>, p1: impl Into<Vector2>, p2: impl Into<Vector2>, p3: impl Into<Vector2>) -> bool {
     unsafe {
-        raylib::CheckCollisionPointTriangle(point, p1, p2, p3)
+        raylib::CheckCollisionPointTriangle(point.into(), p1.into(), p2.into(), p3.into())
     }
 }
 
@@ -1726,27 +1726,27 @@ pub fn image_draw(dst: &mut Image, src: &Image, src_rec: Rectangle, dst_rec: Rec
 
 /// Draws a rectangle within an image.
 #[inline]
-pub fn image_draw_rectangle(dst: &mut Image, position: Vector2, rec: Rectangle, color: Color) {
+pub fn image_draw_rectangle(dst: &mut Image, position: impl Into<Vector2>, rec: Rectangle, color: Color) {
     unsafe {
-        raylib::ImageDrawRectangle(&mut dst.0, position, rec, color);
+        raylib::ImageDrawRectangle(&mut dst.0, position.into(), rec, color);
     }
 }
 
 /// Draws text (default font) within an image (destination).
 #[inline]
-pub fn image_draw_text(dst: &mut Image, position: Vector2, text: &str, font_size: i32, color: Color) {
+pub fn image_draw_text(dst: &mut Image, position: impl Into<Vector2>, text: &str, font_size: i32, color: Color) {
     let c_text = CString::new(text).unwrap();
     unsafe {
-        raylib::ImageDrawText(&mut dst.0, position, c_text.as_ptr(), font_size, color);
+        raylib::ImageDrawText(&mut dst.0, position.into(), c_text.as_ptr(), font_size, color);
     }
 }
 
 /// Draws text (custom font) within an image (destination).
 #[inline]
-pub fn image_draw_text_ex(dst: &mut Image, position: Vector2, font: &Font, text: &str, font_size: f32, spacing: f32, color: Color) {
+pub fn image_draw_text_ex(dst: &mut Image, position: impl Into<Vector2>, font: &Font, text: &str, font_size: f32, spacing: f32, color: Color) {
     let c_text = CString::new(text).unwrap();
     unsafe {
-        raylib::ImageDrawTextEx(&mut dst.0, position, font.0, c_text.as_ptr(), font_size, spacing, color);
+        raylib::ImageDrawTextEx(&mut dst.0, position.into(), font.0, c_text.as_ptr(), font_size, spacing, color);
     }
 }
 
@@ -1928,33 +1928,33 @@ pub fn draw_texture(texture: &Texture2D, x: i32, y: i32, tint: Color) {
 
 /// Draws a `texture` using specified `position` vector and `tint` color.
 #[inline]
-pub fn draw_texture_v(texture: &Texture2D, position: Vector2, tint: Color) {
+pub fn draw_texture_v(texture: &Texture2D, position: impl Into<Vector2>, tint: Color) {
     unsafe {
-        raylib::DrawTextureV(texture.0, position, tint);
+        raylib::DrawTextureV(texture.0, position.into(), tint);
     }
 }
 
 /// Draws a `texture` with extended parameters.
 #[inline]
-pub fn draw_texture_ex(texture: &Texture2D, position: Vector2, rotation: f32, scale: f32, tint: Color) {
+pub fn draw_texture_ex(texture: &Texture2D, position: impl Into<Vector2>, rotation: f32, scale: f32, tint: Color) {
     unsafe {
-        raylib::DrawTextureEx(texture.0, position, rotation, scale, tint);
+        raylib::DrawTextureEx(texture.0, position.into(), rotation, scale, tint);
     }
 }
 
 /// Draws from a region of `texture` defined by the `source_rec` rectangle.
 #[inline]
-pub fn draw_texture_rec(texture: &Texture2D, source_rec: Rectangle, position: Vector2, tint: Color) {
+pub fn draw_texture_rec(texture: &Texture2D, source_rec: Rectangle, position: impl Into<Vector2>, tint: Color) {
     unsafe {
-        raylib::DrawTextureRec(texture.0, source_rec, position, tint);
+        raylib::DrawTextureRec(texture.0, source_rec, position.into(), tint);
     }
 }
 
 /// Draw from a region of `texture` defined by the `source_rec` rectangle with pro parameters.
 #[inline]
-pub fn draw_texture_pro(texture: &Texture2D, source_rec: Rectangle, dest_rec: Rectangle, origin: Vector2, rotation: f32, tint: Color) {
+pub fn draw_texture_pro(texture: &Texture2D, source_rec: Rectangle, dest_rec: Rectangle, origin: impl Into<Vector2>, rotation: f32, tint: Color) {
     unsafe {
-        raylib::DrawTexturePro(texture.0, source_rec, dest_rec, origin, rotation, tint);
+        raylib::DrawTexturePro(texture.0, source_rec, dest_rec, origin.into(), rotation, tint);
     }
 }
 
@@ -2041,10 +2041,10 @@ pub fn draw_text(text: &str, x: i32, y: i32, font_size: i32, color: Color) {
 
 /// Draws text using `font` and additional parameters.
 #[inline]
-pub fn draw_text_ex(font: &Font, text: &str, position: Vector2, font_size: f32, spacing: f32, tint: Color) {
+pub fn draw_text_ex(font: &Font, text: &str, position: impl Into<Vector2>, font_size: f32, spacing: f32, tint: Color) {
     let c_text = CString::new(text).unwrap();
     unsafe {
-        raylib::DrawTextEx(font.0, c_text.as_ptr(), position, font_size, spacing, tint);
+        raylib::DrawTextEx(font.0, c_text.as_ptr(), position.into(), font_size, spacing, tint);
     }
 }
 
@@ -2076,97 +2076,97 @@ pub fn get_glyph_index(font: &Font, character: i32) -> i32 {
 
 /// Draws a line in 3D world space.
 #[inline]
-pub fn draw_line_3d(start_pos: Vector3, end_pos: Vector3, color: Color) {
+pub fn draw_line_3d(start_pos: impl Into<Vector3>, end_pos: impl Into<Vector3>, color: Color) {
     unsafe {
-        raylib::DrawLine3D(start_pos, end_pos, color);
+        raylib::DrawLine3D(start_pos.into(), end_pos.into(), color);
     }
 }
 
 /// Draws a circle in 3D world space.
 #[inline]
-pub fn draw_circle_3d(center: Vector3, radius: f32, rotation_axis: Vector3, rotation_angle: f32, color: Color) {
+pub fn draw_circle_3d(center: impl Into<Vector3>, radius: f32, rotation_axis: impl Into<Vector3>, rotation_angle: f32, color: Color) {
     unsafe {
-        raylib::DrawCircle3D(center, radius, rotation_axis, rotation_angle, color);
+        raylib::DrawCircle3D(center.into(), radius, rotation_axis.into(), rotation_angle, color);
     }
 }
 
 /// Draws a cube.
 #[inline]
-pub fn draw_cube(position: Vector3, width: f32, height: f32, length: f32, color: Color) {
+pub fn draw_cube(position: impl Into<Vector3>, width: f32, height: f32, length: f32, color: Color) {
     unsafe {
-        raylib::DrawCube(position, width, height, length, color);
+        raylib::DrawCube(position.into(), width, height, length, color);
     }
 }
 
 /// Draws a cube (Vector version).
 #[inline]
-pub fn draw_cube_v(position: Vector3, size: Vector3, color: Color) {
+pub fn draw_cube_v(position: impl Into<Vector3>, size: impl Into<Vector3>, color: Color) {
     unsafe {
-        raylib::DrawCubeV(position, size, color);
+        raylib::DrawCubeV(position.into(), size.into(), color);
     }
 }
 
 /// Draws a cube in wireframe.
 #[inline]
-pub fn draw_cube_wires(position: Vector3, width: f32, height: f32, length: f32, color: Color) {
+pub fn draw_cube_wires(position: impl Into<Vector3>, width: f32, height: f32, length: f32, color: Color) {
     unsafe {
-        raylib::DrawCubeWires(position, width, height, length, color);
+        raylib::DrawCubeWires(position.into(), width, height, length, color);
     }
 }
 
 /// Draws a textured cube.
 #[inline]
-pub fn draw_cube_texture(texture: &Texture2D, position: Vector3, width: f32, height: f32, length: f32, color: Color) {
+pub fn draw_cube_texture(texture: &Texture2D, position: impl Into<Vector3>, width: f32, height: f32, length: f32, color: Color) {
     unsafe {
-        raylib::DrawCubeTexture(texture.0, position, width, height, length, color);
+        raylib::DrawCubeTexture(texture.0, position.into(), width, height, length, color);
     }
 }
 
 /// Draws a sphere.
 #[inline]
-pub fn draw_sphere(center_pos: Vector3, radius: f32, color: Color) {
+pub fn draw_sphere(center_pos: impl Into<Vector3>, radius: f32, color: Color) {
     unsafe {
-        raylib::DrawSphere(center_pos, radius, color);
+        raylib::DrawSphere(center_pos.into(), radius, color);
     }
 }
 
 /// Draws a sphere with extended parameters.
 #[inline]
-pub fn draw_sphere_ex(center_pos: Vector3, radius: f32, rings: i32, slices: i32, color: Color) {
+pub fn draw_sphere_ex(center_pos: impl Into<Vector3>, radius: f32, rings: i32, slices: i32, color: Color) {
     unsafe {
-        raylib::DrawSphereEx(center_pos, radius, rings, slices, color);
+        raylib::DrawSphereEx(center_pos.into(), radius, rings, slices, color);
     }
 }
 
 /// Draws a sphere in wireframe.
 #[inline]
-pub fn draw_sphere_wires(center_pos: Vector3, radius: f32, rings: i32, slices: i32, color: Color) {
+pub fn draw_sphere_wires(center_pos: impl Into<Vector3>, radius: f32, rings: i32, slices: i32, color: Color) {
     unsafe {
-        raylib::DrawSphereWires(center_pos, radius, rings, slices, color);
+        raylib::DrawSphereWires(center_pos.into(), radius, rings, slices, color);
     }
 }
 
 /// Draws a cylinder.
 #[inline]
-pub fn draw_cylinder(position: Vector3, radius_top: f32, radius_bottom: f32, height: f32, slices: i32, color: Color) {
+pub fn draw_cylinder(position: impl Into<Vector3>, radius_top: f32, radius_bottom: f32, height: f32, slices: i32, color: Color) {
     unsafe {
-        raylib::DrawCylinder(position, radius_top, radius_bottom, height, slices, color);
+        raylib::DrawCylinder(position.into(), radius_top, radius_bottom, height, slices, color);
     }
 }
 
 /// Draws a cylinder in wireframe.
 #[inline]
-pub fn draw_cylinder_wires(position: Vector3, radius_top: f32, radius_bottom: f32, height: f32, slices: i32, color: Color) {
+pub fn draw_cylinder_wires(position: impl Into<Vector3>, radius_top: f32, radius_bottom: f32, height: f32, slices: i32, color: Color) {
     unsafe {
-        raylib::DrawCylinderWires(position, radius_top, radius_bottom, height, slices, color);
+        raylib::DrawCylinderWires(position.into(), radius_top, radius_bottom, height, slices, color);
     }
 }
 
 /// Draws an X/Z plane.
 #[inline]
-pub fn draw_plane(center_pos: Vector3, size: Vector2, color: Color) {
+pub fn draw_plane(center_pos: impl Into<Vector3>, size: impl Into<Vector2>, color: Color) {
     unsafe {
-        raylib::DrawPlane(center_pos, size, color);
+        raylib::DrawPlane(center_pos.into(), size.into(), color);
     }
 }
 
@@ -2188,9 +2188,9 @@ pub fn draw_grid(slices: i32, spacing: f32) {
 
 /// Draws a simple gizmo.
 #[inline]
-pub fn draw_gizmo(position: Vector3) {
+pub fn draw_gizmo(position: impl Into<Vector3>) {
     unsafe {
-        raylib::DrawGizmo(position);
+        raylib::DrawGizmo(position.into());
     }
 }
 
@@ -2313,17 +2313,17 @@ pub fn gen_mesh_knot(radius: f32, size: f32, rad_seg: i32, sides: i32) -> Mesh {
 
 /// Generates heightmap mesh from image data.
 #[inline]
-pub fn gen_mesh_heightmap(heightmap: &Image, size: Vector3) -> Mesh {
+pub fn gen_mesh_heightmap(heightmap: &Image, size: impl Into<Vector3>) -> Mesh {
     unsafe {
-        Mesh(raylib::GenMeshHeightmap(heightmap.0, size))
+        Mesh(raylib::GenMeshHeightmap(heightmap.0, size.into()))
     }
 }
 
 /// Generates cubes-based map mesh from image data.
 #[inline]
-pub fn gen_mesh_cubicmap(cubicmap: &Image, cube_size: Vector3) -> Mesh {
+pub fn gen_mesh_cubicmap(cubicmap: &Image, cube_size: impl Into<Vector3>) -> Mesh {
     unsafe {
-        Mesh(raylib::GenMeshCubicmap(cubicmap.0, cube_size))
+        Mesh(raylib::GenMeshCubicmap(cubicmap.0, cube_size.into()))
     }
 }
 
@@ -2350,33 +2350,33 @@ pub fn load_material_default() -> &'static Material {
 
 /// Draws a model (with texture if set).
 #[inline]
-pub fn draw_model(model: &Model, position: Vector3, scale: f32, tint: Color) {
+pub fn draw_model(model: &Model, position: impl Into<Vector3>, scale: f32, tint: Color) {
     unsafe {
-        raylib::DrawModel(model.0, position, scale, tint);
+        raylib::DrawModel(model.0, position.into(), scale, tint);
     }
 }
 
 /// Draws a model with extended parameters.
 #[inline]
-pub fn draw_model_ex(model: &Model, position: Vector3, rotation_axis: Vector3, rotation_angle: f32, scale: Vector3, tint: Color) {
+pub fn draw_model_ex(model: &Model, position: impl Into<Vector3>, rotation_axis: impl Into<Vector3>, rotation_angle: f32, scale: impl Into<Vector3>, tint: Color) {
     unsafe {
-        raylib::DrawModelEx(model.0, position, rotation_axis, rotation_angle, scale, tint);
+        raylib::DrawModelEx(model.0, position.into(), rotation_axis.into(), rotation_angle, scale.into(), tint);
     }
 }
 
 /// Draws a model with wires (with texture if set).
 #[inline]
-pub fn draw_model_wires(model: &Model, position: Vector3, scale: f32, tint: Color) {
+pub fn draw_model_wires(model: &Model, position: impl Into<Vector3>, scale: f32, tint: Color) {
     unsafe {
-        raylib::DrawModelWires(model.0, position, scale, tint);
+        raylib::DrawModelWires(model.0, position.into(), scale, tint);
     }
 }
 
 /// Draws a model with wires.
 #[inline]
-pub fn draw_model_wires_ex(model: &Model, position: Vector3, rotation_axis: Vector3, rotation_angle: f32, scale: Vector3, tint: Color) {
+pub fn draw_model_wires_ex(model: &Model, position: impl Into<Vector3>, rotation_axis: impl Into<Vector3>, rotation_angle: f32, scale: impl Into<Vector3>, tint: Color) {
     unsafe {
-        raylib::DrawModelWiresEx(model.0, position, rotation_axis, rotation_angle, scale, tint);
+        raylib::DrawModelWiresEx(model.0, position.into(), rotation_axis.into(), rotation_angle, scale.into(), tint);
     }
 }
 
@@ -2390,25 +2390,25 @@ pub fn draw_bounding_box(bbox: BoundingBox, color: Color) {
 
 /// Draws a billboard texture.
 #[inline]
-pub fn draw_billboard(camera: Camera3D, texture: &Texture2D, center: Vector3, size: f32, tint: Color) {
+pub fn draw_billboard(camera: Camera3D, texture: &Texture2D, center: impl Into<Vector3>, size: f32, tint: Color) {
     unsafe {
-        raylib::DrawBillboard(camera, texture.0, center, size, tint);
+        raylib::DrawBillboard(camera, texture.0, center.into(), size, tint);
     }
 }
 
 /// Draws a billboard texture defined by `source_rec`.
 #[inline]
-pub fn draw_billboard_rec(camera: Camera3D, texture: &Texture2D, source_rec: Rectangle, center: Vector3, size: f32, tint: Color) {
+pub fn draw_billboard_rec(camera: Camera3D, texture: &Texture2D, source_rec: Rectangle, center: impl Into<Vector3>, size: f32, tint: Color) {
     unsafe {
-        raylib::DrawBillboardRec(camera, texture.0, source_rec, center, size, tint);
+        raylib::DrawBillboardRec(camera, texture.0, source_rec, center.into(), size, tint);
     }
 }
 
 /// Detects collision between two spheres.
 #[inline]
-pub fn check_collision_spheres(center_a: Vector3, radius_a: f32, center_b: Vector3, radius_b: f32) -> bool {
+pub fn check_collision_spheres(center_a: impl Into<Vector3>, radius_a: f32, center_b: impl Into<Vector3>, radius_b: f32) -> bool {
     unsafe {
-        raylib::CheckCollisionSpheres(center_a, radius_a, center_b, radius_b)
+        raylib::CheckCollisionSpheres(center_a.into(), radius_a, center_b.into(), radius_b)
     }
 }
 
@@ -2422,25 +2422,25 @@ pub fn check_collision_boxes(box1: BoundingBox, box2: BoundingBox) -> bool {
 
 /// Detects collision between box and sphere.
 #[inline]
-pub fn check_collision_box_sphere(bbox: BoundingBox, center_sphere: Vector3, radius_sphere: f32) -> bool {
+pub fn check_collision_box_sphere(bbox: BoundingBox, center_sphere: impl Into<Vector3>, radius_sphere: f32) -> bool {
     unsafe {
-        raylib::CheckCollisionBoxSphere(bbox, center_sphere, radius_sphere)
+        raylib::CheckCollisionBoxSphere(bbox, center_sphere.into(), radius_sphere)
     }
 }
 
 /// Detects collision between ray and sphere.
 #[inline]
-pub fn check_collision_ray_sphere(ray: Ray, sphere_position: Vector3, sphere_radius: f32) -> bool {
+pub fn check_collision_ray_sphere(ray: Ray, sphere_position: impl Into<Vector3>, sphere_radius: f32) -> bool {
     unsafe {
-        raylib::CheckCollisionRaySphere(ray, sphere_position, sphere_radius)
+        raylib::CheckCollisionRaySphere(ray, sphere_position.into(), sphere_radius)
     }
 }
 
 /// Detects collision between ray and sphere, and returns the collision point.
 #[inline]
-pub fn check_collision_ray_sphere_ex(ray: Ray, sphere_position: Vector3, sphere_radius: f32, collision_point: &mut Vector3) -> bool {
+pub fn check_collision_ray_sphere_ex(ray: Ray, sphere_position: impl Into<Vector3>, sphere_radius: f32, collision_point: &mut Vector3) -> bool {
     unsafe {
-        raylib::CheckCollisionRaySphereEx(ray, sphere_position, sphere_radius, collision_point)
+        raylib::CheckCollisionRaySphereEx(ray, sphere_position.into(), sphere_radius, collision_point)
     }
 }
 
@@ -2463,9 +2463,9 @@ pub fn get_collision_ray_model(ray: Ray, model: &Model) -> RayHitInfo {
 
 /// Gets collision info between ray and triangle.
 #[inline]
-pub fn get_collision_ray_triangle(ray: Ray, p1: Vector3, p2: Vector3, p3: Vector3) -> RayHitInfo {
+pub fn get_collision_ray_triangle(ray: Ray, p1: impl Into<Vector3>, p2: impl Into<Vector3>, p3: impl Into<Vector3>) -> RayHitInfo {
     unsafe {
-        raylib::GetCollisionRayTriangle(ray, p1, p2, p3)
+        raylib::GetCollisionRayTriangle(ray, p1.into(), p2.into(), p3.into())
     }
 }
 
