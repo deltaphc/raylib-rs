@@ -9,5 +9,5 @@ repository = "https://github.com/deltaphc/raylib-rs"
 edition = "2018"
 
 [dependencies]
-libc = "0.2.42"
-lazy_static = "1.1.0"
+libc = "0.2.45"
+lazy_static = "1.2.0"
