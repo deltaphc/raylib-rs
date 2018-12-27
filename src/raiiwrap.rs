@@ -64,9 +64,9 @@ make_thin_wrapper!(AudioStream, raylib::AudioStream, raylib::CloseAudioStream);
 
 impl raylib::Font {
     /// Returns a new `Font` using provided `CharInfo` data and parameters.
-    pub fn from_data(chars: &Vec<raylib::CharInfo>, base_size: i32, padding: i32, pack_method: i32) -> Font {
+    pub fn from_data(chars: &[raylib::CharInfo], base_size: i32, padding: i32, pack_method: i32) -> Font {
         unsafe {
-            let mut f = ::std::mem::zeroed::<raylib::Font>();
+            let mut f = std::mem::zeroed::<raylib::Font>();
             f.base_size = base_size;
             f.set_chars(chars);
 
@@ -78,12 +78,12 @@ impl raylib::Font {
     }
 
     /// Sets the character data on the current Font.
-    pub fn set_chars(&mut self, chars: &Vec<raylib::CharInfo>) {
+    pub fn set_chars(&mut self, chars: &[raylib::CharInfo]) {
         unsafe {
             self.chars_count = chars.len() as i32;
-            let data_size = self.chars_count as usize * ::std::mem::size_of::<raylib::CharInfo>();
+            let data_size = self.chars_count as usize * std::mem::size_of::<raylib::CharInfo>();
             let ci_arr_ptr = libc::malloc(data_size); // raylib frees this data in UnloadFont
-            ::std::ptr::copy(chars.as_ptr(), ci_arr_ptr as *mut raylib::CharInfo, chars.len());
+            std::ptr::copy(chars.as_ptr(), ci_arr_ptr as *mut raylib::CharInfo, chars.len());
             self.chars = ci_arr_ptr as *mut raylib::CharInfo;
         }
     }
@@ -91,7 +91,7 @@ impl raylib::Font {
     /// Sets the texture on the current Font, and takes ownership of `tex`.
     pub fn set_texture(&mut self, tex: Texture2D) {
         self.texture = tex.0;
-        ::std::mem::forget(tex); // UnloadFont will also unload the texture
+        std::mem::forget(tex); // UnloadFont will also unload the texture
     }
 }
 
@@ -99,7 +99,7 @@ impl raylib::MaterialMap {
     /// Sets the texture on the current MaterialMap, and takes ownership of `tex`.
     pub fn set_texture(&mut self, tex: Texture2D) {
         self.texture = tex.0;
-        ::std::mem::forget(tex); // Since MaterialMaps are only used inside Materials, they will be dropped by Material
+        std::mem::forget(tex); // Since MaterialMaps are only used inside Materials, they will be dropped by Material
     }
 }
 
@@ -107,7 +107,7 @@ impl raylib::Material {
     /// Sets the shader on the current Material, and takes ownership of `shader`.
     pub fn set_shader(&mut self, shader: Shader) {
         self.shader = shader.0;
-        ::std::mem::forget(shader); // UnloadMaterial will also unload the shader
+        std::mem::forget(shader); // UnloadMaterial will also unload the shader
     }
 }
 
@@ -115,7 +115,7 @@ impl raylib::Model {
     /// Sets the material on the current Model and takes ownership of `material`.
     pub fn set_material(&mut self, material: Material) {
         self.material = material.0;
-        ::std::mem::forget(material); // UnloadModel will also unload the material
+        std::mem::forget(material); // UnloadModel will also unload the material
     }
 }
 

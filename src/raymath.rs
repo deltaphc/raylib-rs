@@ -91,11 +91,8 @@ impl Vector2 {
 
 impl From<(f32, f32)> for Vector2 {
     #[inline]
-    fn from(t: (f32, f32)) -> Vector2 {
-        Vector2 {
-            x: t.0,
-            y: t.1,
-        }
+    fn from((x, y): (f32, f32)) -> Vector2 {
+        Vector2 { x, y }
     }
 }
 
@@ -453,12 +450,8 @@ impl Vector3 {
 
 impl From<(f32, f32, f32)> for Vector3 {
     #[inline]
-    fn from(t: (f32, f32, f32)) -> Vector3 {
-        Vector3 {
-            x: t.0,
-            y: t.1,
-            z: t.2,
-        }
+    fn from((x, y, z): (f32, f32, f32)) -> Vector3 {
+        Vector3 { x, y, z }
     }
 }
 
@@ -920,13 +913,8 @@ impl Quaternion {
 
 impl From<(f32, f32, f32, f32)> for Quaternion {
     #[inline]
-    fn from(t: (f32, f32, f32, f32)) -> Quaternion {
-        Quaternion {
-            x: t.0,
-            y: t.1,
-            z: t.2,
-            w: t.3,
-        }
+    fn from((x, y, z, w): (f32, f32, f32, f32)) -> Quaternion {
+        Quaternion { x, y, z, w }
     }
 }
 

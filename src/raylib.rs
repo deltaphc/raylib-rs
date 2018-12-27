@@ -28,23 +28,18 @@ pub struct Color {
 
 impl From<(u8, u8, u8)> for Color {
     #[inline]
-    fn from(t: (u8, u8, u8)) -> Color {
-        Color {
-            r: t.0,
-            g: t.1,
-            b: t.2,
-            a: 255,
-        }
+    fn from((r, g, b): (u8, u8, u8)) -> Color {
+        Color { r, g, b, a: 255 }
     }
 }
 
 impl From<(f32, f32, f32)> for Color {
     #[inline]
-    fn from(t: (f32, f32, f32)) -> Color {
+    fn from((r, g, b): (f32, f32, f32)) -> Color {
         Color {
-            r: (255.0 * t.0) as u8,
-            g: (255.0 * t.1) as u8,
-            b: (255.0 * t.2) as u8,
+            r: (255.0 * r) as u8,
+            g: (255.0 * g) as u8,
+            b: (255.0 * b) as u8,
             a: 255,
         }
     }
@@ -52,24 +47,19 @@ impl From<(f32, f32, f32)> for Color {
 
 impl From<(u8, u8, u8, u8)> for Color {
     #[inline]
-    fn from(t: (u8, u8, u8, u8)) -> Color {
-        Color {
-            r: t.0,
-            g: t.1,
-            b: t.2,
-            a: t.3,
-        }
+    fn from((r, g, b, a): (u8, u8, u8, u8)) -> Color {
+        Color { r, g, b, a }
     }
 }
 
 impl From<(f32, f32, f32, f32)> for Color {
     #[inline]
-    fn from(t: (f32, f32, f32, f32)) -> Color {
+    fn from((r, g, b, a): (f32, f32, f32, f32)) -> Color {
         Color {
-            r: (255.0 * t.0) as u8,
-            g: (255.0 * t.1) as u8,
-            b: (255.0 * t.2) as u8,
-            a: (255.0 * t.3) as u8,
+            r: (255.0 * r) as u8,
+            g: (255.0 * g) as u8,
+            b: (255.0 * b) as u8,
+            a: (255.0 * a) as u8,
         }
     }
 }
