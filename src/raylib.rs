@@ -15,9 +15,7 @@ Permission is granted to anyone to use this software for any purpose, including 
   3. This notice may not be removed or altered from any source distribution.
 */
 
-extern crate libc;
-
-pub use raymath::*;
+pub use crate::raymath::*;
 
 #[repr(C)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
@@ -1392,7 +1390,7 @@ extern "C" {
 #[cfg(test)]
 mod tests {
     #![allow(non_snake_case)]
-    use raylib::*;
+    use super::*;
 
     #[test]
     fn bindgen_test_layout_Vector2() {

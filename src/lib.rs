@@ -14,16 +14,16 @@ Permission is granted to anyone to use this software for any purpose, including 
   3. This notice may not be removed or altered from any source distribution.
 */
 
-extern crate libc;
-#[macro_use] extern crate lazy_static;
-
 use std::ffi::{CString, CStr};
+use lazy_static::lazy_static;
 
 mod raiiwrap;
 mod raymath;
 mod raylib;
-pub use raiiwrap::*;
-pub use raylib::{
+pub mod ease;
+
+pub use crate::raiiwrap::*;
+pub use crate::raylib::{
     Color,
     Camera2D, Camera3D, Camera,
     Vector2, Vector3, Vector4, Quaternion,
@@ -32,8 +32,6 @@ pub use raylib::{
     BoundingBox,
     VrDeviceInfo,
 };
-
-pub mod ease;
 
 pub const PI: f64 = std::f64::consts::PI;
 pub const DEG2RAD: f64 = (PI / 180.0);

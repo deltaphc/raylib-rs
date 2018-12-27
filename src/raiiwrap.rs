@@ -14,9 +14,8 @@ Permission is granted to anyone to use this software for any purpose, including 
   3. This notice may not be removed or altered from any source distribution.
 */
 
-extern crate libc;
 use std::ops::{Deref, DerefMut};
-use raylib;
+use crate::raylib;
 
 macro_rules! impl_wrapper {
     ($name:ident, $t:ty, $dropfunc:expr, $rawfield:tt) => (
