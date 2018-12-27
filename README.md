@@ -1,6 +1,6 @@
 # raylib-rs
 
-raylib-rs is a simple, minimal Rust binding for [raylib](http://www.raylib.com/) 2.0. It currently targets the *stable* Rust toolchain, version 1.26 or higher.
+raylib-rs is a simple, minimal Rust binding for [raylib](http://www.raylib.com/) 2.0. It currently targets the *stable* Rust toolchain, version 1.31 or higher.
 
 This is more or less a 1:1 mapping of C functions to Rust functions. *However*, resources are automatically cleaned up when they go out of scope (or when `std::mem::drop` is called), just like all other resources in Rust. This means that "Unload" functions are not exposed (and not necessary). Additional changes include:
 - `Model::set_material`, `Material::set_shader`, and `MaterialMap::set_texture` methods were added since one cannot set the fields directly. Also enforces correct ownership semantics.
