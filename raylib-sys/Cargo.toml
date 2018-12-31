@@ -1,0 +1,17 @@
+[package]
+name = "raylib-sys"
+version = "0.1.0"
+authors = ["David Cristofaro <david@dtcristo.com>"]
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/dtcristo/raylib-rust"
+description = "Raw bindings for raylib, a simple and easy-to-use library to learn videogames programming"
+categories = ["game-engines", "external-ffi-bindings"]
+links = "raylib"
+build = "build.rs"
+edition = "2018"
+
+[dependencies]
+
+[build-dependencies]
+bindgen = "0.45.0"
+pkg-config = "0.3.14"
