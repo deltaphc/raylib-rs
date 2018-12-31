@@ -3,7 +3,7 @@ extern crate raylib_sys;
 use std::ffi::CString;
 
 use raylib_sys::{
-    bool_, BeginDrawing, ClearBackground, CloseWindow, Color, DrawRectangle, DrawText, EndDrawing,
+    BeginDrawing, ClearBackground, CloseWindow, Color, DrawRectangle, DrawText, EndDrawing,
     InitWindow, SetTargetFPS, WindowShouldClose,
 };
 
@@ -28,7 +28,7 @@ fn main() {
     unsafe {
         InitWindow(w, h, raw_window_title.as_ptr());
         SetTargetFPS(60);
-        while WindowShouldClose() != bool_::true_ {
+        while !WindowShouldClose() {
             BeginDrawing();
             ClearBackground(ray_white);
             DrawRectangle(w / 2 - 128, h / 2 - 128, 256, 256, rust_orange);

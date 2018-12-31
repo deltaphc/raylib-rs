@@ -53,6 +53,7 @@ fn main() {
     bindgen::Builder::default()
         .header("wrapper.h")
         .clang_arg(format!("-I{}", out_dir.join("include").display()))
+        .clang_arg("-xc++")
         .constified_enum_module("*")
         .generate()
         .expect("Failed to generate bindings")
