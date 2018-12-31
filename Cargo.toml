@@ -1,13 +1,2 @@
-[package]
-name = "raylib-rs"
-version = "0.1.0"
-authors = ["DeltaPHC"]
-license = "zlib/libpng"
-readme = "README.md"
-description = "A minimal Rust binding to raylib."
-repository = "https://github.com/deltaphc/raylib-rs"
-edition = "2018"
-
-[dependencies]
-libc = "0.2.45"
-lazy_static = "1.2.0"
+[workspace]
+members = ["raylib", "raylib-sys"]
