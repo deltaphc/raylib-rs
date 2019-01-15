@@ -265,6 +265,7 @@ pub struct VrDeviceInfo {
     pub chroma_ab_correction: [f32; 4],
 }
 
+#[link(name = "raylib")]
 extern "C" {
     pub fn InitWindow(
         width: ::std::os::raw::c_int,

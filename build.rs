@@ -15,8 +15,10 @@ Permission is granted to anyone to use this software for any purpose, including 
 */
 
 fn main() {
-    if cfg!(windows) {
+    if cfg!(target_os = "windows") {
         println!("cargo:rustc-link-lib=dylib=gdi32");
     }
-    println!("cargo:rustc-link-lib=static=raylib");
+    if cfg!(target_os = "linux") {
+        println!("cargo:rustc-link-lib=X11");
+    }
 }
