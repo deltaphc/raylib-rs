@@ -1,5 +1,3 @@
-extern crate raylib_sys;
-
 use std::ffi::CString;
 
 use raylib_sys::{
