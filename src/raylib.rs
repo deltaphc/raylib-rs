@@ -350,7 +350,7 @@ extern "C" {
 
     pub fn Fade(color: Color, alpha: f32) -> Color;
 
-    pub fn ShowLogo();
+    // pub fn ShowLogo();
 
     pub fn SetConfigFlags(flags: ::std::os::raw::c_uchar);
 
