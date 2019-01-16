@@ -14,6 +14,11 @@ Permission is granted to anyone to use this software for any purpose, including 
   3. This notice may not be removed or altered from any source distribution.
 */
 
+#![doc(
+    html_logo_url = "https://github.com/deltaphc/raylib-rs/raw/master/logo/raylib-rust_256x256.png",
+    html_favicon_url = "https://github.com/deltaphc/raylib-rs/raw/master/logo/raylib-rust.ico"
+)]
+
 use std::sync::atomic::{AtomicBool, ATOMIC_BOOL_INIT, Ordering};
 use std::ffi::{CString, CStr};
 use lazy_static::lazy_static;
@@ -480,7 +485,7 @@ pub fn trace_log(msg_type: LogType, text: &str) {
             return;
         }
     }
-    
+
     let mut output = String::new();
     output += match msg_type {
         LOG_INFO => "INFO: ",
@@ -489,7 +494,7 @@ pub fn trace_log(msg_type: LogType, text: &str) {
         LOG_DEBUG => "DEBUG: ",
         _ => ""
     };
-    
+
     output += text;
     println!("{}", output);
 
@@ -1440,7 +1445,7 @@ impl RaylibHandle {
     }
 
     /// Draws a vertical-gradient-filled rectangle.
-    /// 
+    ///
     /// **NOTE**: Gradient goes from bottom (`color1`) to top (`color2`).
     #[inline]
     pub fn draw_rectangle_gradient_v(&self, x: i32, y: i32, width: i32, height: i32, color1: impl Into<Color>, color2: impl Into<Color>) {
@@ -1450,7 +1455,7 @@ impl RaylibHandle {
     }
 
     /// Draws a horizontal-gradient-filled rectangle.
-    /// 
+    ///
     /// **NOTE**: Gradient goes from bottom (`color1`) to top (`color2`).
     #[inline]
     pub fn draw_rectangle_gradient_h(&self, x: i32, y: i32, width: i32, height: i32, color1: impl Into<Color>, color2: impl Into<Color>) {
@@ -1460,7 +1465,7 @@ impl RaylibHandle {
     }
 
     /// Draws a gradient-filled rectangle with custom vertex colors.
-    /// 
+    ///
     /// **NOTE**: Colors refer to corners, starting at top-left corner and going counter-clockwise.
     #[inline]
     pub fn draw_rectangle_gradient_ex(&self, rec: Rectangle, col1: impl Into<Color>, col2: impl Into<Color>, col3: impl Into<Color>, col4: impl Into<Color>) {
