@@ -2,7 +2,7 @@
    raylib.rs - Structs and raw FFI bindings
    Generated in part by bindgen
 
-Copyright (c) 2018 Paul Clement (@deltaphc)
+Copyright (c) 2018-2019 Paul Clement (@deltaphc)
 
 This software is provided "as-is", without any express or implied warranty. In no event will the authors be held liable for any damages arising from the use of this software.
 
@@ -350,7 +350,7 @@ extern "C" {
 
     pub fn Fade(color: Color, alpha: f32) -> Color;
 
-    pub fn ShowLogo();
+    // pub fn ShowLogo();
 
     pub fn SetConfigFlags(flags: ::std::os::raw::c_uchar);
 
