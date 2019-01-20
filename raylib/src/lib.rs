@@ -28,6 +28,9 @@ mod raymath;
 mod raylib;
 pub mod ease;
 
+// TODO: Replace usage of `raylib` module with `ffi`
+use raylib_sys as ffi;
+
 pub use crate::raiiwrap::*;
 pub use crate::raylib::{
     Color,

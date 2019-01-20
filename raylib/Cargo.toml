@@ -11,4 +11,4 @@ edition = "2018"
 [dependencies]
 libc = "0.2.45"
 lazy_static = "1.2.0"
-# raylib-sys = { path = "../raylib-sys" }
+raylib-sys = { path = "../raylib-sys" }
