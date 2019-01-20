@@ -1,6 +1,6 @@
 #![doc(
-    html_logo_url = "https://github.com/dtcristo/raylib-rust/raw/master/logo/raylib-rust_256x256.png",
-    html_favicon_url = "https://github.com/dtcristo/raylib-rust/raw/master/logo/raylib-rust.ico"
+    html_logo_url = "https://github.com/deltaphc/raylib-rs/raw/master/logo/raylib-rust_256x256.png",
+    html_favicon_url = "https://github.com/deltaphc/raylib-rs/raw/master/logo/raylib-rust.ico"
 )]
 #![allow(non_upper_case_globals)]
 #![allow(non_camel_case_types)]
