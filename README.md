@@ -1,3 +1,5 @@
+![logo](logo/raylib-rust_256x256.png)
+
 # raylib-rs
 
 raylib-rs is a Rust binding for [raylib](http://www.raylib.com/) 2.0. It currently targets the *stable* Rust toolchain, version 1.31 or higher.
