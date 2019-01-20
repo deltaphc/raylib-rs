@@ -2,11 +2,12 @@
 
 # raylib-rs
 
-raylib-rs is a Rust binding for [raylib](http://www.raylib.com/) 2.0. It currently targets the *stable* Rust toolchain, version 1.31 or higher.
+raylib-rs is a Rust binding for [raylib](http://www.raylib.com/) 2.0. It currently targets the _stable_ Rust toolchain, version 1.31 or higher.
 
 Though this binding tries to stay close to the simple C API, it makes some changes to be more idiomatic for Rust. Resources are automatically cleaned up when they go out of scope (or when `std::mem::drop` is called), just like all other resources in Rust. This means that "Unload" functions are not exposed (and not necessary). Additional changes include:
+
 - Most of the Raylib API is exposed through `RaylibHandle`, which is for enforcing that Raylib is only initialized once, and for making sure the window is closed properly.
-- A `RaylibHandle` is obtained through `raylib_rs::init_window(...)` or through the newer `init()` function which will allow you to `build` up some window options before initialization (replaces `set_config_flags`).
+- A `RaylibHandle` is obtained through `raylib::init_window(...)` or through the newer `init()` function which will allow you to `build` up some window options before initialization (replaces `set_config_flags`).
 - Manually closing the window is unnecessary, because `CloseWindow` is automatically called when `RaylibHandle` goes out of scope.
 - `Model::set_material`, `Material::set_shader`, and `MaterialMap::set_texture` methods were added since one cannot set the fields directly. Also enforces correct ownership semantics.
 - `Font::from_data`, `Font::set_chars`, and `Font::set_texture` methods were added to create a `Font` from loaded `CharInfo` data.
@@ -21,37 +22,58 @@ So far, I have only tested on Windows. Tips on making things work smoothly on al
 (the git path below is temporary until raylib-rs is published to crates.io)
 
 1. Add the dependency to your `Cargo.toml`:
+
 ```toml
 [dependencies]
-raylib-rs = { git = "https://github.com/deltaphc/raylib-rs" }
+raylib = { git = "https://github.com/deltaphc/raylib-rs" }
 ```
 
-2. Download raylib 2.0 from https://github.com/raysan5/raylib/releases/tag/2.0.0, and pick the one that matches your Rust toolchain. MSVC with MSVC, MinGW with GNU, 32-bit or 64-bit.
+2. Ensure you have the following dependencies (required for building `raylib-sys`)
 
-3. Copy `libraylib.a` (for MinGW) or `raylib.lib` (for MSVC) to the appropriate path in your Rust toolchain.
-   - For rustup/MSVC: `.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\x86_64-pc-windows-msvc\lib`
-   - For rustup/GNU: `.rustup\toolchains\stable-x86_64-pc-windows-gnu\lib\rustlib\x86_64-pc-windows-gnu\lib`
+   - `curl` - Should be provided by most systems
+   - `clang` - Windows binaries can be downloaded [here](https://releases.llvm.org/download.html)
+   - `pkg-config` - Only required for macOS and Linux
 
-4. Start coding!
+3. Start coding!
+
 ```rust
-use raylib_rs as ray;
+use raylib;
 
 fn main() {
-    let rl = ray::init()
+    let rl = raylib::init()
         .size(640, 480)
         .title("Hello, World")
         .build();
-    
+
     while !rl.window_should_close() {
         rl.begin_drawing();
 
-        rl.clear_background(ray::WHITE);
-        rl.draw_text("Hello, world!", 12, 12, 20, ray::BLACK);
+        rl.clear_background(raylib::WHITE);
+        rl.draw_text("Hello, world!", 12, 12, 20, raylib::BLACK);
 
         rl.end_drawing();
     }
 }
 ```
+
+# Supported targets
+
+The following targets are tested to work:
+
+- `x86_64-apple-darwin`
+- `x86_64-pc-windows-msvc`
+- `x86_64-unknown-linux-gnu`
+
+However, it _should_ also work on the following:
+
+- `i686-apple-darwin`
+- `i686-pc-windows-msvc`
+- `i686-unknown-linux-gnu`
+
+Future support will be added for the following:
+
+- `i686-pc-windows-gnu`
+- `x86_64-pc-windows-gnu`
 
 # Tech Notes
 
