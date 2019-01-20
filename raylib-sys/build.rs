@@ -1,6 +1,5 @@
-extern crate bindgen;
-extern crate pkg_config;
-
+use bindgen;
+use pkg_config;
 use std::env;
 use std::path::PathBuf;
 use std::process::Command;
