@@ -1,0 +1,11 @@
+[package]
+name = "raylib-sys"
+version = "1.0.0"
+authors = ["DeltaPHC"]
+license = "zlib/libpng"
+readme = "README.md"
+description = "Raw FFI bindings for Raylib"
+repository = "https://github.com/deltaphc/raylib-rs"
+edition = "2018"
+
+[dependencies]

@@ -1,0 +1,14 @@
+[package]
+name = "raylib"
+version = "1.0.0"
+authors = ["DeltaPHC"]
+license = "zlib/libpng"
+readme = "README.md"
+description = "Safe Rust bindings for Raylib."
+repository = "https://github.com/deltaphc/raylib-rs"
+edition = "2018"
+
+[dependencies]
+raylib-sys = { version = "1.0.0", path = "../raylib-sys" }
+libc = "0.2.45"
+lazy_static = "1.2.0"

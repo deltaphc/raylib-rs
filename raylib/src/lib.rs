@@ -25,176 +25,143 @@ use lazy_static::lazy_static;
 
 mod raiiwrap;
 mod raymath;
-mod raylib;
 pub mod ease;
 
-pub use crate::raiiwrap::*;
-pub use crate::raylib::{
-    Color,
-    Camera2D, Camera3D, Camera,
-    Vector2, Vector3, Vector4, Quaternion,
-    Ray, Matrix, Rectangle, RayHitInfo,
-    CharInfo,
-    BoundingBox,
-    VrDeviceInfo,
+use raylib_sys::ffi;
+pub use raylib_sys::ffi_types::*;
+pub use crate::raymath::{
+    Vector2, Vector3, Vector4, Quaternion, Matrix
 };
 
-pub const PI: f64 = std::f64::consts::PI;
-pub const DEG2RAD: f64 = (PI / 180.0);
-pub const RAD2DEG: f64 = (180.0 / PI);
-pub const FLAG_SHOW_LOGO: u8 = 1;
-pub const FLAG_FULLSCREEN_MODE: u8 = 2;
-pub const FLAG_WINDOW_RESIZABLE: u8 = 4;
-pub const FLAG_WINDOW_UNDECORATED: u8 = 8;
-pub const FLAG_WINDOW_TRANSPARENT: u8 = 16;
-pub const FLAG_MSAA_4X_HINT: u8 = 32;
-pub const FLAG_VSYNC_HINT: u8 = 64;
-pub const KEY_SPACE: i32 = 32;
-pub const KEY_ESCAPE: i32 = 256;
-pub const KEY_ENTER: i32 = 257;
-pub const KEY_TAB: i32 = 258;
-pub const KEY_BACKSPACE: i32 = 259;
-pub const KEY_INSERT: i32 = 260;
-pub const KEY_DELETE: i32 = 261;
-pub const KEY_RIGHT: i32 = 262;
-pub const KEY_LEFT: i32 = 263;
-pub const KEY_DOWN: i32 = 264;
-pub const KEY_UP: i32 = 265;
-pub const KEY_PAGE_UP: i32 = 266;
-pub const KEY_PAGE_DOWN: i32 = 267;
-pub const KEY_HOME: i32 = 268;
-pub const KEY_END: i32 = 269;
-pub const KEY_CAPS_LOCK: i32 = 280;
-pub const KEY_SCROLL_LOCK: i32 = 281;
-pub const KEY_NUM_LOCK: i32 = 282;
-pub const KEY_PRINT_SCREEN: i32 = 283;
-pub const KEY_PAUSE: i32 = 284;
-pub const KEY_F1: i32 = 290;
-pub const KEY_F2: i32 = 291;
-pub const KEY_F3: i32 = 292;
-pub const KEY_F4: i32 = 293;
-pub const KEY_F5: i32 = 294;
-pub const KEY_F6: i32 = 295;
-pub const KEY_F7: i32 = 296;
-pub const KEY_F8: i32 = 297;
-pub const KEY_F9: i32 = 298;
-pub const KEY_F10: i32 = 299;
-pub const KEY_F11: i32 = 300;
-pub const KEY_F12: i32 = 301;
-pub const KEY_LEFT_SHIFT: i32 = 340;
-pub const KEY_LEFT_CONTROL: i32 = 341;
-pub const KEY_LEFT_ALT: i32 = 342;
-pub const KEY_RIGHT_SHIFT: i32 = 344;
-pub const KEY_RIGHT_CONTROL: i32 = 345;
-pub const KEY_RIGHT_ALT: i32 = 346;
-pub const KEY_GRAVE: i32 = 96;
-pub const KEY_SLASH: i32 = 47;
-pub const KEY_BACKSLASH: i32 = 92;
-pub const KEY_ZERO: i32 = 48;
-pub const KEY_ONE: i32 = 49;
-pub const KEY_TWO: i32 = 50;
-pub const KEY_THREE: i32 = 51;
-pub const KEY_FOUR: i32 = 52;
-pub const KEY_FIVE: i32 = 53;
-pub const KEY_SIX: i32 = 54;
-pub const KEY_SEVEN: i32 = 55;
-pub const KEY_EIGHT: i32 = 56;
-pub const KEY_NINE: i32 = 57;
-pub const KEY_A: i32 = 65;
-pub const KEY_B: i32 = 66;
-pub const KEY_C: i32 = 67;
-pub const KEY_D: i32 = 68;
-pub const KEY_E: i32 = 69;
-pub const KEY_F: i32 = 70;
-pub const KEY_G: i32 = 71;
-pub const KEY_H: i32 = 72;
-pub const KEY_I: i32 = 73;
-pub const KEY_J: i32 = 74;
-pub const KEY_K: i32 = 75;
-pub const KEY_L: i32 = 76;
-pub const KEY_M: i32 = 77;
-pub const KEY_N: i32 = 78;
-pub const KEY_O: i32 = 79;
-pub const KEY_P: i32 = 80;
-pub const KEY_Q: i32 = 81;
-pub const KEY_R: i32 = 82;
-pub const KEY_S: i32 = 83;
-pub const KEY_T: i32 = 84;
-pub const KEY_U: i32 = 85;
-pub const KEY_V: i32 = 86;
-pub const KEY_W: i32 = 87;
-pub const KEY_X: i32 = 88;
-pub const KEY_Y: i32 = 89;
-pub const KEY_Z: i32 = 90;
-pub const KEY_BACK: i32 = 4;
-pub const KEY_MENU: i32 = 82;
-pub const KEY_VOLUME_UP: i32 = 24;
-pub const KEY_VOLUME_DOWN: i32 = 25;
-pub const MOUSE_LEFT_BUTTON: i32 = 0;
-pub const MOUSE_RIGHT_BUTTON: i32 = 1;
-pub const MOUSE_MIDDLE_BUTTON: i32 = 2;
-pub const MAX_TOUCH_POINTS: i32 = 2;
-pub const GAMEPAD_PLAYER1: i32 = 0;
-pub const GAMEPAD_PLAYER2: i32 = 1;
-pub const GAMEPAD_PLAYER3: i32 = 2;
-pub const GAMEPAD_PLAYER4: i32 = 3;
-pub const GAMEPAD_PS3_BUTTON_TRIANGLE: i32 = 0;
-pub const GAMEPAD_PS3_BUTTON_CIRCLE: i32 = 1;
-pub const GAMEPAD_PS3_BUTTON_CROSS: i32 = 2;
-pub const GAMEPAD_PS3_BUTTON_SQUARE: i32 = 3;
-pub const GAMEPAD_PS3_BUTTON_L1: i32 = 6;
-pub const GAMEPAD_PS3_BUTTON_R1: i32 = 7;
-pub const GAMEPAD_PS3_BUTTON_L2: i32 = 4;
-pub const GAMEPAD_PS3_BUTTON_R2: i32 = 5;
-pub const GAMEPAD_PS3_BUTTON_START: i32 = 8;
-pub const GAMEPAD_PS3_BUTTON_SELECT: i32 = 9;
-pub const GAMEPAD_PS3_BUTTON_UP: i32 = 24;
-pub const GAMEPAD_PS3_BUTTON_RIGHT: i32 = 25;
-pub const GAMEPAD_PS3_BUTTON_DOWN: i32 = 26;
-pub const GAMEPAD_PS3_BUTTON_LEFT: i32 = 27;
-pub const GAMEPAD_PS3_BUTTON_PS: i32 = 12;
-pub const GAMEPAD_PS3_AXIS_LEFT_X: i32 = 0;
-pub const GAMEPAD_PS3_AXIS_LEFT_Y: i32 = 1;
-pub const GAMEPAD_PS3_AXIS_RIGHT_X: i32 = 2;
-pub const GAMEPAD_PS3_AXIS_RIGHT_Y: i32 = 5;
-pub const GAMEPAD_PS3_AXIS_L2: i32 = 3;
-pub const GAMEPAD_PS3_AXIS_R2: i32 = 4;
-pub const GAMEPAD_XBOX_BUTTON_A: i32 = 0;
-pub const GAMEPAD_XBOX_BUTTON_B: i32 = 1;
-pub const GAMEPAD_XBOX_BUTTON_X: i32 = 2;
-pub const GAMEPAD_XBOX_BUTTON_Y: i32 = 3;
-pub const GAMEPAD_XBOX_BUTTON_LB: i32 = 4;
-pub const GAMEPAD_XBOX_BUTTON_RB: i32 = 5;
-pub const GAMEPAD_XBOX_BUTTON_SELECT: i32 = 6;
-pub const GAMEPAD_XBOX_BUTTON_START: i32 = 7;
-pub const GAMEPAD_XBOX_BUTTON_UP: i32 = 10;
-pub const GAMEPAD_XBOX_BUTTON_RIGHT: i32 = 11;
-pub const GAMEPAD_XBOX_BUTTON_DOWN: i32 = 12;
-pub const GAMEPAD_XBOX_BUTTON_LEFT: i32 = 13;
-pub const GAMEPAD_XBOX_BUTTON_HOME: i32 = 8;
-pub const GAMEPAD_ANDROID_DPAD_UP: i32 = 19;
-pub const GAMEPAD_ANDROID_DPAD_DOWN: i32 = 20;
-pub const GAMEPAD_ANDROID_DPAD_LEFT: i32 = 21;
-pub const GAMEPAD_ANDROID_DPAD_RIGHT: i32 = 22;
-pub const GAMEPAD_ANDROID_DPAD_CENTER: i32 = 23;
-pub const GAMEPAD_ANDROID_BUTTON_A: i32 = 96;
-pub const GAMEPAD_ANDROID_BUTTON_B: i32 = 97;
-pub const GAMEPAD_ANDROID_BUTTON_C: i32 = 98;
-pub const GAMEPAD_ANDROID_BUTTON_X: i32 = 99;
-pub const GAMEPAD_ANDROID_BUTTON_Y: i32 = 100;
-pub const GAMEPAD_ANDROID_BUTTON_Z: i32 = 101;
-pub const GAMEPAD_ANDROID_BUTTON_L1: i32 = 102;
-pub const GAMEPAD_ANDROID_BUTTON_R1: i32 = 103;
-pub const GAMEPAD_ANDROID_BUTTON_L2: i32 = 104;
-pub const GAMEPAD_ANDROID_BUTTON_R2: i32 = 105;
-pub const GAMEPAD_XBOX_AXIS_LEFT_X: i32 = 0;
-pub const GAMEPAD_XBOX_AXIS_LEFT_Y: i32 = 1;
-pub const GAMEPAD_XBOX_AXIS_RIGHT_X: i32 = 2;
-pub const GAMEPAD_XBOX_AXIS_RIGHT_Y: i32 = 3;
-pub const GAMEPAD_XBOX_AXIS_LT: i32 = 4;
-pub const GAMEPAD_XBOX_AXIS_RT: i32 = 5;
-pub const MAX_SHADER_LOCATIONS: u32 = 32;
-pub const MAX_MATERIAL_MAPS: u32 = 12;
+pub use crate::raiiwrap::{
+    Image,
+    Texture2D,
+    RenderTexture2D,
+    Font, FontExt,
+    Mesh,
+    Shader,
+    Material, MaterialExt,
+    Model, ModelExt,
+    Wave,
+    Sound,
+    Music,
+    AudioStream,
+    MaterialMapExt,
+};
+
+impl From<Vector2> for ffi::Vector2 {
+    #[inline]
+    fn from(v: Vector2) -> ffi::Vector2 {
+        ffi::Vector2 {
+            x: v.x,
+            y: v.y,
+        }
+    }
+}
+
+impl From<ffi::Vector2> for Vector2 {
+    #[inline]
+    fn from(v: ffi::Vector2) -> Vector2 {
+        Vector2 {
+            x: v.x,
+            y: v.y,
+        }
+    }
+}
+
+impl From<Vector3> for ffi::Vector3 {
+    #[inline]
+    fn from(v: Vector3) -> ffi::Vector3 {
+        ffi::Vector3 {
+            x: v.x,
+            y: v.y,
+            z: v.z,
+        }
+    }
+}
+
+impl From<ffi::Vector3> for Vector3 {
+    #[inline]
+    fn from(v: ffi::Vector3) -> Vector3 {
+        Vector3 {
+            x: v.x,
+            y: v.y,
+            z: v.z,
+        }
+    }
+}
+
+impl From<Vector4> for ffi::Vector4 {
+    #[inline]
+    fn from(v: Vector4) -> ffi::Vector4 {
+        ffi::Vector4 {
+            x: v.x,
+            y: v.y,
+            z: v.z,
+            w: v.w,
+        }
+    }
+}
+
+impl From<ffi::Vector4> for Vector4 {
+    #[inline]
+    fn from(v: ffi::Vector4) -> Vector4 {
+        Vector4 {
+            x: v.x,
+            y: v.y,
+            z: v.z,
+            w: v.w,
+        }
+    }
+}
+
+impl From<Matrix> for ffi::Matrix {
+    #[inline]
+    fn from(m: Matrix) -> ffi::Matrix {
+        ffi::Matrix {
+            m0: m.m0,
+            m4: m.m4,
+            m8: m.m8,
+            m12: m.m12,
+            m1: m.m1,
+            m5: m.m5,
+            m9: m.m9,
+            m13: m.m13,
+            m2: m.m2,
+            m6: m.m6,
+            m10: m.m10,
+            m14: m.m14,
+            m3: m.m3,
+            m7: m.m7,
+            m11: m.m11,
+            m15: m.m15,
+        }
+    }
+}
+
+impl From<ffi::Matrix> for Matrix {
+    #[inline]
+    fn from(m: ffi::Matrix) -> Matrix {
+        Matrix {
+            m0: m.m0,
+            m4: m.m4,
+            m8: m.m8,
+            m12: m.m12,
+            m1: m.m1,
+            m5: m.m5,
+            m9: m.m9,
+            m13: m.m13,
+            m2: m.m2,
+            m6: m.m6,
+            m10: m.m10,
+            m14: m.m14,
+            m3: m.m3,
+            m7: m.m7,
+            m11: m.m11,
+            m15: m.m15,
+        }
+    }
+}
 
 pub const LIGHTGRAY  : Color = Color { r: 200, g: 200, b: 200, a: 255 };   // Light Gray
 pub const GRAY       : Color = Color { r: 130, g: 130, b: 130, a: 255 };   // Gray
@@ -224,126 +191,6 @@ pub const BLANK      : Color = Color { r: 0, g: 0, b: 0, a: 0 };           // Bl
 pub const MAGENTA    : Color = Color { r: 255, g: 0, b: 255, a: 255 };     // Magenta
 pub const RAYWHITE   : Color = Color { r: 245, g: 245, b: 245, a: 255 };   // My own White (raylib logo)
 
-pub const LOG_INFO: LogType = 1;
-pub const LOG_WARNING: LogType = 2;
-pub const LOG_ERROR: LogType = 4;
-pub const LOG_DEBUG: LogType = 8;
-pub const LOG_OTHER: LogType = 16;
-pub type LogType = u8;
-
-pub const LOC_VERTEX_POSITION: ShaderLocationIndex = 0;
-pub const LOC_VERTEX_TEXCOORD01: ShaderLocationIndex = 1;
-pub const LOC_VERTEX_TEXCOORD02: ShaderLocationIndex = 2;
-pub const LOC_VERTEX_NORMAL: ShaderLocationIndex = 3;
-pub const LOC_VERTEX_TANGENT: ShaderLocationIndex = 4;
-pub const LOC_VERTEX_COLOR: ShaderLocationIndex = 5;
-pub const LOC_MATRIX_MVP: ShaderLocationIndex = 6;
-pub const LOC_MATRIX_MODEL: ShaderLocationIndex = 7;
-pub const LOC_MATRIX_VIEW: ShaderLocationIndex = 8;
-pub const LOC_MATRIX_PROJECTION: ShaderLocationIndex = 9;
-pub const LOC_VECTOR_VIEW: ShaderLocationIndex = 10;
-pub const LOC_COLOR_DIFFUSE: ShaderLocationIndex = 11;
-pub const LOC_COLOR_SPECULAR: ShaderLocationIndex = 12;
-pub const LOC_COLOR_AMBIENT: ShaderLocationIndex = 13;
-pub const LOC_MAP_ALBEDO: ShaderLocationIndex = 14;
-pub const LOC_MAP_METALNESS: ShaderLocationIndex = 15;
-pub const LOC_MAP_NORMAL: ShaderLocationIndex = 16;
-pub const LOC_MAP_ROUGHNESS: ShaderLocationIndex = 17;
-pub const LOC_MAP_OCCLUSION: ShaderLocationIndex = 18;
-pub const LOC_MAP_EMISSION: ShaderLocationIndex = 19;
-pub const LOC_MAP_HEIGHT: ShaderLocationIndex = 20;
-pub const LOC_MAP_CUBEMAP: ShaderLocationIndex = 21;
-pub const LOC_MAP_IRRADIANCE: ShaderLocationIndex = 22;
-pub const LOC_MAP_PREFILTER: ShaderLocationIndex = 23;
-pub const LOC_MAP_BRDF: ShaderLocationIndex = 24;
-pub type ShaderLocationIndex = usize;
-
-pub const MAP_ALBEDO: TexmapIndex = 0;
-pub const MAP_METALNESS: TexmapIndex = 1;
-pub const MAP_NORMAL: TexmapIndex = 2;
-pub const MAP_ROUGHNESS: TexmapIndex = 3;
-pub const MAP_OCCLUSION: TexmapIndex = 4;
-pub const MAP_EMISSION: TexmapIndex = 5;
-pub const MAP_HEIGHT: TexmapIndex = 6;
-pub const MAP_CUBEMAP: TexmapIndex = 7;
-pub const MAP_IRRADIANCE: TexmapIndex = 8;
-pub const MAP_PREFILTER: TexmapIndex = 9;
-pub const MAP_BRDF: TexmapIndex = 10;
-pub type TexmapIndex = usize;
-
-pub const UNCOMPRESSED_GRAYSCALE: PixelFormat = 1;
-pub const UNCOMPRESSED_GRAY_ALPHA: PixelFormat = 2;
-pub const UNCOMPRESSED_R5G6B5: PixelFormat = 3;
-pub const UNCOMPRESSED_R8G8B8: PixelFormat = 4;
-pub const UNCOMPRESSED_R5G5B5A1: PixelFormat = 5;
-pub const UNCOMPRESSED_R4G4B4A4: PixelFormat = 6;
-pub const UNCOMPRESSED_R8G8B8A8: PixelFormat = 7;
-pub const UNCOMPRESSED_R32: PixelFormat = 8;
-pub const UNCOMPRESSED_R32G32B32: PixelFormat = 9;
-pub const UNCOMPRESSED_R32G32B32A32: PixelFormat = 10;
-pub const COMPRESSED_DXT1_RGB: PixelFormat = 11;
-pub const COMPRESSED_DXT1_RGBA: PixelFormat = 12;
-pub const COMPRESSED_DXT3_RGBA: PixelFormat = 13;
-pub const COMPRESSED_DXT5_RGBA: PixelFormat = 14;
-pub const COMPRESSED_ETC1_RGB: PixelFormat = 15;
-pub const COMPRESSED_ETC2_RGB: PixelFormat = 16;
-pub const COMPRESSED_ETC2_EAC_RGBA: PixelFormat = 17;
-pub const COMPRESSED_PVRT_RGB: PixelFormat = 18;
-pub const COMPRESSED_PVRT_RGBA: PixelFormat = 19;
-pub const COMPRESSED_ASTC_4X4_RGBA: PixelFormat = 20;
-pub const COMPRESSED_ASTC_8X8_RGBA: PixelFormat = 21;
-pub type PixelFormat = i32;
-
-pub const FILTER_POINT: TextureFilterMode = 0;
-pub const FILTER_BILINEAR: TextureFilterMode = 1;
-pub const FILTER_TRILINEAR: TextureFilterMode = 2;
-pub const FILTER_ANISOTROPIC_4X: TextureFilterMode = 3;
-pub const FILTER_ANISOTROPIC_8X: TextureFilterMode = 4;
-pub const FILTER_ANISOTROPIC_16X: TextureFilterMode = 5;
-pub type TextureFilterMode = i32;
-
-pub const WRAP_REPEAT: TextureWrapMode = 0;
-pub const WRAP_CLAMP: TextureWrapMode = 1;
-pub const WRAP_MIRROR: TextureWrapMode = 2;
-pub type TextureWrapMode = i32;
-
-pub const BLEND_ALPHA: BlendMode = 0;
-pub const BLEND_ADDITIVE: BlendMode = 1;
-pub const BLEND_MULTIPLIED: BlendMode = 2;
-pub type BlendMode = i32;
-
-pub const GESTURE_NONE: Gestures = 0;
-pub const GESTURE_TAP: Gestures = 1;
-pub const GESTURE_DOUBLETAP: Gestures = 2;
-pub const GESTURE_HOLD: Gestures = 4;
-pub const GESTURE_DRAG: Gestures = 8;
-pub const GESTURE_SWIPE_RIGHT: Gestures = 16;
-pub const GESTURE_SWIPE_LEFT: Gestures = 32;
-pub const GESTURE_SWIPE_UP: Gestures = 64;
-pub const GESTURE_SWIPE_DOWN: Gestures = 128;
-pub const GESTURE_PINCH_IN: Gestures = 256;
-pub const GESTURE_PINCH_OUT: Gestures = 512;
-pub type Gestures = u32;
-
-pub const CAMERA_CUSTOM: CameraMode = 0;
-pub const CAMERA_FREE: CameraMode = 1;
-pub const CAMERA_ORBITAL: CameraMode = 2;
-pub const CAMERA_FIRST_PERSON: CameraMode = 3;
-pub const CAMERA_THIRD_PERSON: CameraMode = 4;
-pub type CameraMode = i32;
-
-pub const CAMERA_PERSPECTIVE: CameraType = 0;
-pub const CAMERA_ORTHOGRAPHIC: CameraType = 1;
-pub type CameraType = i32;
-
-pub const HMD_DEFAULT_DEVICE: VrDeviceType = 0;
-pub const HMD_OCULUS_RIFT_DK2: VrDeviceType = 1;
-pub const HMD_OCULUS_RIFT_CV1: VrDeviceType = 2;
-pub const HMD_OCULUS_GO: VrDeviceType = 3;
-pub const HMD_VALVE_HTC_VIVE: VrDeviceType = 4;
-pub const HMD_SONY_PSVR: VrDeviceType = 5;
-pub type VrDeviceType = i32;
-
 /// A marker trait specifying an audio sample (`u8`, `i16`, or `f32`).
 pub trait AudioSample { }
 impl AudioSample for u8 { }
@@ -354,26 +201,26 @@ static IS_INITIALIZED: AtomicBool = ATOMIC_BOOL_INIT;
 
 lazy_static! {
     static ref FONT_DEFAULT: Font = {
-        unsafe { Font(raylib::GetFontDefault()) }
+        unsafe { Font(ffi::GetFontDefault()) }
     };
 }
 
 lazy_static! {
     static ref MATERIAL_DEFAULT: Material = {
-        unsafe { Material(raylib::LoadMaterialDefault()) }
+        unsafe { Material(ffi::LoadMaterialDefault()) }
     };
 }
 
 lazy_static! {
     static ref SHADER_DEFAULT: Shader = {
-        unsafe { Shader(raylib::GetShaderDefault()) }
+        unsafe { Shader(ffi::GetShaderDefault()) }
     };
 }
 
 lazy_static! {
     static ref TEXTURE_DEFAULT: Texture2D = {
         unsafe {
-            Texture2D(raylib::GetTextureDefault())
+            Texture2D(ffi::GetTextureDefault())
         }
     };
 }
@@ -454,7 +301,7 @@ impl RaylibBuilder {
 
     /// Builds and initializes a Raylib window. Panics if raylib is already initialized.
     pub fn build(&self) -> RaylibHandle {
-        let mut flags = 0u8;
+        let mut flags = 0u32;
         if self.show_logo { flags |= FLAG_SHOW_LOGO; }
         if self.fullscreen_mode { flags |= FLAG_FULLSCREEN_MODE; }
         if self.window_resizable { flags |= FLAG_WINDOW_RESIZABLE; }
@@ -463,7 +310,7 @@ impl RaylibBuilder {
         if self.msaa_4x_hint { flags |= FLAG_MSAA_4X_HINT; }
         if self.vsync_hint { flags |= FLAG_VSYNC_HINT; }
 
-        unsafe { raylib::SetConfigFlags(flags); }
+        unsafe { ffi::SetConfigFlags(flags as u8); }
         init_window(self.width, self.height, &self.title)
     }
 }
@@ -473,7 +320,7 @@ impl RaylibBuilder {
 pub fn set_trace_log(types: LogType) {
     unsafe {
         log_type_flags = types;
-        raylib::SetTraceLog(types);
+        ffi::SetTraceLog(types as u8);
     }
 }
 
@@ -523,7 +370,7 @@ pub fn init_window(width: i32, height: i32, title: &str) -> RaylibHandle {
     else {
         unsafe {
             let c_title = CString::new(title).unwrap();
-            raylib::InitWindow(width, height, c_title.as_ptr());
+            ffi::InitWindow(width, height, c_title.as_ptr());
         }
         IS_INITIALIZED.store(true, Ordering::Relaxed);
         RaylibHandle
@@ -533,7 +380,7 @@ pub fn init_window(width: i32, height: i32, title: &str) -> RaylibHandle {
 impl Drop for RaylibHandle {
     fn drop(&mut self) {
         if IS_INITIALIZED.load(Ordering::Relaxed) {
-            unsafe { raylib::CloseWindow(); }
+            unsafe { ffi::CloseWindow(); }
             IS_INITIALIZED.store(false, Ordering::Relaxed);
         }
     }
@@ -544,7 +391,7 @@ impl RaylibHandle {
     #[inline]
     pub fn is_window_ready(&self) -> bool {
         unsafe {
-            raylib::IsWindowReady()
+            ffi::IsWindowReady()
         }
     }
 
@@ -552,7 +399,7 @@ impl RaylibHandle {
     #[inline]
     pub fn window_should_close(&self) -> bool {
         unsafe {
-            raylib::WindowShouldClose()
+            ffi::WindowShouldClose()
         }
     }
 
@@ -560,7 +407,7 @@ impl RaylibHandle {
     #[inline]
     pub fn is_window_minimized(&self) -> bool {
         unsafe {
-            raylib::IsWindowMinimized()
+            ffi::IsWindowMinimized()
         }
     }
 
@@ -568,7 +415,7 @@ impl RaylibHandle {
     #[inline]
     pub fn toggle_fullscreen(&self) {
         unsafe {
-            raylib::ToggleFullscreen();
+            ffi::ToggleFullscreen();
         }
     }
 
@@ -576,7 +423,7 @@ impl RaylibHandle {
     #[inline]
     pub fn set_window_icon(&self, image: &Image) {
         unsafe {
-            raylib::SetWindowIcon(image.0);
+            ffi::SetWindowIcon(image.0);
         }
     }
 
@@ -585,7 +432,7 @@ impl RaylibHandle {
     pub fn set_window_title(&self, title: &str) {
         let c_title = CString::new(title).unwrap();
         unsafe {
-            raylib::SetWindowTitle(c_title.as_ptr());
+            ffi::SetWindowTitle(c_title.as_ptr());
         }
     }
 
@@ -593,7 +440,7 @@ impl RaylibHandle {
     #[inline]
     pub fn set_window_position(&self, x: i32, y: i32) {
         unsafe {
-            raylib::SetWindowPosition(x, y);
+            ffi::SetWindowPosition(x, y);
         }
     }
 
@@ -601,7 +448,7 @@ impl RaylibHandle {
     #[inline]
     pub fn set_window_monitor(&self, monitor: i32) {
         unsafe {
-            raylib::SetWindowMonitor(monitor);
+            ffi::SetWindowMonitor(monitor);
         }
     }
 
@@ -609,7 +456,7 @@ impl RaylibHandle {
     #[inline]
     pub fn set_window_min_size(&self, width: i32, height: i32) {
         unsafe {
-            raylib::SetWindowMinSize(width, height);
+            ffi::SetWindowMinSize(width, height);
         }
     }
 
@@ -617,7 +464,7 @@ impl RaylibHandle {
     #[inline]
     pub fn set_window_size(&self, width: i32, height: i32) {
         unsafe {
-            raylib::SetWindowSize(width, height);
+            ffi::SetWindowSize(width, height);
         }
     }
 
@@ -625,7 +472,7 @@ impl RaylibHandle {
     #[inline]
     pub fn get_screen_width(&self) -> i32 {
         unsafe {
-            raylib::GetScreenWidth()
+            ffi::GetScreenWidth()
         }
     }
 
@@ -633,7 +480,7 @@ impl RaylibHandle {
     #[inline]
     pub fn get_screen_height(&self) -> i32 {
         unsafe {
-            raylib::GetScreenHeight()
+            ffi::GetScreenHeight()
         }
     }
 
@@ -641,7 +488,7 @@ impl RaylibHandle {
     #[inline]
     pub fn show_cursor(&self) {
         unsafe {
-            raylib::ShowCursor();
+            ffi::ShowCursor();
         }
     }
 
@@ -649,7 +496,7 @@ impl RaylibHandle {
     #[inline]
     pub fn hide_cursor(&self) {
         unsafe {
-            raylib::HideCursor();
+            ffi::HideCursor();
         }
     }
 
@@ -657,7 +504,7 @@ impl RaylibHandle {
     #[inline]
     pub fn is_cursor_hidden(&self) -> bool {
         unsafe {
-            raylib::IsCursorHidden()
+            ffi::IsCursorHidden()
         }
     }
 
@@ -665,7 +512,7 @@ impl RaylibHandle {
     #[inline]
     pub fn enable_cursor(&self) {
         unsafe {
-            raylib::EnableCursor();
+            ffi::EnableCursor();
         }
     }
 
@@ -673,7 +520,7 @@ impl RaylibHandle {
     #[inline]
     pub fn disable_cursor(&self) {
         unsafe {
-            raylib::DisableCursor();
+            ffi::DisableCursor();
         }
     }
 
@@ -681,7 +528,7 @@ impl RaylibHandle {
     #[inline]
     pub fn clear_background(&self, color: impl Into<Color>) {
         unsafe {
-            raylib::ClearBackground(color.into());
+            ffi::ClearBackground(color.into());
         }
     }
 
@@ -689,7 +536,7 @@ impl RaylibHandle {
     #[inline]
     pub fn begin_drawing(&self) {
         unsafe {
-            raylib::BeginDrawing();
+            ffi::BeginDrawing();
         }
     }
 
@@ -697,7 +544,7 @@ impl RaylibHandle {
     #[inline]
     pub fn end_drawing(&self) {
         unsafe {
-            raylib::EndDrawing();
+            ffi::EndDrawing();
         }
     }
 
@@ -705,7 +552,7 @@ impl RaylibHandle {
     #[inline]
     pub fn begin_mode_2d(&self, camera: Camera2D) {
         unsafe {
-            raylib::BeginMode2D(camera);
+            ffi::BeginMode2D(camera);
         }
     }
 
@@ -713,7 +560,7 @@ impl RaylibHandle {
     #[inline]
     pub fn end_mode_2d(&self) {
         unsafe {
-            raylib::EndMode2D();
+            ffi::EndMode2D();
         }
     }
 
@@ -721,7 +568,7 @@ impl RaylibHandle {
     #[inline]
     pub fn begin_mode_3d(&self, camera: Camera3D) {
         unsafe {
-            raylib::BeginMode3D(camera);
+            ffi::BeginMode3D(camera);
         }
     }
 
@@ -729,7 +576,7 @@ impl RaylibHandle {
     #[inline]
     pub fn end_mode_3d(&self) {
         unsafe {
-            raylib::EndMode3D();
+            ffi::EndMode3D();
         }
     }
 
@@ -737,7 +584,7 @@ impl RaylibHandle {
     #[inline]
     pub fn begin_texture_mode(&self, target: &RenderTexture2D) {
         unsafe {
-            raylib::BeginTextureMode(target.0);
+            ffi::BeginTextureMode(target.0);
         }
     }
 
@@ -745,7 +592,7 @@ impl RaylibHandle {
     #[inline]
     pub fn end_texture_mode(&self) {
         unsafe {
-            raylib::EndTextureMode();
+            ffi::EndTextureMode();
         }
     }
 
@@ -753,7 +600,7 @@ impl RaylibHandle {
     #[inline]
     pub fn get_mouse_ray(&self, mouse_position: impl Into<Vector2>, camera: Camera3D) -> Ray {
         unsafe {
-            raylib::GetMouseRay(mouse_position.into(), camera)
+            ffi::GetMouseRay(mouse_position.into().into(), camera)
         }
     }
 
@@ -761,7 +608,7 @@ impl RaylibHandle {
     #[inline]
     pub fn get_world_to_screen(&self, position: impl Into<Vector3>, camera: Camera3D) -> Vector2 {
         unsafe {
-            raylib::GetWorldToScreen(position.into(), camera)
+            ffi::GetWorldToScreen(position.into().into(), camera).into()
         }
     }
 
@@ -769,7 +616,7 @@ impl RaylibHandle {
     #[inline]
     pub fn get_camera_matrix(&self, camera: Camera3D) -> Matrix {
         unsafe {
-            raylib::GetCameraMatrix(camera)
+            ffi::GetCameraMatrix(camera).into()
         }
     }
 
@@ -777,7 +624,7 @@ impl RaylibHandle {
     #[inline]
     pub fn set_target_fps(&self, fps: i32) {
         unsafe {
-            raylib::SetTargetFPS(fps);
+            ffi::SetTargetFPS(fps);
         }
     }
 
@@ -785,7 +632,7 @@ impl RaylibHandle {
     #[inline]
     pub fn get_fps(&self) -> i32 {
         unsafe {
-            raylib::GetFPS()
+            ffi::GetFPS()
         }
     }
 
@@ -793,7 +640,7 @@ impl RaylibHandle {
     #[inline]
     pub fn get_frame_time(&self) -> f32 {
         unsafe {
-            raylib::GetFrameTime()
+            ffi::GetFrameTime()
         }
     }
 
@@ -801,7 +648,7 @@ impl RaylibHandle {
     #[inline]
     pub fn get_time(&self) -> f64 {
         unsafe {
-            raylib::GetTime()
+            ffi::GetTime()
         }
     }
 
@@ -809,7 +656,7 @@ impl RaylibHandle {
     #[inline]
     pub fn color_to_int(&self, color: impl Into<Color>) -> i32 {
         unsafe {
-            raylib::ColorToInt(color.into())
+            ffi::ColorToInt(color.into())
         }
     }
 
@@ -817,7 +664,7 @@ impl RaylibHandle {
     #[inline]
     pub fn color_normalize(&self, color: impl Into<Color>) -> Vector4 {
         unsafe {
-            raylib::ColorNormalize(color.into())
+            ffi::ColorNormalize(color.into()).into()
         }
     }
 
@@ -825,7 +672,7 @@ impl RaylibHandle {
     #[inline]
     pub fn color_to_hsv(&self, color: impl Into<Color>) -> Vector3 {
         unsafe {
-            raylib::ColorToHSV(color.into())
+            ffi::ColorToHSV(color.into()).into()
         }
     }
 
@@ -833,7 +680,7 @@ impl RaylibHandle {
     #[inline]
     pub fn get_color(&self, hex_value: i32) -> Color {
         unsafe {
-            raylib::GetColor(hex_value)
+            ffi::GetColor(hex_value)
         }
     }
 
@@ -841,7 +688,7 @@ impl RaylibHandle {
     #[inline]
     pub fn fade(&self, color: impl Into<Color>, alpha: f32) -> Color {
         unsafe {
-            raylib::Fade(color.into(), alpha)
+            ffi::Fade(color.into(), alpha)
         }
     }
 
@@ -850,7 +697,7 @@ impl RaylibHandle {
     pub fn take_screenshot(&self, filename: &str) {
         let c_filename = CString::new(filename).unwrap();
         unsafe {
-            raylib::TakeScreenshot(c_filename.as_ptr());
+            ffi::TakeScreenshot(c_filename.as_ptr());
         }
     }
 
@@ -858,7 +705,7 @@ impl RaylibHandle {
     #[inline]
     pub fn get_random_value(&self, min: i32, max: i32) -> i32 {
         unsafe {
-            raylib::GetRandomValue(min, max)
+            ffi::GetRandomValue(min, max)
         }
     }
 
@@ -868,7 +715,7 @@ impl RaylibHandle {
         let c_filename = CString::new(filename).unwrap();
         let c_ext = CString::new(ext).unwrap();
         unsafe {
-            raylib::IsFileExtension(c_filename.as_ptr(), c_ext.as_ptr())
+            ffi::IsFileExtension(c_filename.as_ptr(), c_ext.as_ptr())
         }
     }
 
@@ -877,7 +724,7 @@ impl RaylibHandle {
     pub fn get_extension(&self, filename: &str) -> String {
         let c_filename = CString::new(filename).unwrap();
         unsafe {
-            let ext = raylib::GetExtension(c_filename.as_ptr());
+            let ext = ffi::GetExtension(c_filename.as_ptr());
             CStr::from_ptr(ext).to_str().unwrap().to_owned()
         }
     }
@@ -887,7 +734,7 @@ impl RaylibHandle {
     pub fn get_file_name(&self, file_path: &str) -> String {
         let c_file_path = CString::new(file_path).unwrap();
         unsafe {
-            let filename = raylib::GetFileName(c_file_path.as_ptr());
+            let filename = ffi::GetFileName(c_file_path.as_ptr());
             CStr::from_ptr(filename).to_str().unwrap().to_owned()
         }
     }
@@ -897,7 +744,7 @@ impl RaylibHandle {
     pub fn get_directory_path(&self, filename: &str) -> String {
         let c_filename = CString::new(filename).unwrap();
         unsafe {
-            let dirpath = raylib::GetDirectoryPath(c_filename.as_ptr());
+            let dirpath = ffi::GetDirectoryPath(c_filename.as_ptr());
             CStr::from_ptr(dirpath).to_str().unwrap().to_owned()
         }
     }
@@ -906,7 +753,7 @@ impl RaylibHandle {
     #[inline]
     pub fn get_working_directory(&self) -> String {
         unsafe {
-            let workdir = raylib::GetWorkingDirectory();
+            let workdir = ffi::GetWorkingDirectory();
             CStr::from_ptr(workdir).to_str().unwrap().to_owned()
         }
     }
@@ -916,7 +763,7 @@ impl RaylibHandle {
     pub fn change_directory(&self, dir: &str) -> bool {
         let c_dir = CString::new(dir).unwrap();
         unsafe {
-            raylib::ChangeDirectory(c_dir.as_ptr())
+            ffi::ChangeDirectory(c_dir.as_ptr())
         }
     }
 
@@ -924,7 +771,7 @@ impl RaylibHandle {
     #[inline]
     pub fn is_file_dropped(&self) -> bool {
         unsafe {
-            raylib::IsFileDropped()
+            ffi::IsFileDropped()
         }
     }
 
@@ -934,7 +781,7 @@ impl RaylibHandle {
         let mut v = Vec::new();
         unsafe {
             let mut count: i32 = 0;
-            let dropfiles = raylib::GetDroppedFiles(&mut count);
+            let dropfiles = ffi::GetDroppedFiles(&mut count);
             for i in 0..count {
                 let filestr = CStr::from_ptr(*dropfiles.offset(i as isize)).to_str().unwrap();
                 let file = String::from(filestr);
@@ -948,7 +795,7 @@ impl RaylibHandle {
     #[inline]
     pub fn clear_dropped_files(&self) {
         unsafe {
-            raylib::ClearDroppedFiles();
+            ffi::ClearDroppedFiles();
         }
     }
 
@@ -956,7 +803,7 @@ impl RaylibHandle {
     #[inline]
     pub fn storage_save_value(&self, position: i32, value: i32) {
         unsafe {
-            raylib::StorageSaveValue(position, value);
+            ffi::StorageSaveValue(position, value);
         }
     }
 
@@ -964,7 +811,7 @@ impl RaylibHandle {
     #[inline]
     pub fn storage_load_value(&self, position: i32) -> i32 {
         unsafe {
-            raylib::StorageLoadValue(position)
+            ffi::StorageLoadValue(position)
         }
     }
 
@@ -972,7 +819,7 @@ impl RaylibHandle {
     #[inline]
     pub fn is_key_pressed(&self, key: i32) -> bool {
         unsafe {
-            raylib::IsKeyPressed(key)
+            ffi::IsKeyPressed(key)
         }
     }
 
@@ -980,7 +827,7 @@ impl RaylibHandle {
     #[inline]
     pub fn is_key_down(&self, key: i32) -> bool {
         unsafe {
-            raylib::IsKeyDown(key)
+            ffi::IsKeyDown(key)
         }
     }
 
@@ -988,7 +835,7 @@ impl RaylibHandle {
     #[inline]
     pub fn is_key_released(&self, key: i32) -> bool {
         unsafe {
-            raylib::IsKeyReleased(key)
+            ffi::IsKeyReleased(key)
         }
     }
 
@@ -996,7 +843,7 @@ impl RaylibHandle {
     #[inline]
     pub fn is_key_up(&self, key: i32) -> bool {
         unsafe {
-            raylib::IsKeyUp(key)
+            ffi::IsKeyUp(key)
         }
     }
 
@@ -1004,7 +851,7 @@ impl RaylibHandle {
     #[inline]
     pub fn get_key_pressed(&self) -> i32 {
         unsafe {
-            raylib::GetKeyPressed()
+            ffi::GetKeyPressed()
         }
     }
 
@@ -1012,7 +859,7 @@ impl RaylibHandle {
     #[inline]
     pub fn set_exit_key(&self, key: i32) {
         unsafe {
-            raylib::SetExitKey(key);
+            ffi::SetExitKey(key);
         }
     }
 
@@ -1020,7 +867,7 @@ impl RaylibHandle {
     #[inline]
     pub fn is_gamepad_available(&self, gamepad: i32) -> bool {
         unsafe {
-            raylib::IsGamepadAvailable(gamepad)
+            ffi::IsGamepadAvailable(gamepad)
         }
     }
 
@@ -1029,7 +876,7 @@ impl RaylibHandle {
     pub fn is_gamepad_name(&self, gamepad: i32, name: &str) -> bool {
         let c_name = CString::new(name).unwrap();
         unsafe {
-            raylib::IsGamepadName(gamepad, c_name.as_ptr())
+            ffi::IsGamepadName(gamepad, c_name.as_ptr())
         }
     }
 
@@ -1037,7 +884,7 @@ impl RaylibHandle {
     #[inline]
     pub fn get_gamepad_name(&self, gamepad: i32) -> Option<String> {
         unsafe {
-            let name = raylib::GetGamepadName(gamepad);
+            let name = ffi::GetGamepadName(gamepad);
             match name.is_null() {
                 false => Some(CStr::from_ptr(name).to_str().unwrap().to_owned()),
                 true => None
@@ -1049,7 +896,7 @@ impl RaylibHandle {
     #[inline]
     pub fn is_gamepad_button_pressed(&self, gamepad: i32, button: i32) -> bool {
         unsafe {
-            raylib::IsGamepadButtonPressed(gamepad, button)
+            ffi::IsGamepadButtonPressed(gamepad, button)
         }
     }
 
@@ -1057,7 +904,7 @@ impl RaylibHandle {
     #[inline]
     pub fn is_gamepad_button_down(&self, gamepad: i32, button: i32) -> bool {
         unsafe {
-            raylib::IsGamepadButtonDown(gamepad, button)
+            ffi::IsGamepadButtonDown(gamepad, button)
         }
     }
 
@@ -1065,7 +912,7 @@ impl RaylibHandle {
     #[inline]
     pub fn is_gamepad_button_released(&self, gamepad: i32, button: i32) -> bool {
         unsafe {
-            raylib::IsGamepadButtonReleased(gamepad, button)
+            ffi::IsGamepadButtonReleased(gamepad, button)
         }
     }
 
@@ -1073,7 +920,7 @@ impl RaylibHandle {
     #[inline]
     pub fn is_gamepad_button_up(&self, gamepad: i32, button: i32) -> bool {
         unsafe {
-            raylib::IsGamepadButtonUp(gamepad, button)
+            ffi::IsGamepadButtonUp(gamepad, button)
         }
     }
 
@@ -1081,7 +928,7 @@ impl RaylibHandle {
     #[inline]
     pub fn get_gamepad_button_pressed(&self) -> i32 {
         unsafe {
-            raylib::GetGamepadButtonPressed()
+            ffi::GetGamepadButtonPressed()
         }
     }
 
@@ -1089,7 +936,7 @@ impl RaylibHandle {
     #[inline]
     pub fn get_gamepad_axis_count(&self, gamepad: i32) -> i32 {
         unsafe {
-            raylib::GetGamepadAxisCount(gamepad)
+            ffi::GetGamepadAxisCount(gamepad)
         }
     }
 
@@ -1097,7 +944,7 @@ impl RaylibHandle {
     #[inline]
     pub fn get_gamepad_axis_movement(&self, gamepad: i32, axis: i32) -> f32 {
         unsafe {
-            raylib::GetGamepadAxisMovement(gamepad, axis)
+            ffi::GetGamepadAxisMovement(gamepad, axis)
         }
     }
 
@@ -1105,7 +952,7 @@ impl RaylibHandle {
     #[inline]
     pub fn is_mouse_button_pressed(&self, button: i32) -> bool {
         unsafe {
-            raylib::IsMouseButtonPressed(button)
+            ffi::IsMouseButtonPressed(button)
         }
     }
 
@@ -1113,7 +960,7 @@ impl RaylibHandle {
     #[inline]
     pub fn is_mouse_button_down(&self, button: i32) -> bool {
         unsafe {
-            raylib::IsMouseButtonDown(button)
+            ffi::IsMouseButtonDown(button)
         }
     }
 
@@ -1121,7 +968,7 @@ impl RaylibHandle {
     #[inline]
     pub fn is_mouse_button_released(&self, button: i32) -> bool {
         unsafe {
-            raylib::IsMouseButtonReleased(button)
+            ffi::IsMouseButtonReleased(button)
         }
     }
 
@@ -1129,7 +976,7 @@ impl RaylibHandle {
     #[inline]
     pub fn is_mouse_button_up(&self, button: i32) -> bool {
         unsafe {
-            raylib::IsMouseButtonUp(button)
+            ffi::IsMouseButtonUp(button)
         }
     }
 
@@ -1137,7 +984,7 @@ impl RaylibHandle {
     #[inline]
     pub fn get_mouse_x(&self) -> i32 {
         unsafe {
-            raylib::GetMouseX()
+            ffi::GetMouseX()
         }
     }
 
@@ -1145,7 +992,7 @@ impl RaylibHandle {
     #[inline]
     pub fn get_mouse_y(&self) -> i32 {
         unsafe {
-            raylib::GetMouseY()
+            ffi::GetMouseY()
         }
     }
 
@@ -1153,7 +1000,7 @@ impl RaylibHandle {
     #[inline]
     pub fn get_mouse_position(&self) -> Vector2 {
         unsafe {
-            raylib::GetMousePosition()
+            ffi::GetMousePosition().into()
         }
     }
 
@@ -1161,7 +1008,7 @@ impl RaylibHandle {
     #[inline]
     pub fn set_mouse_position(&self, position: impl Into<Vector2>) {
         unsafe {
-            raylib::SetMousePosition(position.into());
+            ffi::SetMousePosition(position.into().into());
         }
     }
 
@@ -1169,7 +1016,7 @@ impl RaylibHandle {
     #[inline]
     pub fn set_mouse_scale(&self, scale: f32) {
         unsafe {
-            raylib::SetMouseScale(scale);
+            ffi::SetMouseScale(scale);
         }
     }
 
@@ -1177,7 +1024,7 @@ impl RaylibHandle {
     #[inline]
     pub fn get_mouse_wheel_move(&self) -> i32 {
         unsafe {
-            raylib::GetMouseWheelMove()
+            ffi::GetMouseWheelMove()
         }
     }
 
@@ -1185,7 +1032,7 @@ impl RaylibHandle {
     #[inline]
     pub fn get_touch_x(&self) -> i32 {
         unsafe {
-            raylib::GetTouchX()
+            ffi::GetTouchX()
         }
     }
 
@@ -1193,7 +1040,7 @@ impl RaylibHandle {
     #[inline]
     pub fn get_touch_y(&self) -> i32 {
         unsafe {
-            raylib::GetTouchY()
+            ffi::GetTouchY()
         }
     }
 
@@ -1201,7 +1048,7 @@ impl RaylibHandle {
     #[inline]
     pub fn get_touch_position(&self, index: i32) -> Vector2 {
         unsafe {
-            raylib::GetTouchPosition(index)
+            ffi::GetTouchPosition(index).into()
         }
     }
 
@@ -1209,7 +1056,7 @@ impl RaylibHandle {
     #[inline]
     pub fn set_gestures_enabled(&self, gesture_flags: Gestures) {
         unsafe {
-            raylib::SetGesturesEnabled(gesture_flags);
+            ffi::SetGesturesEnabled(gesture_flags);
         }
     }
 
@@ -1217,7 +1064,7 @@ impl RaylibHandle {
     #[inline]
     pub fn is_gesture_detected(&self, gesture: Gestures) -> bool {
         unsafe {
-            raylib::IsGestureDetected(gesture as i32)
+            ffi::IsGestureDetected(gesture as i32)
         }
     }
 
@@ -1225,7 +1072,7 @@ impl RaylibHandle {
     #[inline]
     pub fn get_gesture_detected(&self) -> i32 {
         unsafe {
-            raylib::GetGestureDetected()
+            ffi::GetGestureDetected()
         }
     }
 
@@ -1233,7 +1080,7 @@ impl RaylibHandle {
     #[inline]
     pub fn get_touch_points_count(&self) -> i32 {
         unsafe {
-            raylib::GetTouchPointsCount()
+            ffi::GetTouchPointsCount()
         }
     }
 
@@ -1241,7 +1088,7 @@ impl RaylibHandle {
     #[inline]
     pub fn get_gesture_hold_duration(&self) -> f32 {
         unsafe {
-            raylib::GetGestureHoldDuration()
+            ffi::GetGestureHoldDuration()
         }
     }
 
@@ -1249,7 +1096,7 @@ impl RaylibHandle {
     #[inline]
     pub fn get_gesture_drag_vector(&self) -> Vector2 {
         unsafe {
-            raylib::GetGestureDragVector()
+            ffi::GetGestureDragVector().into()
         }
     }
 
@@ -1257,7 +1104,7 @@ impl RaylibHandle {
     #[inline]
     pub fn get_gesture_drag_angle(&self) -> f32 {
         unsafe {
-            raylib::GetGestureDragAngle()
+            ffi::GetGestureDragAngle()
         }
     }
 
@@ -1265,7 +1112,7 @@ impl RaylibHandle {
     #[inline]
     pub fn get_gesture_pinch_vector(&self) -> Vector2 {
         unsafe {
-            raylib::GetGesturePinchVector()
+            ffi::GetGesturePinchVector().into()
         }
     }
 
@@ -1273,7 +1120,7 @@ impl RaylibHandle {
     #[inline]
     pub fn get_gesture_pinch_angle(&self) -> f32 {
         unsafe {
-            raylib::GetGesturePinchAngle()
+            ffi::GetGesturePinchAngle()
         }
     }
 
@@ -1281,7 +1128,7 @@ impl RaylibHandle {
     #[inline]
     pub fn set_camera_mode(&self, camera: Camera3D, mode: CameraMode) {
         unsafe {
-            raylib::SetCameraMode(camera, mode);
+            ffi::SetCameraMode(camera, mode as i32);
         }
     }
 
@@ -1289,7 +1136,7 @@ impl RaylibHandle {
     #[inline]
     pub fn update_camera(&self, camera: &mut Camera3D) {
         unsafe {
-            raylib::UpdateCamera(camera);
+            ffi::UpdateCamera(camera);
         }
     }
 
@@ -1297,7 +1144,7 @@ impl RaylibHandle {
     #[inline]
     pub fn set_camera_pan_control(&self, pan_key: i32) {
         unsafe {
-            raylib::SetCameraPanControl(pan_key);
+            ffi::SetCameraPanControl(pan_key);
         }
     }
 
@@ -1305,7 +1152,7 @@ impl RaylibHandle {
     #[inline]
     pub fn set_camera_alt_control(&self, alt_key: i32) {
         unsafe {
-            raylib::SetCameraAltControl(alt_key);
+            ffi::SetCameraAltControl(alt_key);
         }
     }
 
@@ -1313,7 +1160,7 @@ impl RaylibHandle {
     #[inline]
     pub fn set_camera_smooth_zoom_control(&self, sz_key: i32) {
         unsafe {
-            raylib::SetCameraSmoothZoomControl(sz_key);
+            ffi::SetCameraSmoothZoomControl(sz_key);
         }
     }
 
@@ -1328,7 +1175,7 @@ impl RaylibHandle {
         down_key: i32)
     {
         unsafe {
-            raylib::SetCameraMoveControls(front_key, back_key, right_key, left_key, up_key, down_key);
+            ffi::SetCameraMoveControls(front_key, back_key, right_key, left_key, up_key, down_key);
         }
     }
 
@@ -1336,7 +1183,7 @@ impl RaylibHandle {
     #[inline]
     pub fn draw_pixel(&self, x: i32, y: i32, color: impl Into<Color>) {
         unsafe {
-            raylib::DrawPixel(x, y, color.into());
+            ffi::DrawPixel(x, y, color.into());
         }
     }
 
@@ -1344,7 +1191,7 @@ impl RaylibHandle {
     #[inline]
     pub fn draw_pixel_v(&self, position: impl Into<Vector2>, color: impl Into<Color>) {
         unsafe {
-            raylib::DrawPixelV(position.into(), color.into());
+            ffi::DrawPixelV(position.into().into(), color.into());
         }
     }
 
@@ -1352,7 +1199,7 @@ impl RaylibHandle {
     #[inline]
     pub fn draw_line(&self, start_pos_x: i32, start_pos_y: i32, end_pos_x: i32, end_pos_y: i32, color: impl Into<Color>) {
         unsafe {
-            raylib::DrawLine(start_pos_x, start_pos_y, end_pos_x, end_pos_y, color.into());
+            ffi::DrawLine(start_pos_x, start_pos_y, end_pos_x, end_pos_y, color.into());
         }
     }
 
@@ -1360,7 +1207,7 @@ impl RaylibHandle {
     #[inline]
     pub fn draw_line_v(&self, start_pos: impl Into<Vector2>, end_pos: impl Into<Vector2>, color: impl Into<Color>) {
         unsafe {
-            raylib::DrawLineV(start_pos.into(), end_pos.into(), color.into());
+            ffi::DrawLineV(start_pos.into().into(), end_pos.into().into(), color.into());
         }
     }
 
@@ -1368,7 +1215,7 @@ impl RaylibHandle {
     #[inline]
     pub fn draw_line_ex(&self, start_pos: impl Into<Vector2>, end_pos: impl Into<Vector2>, thick: f32, color: impl Into<Color>) {
         unsafe {
-            raylib::DrawLineEx(start_pos.into(), end_pos.into(), thick, color.into());
+            ffi::DrawLineEx(start_pos.into().into(), end_pos.into().into(), thick, color.into());
         }
     }
 
@@ -1376,7 +1223,7 @@ impl RaylibHandle {
     #[inline]
     pub fn draw_line_bezier(&self, start_pos: impl Into<Vector2>, end_pos: impl Into<Vector2>, thick: f32, color: impl Into<Color>) {
         unsafe {
-            raylib::DrawLineBezier(start_pos.into(), end_pos.into(), thick, color.into());
+            ffi::DrawLineBezier(start_pos.into().into(), end_pos.into().into(), thick, color.into());
         }
     }
 
@@ -1384,7 +1231,7 @@ impl RaylibHandle {
     #[inline]
     pub fn draw_circle(&self, center_x: i32, center_y: i32, radius: f32, color: impl Into<Color>) {
         unsafe {
-            raylib::DrawCircle(center_x, center_y, radius, color.into());
+            ffi::DrawCircle(center_x, center_y, radius, color.into());
         }
     }
 
@@ -1392,7 +1239,7 @@ impl RaylibHandle {
     #[inline]
     pub fn draw_circle_gradient(&self, center_x: i32, center_y: i32, radius: f32, color1: impl Into<Color>, color2: impl Into<Color>) {
         unsafe {
-            raylib::DrawCircleGradient(center_x, center_y, radius, color1.into(), color2.into());
+            ffi::DrawCircleGradient(center_x, center_y, radius, color1.into(), color2.into());
         }
     }
 
@@ -1400,7 +1247,7 @@ impl RaylibHandle {
     #[inline]
     pub fn draw_circle_v(&self, center: impl Into<Vector2>, radius: f32, color: impl Into<Color>) {
         unsafe {
-            raylib::DrawCircleV(center.into(), radius, color.into());
+            ffi::DrawCircleV(center.into().into(), radius, color.into());
         }
     }
 
@@ -1408,7 +1255,7 @@ impl RaylibHandle {
     #[inline]
     pub fn draw_circle_lines(&self, center_x: i32, center_y: i32, radius: f32, color: impl Into<Color>) {
         unsafe {
-            raylib::DrawCircleLines(center_x, center_y, radius, color.into());
+            ffi::DrawCircleLines(center_x, center_y, radius, color.into());
         }
     }
 
@@ -1416,7 +1263,7 @@ impl RaylibHandle {
     #[inline]
     pub fn draw_rectangle(&self, x: i32, y: i32, width: i32, height: i32, color: impl Into<Color>) {
         unsafe {
-            raylib::DrawRectangle(x, y, width, height, color.into());
+            ffi::DrawRectangle(x, y, width, height, color.into());
         }
     }
 
@@ -1424,7 +1271,7 @@ impl RaylibHandle {
     #[inline]
     pub fn draw_rectangle_v(&self, position: impl Into<Vector2>, size: impl Into<Vector2>, color: impl Into<Color>) {
         unsafe {
-            raylib::DrawRectangleV(position.into(), size.into(), color.into());
+            ffi::DrawRectangleV(position.into().into(), size.into().into(), color.into());
         }
     }
 
@@ -1432,7 +1279,7 @@ impl RaylibHandle {
     #[inline]
     pub fn draw_rectangle_rec(&self, rec: Rectangle, color: impl Into<Color>) {
         unsafe {
-            raylib::DrawRectangleRec(rec, color.into());
+            ffi::DrawRectangleRec(rec, color.into());
         }
     }
 
@@ -1440,7 +1287,7 @@ impl RaylibHandle {
     #[inline]
     pub fn draw_rectangle_pro(&self, rec: Rectangle, origin: impl Into<Vector2>, rotation: f32, color: impl Into<Color>) {
         unsafe {
-            raylib::DrawRectanglePro(rec, origin.into(), rotation, color.into());
+            ffi::DrawRectanglePro(rec, origin.into().into(), rotation, color.into());
         }
     }
 
@@ -1450,7 +1297,7 @@ impl RaylibHandle {
     #[inline]
     pub fn draw_rectangle_gradient_v(&self, x: i32, y: i32, width: i32, height: i32, color1: impl Into<Color>, color2: impl Into<Color>) {
         unsafe {
-            raylib::DrawRectangleGradientV(x, y, width, height, color1.into(), color2.into());
+            ffi::DrawRectangleGradientV(x, y, width, height, color1.into(), color2.into());
         }
     }
 
@@ -1460,7 +1307,7 @@ impl RaylibHandle {
     #[inline]
     pub fn draw_rectangle_gradient_h(&self, x: i32, y: i32, width: i32, height: i32, color1: impl Into<Color>, color2: impl Into<Color>) {
         unsafe {
-            raylib::DrawRectangleGradientH(x, y, width, height, color1.into(), color2.into());
+            ffi::DrawRectangleGradientH(x, y, width, height, color1.into(), color2.into());
         }
     }
 
@@ -1470,7 +1317,7 @@ impl RaylibHandle {
     #[inline]
     pub fn draw_rectangle_gradient_ex(&self, rec: Rectangle, col1: impl Into<Color>, col2: impl Into<Color>, col3: impl Into<Color>, col4: impl Into<Color>) {
         unsafe {
-            raylib::DrawRectangleGradientEx(rec, col1.into(), col2.into(), col3.into(), col4.into());
+            ffi::DrawRectangleGradientEx(rec, col1.into(), col2.into(), col3.into(), col4.into());
         }
     }
 
@@ -1478,7 +1325,7 @@ impl RaylibHandle {
     #[inline]
     pub fn draw_rectangle_lines(&self, x: i32, y: i32, width: i32, height: i32, color: impl Into<Color>) {
         unsafe {
-            raylib::DrawRectangleLines(x, y, width, height, color.into());
+            ffi::DrawRectangleLines(x, y, width, height, color.into());
         }
     }
 
@@ -1486,7 +1333,7 @@ impl RaylibHandle {
     #[inline]
     pub fn draw_rectangle_lines_ex(&self, rec: Rectangle, line_thick: i32, color: impl Into<Color>) {
         unsafe {
-            raylib::DrawRectangleLinesEx(rec, line_thick, color.into());
+            ffi::DrawRectangleLinesEx(rec, line_thick, color.into());
         }
     }
 
@@ -1494,7 +1341,7 @@ impl RaylibHandle {
     #[inline]
     pub fn draw_triangle(&self, v1: impl Into<Vector2>, v2: impl Into<Vector2>, v3: impl Into<Vector2>, color: impl Into<Color>) {
         unsafe {
-            raylib::DrawTriangle(v1.into(), v2.into(), v3.into(), color.into());
+            ffi::DrawTriangle(v1.into().into(), v2.into().into(), v3.into().into(), color.into());
         }
     }
 
@@ -1502,7 +1349,7 @@ impl RaylibHandle {
     #[inline]
     pub fn draw_triangle_lines(&self, v1: impl Into<Vector2>, v2: impl Into<Vector2>, v3: impl Into<Vector2>, color: impl Into<Color>) {
         unsafe {
-            raylib::DrawTriangleLines(v1.into(), v2.into(), v3.into(), color.into());
+            ffi::DrawTriangleLines(v1.into().into(), v2.into().into(), v3.into().into(), color.into());
         }
     }
 
@@ -1510,7 +1357,7 @@ impl RaylibHandle {
     #[inline]
     pub fn draw_poly(&self, center: impl Into<Vector2>, sides: i32, radius: f32, rotation: f32, color: impl Into<Color>) {
         unsafe {
-            raylib::DrawPoly(center.into(), sides, radius, rotation, color.into());
+            ffi::DrawPoly(center.into().into(), sides, radius, rotation, color.into());
         }
     }
 
@@ -1518,7 +1365,7 @@ impl RaylibHandle {
     #[inline]
     pub fn draw_poly_ex(&self, points: &mut [Vector2], color: impl Into<Color>) {
         unsafe {
-            raylib::DrawPolyEx(points.as_mut_ptr(), points.len() as i32, color.into());
+            ffi::DrawPolyEx(points.as_mut_ptr() as *mut ffi::Vector2, points.len() as i32, color.into());
         }
     }
 
@@ -1526,7 +1373,7 @@ impl RaylibHandle {
     #[inline]
     pub fn draw_poly_ex_lines(&self, points: &mut [Vector2], color: impl Into<Color>) {
         unsafe {
-            raylib::DrawPolyExLines(points.as_mut_ptr(), points.len() as i32, color.into());
+            ffi::DrawPolyExLines(points.as_mut_ptr() as *mut ffi::Vector2, points.len() as i32, color.into());
         }
     }
 
@@ -1534,7 +1381,7 @@ impl RaylibHandle {
     #[inline]
     pub fn check_collision_recs(&self, rec1: Rectangle, rec2: Rectangle) -> bool {
         unsafe {
-            raylib::CheckCollisionRecs(rec1, rec2)
+            ffi::CheckCollisionRecs(rec1, rec2)
         }
     }
 
@@ -1542,7 +1389,7 @@ impl RaylibHandle {
     #[inline]
     pub fn check_collision_circles(&self, center1: impl Into<Vector2>, radius1: f32, center2: impl Into<Vector2>, radius2: f32) -> bool {
         unsafe {
-            raylib::CheckCollisionCircles(center1.into(), radius1, center2.into(), radius2)
+            ffi::CheckCollisionCircles(center1.into().into(), radius1, center2.into().into(), radius2)
         }
     }
 
@@ -1550,7 +1397,7 @@ impl RaylibHandle {
     #[inline]
     pub fn check_collision_circle_rec(&self, center: impl Into<Vector2>, radius: f32, rec: Rectangle) -> bool {
         unsafe {
-            raylib::CheckCollisionCircleRec(center.into(), radius, rec)
+            ffi::CheckCollisionCircleRec(center.into().into(), radius, rec)
         }
     }
 
@@ -1558,7 +1405,7 @@ impl RaylibHandle {
     #[inline]
     pub fn get_collision_rec(&self, rec1: Rectangle, rec2: Rectangle) -> Rectangle {
         unsafe {
-            raylib::GetCollisionRec(rec1, rec2)
+            ffi::GetCollisionRec(rec1, rec2)
         }
     }
 
@@ -1566,7 +1413,7 @@ impl RaylibHandle {
     #[inline]
     pub fn check_collision_point_rec(&self, point: impl Into<Vector2>, rec: Rectangle) -> bool {
         unsafe {
-            raylib::CheckCollisionPointRec(point.into(), rec)
+            ffi::CheckCollisionPointRec(point.into().into(), rec)
         }
     }
 
@@ -1574,7 +1421,7 @@ impl RaylibHandle {
     #[inline]
     pub fn check_collision_point_circle(&self, point: impl Into<Vector2>, center: impl Into<Vector2>, radius: f32) -> bool {
         unsafe {
-            raylib::CheckCollisionPointCircle(point.into(), center.into(), radius)
+            ffi::CheckCollisionPointCircle(point.into().into(), center.into().into(), radius)
         }
     }
 
@@ -1582,7 +1429,7 @@ impl RaylibHandle {
     #[inline]
     pub fn check_collision_point_triangle(&self, point: impl Into<Vector2>, p1: impl Into<Vector2>, p2: impl Into<Vector2>, p3: impl Into<Vector2>) -> bool {
         unsafe {
-            raylib::CheckCollisionPointTriangle(point.into(), p1.into(), p2.into(), p3.into())
+            ffi::CheckCollisionPointTriangle(point.into().into(), p1.into().into(), p2.into().into(), p3.into().into())
         }
     }
 
@@ -1591,7 +1438,7 @@ impl RaylibHandle {
     pub fn load_image(&self, filename: &str) -> Image {
         let c_filename = CString::new(filename).unwrap();
         unsafe {
-            Image(raylib::LoadImage(c_filename.as_ptr()))
+            Image(ffi::LoadImage(c_filename.as_ptr()))
         }
     }
 
@@ -1603,7 +1450,7 @@ impl RaylibHandle {
             panic!("load_image_ex: Data is wrong size. Expected {}, got {}", expected_len, pixels.len());
         }
         unsafe {
-            Image(raylib::LoadImageEx(pixels.as_mut_ptr(), width, height))
+            Image(ffi::LoadImageEx(pixels.as_mut_ptr(), width, height))
         }
     }
 
@@ -1615,7 +1462,7 @@ impl RaylibHandle {
             panic!("load_image_pro: Data is wrong size. Expected {}, got {}", expected_len, data.len());
         }
         unsafe {
-            Image(raylib::LoadImagePro(data.as_ptr() as *mut std::os::raw::c_void, width, height, format))
+            Image(ffi::LoadImagePro(data.as_ptr() as *mut std::os::raw::c_void, width, height, format as i32))
         }
     }
 
@@ -1624,7 +1471,7 @@ impl RaylibHandle {
     pub fn load_image_raw(&self, filename: &str, width: i32, height: i32, format: i32, header_size: i32) -> Image {
         let c_filename = CString::new(filename).unwrap();
         unsafe {
-            Image(raylib::LoadImageRaw(c_filename.as_ptr(), width, height, format, header_size))
+            Image(ffi::LoadImageRaw(c_filename.as_ptr(), width, height, format, header_size))
         }
     }
 
@@ -1633,7 +1480,7 @@ impl RaylibHandle {
     pub fn export_image(&self, filename: &str, image: &Image) {
         let c_filename = CString::new(filename).unwrap();
         unsafe {
-            raylib::ExportImage(c_filename.as_ptr(), image.0);
+            ffi::ExportImage(c_filename.as_ptr(), image.0);
         }
     }
 
@@ -1642,7 +1489,7 @@ impl RaylibHandle {
     pub fn load_texture(&self, filename: &str) -> Texture2D {
         let c_filename = CString::new(filename).unwrap();
         unsafe {
-            Texture2D(raylib::LoadTexture(c_filename.as_ptr()))
+            Texture2D(ffi::LoadTexture(c_filename.as_ptr()))
         }
     }
 
@@ -1650,7 +1497,7 @@ impl RaylibHandle {
     #[inline]
     pub fn load_texture_from_image(&self, image: &Image) -> Texture2D {
         unsafe {
-            Texture2D(raylib::LoadTextureFromImage(image.0))
+            Texture2D(ffi::LoadTextureFromImage(image.0))
         }
     }
 
@@ -1658,7 +1505,7 @@ impl RaylibHandle {
     #[inline]
     pub fn load_render_texture(&self, width: i32, height: i32) -> RenderTexture2D {
         unsafe {
-            RenderTexture2D(raylib::LoadRenderTexture(width, height))
+            RenderTexture2D(ffi::LoadRenderTexture(width, height))
         }
     }
 
@@ -1666,7 +1513,7 @@ impl RaylibHandle {
     #[inline]
     pub fn get_image_data(&self, image: &Image) -> Vec<Color> {
         unsafe {
-            let image_data = raylib::GetImageData(image.0);
+            let image_data = ffi::GetImageData(image.0);
             let image_data_len = (image.width * image.height) as usize;
             let mut safe_image_data = Vec::with_capacity(image_data_len);
             safe_image_data.set_len(image_data_len);
@@ -1680,11 +1527,11 @@ impl RaylibHandle {
     #[inline]
     pub fn get_image_data_normalized(&self, image: &Image) -> Vec<Vector4> {
         unsafe {
-            let image_data = raylib::GetImageDataNormalized(image.0);
+            let image_data = ffi::GetImageDataNormalized(image.0);
             let image_data_len = (image.width * image.height) as usize;
-            let mut safe_image_data = Vec::with_capacity(image_data_len);
+            let mut safe_image_data: Vec<Vector4> = Vec::with_capacity(image_data_len);
             safe_image_data.set_len(image_data_len);
-            std::ptr::copy(image_data, safe_image_data.as_mut_ptr(), image_data_len);
+            std::ptr::copy(image_data, safe_image_data.as_mut_ptr() as *mut ffi::Vector4, image_data_len);
             libc::free(image_data as *mut libc::c_void);
             safe_image_data
         }
@@ -1694,7 +1541,7 @@ impl RaylibHandle {
     #[inline]
     pub fn get_pixel_data_size(&self, width: i32, height: i32, format: PixelFormat) -> i32 {
         unsafe {
-            raylib::GetPixelDataSize(width, height, format)
+            ffi::GetPixelDataSize(width, height, format as i32)
         }
     }
 
@@ -1702,19 +1549,19 @@ impl RaylibHandle {
     #[inline]
     pub fn get_texture_data(&self, texture: &Texture2D) -> Image {
         unsafe {
-            Image(raylib::GetTextureData(texture.0))
+            Image(ffi::GetTextureData(texture.0))
         }
     }
 
     /// Updates GPU texture with new data.
     #[inline]
     pub fn update_texture(&self, texture: &mut Texture2D, pixels: &[u8]) {
-        let expected_len = self.get_pixel_data_size(texture.width, texture.height, texture.format) as usize;
+        let expected_len = self.get_pixel_data_size(texture.width, texture.height, texture.format as u32) as usize;
         if pixels.len() != expected_len {
             panic!("update_texture: Data is wrong size. Expected {}, got {}", expected_len, pixels.len());
         }
         unsafe {
-            raylib::UpdateTexture(texture.0, pixels.as_ptr() as *const std::os::raw::c_void);
+            ffi::UpdateTexture(texture.0, pixels.as_ptr() as *const std::os::raw::c_void);
         }
     }
 
@@ -1722,7 +1569,7 @@ impl RaylibHandle {
     #[inline]
     pub fn image_copy(&self, image: &Image) -> Image {
         unsafe {
-            Image(raylib::ImageCopy(image.0))
+            Image(ffi::ImageCopy(image.0))
         }
     }
 
@@ -1730,7 +1577,7 @@ impl RaylibHandle {
     #[inline]
     pub fn image_to_pot(&self, image: &mut Image, fill_color: impl Into<Color>) {
         unsafe {
-            raylib::ImageToPOT(&mut image.0, fill_color.into());
+            ffi::ImageToPOT(&mut image.0, fill_color.into());
         }
     }
 
@@ -1738,7 +1585,7 @@ impl RaylibHandle {
     #[inline]
     pub fn image_format(&self, image: &mut Image, new_format: PixelFormat) {
         unsafe {
-            raylib::ImageFormat(&mut image.0, new_format);
+            ffi::ImageFormat(&mut image.0, new_format as i32);
         }
     }
 
@@ -1746,7 +1593,7 @@ impl RaylibHandle {
     #[inline]
     pub fn image_alpha_mask(&self, image: &mut Image, alpha_mask: &Image) {
         unsafe {
-            raylib::ImageAlphaMask(&mut image.0, alpha_mask.0);
+            ffi::ImageAlphaMask(&mut image.0, alpha_mask.0);
         }
     }
 
@@ -1754,7 +1601,7 @@ impl RaylibHandle {
     #[inline]
     pub fn image_alpha_clear(&self, image: &mut Image, color: impl Into<Color>, threshold: f32) {
         unsafe {
-            raylib::ImageAlphaClear(&mut image.0, color.into(), threshold);
+            ffi::ImageAlphaClear(&mut image.0, color.into(), threshold);
         }
     }
 
@@ -1762,7 +1609,7 @@ impl RaylibHandle {
     #[inline]
     pub fn image_alpha_crop(&self, image: &mut Image, threshold: f32) {
         unsafe {
-            raylib::ImageAlphaCrop(&mut image.0, threshold);
+            ffi::ImageAlphaCrop(&mut image.0, threshold);
         }
     }
 
@@ -1770,7 +1617,7 @@ impl RaylibHandle {
     #[inline]
     pub fn image_alpha_premultiply(&self, image: &mut Image) {
         unsafe {
-            raylib::ImageAlphaPremultiply(&mut image.0);
+            ffi::ImageAlphaPremultiply(&mut image.0);
         }
     }
 
@@ -1778,7 +1625,7 @@ impl RaylibHandle {
     #[inline]
     pub fn image_crop(&self, image: &mut Image, crop: Rectangle) {
         unsafe {
-            raylib::ImageCrop(&mut image.0, crop);
+            ffi::ImageCrop(&mut image.0, crop);
         }
     }
 
@@ -1786,7 +1633,7 @@ impl RaylibHandle {
     #[inline]
     pub fn image_resize(&self, image: &mut Image, new_width: i32, new_height: i32) {
         unsafe {
-            raylib::ImageResize(&mut image.0, new_width, new_height);
+            ffi::ImageResize(&mut image.0, new_width, new_height);
         }
     }
 
@@ -1794,7 +1641,7 @@ impl RaylibHandle {
     #[inline]
     pub fn image_resize_nn(&self, image: &mut Image, new_width: i32, new_height: i32) {
         unsafe {
-            raylib::ImageResizeNN(&mut image.0, new_width, new_height);
+            ffi::ImageResizeNN(&mut image.0, new_width, new_height);
         }
     }
 
@@ -1802,7 +1649,7 @@ impl RaylibHandle {
     #[inline]
     pub fn image_resize_canvas(&self, image: &mut Image, new_width: i32, new_height: i32, offset_x: i32, offset_y: i32, color: impl Into<Color>) {
         unsafe {
-            raylib::ImageResizeCanvas(&mut image.0, new_width, new_height, offset_x, offset_y, color.into());
+            ffi::ImageResizeCanvas(&mut image.0, new_width, new_height, offset_x, offset_y, color.into());
         }
     }
 
@@ -1810,7 +1657,7 @@ impl RaylibHandle {
     #[inline]
     pub fn image_mipmaps(&self, image: &mut Image) {
         unsafe {
-            raylib::ImageMipmaps(&mut image.0);
+            ffi::ImageMipmaps(&mut image.0);
         }
     }
 
@@ -1818,7 +1665,7 @@ impl RaylibHandle {
     #[inline]
     pub fn image_dither(&self, image: &mut Image, r_bpp: i32, g_bpp: i32, b_bpp: i32, a_bpp: i32) {
         unsafe {
-            raylib::ImageDither(&mut image.0, r_bpp, g_bpp, b_bpp, a_bpp);
+            ffi::ImageDither(&mut image.0, r_bpp, g_bpp, b_bpp, a_bpp);
         }
     }
 
@@ -1827,7 +1674,7 @@ impl RaylibHandle {
     pub fn image_text(&self, text: &str, font_size: i32, color: impl Into<Color>) -> Image {
         let c_text = CString::new(text).unwrap();
         unsafe {
-            Image(raylib::ImageText(c_text.as_ptr(), font_size, color.into()))
+            Image(ffi::ImageText(c_text.as_ptr(), font_size, color.into()))
         }
     }
 
@@ -1836,7 +1683,7 @@ impl RaylibHandle {
     pub fn image_text_ex(&self, font: &Font, text: &str, font_size: f32, spacing: f32, tint: impl Into<Color>) -> Image {
         let c_text = CString::new(text).unwrap();
         unsafe {
-            Image(raylib::ImageTextEx(font.0, c_text.as_ptr(), font_size, spacing, tint.into()))
+            Image(ffi::ImageTextEx(font.0, c_text.as_ptr(), font_size, spacing, tint.into()))
         }
     }
 
@@ -1844,7 +1691,7 @@ impl RaylibHandle {
     #[inline]
     pub fn image_draw(&self, dst: &mut Image, src: &Image, src_rec: Rectangle, dst_rec: Rectangle) {
         unsafe {
-            raylib::ImageDraw(&mut dst.0, src.0, src_rec, dst_rec);
+            ffi::ImageDraw(&mut dst.0, src.0, src_rec, dst_rec);
         }
     }
 
@@ -1852,7 +1699,7 @@ impl RaylibHandle {
     #[inline]
     pub fn image_draw_rectangle(&self, dst: &mut Image, position: impl Into<Vector2>, rec: Rectangle, color: impl Into<Color>) {
         unsafe {
-            raylib::ImageDrawRectangle(&mut dst.0, position.into(), rec, color.into());
+            ffi::ImageDrawRectangle(&mut dst.0, position.into().into(), rec, color.into());
         }
     }
 
@@ -1861,7 +1708,7 @@ impl RaylibHandle {
     pub fn image_draw_text(&self, dst: &mut Image, position: impl Into<Vector2>, text: &str, font_size: i32, color: impl Into<Color>) {
         let c_text = CString::new(text).unwrap();
         unsafe {
-            raylib::ImageDrawText(&mut dst.0, position.into(), c_text.as_ptr(), font_size, color.into());
+            ffi::ImageDrawText(&mut dst.0, position.into().into(), c_text.as_ptr(), font_size, color.into());
         }
     }
 
@@ -1870,7 +1717,7 @@ impl RaylibHandle {
     pub fn image_draw_text_ex(&self, dst: &mut Image, position: impl Into<Vector2>, font: &Font, text: &str, font_size: f32, spacing: f32, color: impl Into<Color>) {
         let c_text = CString::new(text).unwrap();
         unsafe {
-            raylib::ImageDrawTextEx(&mut dst.0, position.into(), font.0, c_text.as_ptr(), font_size, spacing, color.into());
+            ffi::ImageDrawTextEx(&mut dst.0, position.into().into(), font.0, c_text.as_ptr(), font_size, spacing, color.into());
         }
     }
 
@@ -1878,7 +1725,7 @@ impl RaylibHandle {
     #[inline]
     pub fn image_flip_vertical(&self, image: &mut Image) {
         unsafe {
-            raylib::ImageFlipVertical(&mut image.0);
+            ffi::ImageFlipVertical(&mut image.0);
         }
     }
 
@@ -1886,7 +1733,7 @@ impl RaylibHandle {
     #[inline]
     pub fn image_flip_horizontal(&self, image: &mut Image) {
         unsafe {
-            raylib::ImageFlipHorizontal(&mut image.0);
+            ffi::ImageFlipHorizontal(&mut image.0);
         }
     }
 
@@ -1894,7 +1741,7 @@ impl RaylibHandle {
     #[inline]
     pub fn image_rotate_cw(&self, image: &mut Image) {
         unsafe {
-            raylib::ImageRotateCW(&mut image.0);
+            ffi::ImageRotateCW(&mut image.0);
         }
     }
 
@@ -1902,7 +1749,7 @@ impl RaylibHandle {
     #[inline]
     pub fn image_rotate_ccw(&self, image: &mut Image) {
         unsafe {
-            raylib::ImageRotateCCW(&mut image.0);
+            ffi::ImageRotateCCW(&mut image.0);
         }
     }
 
@@ -1910,7 +1757,7 @@ impl RaylibHandle {
     #[inline]
     pub fn image_color_tint(&self, image: &mut Image, color: impl Into<Color>) {
         unsafe {
-            raylib::ImageColorTint(&mut image.0, color.into());
+            ffi::ImageColorTint(&mut image.0, color.into());
         }
     }
 
@@ -1918,7 +1765,7 @@ impl RaylibHandle {
     #[inline]
     pub fn image_color_invert(&self, image: &mut Image) {
         unsafe {
-            raylib::ImageColorInvert(&mut image.0);
+            ffi::ImageColorInvert(&mut image.0);
         }
     }
 
@@ -1926,7 +1773,7 @@ impl RaylibHandle {
     #[inline]
     pub fn image_color_grayscale(&self, image: &mut Image) {
         unsafe {
-            raylib::ImageColorGrayscale(&mut image.0);
+            ffi::ImageColorGrayscale(&mut image.0);
         }
     }
 
@@ -1934,7 +1781,7 @@ impl RaylibHandle {
     #[inline]
     pub fn image_color_contrast(&self, image: &mut Image, contrast: f32) {
         unsafe {
-            raylib::ImageColorContrast(&mut image.0, contrast);
+            ffi::ImageColorContrast(&mut image.0, contrast);
         }
     }
 
@@ -1942,7 +1789,7 @@ impl RaylibHandle {
     #[inline]
     pub fn image_color_brightness(&self, image: &mut Image, brightness: i32) {
         unsafe {
-            raylib::ImageColorBrightness(&mut image.0, brightness);
+            ffi::ImageColorBrightness(&mut image.0, brightness);
         }
     }
 
@@ -1950,7 +1797,7 @@ impl RaylibHandle {
     #[inline]
     pub fn image_color_replace(&self, image: &mut Image, color: impl Into<Color>, replace: impl Into<Color>) {
         unsafe {
-            raylib::ImageColorReplace(&mut image.0, color.into(), replace.into());
+            ffi::ImageColorReplace(&mut image.0, color.into(), replace.into());
         }
     }
 
@@ -1958,7 +1805,7 @@ impl RaylibHandle {
     #[inline]
     pub fn gen_image_color(&self, width: i32, height: i32, color: impl Into<Color>) -> Image {
         unsafe {
-            Image(raylib::GenImageColor(width, height, color.into()))
+            Image(ffi::GenImageColor(width, height, color.into()))
         }
     }
 
@@ -1966,7 +1813,7 @@ impl RaylibHandle {
     #[inline]
     pub fn gen_image_gradient_v(&self, width: i32, height: i32, top: impl Into<Color>, bottom: impl Into<Color>) -> Image {
         unsafe {
-            Image(raylib::GenImageGradientV(width, height, top.into(), bottom.into()))
+            Image(ffi::GenImageGradientV(width, height, top.into(), bottom.into()))
         }
     }
 
@@ -1974,7 +1821,7 @@ impl RaylibHandle {
     #[inline]
     pub fn gen_image_gradient_h(&self, width: i32, height: i32, left: impl Into<Color>, right: impl Into<Color>) -> Image {
         unsafe {
-            Image(raylib::GenImageGradientH(width, height, left.into(), right.into()))
+            Image(ffi::GenImageGradientH(width, height, left.into(), right.into()))
         }
     }
 
@@ -1982,7 +1829,7 @@ impl RaylibHandle {
     #[inline]
     pub fn gen_image_gradient_radial(&self, width: i32, height: i32, density: f32, inner: impl Into<Color>, outer: impl Into<Color>) -> Image {
         unsafe {
-            Image(raylib::GenImageGradientRadial(width, height, density, inner.into(), outer.into()))
+            Image(ffi::GenImageGradientRadial(width, height, density, inner.into(), outer.into()))
         }
     }
 
@@ -1990,7 +1837,7 @@ impl RaylibHandle {
     #[inline]
     pub fn gen_image_checked(&self, width: i32, height: i32, checks_x: i32, checks_y: i32, col1: impl Into<Color>, col2: impl Into<Color>) -> Image {
         unsafe {
-            Image(raylib::GenImageChecked(width, height, checks_x, checks_y, col1.into(), col2.into()))
+            Image(ffi::GenImageChecked(width, height, checks_x, checks_y, col1.into(), col2.into()))
         }
     }
 
@@ -1998,7 +1845,7 @@ impl RaylibHandle {
     #[inline]
     pub fn gen_image_white_noise(&self, width: i32, height: i32, factor: f32) -> Image {
         unsafe {
-            Image(raylib::GenImageWhiteNoise(width, height, factor))
+            Image(ffi::GenImageWhiteNoise(width, height, factor))
         }
     }
 
@@ -2006,7 +1853,7 @@ impl RaylibHandle {
     #[inline]
     pub fn gen_image_perlin_noise(&self, width: i32, height: i32, offset_x: i32, offset_y: i32, scale: f32) -> Image {
         unsafe {
-            Image(raylib::GenImagePerlinNoise(width, height, offset_x, offset_y, scale))
+            Image(ffi::GenImagePerlinNoise(width, height, offset_x, offset_y, scale))
         }
     }
 
@@ -2014,7 +1861,7 @@ impl RaylibHandle {
     #[inline]
     pub fn gen_image_cellular(&self, width: i32, height: i32, tile_size: i32) -> Image {
         unsafe {
-            Image(raylib::GenImageCellular(width, height, tile_size))
+            Image(ffi::GenImageCellular(width, height, tile_size))
         }
     }
 
@@ -2022,7 +1869,7 @@ impl RaylibHandle {
     #[inline]
     pub fn gen_texture_mipmaps(&self, texture: &mut Texture2D) {
         unsafe {
-            raylib::GenTextureMipmaps(&mut texture.0);
+            ffi::GenTextureMipmaps(&mut texture.0);
         }
     }
 
@@ -2030,7 +1877,7 @@ impl RaylibHandle {
     #[inline]
     pub fn set_texture_filter(&self, texture: &mut Texture2D, filter_mode: TextureFilterMode) {
         unsafe {
-            raylib::SetTextureFilter(texture.0, filter_mode);
+            ffi::SetTextureFilter(texture.0, filter_mode as i32);
         }
     }
 
@@ -2038,7 +1885,7 @@ impl RaylibHandle {
     #[inline]
     pub fn set_texture_wrap(&self, texture: &mut Texture2D, wrap_mode: TextureWrapMode) {
         unsafe {
-            raylib::SetTextureWrap(texture.0, wrap_mode);
+            ffi::SetTextureWrap(texture.0, wrap_mode as i32);
         }
     }
 
@@ -2046,7 +1893,7 @@ impl RaylibHandle {
     #[inline]
     pub fn draw_texture(&self, texture: &Texture2D, x: i32, y: i32, tint: impl Into<Color>) {
         unsafe {
-            raylib::DrawTexture(texture.0, x, y, tint.into());
+            ffi::DrawTexture(texture.0, x, y, tint.into());
         }
     }
 
@@ -2054,7 +1901,7 @@ impl RaylibHandle {
     #[inline]
     pub fn draw_texture_v(&self, texture: &Texture2D, position: impl Into<Vector2>, tint: impl Into<Color>) {
         unsafe {
-            raylib::DrawTextureV(texture.0, position.into(), tint.into());
+            ffi::DrawTextureV(texture.0, position.into().into(), tint.into());
         }
     }
 
@@ -2062,7 +1909,7 @@ impl RaylibHandle {
     #[inline]
     pub fn draw_texture_ex(&self, texture: &Texture2D, position: impl Into<Vector2>, rotation: f32, scale: f32, tint: impl Into<Color>) {
         unsafe {
-            raylib::DrawTextureEx(texture.0, position.into(), rotation, scale, tint.into());
+            ffi::DrawTextureEx(texture.0, position.into().into(), rotation, scale, tint.into());
         }
     }
 
@@ -2070,7 +1917,7 @@ impl RaylibHandle {
     #[inline]
     pub fn draw_texture_rec(&self, texture: &Texture2D, source_rec: Rectangle, position: impl Into<Vector2>, tint: impl Into<Color>) {
         unsafe {
-            raylib::DrawTextureRec(texture.0, source_rec, position.into(), tint.into());
+            ffi::DrawTextureRec(texture.0, source_rec, position.into().into(), tint.into());
         }
     }
 
@@ -2078,7 +1925,7 @@ impl RaylibHandle {
     #[inline]
     pub fn draw_texture_pro(&self, texture: &Texture2D, source_rec: Rectangle, dest_rec: Rectangle, origin: impl Into<Vector2>, rotation: f32, tint: impl Into<Color>) {
         unsafe {
-            raylib::DrawTexturePro(texture.0, source_rec, dest_rec, origin.into(), rotation, tint.into());
+            ffi::DrawTexturePro(texture.0, source_rec, dest_rec, origin.into().into(), rotation, tint.into());
         }
     }
 
@@ -2093,7 +1940,7 @@ impl RaylibHandle {
     pub fn load_font(&self, filename: &str) -> Font {
         let c_filename = CString::new(filename).unwrap();
         unsafe {
-            Font(raylib::LoadFont(c_filename.as_ptr()))
+            Font(ffi::LoadFont(c_filename.as_ptr()))
         }
     }
 
@@ -2103,8 +1950,8 @@ impl RaylibHandle {
         let c_filename = CString::new(filename).unwrap();
         unsafe {
             match chars {
-                Some(c) => Font(raylib::LoadFontEx(c_filename.as_ptr(), font_size, c.len() as i32, c.as_ptr() as *mut i32)),
-                None => Font(raylib::LoadFontEx(c_filename.as_ptr(), font_size, 0, std::ptr::null_mut()))
+                Some(c) => Font(ffi::LoadFontEx(c_filename.as_ptr(), font_size, c.len() as i32, c.as_ptr() as *mut i32)),
+                None => Font(ffi::LoadFontEx(c_filename.as_ptr(), font_size, 0, std::ptr::null_mut()))
             }
         }
     }
@@ -2116,10 +1963,10 @@ impl RaylibHandle {
         unsafe {
             let ci_arr_ptr = match chars {
                 Some(c) => {
-                    raylib::LoadFontData(c_filename.as_ptr(), font_size, c.as_ptr() as *mut i32, c.len() as i32, sdf)
+                    ffi::LoadFontData(c_filename.as_ptr(), font_size, c.as_ptr() as *mut i32, c.len() as i32, sdf)
                 }
                 None => {
-                    raylib::LoadFontData(c_filename.as_ptr(), font_size, std::ptr::null_mut(), 0, sdf)
+                    ffi::LoadFontData(c_filename.as_ptr(), font_size, std::ptr::null_mut(), 0, sdf)
                 }
             };
             let ci_size = if let Some(c) = chars { c.len() } else { 95 }; // raylib assumes 95 if none given
@@ -2136,7 +1983,7 @@ impl RaylibHandle {
     #[inline]
     pub fn gen_image_font_atlas(&self, chars: &mut [CharInfo], font_size: i32, padding: i32, pack_method: i32) -> Image {
         unsafe {
-            Image(raylib::GenImageFontAtlas(chars.as_mut_ptr(), font_size, chars.len() as i32, padding, pack_method))
+            Image(ffi::GenImageFontAtlas(chars.as_mut_ptr(), font_size, chars.len() as i32, padding, pack_method))
         }
     }
 
@@ -2144,7 +1991,7 @@ impl RaylibHandle {
     #[inline]
     pub fn draw_fps(&self, x: i32, y: i32) {
         unsafe {
-            raylib::DrawFPS(x, y);
+            ffi::DrawFPS(x, y);
         }
     }
 
@@ -2153,7 +2000,7 @@ impl RaylibHandle {
     pub fn draw_text(&self, text: &str, x: i32, y: i32, font_size: i32, color: impl Into<Color>) {
         let c_text = CString::new(text).unwrap();
         unsafe {
-            raylib::DrawText(c_text.as_ptr(), x, y, font_size, color.into());
+            ffi::DrawText(c_text.as_ptr(), x, y, font_size, color.into());
         }
     }
 
@@ -2162,7 +2009,7 @@ impl RaylibHandle {
     pub fn draw_text_ex(&self, font: &Font, text: &str, position: impl Into<Vector2>, font_size: f32, spacing: f32, tint: impl Into<Color>) {
         let c_text = CString::new(text).unwrap();
         unsafe {
-            raylib::DrawTextEx(font.0, c_text.as_ptr(), position.into(), font_size, spacing, tint.into());
+            ffi::DrawTextEx(font.0, c_text.as_ptr(), position.into().into(), font_size, spacing, tint.into());
         }
     }
 
@@ -2171,7 +2018,7 @@ impl RaylibHandle {
     pub fn measure_text(&self, text: &str, font_size: i32) -> i32 {
         let c_text = CString::new(text).unwrap();
         unsafe {
-            raylib::MeasureText(c_text.as_ptr(), font_size)
+            ffi::MeasureText(c_text.as_ptr(), font_size)
         }
     }
 
@@ -2180,7 +2027,7 @@ impl RaylibHandle {
     pub fn measure_text_ex(&self, font: &Font, text: &str, font_size: f32, spacing: f32) -> Vector2 {
         let c_text = CString::new(text).unwrap();
         unsafe {
-            raylib::MeasureTextEx(font.0, c_text.as_ptr(), font_size, spacing)
+            ffi::MeasureTextEx(font.0, c_text.as_ptr(), font_size, spacing).into()
         }
     }
 
@@ -2188,7 +2035,7 @@ impl RaylibHandle {
     #[inline]
     pub fn get_glyph_index(&self, font: &Font, character: i32) -> i32 {
         unsafe {
-            raylib::GetGlyphIndex(font.0, character)
+            ffi::GetGlyphIndex(font.0, character)
         }
     }
 
@@ -2196,7 +2043,7 @@ impl RaylibHandle {
     #[inline]
     pub fn draw_line_3d(&self, start_pos: impl Into<Vector3>, end_pos: impl Into<Vector3>, color: impl Into<Color>) {
         unsafe {
-            raylib::DrawLine3D(start_pos.into(), end_pos.into(), color.into());
+            ffi::DrawLine3D(start_pos.into().into(), end_pos.into().into(), color.into());
         }
     }
 
@@ -2204,7 +2051,7 @@ impl RaylibHandle {
     #[inline]
     pub fn draw_circle_3d(&self, center: impl Into<Vector3>, radius: f32, rotation_axis: impl Into<Vector3>, rotation_angle: f32, color: impl Into<Color>) {
         unsafe {
-            raylib::DrawCircle3D(center.into(), radius, rotation_axis.into(), rotation_angle, color.into());
+            ffi::DrawCircle3D(center.into().into(), radius, rotation_axis.into().into(), rotation_angle, color.into());
         }
     }
 
@@ -2212,7 +2059,7 @@ impl RaylibHandle {
     #[inline]
     pub fn draw_cube(&self, position: impl Into<Vector3>, width: f32, height: f32, length: f32, color: impl Into<Color>) {
         unsafe {
-            raylib::DrawCube(position.into(), width, height, length, color.into());
+            ffi::DrawCube(position.into().into(), width, height, length, color.into());
         }
     }
 
@@ -2220,7 +2067,7 @@ impl RaylibHandle {
     #[inline]
     pub fn draw_cube_v(&self, position: impl Into<Vector3>, size: impl Into<Vector3>, color: impl Into<Color>) {
         unsafe {
-            raylib::DrawCubeV(position.into(), size.into(), color.into());
+            ffi::DrawCubeV(position.into().into(), size.into().into(), color.into());
         }
     }
 
@@ -2228,7 +2075,7 @@ impl RaylibHandle {
     #[inline]
     pub fn draw_cube_wires(&self, position: impl Into<Vector3>, width: f32, height: f32, length: f32, color: impl Into<Color>) {
         unsafe {
-            raylib::DrawCubeWires(position.into(), width, height, length, color.into());
+            ffi::DrawCubeWires(position.into().into(), width, height, length, color.into());
         }
     }
 
@@ -2236,7 +2083,7 @@ impl RaylibHandle {
     #[inline]
     pub fn draw_cube_texture(&self, texture: &Texture2D, position: impl Into<Vector3>, width: f32, height: f32, length: f32, color: impl Into<Color>) {
         unsafe {
-            raylib::DrawCubeTexture(texture.0, position.into(), width, height, length, color.into());
+            ffi::DrawCubeTexture(texture.0, position.into().into(), width, height, length, color.into());
         }
     }
 
@@ -2244,7 +2091,7 @@ impl RaylibHandle {
     #[inline]
     pub fn draw_sphere(&self, center_pos: impl Into<Vector3>, radius: f32, color: impl Into<Color>) {
         unsafe {
-            raylib::DrawSphere(center_pos.into(), radius, color.into());
+            ffi::DrawSphere(center_pos.into().into(), radius, color.into());
         }
     }
 
@@ -2252,7 +2099,7 @@ impl RaylibHandle {
     #[inline]
     pub fn draw_sphere_ex(&self, center_pos: impl Into<Vector3>, radius: f32, rings: i32, slices: i32, color: impl Into<Color>) {
         unsafe {
-            raylib::DrawSphereEx(center_pos.into(), radius, rings, slices, color.into());
+            ffi::DrawSphereEx(center_pos.into().into(), radius, rings, slices, color.into());
         }
     }
 
@@ -2260,7 +2107,7 @@ impl RaylibHandle {
     #[inline]
     pub fn draw_sphere_wires(&self, center_pos: impl Into<Vector3>, radius: f32, rings: i32, slices: i32, color: impl Into<Color>) {
         unsafe {
-            raylib::DrawSphereWires(center_pos.into(), radius, rings, slices, color.into());
+            ffi::DrawSphereWires(center_pos.into().into(), radius, rings, slices, color.into());
         }
     }
 
@@ -2268,7 +2115,7 @@ impl RaylibHandle {
     #[inline]
     pub fn draw_cylinder(&self, position: impl Into<Vector3>, radius_top: f32, radius_bottom: f32, height: f32, slices: i32, color: impl Into<Color>) {
         unsafe {
-            raylib::DrawCylinder(position.into(), radius_top, radius_bottom, height, slices, color.into());
+            ffi::DrawCylinder(position.into().into(), radius_top, radius_bottom, height, slices, color.into());
         }
     }
 
@@ -2276,7 +2123,7 @@ impl RaylibHandle {
     #[inline]
     pub fn draw_cylinder_wires(&self, position: impl Into<Vector3>, radius_top: f32, radius_bottom: f32, height: f32, slices: i32, color: impl Into<Color>) {
         unsafe {
-            raylib::DrawCylinderWires(position.into(), radius_top, radius_bottom, height, slices, color.into());
+            ffi::DrawCylinderWires(position.into().into(), radius_top, radius_bottom, height, slices, color.into());
         }
     }
 
@@ -2284,7 +2131,7 @@ impl RaylibHandle {
     #[inline]
     pub fn draw_plane(&self, center_pos: impl Into<Vector3>, size: impl Into<Vector2>, color: impl Into<Color>) {
         unsafe {
-            raylib::DrawPlane(center_pos.into(), size.into(), color.into());
+            ffi::DrawPlane(center_pos.into().into(), size.into().into(), color.into());
         }
     }
 
@@ -2292,7 +2139,7 @@ impl RaylibHandle {
     #[inline]
     pub fn draw_ray(&self, ray: Ray, color: impl Into<Color>) {
         unsafe {
-            raylib::DrawRay(ray, color.into());
+            ffi::DrawRay(ray, color.into());
         }
     }
 
@@ -2300,7 +2147,7 @@ impl RaylibHandle {
     #[inline]
     pub fn draw_grid(&self, slices: i32, spacing: f32) {
         unsafe {
-            raylib::DrawGrid(slices, spacing);
+            ffi::DrawGrid(slices, spacing);
         }
     }
 
@@ -2308,7 +2155,7 @@ impl RaylibHandle {
     #[inline]
     pub fn draw_gizmo(&self, position: impl Into<Vector3>) {
         unsafe {
-            raylib::DrawGizmo(position.into());
+            ffi::DrawGizmo(position.into().into());
         }
     }
 
@@ -2317,7 +2164,7 @@ impl RaylibHandle {
     pub fn load_model(&self, filename: &str) -> Model {
         let c_filename = CString::new(filename).unwrap();
         unsafe {
-            Model(raylib::LoadModel(c_filename.as_ptr()))
+            Model(ffi::LoadModel(c_filename.as_ptr()))
         }
     }
 
@@ -2327,7 +2174,7 @@ impl RaylibHandle {
         unsafe {
             let m = mesh.0;
             std::mem::forget(mesh);
-            Model(raylib::LoadModelFromMesh(m))
+            Model(ffi::LoadModelFromMesh(m))
         }
     }
 
@@ -2336,7 +2183,7 @@ impl RaylibHandle {
     pub fn load_mesh(&self, filename: &str) -> Mesh {
         let c_filename = CString::new(filename).unwrap();
         unsafe {
-            Mesh(raylib::LoadMesh(c_filename.as_ptr()))
+            Mesh(ffi::LoadMesh(c_filename.as_ptr()))
         }
     }
 
@@ -2345,7 +2192,7 @@ impl RaylibHandle {
     pub fn export_mesh(&self, filename: &str, mesh: &Mesh) {
         let c_filename = CString::new(filename).unwrap();
         unsafe {
-            raylib::ExportMesh(c_filename.as_ptr(), mesh.0);
+            ffi::ExportMesh(c_filename.as_ptr(), mesh.0);
         }
     }
 
@@ -2353,7 +2200,7 @@ impl RaylibHandle {
     #[inline]
     pub fn mesh_bounding_box(&self, mesh: &Mesh) -> BoundingBox {
         unsafe {
-            raylib::MeshBoundingBox(mesh.0)
+            ffi::MeshBoundingBox(mesh.0)
         }
     }
 
@@ -2361,7 +2208,7 @@ impl RaylibHandle {
     #[inline]
     pub fn mesh_tangents(&self, mesh: &mut Mesh) {
         unsafe {
-            raylib::MeshTangents(&mut mesh.0);
+            ffi::MeshTangents(&mut mesh.0);
         }
     }
 
@@ -2369,7 +2216,7 @@ impl RaylibHandle {
     #[inline]
     pub fn mesh_binormals(&self, mesh: &mut Mesh) {
         unsafe {
-            raylib::MeshBinormals(&mut mesh.0);
+            ffi::MeshBinormals(&mut mesh.0);
         }
     }
 
@@ -2377,7 +2224,7 @@ impl RaylibHandle {
     #[inline]
     pub fn gen_mesh_plane(&self, width: f32, length: f32, res_x: i32, res_z: i32) -> Mesh {
         unsafe {
-            Mesh(raylib::GenMeshPlane(width, length, res_x, res_z))
+            Mesh(ffi::GenMeshPlane(width, length, res_x, res_z))
         }
     }
 
@@ -2385,7 +2232,7 @@ impl RaylibHandle {
     #[inline]
     pub fn gen_mesh_cube(&self, width: f32, height: f32, length: f32) -> Mesh {
         unsafe {
-            Mesh(raylib::GenMeshCube(width, height, length))
+            Mesh(ffi::GenMeshCube(width, height, length))
         }
     }
 
@@ -2393,7 +2240,7 @@ impl RaylibHandle {
     #[inline]
     pub fn gen_mesh_sphere(&self, radius: f32, rings: i32, slices: i32) -> Mesh {
         unsafe {
-            Mesh(raylib::GenMeshSphere(radius, rings, slices))
+            Mesh(ffi::GenMeshSphere(radius, rings, slices))
         }
     }
 
@@ -2401,7 +2248,7 @@ impl RaylibHandle {
     #[inline]
     pub fn gen_mesh_hemisphere(&self, radius: f32, rings: i32, slices: i32) -> Mesh {
         unsafe {
-            Mesh(raylib::GenMeshHemiSphere(radius, rings, slices))
+            Mesh(ffi::GenMeshHemiSphere(radius, rings, slices))
         }
     }
 
@@ -2409,7 +2256,7 @@ impl RaylibHandle {
     #[inline]
     pub fn gen_mesh_cylinder(&self, radius: f32, height: f32, slices: i32) -> Mesh {
         unsafe {
-            Mesh(raylib::GenMeshCylinder(radius, height, slices))
+            Mesh(ffi::GenMeshCylinder(radius, height, slices))
         }
     }
 
@@ -2417,7 +2264,7 @@ impl RaylibHandle {
     #[inline]
     pub fn gen_mesh_torus(&self, radius: f32, size: f32, rad_seg: i32, sides: i32) -> Mesh {
         unsafe {
-            Mesh(raylib::GenMeshTorus(radius, size, rad_seg, sides))
+            Mesh(ffi::GenMeshTorus(radius, size, rad_seg, sides))
         }
     }
 
@@ -2425,7 +2272,7 @@ impl RaylibHandle {
     #[inline]
     pub fn gen_mesh_knot(&self, radius: f32, size: f32, rad_seg: i32, sides: i32) -> Mesh {
         unsafe {
-            Mesh(raylib::GenMeshKnot(radius, size, rad_seg, sides))
+            Mesh(ffi::GenMeshKnot(radius, size, rad_seg, sides))
         }
     }
 
@@ -2433,7 +2280,7 @@ impl RaylibHandle {
     #[inline]
     pub fn gen_mesh_heightmap(&self, heightmap: &Image, size: impl Into<Vector3>) -> Mesh {
         unsafe {
-            Mesh(raylib::GenMeshHeightmap(heightmap.0, size.into()))
+            Mesh(ffi::GenMeshHeightmap(heightmap.0, size.into().into()))
         }
     }
 
@@ -2441,7 +2288,7 @@ impl RaylibHandle {
     #[inline]
     pub fn gen_mesh_cubicmap(&self, cubicmap: &Image, cube_size: impl Into<Vector3>) -> Mesh {
         unsafe {
-            Mesh(raylib::GenMeshCubicmap(cubicmap.0, cube_size.into()))
+            Mesh(ffi::GenMeshCubicmap(cubicmap.0, cube_size.into().into()))
         }
     }
 
@@ -2450,7 +2297,7 @@ impl RaylibHandle {
     pub fn load_material(&self, filename: &str) -> Material {
         let c_filename = CString::new(filename).unwrap();
         unsafe {
-            Material(raylib::LoadMaterial(c_filename.as_ptr()))
+            Material(ffi::LoadMaterial(c_filename.as_ptr()))
         }
     }
 
@@ -2464,7 +2311,7 @@ impl RaylibHandle {
     #[inline]
     pub fn draw_model(&self, model: &Model, position: impl Into<Vector3>, scale: f32, tint: impl Into<Color>) {
         unsafe {
-            raylib::DrawModel(model.0, position.into(), scale, tint.into());
+            ffi::DrawModel(model.0, position.into().into(), scale, tint.into());
         }
     }
 
@@ -2472,7 +2319,7 @@ impl RaylibHandle {
     #[inline]
     pub fn draw_model_ex(&self, model: &Model, position: impl Into<Vector3>, rotation_axis: impl Into<Vector3>, rotation_angle: f32, scale: impl Into<Vector3>, tint: impl Into<Color>) {
         unsafe {
-            raylib::DrawModelEx(model.0, position.into(), rotation_axis.into(), rotation_angle, scale.into(), tint.into());
+            ffi::DrawModelEx(model.0, position.into().into(), rotation_axis.into().into(), rotation_angle, scale.into().into(), tint.into());
         }
     }
 
@@ -2480,7 +2327,7 @@ impl RaylibHandle {
     #[inline]
     pub fn draw_model_wires(&self, model: &Model, position: impl Into<Vector3>, scale: f32, tint: impl Into<Color>) {
         unsafe {
-            raylib::DrawModelWires(model.0, position.into(), scale, tint.into());
+            ffi::DrawModelWires(model.0, position.into().into(), scale, tint.into());
         }
     }
 
@@ -2488,7 +2335,7 @@ impl RaylibHandle {
     #[inline]
     pub fn draw_model_wires_ex(&self, model: &Model, position: impl Into<Vector3>, rotation_axis: impl Into<Vector3>, rotation_angle: f32, scale: impl Into<Vector3>, tint: impl Into<Color>) {
         unsafe {
-            raylib::DrawModelWiresEx(model.0, position.into(), rotation_axis.into(), rotation_angle, scale.into(), tint.into());
+            ffi::DrawModelWiresEx(model.0, position.into().into(), rotation_axis.into().into(), rotation_angle, scale.into().into(), tint.into());
         }
     }
 
@@ -2496,7 +2343,7 @@ impl RaylibHandle {
     #[inline]
     pub fn draw_bounding_box(&self, bbox: BoundingBox, color: impl Into<Color>) {
         unsafe {
-            raylib::DrawBoundingBox(bbox, color.into());
+            ffi::DrawBoundingBox(bbox, color.into());
         }
     }
 
@@ -2504,7 +2351,7 @@ impl RaylibHandle {
     #[inline]
     pub fn draw_billboard(&self, camera: Camera3D, texture: &Texture2D, center: impl Into<Vector3>, size: f32, tint: impl Into<Color>) {
         unsafe {
-            raylib::DrawBillboard(camera, texture.0, center.into(), size, tint.into());
+            ffi::DrawBillboard(camera, texture.0, center.into().into(), size, tint.into());
         }
     }
 
@@ -2512,7 +2359,7 @@ impl RaylibHandle {
     #[inline]
     pub fn draw_billboard_rec(&self, camera: Camera3D, texture: &Texture2D, source_rec: Rectangle, center: impl Into<Vector3>, size: f32, tint: impl Into<Color>) {
         unsafe {
-            raylib::DrawBillboardRec(camera, texture.0, source_rec, center.into(), size, tint.into());
+            ffi::DrawBillboardRec(camera, texture.0, source_rec, center.into().into(), size, tint.into());
         }
     }
 
@@ -2520,7 +2367,7 @@ impl RaylibHandle {
     #[inline]
     pub fn check_collision_spheres(&self, center_a: impl Into<Vector3>, radius_a: f32, center_b: impl Into<Vector3>, radius_b: f32) -> bool {
         unsafe {
-            raylib::CheckCollisionSpheres(center_a.into(), radius_a, center_b.into(), radius_b)
+            ffi::CheckCollisionSpheres(center_a.into().into(), radius_a, center_b.into().into(), radius_b)
         }
     }
 
@@ -2528,7 +2375,7 @@ impl RaylibHandle {
     #[inline]
     pub fn check_collision_boxes(&self, box1: BoundingBox, box2: BoundingBox) -> bool {
         unsafe {
-            raylib::CheckCollisionBoxes(box1, box2)
+            ffi::CheckCollisionBoxes(box1, box2)
         }
     }
 
@@ -2536,7 +2383,7 @@ impl RaylibHandle {
     #[inline]
     pub fn check_collision_box_sphere(&self, bbox: BoundingBox, center_sphere: impl Into<Vector3>, radius_sphere: f32) -> bool {
         unsafe {
-            raylib::CheckCollisionBoxSphere(bbox, center_sphere.into(), radius_sphere)
+            ffi::CheckCollisionBoxSphere(bbox, center_sphere.into().into(), radius_sphere)
         }
     }
 
@@ -2544,15 +2391,22 @@ impl RaylibHandle {
     #[inline]
     pub fn check_collision_ray_sphere(&self, ray: Ray, sphere_position: impl Into<Vector3>, sphere_radius: f32) -> bool {
         unsafe {
-            raylib::CheckCollisionRaySphere(ray, sphere_position.into(), sphere_radius)
+            ffi::CheckCollisionRaySphere(ray, sphere_position.into().into(), sphere_radius)
         }
     }
 
     /// Detects collision between ray and sphere, and returns the collision point.
     #[inline]
-    pub fn check_collision_ray_sphere_ex(&self, ray: Ray, sphere_position: impl Into<Vector3>, sphere_radius: f32, collision_point: &mut Vector3) -> bool {
+    pub fn check_collision_ray_sphere_ex(&self, ray: Ray, sphere_position: impl Into<Vector3>, sphere_radius: f32) -> Option<Vector3> {
         unsafe {
-            raylib::CheckCollisionRaySphereEx(ray, sphere_position.into(), sphere_radius, collision_point)
+            let mut col_point = ffi::Vector3 { x: 0.0, y: 0.0, z: 0.0 };
+            let collision = ffi::CheckCollisionRaySphereEx(ray, sphere_position.into().into(), sphere_radius, &mut col_point);
+            if collision {
+                Some(col_point.into())
+            }
+            else {
+                None
+            }
         }
     }
 
@@ -2560,7 +2414,7 @@ impl RaylibHandle {
     #[inline]
     pub fn check_collision_ray_box(&self, ray: Ray, bbox: BoundingBox) -> bool {
         unsafe {
-            raylib::CheckCollisionRayBox(ray, bbox)
+            ffi::CheckCollisionRayBox(ray, bbox)
         }
     }
 
@@ -2569,7 +2423,7 @@ impl RaylibHandle {
     pub fn get_collision_ray_model(&self, ray: Ray, model: &Model) -> RayHitInfo {
         unsafe {
             let mut model = model.0;
-            raylib::GetCollisionRayModel(ray, &mut model)
+            ffi::GetCollisionRayModel(ray, &mut model)
         }
     }
 
@@ -2577,7 +2431,7 @@ impl RaylibHandle {
     #[inline]
     pub fn get_collision_ray_triangle(&self, ray: Ray, p1: impl Into<Vector3>, p2: impl Into<Vector3>, p3: impl Into<Vector3>) -> RayHitInfo {
         unsafe {
-            raylib::GetCollisionRayTriangle(ray, p1.into(), p2.into(), p3.into())
+            ffi::GetCollisionRayTriangle(ray, p1.into().into(), p2.into().into(), p3.into().into())
         }
     }
 
@@ -2585,7 +2439,7 @@ impl RaylibHandle {
     #[inline]
     pub fn get_collision_ray_ground(&self, ray: Ray, ground_height: f32) -> RayHitInfo {
         unsafe {
-            raylib::GetCollisionRayGround(ray, ground_height)
+            ffi::GetCollisionRayGround(ray, ground_height)
         }
     }
 
@@ -2594,7 +2448,7 @@ impl RaylibHandle {
     pub fn load_text(&self, filename: &str) -> String {
         let c_filename = CString::new(filename).unwrap();
         unsafe {
-            let text = raylib::LoadText(c_filename.as_ptr());
+            let text = ffi::LoadText(c_filename.as_ptr());
             let safe_text = CStr::from_ptr(text).to_str().unwrap().to_owned();
             libc::free(text as *mut libc::c_void);
             safe_text
@@ -2607,7 +2461,7 @@ impl RaylibHandle {
         let c_vs_filename = CString::new(vs_filename).unwrap();
         let c_fs_filename = CString::new(fs_filename).unwrap();
         unsafe {
-            Shader(raylib::LoadShader(c_vs_filename.as_ptr(), c_fs_filename.as_ptr()))
+            Shader(ffi::LoadShader(c_vs_filename.as_ptr(), c_fs_filename.as_ptr()))
         }
     }
 
@@ -2617,7 +2471,7 @@ impl RaylibHandle {
         let c_vs_code = CString::new(vs_code).unwrap();
         let c_fs_code = CString::new(fs_code).unwrap();
         unsafe {
-            Shader(raylib::LoadShaderCode(c_vs_code.as_ptr() as *mut i8, c_fs_code.as_ptr() as *mut i8))
+            Shader(ffi::LoadShaderCode(c_vs_code.as_ptr() as *mut i8, c_fs_code.as_ptr() as *mut i8))
         }
     }
 
@@ -2638,7 +2492,7 @@ impl RaylibHandle {
     pub fn get_shader_location(&self, shader: &Shader, uniform_name: &str) -> i32 {
         let c_uniform_name = CString::new(uniform_name).unwrap();
         unsafe {
-            raylib::GetShaderLocation(shader.0, c_uniform_name.as_ptr())
+            ffi::GetShaderLocation(shader.0, c_uniform_name.as_ptr())
         }
     }
 
@@ -2646,7 +2500,7 @@ impl RaylibHandle {
     #[inline]
     pub fn set_shader_value(&self, shader: &mut Shader, uniform_loc: i32, value: &[f32]) {
         unsafe {
-            raylib::SetShaderValue(shader.0, uniform_loc, value.as_ptr(), value.len() as i32);
+            ffi::SetShaderValue(shader.0, uniform_loc, value.as_ptr(), value.len() as i32);
         }
     }
 
@@ -2654,7 +2508,7 @@ impl RaylibHandle {
     #[inline]
     pub fn set_shader_value_i(&self, shader: &mut Shader, uniform_loc: i32, value: &[i32]) {
         unsafe {
-            raylib::SetShaderValuei(shader.0, uniform_loc, value.as_ptr(), value.len() as i32);
+            ffi::SetShaderValuei(shader.0, uniform_loc, value.as_ptr(), value.len() as i32);
         }
     }
 
@@ -2662,7 +2516,7 @@ impl RaylibHandle {
     #[inline]
     pub fn set_shader_value_matrix(&self, shader: &mut Shader, uniform_loc: i32, mat: Matrix) {
         unsafe {
-            raylib::SetShaderValueMatrix(shader.0, uniform_loc, mat);
+            ffi::SetShaderValueMatrix(shader.0, uniform_loc, mat.into());
         }
     }
 
@@ -2670,7 +2524,7 @@ impl RaylibHandle {
     #[inline]
     pub fn set_matrix_projection(&self, proj: Matrix) {
         unsafe {
-            raylib::SetMatrixProjection(proj);
+            ffi::SetMatrixProjection(proj.into());
         }
     }
 
@@ -2678,7 +2532,7 @@ impl RaylibHandle {
     #[inline]
     pub fn set_matrix_modelview(&self, view: Matrix) {
         unsafe {
-            raylib::SetMatrixModelview(view);
+            ffi::SetMatrixModelview(view.into());
         }
     }
 
@@ -2686,7 +2540,7 @@ impl RaylibHandle {
     #[inline]
     pub fn get_matrix_modelview(&self) -> Matrix {
         unsafe {
-            raylib::GetMatrixModelview()
+            ffi::GetMatrixModelview().into()
         }
     }
 
@@ -2694,7 +2548,7 @@ impl RaylibHandle {
     #[inline]
     pub fn gen_texture_cubemap(&self, shader: &Shader, sky_hdr: &Texture2D, size: i32) -> Texture2D {
         unsafe {
-            Texture2D(raylib::GenTextureCubemap(shader.0, sky_hdr.0, size))
+            Texture2D(ffi::GenTextureCubemap(shader.0, sky_hdr.0, size))
         }
     }
 
@@ -2702,7 +2556,7 @@ impl RaylibHandle {
     #[inline]
     pub fn gen_texture_irradiance(&self, shader: &Shader, cubemap: &Texture2D, size: i32) -> Texture2D {
         unsafe {
-            Texture2D(raylib::GenTextureIrradiance(shader.0, cubemap.0, size))
+            Texture2D(ffi::GenTextureIrradiance(shader.0, cubemap.0, size))
         }
     }
 
@@ -2710,7 +2564,7 @@ impl RaylibHandle {
     #[inline]
     pub fn gen_texture_prefilter(&self, shader: &Shader, cubemap: &Texture2D, size: i32) -> Texture2D {
         unsafe {
-            Texture2D(raylib::GenTexturePrefilter(shader.0, cubemap.0, size))
+            Texture2D(ffi::GenTexturePrefilter(shader.0, cubemap.0, size))
         }
     }
 
@@ -2718,7 +2572,7 @@ impl RaylibHandle {
     #[inline]
     pub fn gen_texture_brdf(&self, shader: &Shader, cubemap: &Texture2D, size: i32) -> Texture2D {
         unsafe {
-            Texture2D(raylib::GenTextureBRDF(shader.0, cubemap.0, size))
+            Texture2D(ffi::GenTextureBRDF(shader.0, cubemap.0, size))
         }
     }
 
@@ -2726,7 +2580,7 @@ impl RaylibHandle {
     #[inline]
     pub fn begin_shader_mode(&self, shader: &Shader) {
         unsafe {
-            raylib::BeginShaderMode(shader.0);
+            ffi::BeginShaderMode(shader.0);
         }
     }
 
@@ -2734,7 +2588,7 @@ impl RaylibHandle {
     #[inline]
     pub fn end_shader_mode(&self) {
         unsafe {
-            raylib::EndShaderMode();
+            ffi::EndShaderMode();
         }
     }
 
@@ -2742,7 +2596,7 @@ impl RaylibHandle {
     #[inline]
     pub fn begin_blend_mode(&self, mode: BlendMode) {
         unsafe {
-            raylib::BeginBlendMode(mode);
+            ffi::BeginBlendMode(mode as i32);
         }
     }
 
@@ -2750,7 +2604,7 @@ impl RaylibHandle {
     #[inline]
     pub fn end_blend_mode(&self) {
         unsafe {
-            raylib::EndBlendMode();
+            ffi::EndBlendMode();
         }
     }
 
@@ -2758,7 +2612,7 @@ impl RaylibHandle {
     #[inline]
     pub fn get_vr_device_info(&self, vr_device_type: VrDeviceType) -> VrDeviceInfo {
         unsafe {
-            raylib::GetVrDeviceInfo(vr_device_type)
+            ffi::GetVrDeviceInfo(vr_device_type as i32)
         }
     }
 
@@ -2766,7 +2620,7 @@ impl RaylibHandle {
     #[inline]
     pub fn init_vr_simulator(&self, info: VrDeviceInfo) {
         unsafe {
-            raylib::InitVrSimulator(info);
+            ffi::InitVrSimulator(info);
         }
     }
 
@@ -2774,7 +2628,7 @@ impl RaylibHandle {
     #[inline]
     pub fn close_vr_simulator(&self) {
         unsafe {
-            raylib::CloseVrSimulator();
+            ffi::CloseVrSimulator();
         }
     }
 
@@ -2782,7 +2636,7 @@ impl RaylibHandle {
     #[inline]
     pub fn is_vr_simulator_ready(&self) -> bool {
         unsafe {
-            raylib::IsVrSimulatorReady()
+            ffi::IsVrSimulatorReady()
         }
     }
 
@@ -2790,7 +2644,7 @@ impl RaylibHandle {
     #[inline]
     pub fn set_vr_distortion_shader(&self, shader: &Shader) {
         unsafe {
-            raylib::SetVrDistortionShader(shader.0);
+            ffi::SetVrDistortionShader(shader.0);
         }
     }
 
@@ -2798,7 +2652,7 @@ impl RaylibHandle {
     #[inline]
     pub fn update_vr_tracking(&self, camera: &mut Camera3D) {
         unsafe {
-            raylib::UpdateVrTracking(camera);
+            ffi::UpdateVrTracking(camera);
         }
     }
 
@@ -2806,7 +2660,7 @@ impl RaylibHandle {
     #[inline]
     pub fn toggle_vr_mode(&self) {
         unsafe {
-            raylib::ToggleVrMode();
+            ffi::ToggleVrMode();
         }
     }
 
@@ -2814,7 +2668,7 @@ impl RaylibHandle {
     #[inline]
     pub fn begin_vr_drawing(&self) {
         unsafe {
-            raylib::BeginVrDrawing();
+            ffi::BeginVrDrawing();
         }
     }
 
@@ -2822,7 +2676,7 @@ impl RaylibHandle {
     #[inline]
     pub fn end_vr_drawing(&self) {
         unsafe {
-            raylib::EndVrDrawing();
+            ffi::EndVrDrawing();
         }
     }
 
@@ -2830,7 +2684,7 @@ impl RaylibHandle {
     #[inline]
     pub fn init_audio_device(&self) {
         unsafe {
-            raylib::InitAudioDevice();
+            ffi::InitAudioDevice();
         }
     }
 
@@ -2838,7 +2692,7 @@ impl RaylibHandle {
     #[inline]
     pub fn close_audio_device(&self) {
         unsafe {
-            raylib::CloseAudioDevice();
+            ffi::CloseAudioDevice();
         }
     }
 
@@ -2846,7 +2700,7 @@ impl RaylibHandle {
     #[inline]
     pub fn is_audio_device_ready(&self) -> bool {
         unsafe {
-            raylib::IsAudioDeviceReady()
+            ffi::IsAudioDeviceReady()
         }
     }
 
@@ -2854,7 +2708,7 @@ impl RaylibHandle {
     #[inline]
     pub fn set_master_volume(&self, volume: f32) {
         unsafe {
-            raylib::SetMasterVolume(volume);
+            ffi::SetMasterVolume(volume);
         }
     }
 
@@ -2863,7 +2717,7 @@ impl RaylibHandle {
     pub fn load_wave(&self, filename: &str) -> Wave {
         let c_filename = CString::new(filename).unwrap();
         unsafe {
-            Wave(raylib::LoadWave(c_filename.as_ptr()))
+            Wave(ffi::LoadWave(c_filename.as_ptr()))
         }
     }
 
@@ -2871,7 +2725,7 @@ impl RaylibHandle {
     #[inline]
     pub fn load_wave_ex(&self, data: &[u8], sample_count: i32, sample_rate: i32, sample_size: i32, channels: i32) -> Wave {
         unsafe {
-            Wave(raylib::LoadWaveEx(data.as_ptr() as *mut std::os::raw::c_void, sample_count, sample_rate, sample_size, channels))
+            Wave(ffi::LoadWaveEx(data.as_ptr() as *mut std::os::raw::c_void, sample_count, sample_rate, sample_size, channels))
         }
     }
 
@@ -2880,7 +2734,7 @@ impl RaylibHandle {
     pub fn load_sound(&self, filename: &str) -> Sound {
         let c_filename = CString::new(filename).unwrap();
         unsafe {
-            Sound(raylib::LoadSound(c_filename.as_ptr()))
+            Sound(ffi::LoadSound(c_filename.as_ptr()))
         }
     }
 
@@ -2888,7 +2742,7 @@ impl RaylibHandle {
     #[inline]
     pub fn load_sound_from_wave(&self, wave: &Wave) -> Sound {
         unsafe {
-            Sound(raylib::LoadSoundFromWave(wave.0))
+            Sound(ffi::LoadSoundFromWave(wave.0))
         }
     }
 
@@ -2896,7 +2750,7 @@ impl RaylibHandle {
     #[inline]
     pub fn update_sound(&self, sound: &mut Sound, data: &[impl AudioSample]) {
         unsafe {
-            raylib::UpdateSound(sound.0, data.as_ptr() as *const std::os::raw::c_void, data.len() as i32);
+            ffi::UpdateSound(sound.0, data.as_ptr() as *const std::os::raw::c_void, data.len() as i32);
         }
     }
 
@@ -2904,7 +2758,7 @@ impl RaylibHandle {
     #[inline]
     pub fn play_sound(&self, sound: &Sound) {
         unsafe {
-            raylib::PlaySound(sound.0);
+            ffi::PlaySound(sound.0);
         }
     }
 
@@ -2912,7 +2766,7 @@ impl RaylibHandle {
     #[inline]
     pub fn pause_sound(&self, sound: &Sound) {
         unsafe {
-            raylib::PauseSound(sound.0);
+            ffi::PauseSound(sound.0);
         }
     }
 
@@ -2920,7 +2774,7 @@ impl RaylibHandle {
     #[inline]
     pub fn resume_sound(&self, sound: &Sound) {
         unsafe {
-            raylib::ResumeSound(sound.0);
+            ffi::ResumeSound(sound.0);
         }
     }
 
@@ -2928,7 +2782,7 @@ impl RaylibHandle {
     #[inline]
     pub fn stop_sound(&self, sound: &Sound) {
         unsafe {
-            raylib::StopSound(sound.0);
+            ffi::StopSound(sound.0);
         }
     }
 
@@ -2936,7 +2790,7 @@ impl RaylibHandle {
     #[inline]
     pub fn is_sound_playing(&self, sound: &Sound) -> bool {
         unsafe {
-            raylib::IsSoundPlaying(sound.0)
+            ffi::IsSoundPlaying(sound.0)
         }
     }
 
@@ -2944,7 +2798,7 @@ impl RaylibHandle {
     #[inline]
     pub fn set_sound_volume(&self, sound: &Sound, volume: f32) {
         unsafe {
-            raylib::SetSoundVolume(sound.0, volume);
+            ffi::SetSoundVolume(sound.0, volume);
         }
     }
 
@@ -2952,7 +2806,7 @@ impl RaylibHandle {
     #[inline]
     pub fn set_sound_pitch(&self, sound: &Sound, pitch: f32) {
         unsafe {
-            raylib::SetSoundPitch(sound.0, pitch);
+            ffi::SetSoundPitch(sound.0, pitch);
         }
     }
 
@@ -2960,7 +2814,7 @@ impl RaylibHandle {
     #[inline]
     pub fn wave_format(&self, wave: &mut Wave, sample_rate: i32, sample_size: i32, channels: i32) {
         unsafe {
-            raylib::WaveFormat(&mut wave.0, sample_rate, sample_size, channels);
+            ffi::WaveFormat(&mut wave.0, sample_rate, sample_size, channels);
         }
     }
 
@@ -2968,7 +2822,7 @@ impl RaylibHandle {
     #[inline]
     pub fn wave_copy(&self, wave: &Wave) -> Wave {
         unsafe {
-            Wave(raylib::WaveCopy(wave.0))
+            Wave(ffi::WaveCopy(wave.0))
         }
     }
 
@@ -2976,7 +2830,7 @@ impl RaylibHandle {
     #[inline]
     pub fn wave_crop(&self, wave: &mut Wave, init_sample: i32, final_sample: i32) {
         unsafe {
-            raylib::WaveCrop(&mut wave.0, init_sample, final_sample);
+            ffi::WaveCrop(&mut wave.0, init_sample, final_sample);
         }
     }
 
@@ -2984,8 +2838,8 @@ impl RaylibHandle {
     #[inline]
     pub fn get_wave_data(&self, wave: &Wave) -> Vec<f32> {
         unsafe {
-            let data = raylib::GetWaveData(wave.0);
-            let data_size = (wave.sample_count * wave.channels) as usize;
+            let data = ffi::GetWaveData(wave.0);
+            let data_size = (wave.sampleCount * wave.channels) as usize;
             let mut samples = Vec::with_capacity(data_size);
             samples.set_len(data_size);
             std::ptr::copy(data, samples.as_mut_ptr(), data_size);
@@ -2999,7 +2853,7 @@ impl RaylibHandle {
     pub fn load_music_stream(&self, filename: &str) -> Music {
         let c_filename = CString::new(filename).unwrap();
         unsafe {
-            Music(raylib::LoadMusicStream(c_filename.as_ptr()))
+            Music(ffi::LoadMusicStream(c_filename.as_ptr()))
         }
     }
 
@@ -3007,7 +2861,7 @@ impl RaylibHandle {
     #[inline]
     pub fn play_music_stream(&self, music: &mut Music) {
         unsafe {
-            raylib::PlayMusicStream(music.0);
+            ffi::PlayMusicStream(music.0);
         }
     }
 
@@ -3015,7 +2869,7 @@ impl RaylibHandle {
     #[inline]
     pub fn update_music_stream(&self, music: &mut Music) {
         unsafe {
-            raylib::UpdateMusicStream(music.0);
+            ffi::UpdateMusicStream(music.0);
         }
     }
 
@@ -3023,7 +2877,7 @@ impl RaylibHandle {
     #[inline]
     pub fn stop_music_stream(&self, music: &mut Music) {
         unsafe {
-            raylib::StopMusicStream(music.0);
+            ffi::StopMusicStream(music.0);
         }
     }
 
@@ -3031,7 +2885,7 @@ impl RaylibHandle {
     #[inline]
     pub fn pause_music_stream(&self, music: &mut Music) {
         unsafe {
-            raylib::PauseMusicStream(music.0);
+            ffi::PauseMusicStream(music.0);
         }
     }
 
@@ -3039,7 +2893,7 @@ impl RaylibHandle {
     #[inline]
     pub fn resume_music_stream(&self, music: &mut Music) {
         unsafe {
-            raylib::ResumeMusicStream(music.0);
+            ffi::ResumeMusicStream(music.0);
         }
     }
 
@@ -3047,7 +2901,7 @@ impl RaylibHandle {
     #[inline]
     pub fn is_music_playing(&self, music: &Music) -> bool {
         unsafe {
-            raylib::IsMusicPlaying(music.0)
+            ffi::IsMusicPlaying(music.0)
         }
     }
 
@@ -3055,7 +2909,7 @@ impl RaylibHandle {
     #[inline]
     pub fn set_music_volume(&self, music: &mut Music, volume: f32) {
         unsafe {
-            raylib::SetMusicVolume(music.0, volume);
+            ffi::SetMusicVolume(music.0, volume);
         }
     }
 
@@ -3063,7 +2917,7 @@ impl RaylibHandle {
     #[inline]
     pub fn set_music_pitch(&self, music: &mut Music, pitch: f32) {
         unsafe {
-            raylib::SetMusicPitch(music.0, pitch);
+            ffi::SetMusicPitch(music.0, pitch);
         }
     }
 
@@ -3071,7 +2925,7 @@ impl RaylibHandle {
     #[inline]
     pub fn set_music_loop_count(&self, music: &mut Music, count: i32) {
         unsafe {
-            raylib::SetMusicLoopCount(music.0, count);
+            ffi::SetMusicLoopCount(music.0, count);
         }
     }
 
@@ -3079,7 +2933,7 @@ impl RaylibHandle {
     #[inline]
     pub fn get_music_time_length(&self, music: &Music) -> f32 {
         unsafe {
-            raylib::GetMusicTimeLength(music.0)
+            ffi::GetMusicTimeLength(music.0)
         }
     }
 
@@ -3087,7 +2941,7 @@ impl RaylibHandle {
     #[inline]
     pub fn get_music_time_played(&self, music: &Music) -> f32 {
         unsafe {
-            raylib::GetMusicTimePlayed(music.0)
+            ffi::GetMusicTimePlayed(music.0)
         }
     }
 
@@ -3095,7 +2949,7 @@ impl RaylibHandle {
     #[inline]
     pub fn init_audio_stream(&self, sample_rate: u32, sample_size: u32, channels: u32) -> AudioStream {
         unsafe {
-            AudioStream(raylib::InitAudioStream(sample_rate, sample_size, channels))
+            AudioStream(ffi::InitAudioStream(sample_rate, sample_size, channels))
         }
     }
 
@@ -3103,7 +2957,7 @@ impl RaylibHandle {
     #[inline]
     pub fn update_audio_stream(&self, stream: &mut AudioStream, data: &[impl AudioSample]) {
         unsafe {
-            raylib::UpdateAudioStream(stream.0, data.as_ptr() as *const std::os::raw::c_void, data.len() as i32);
+            ffi::UpdateAudioStream(stream.0, data.as_ptr() as *const std::os::raw::c_void, data.len() as i32);
         }
     }
 
@@ -3111,7 +2965,7 @@ impl RaylibHandle {
     #[inline]
     pub fn is_audio_buffer_processed(&self, stream: &AudioStream) -> bool {
         unsafe {
-            raylib::IsAudioBufferProcessed(stream.0)
+            ffi::IsAudioBufferProcessed(stream.0)
         }
     }
 
@@ -3119,7 +2973,7 @@ impl RaylibHandle {
     #[inline]
     pub fn play_audio_stream(&self, stream: &mut AudioStream) {
         unsafe {
-            raylib::PlayAudioStream(stream.0);
+            ffi::PlayAudioStream(stream.0);
         }
     }
 
@@ -3127,7 +2981,7 @@ impl RaylibHandle {
     #[inline]
     pub fn pause_audio_stream(&self, stream: &mut AudioStream) {
         unsafe {
-            raylib::PauseAudioStream(stream.0);
+            ffi::PauseAudioStream(stream.0);
         }
     }
 
@@ -3135,7 +2989,7 @@ impl RaylibHandle {
     #[inline]
     pub fn resume_audio_stream(&self, stream: &mut AudioStream) {
         unsafe {
-            raylib::ResumeAudioStream(stream.0);
+            ffi::ResumeAudioStream(stream.0);
         }
     }
 
@@ -3143,7 +2997,7 @@ impl RaylibHandle {
     #[inline]
     pub fn is_audio_stream_playing(&self, stream: &AudioStream) -> bool {
         unsafe {
-            raylib::IsAudioStreamPlaying(stream.0)
+            ffi::IsAudioStreamPlaying(stream.0)
         }
     }
 
@@ -3151,7 +3005,7 @@ impl RaylibHandle {
     #[inline]
     pub fn stop_audio_stream(&self, stream: &mut AudioStream) {
         unsafe {
-            raylib::StopAudioStream(stream.0);
+            ffi::StopAudioStream(stream.0);
         }
     }
 
@@ -3159,7 +3013,7 @@ impl RaylibHandle {
     #[inline]
     pub fn set_audio_stream_volume(&self, stream: &mut AudioStream, volume: f32) {
         unsafe {
-            raylib::SetAudioStreamVolume(stream.0, volume);
+            ffi::SetAudioStreamVolume(stream.0, volume);
         }
     }
 
@@ -3167,7 +3021,7 @@ impl RaylibHandle {
     #[inline]
     pub fn set_audio_stream_pitch(&self, stream: &mut AudioStream, pitch: f32) {
         unsafe {
-            raylib::SetAudioStreamPitch(stream.0, pitch);
+            ffi::SetAudioStreamPitch(stream.0, pitch);
         }
     }
 }

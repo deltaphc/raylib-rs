@@ -2,7 +2,7 @@
 
 # raylib-rs
 
-raylib-rs is a Rust binding for [raylib](http://www.raylib.com/) 2.0. It currently targets the *stable* Rust toolchain, version 1.31 or higher.
+raylib-rs is a Rust binding for [raylib](http://www.raylib.com/) 2.0. It currently targets the _stable_ Rust toolchain, version 1.31 or higher.
 
 Though this binding tries to stay close to the simple C API, it makes some changes to be more idiomatic for Rust. Resources are automatically cleaned up when they go out of scope (or when `std::mem::drop` is called), just like all other resources in Rust. This means that "Unload" functions are not exposed (and not necessary). Additional changes include:
 - Most of the Raylib API is exposed through `RaylibHandle`, which is for enforcing that Raylib is only initialized once, and for making sure the window is closed properly.
@@ -23,21 +23,19 @@ So far, I have only tested on Windows. Tips on making things work smoothly on al
 1. Add the dependency to your `Cargo.toml`:
 ```toml
 [dependencies]
-raylib-rs = { git = "https://github.com/deltaphc/raylib-rs" }
+raylib = { git = "https://github.com/deltaphc/raylib-rs" }
 ```
 
 2. Download raylib 2.0 from https://github.com/raysan5/raylib/releases/tag/2.0.0, and pick the one that matches your Rust toolchain. MSVC with MSVC, MinGW with GNU, 32-bit or 64-bit.
 
-3. Copy `libraylib.a` (for MinGW) or `raylib.lib` (for MSVC) to the appropriate path in your Rust toolchain.
+3. Copy `libraylib.a` (for GCC/MinGW) or `raylib.lib` (for MSVC) to the appropriate path in your Rust toolchain.
    - For rustup/MSVC: `.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\x86_64-pc-windows-msvc\lib`
    - For rustup/GNU: `.rustup\toolchains\stable-x86_64-pc-windows-gnu\lib\rustlib\x86_64-pc-windows-gnu\lib`
 
 4. Start coding!
 ```rust
-use raylib_rs as ray;
-
 fn main() {
-    let rl = ray::init()
+    let rl = raylib::init()
         .size(640, 480)
         .title("Hello, World")
         .build();
@@ -45,8 +43,8 @@ fn main() {
     while !rl.window_should_close() {
         rl.begin_drawing();
 
-        rl.clear_background(ray::WHITE);
-        rl.draw_text("Hello, world!", 12, 12, 20, ray::BLACK);
+        rl.clear_background(raylib::WHITE);
+        rl.draw_text("Hello, world!", 12, 12, 20, raylib::BLACK);
 
         rl.end_drawing();
     }
