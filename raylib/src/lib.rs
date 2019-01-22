@@ -14,6 +14,42 @@ Permission is granted to anyone to use this software for any purpose, including 
   3. This notice may not be removed or altered from any source distribution.
 */
 
+//! # raylib-rs
+//! 
+//! `raylib` is a safe Rust binding to [Raylib](https://raylib.com/), a C library for enjoying games programming.
+//! 
+//! To get started, take a look at the [`init_window`] function. This initializes Raylib and shows a window, and returns a [`RaylibHandle`]. This handle is very important, because it is the way in which one accesses the vast majority of Raylib's functionality. This means that it must not go out of scope until the game is ready to exit.
+//! 
+//! For more control over the game window, the [`init`] function will return a [`RaylibBuilder`] which allows for tweaking various settings such as VSync, anti-aliasing, fullscreen, and so on. Calling [`RaylibBuilder::build`] will then provide a [`RaylibHandle`].
+//! 
+//! [`init_window`]: fn.init_window.html
+//! [`init`]: fn.init.html
+//! [`RaylibHandle`]: struct.RaylibHandle.html
+//! [`RaylibBuilder`]: struct.RaylibBuilder.html
+//! [`RaylibBuilder::build`]: struct.RaylibBuilder.html#method.build
+//! 
+//! # Examples
+//! 
+//! The classic "Hello, world":
+//! 
+//! ```
+//! fn main() {
+//!     let rl = raylib::init()
+//!         .size(640, 480)
+//!         .title("Hello, World")
+//!         .build();
+//!     
+//!     while !rl.window_should_close() {
+//!         rl.begin_drawing();
+//! 
+//!         rl.clear_background(raylib::WHITE);
+//!         rl.draw_text("Hello, world!", 12, 12, 20, raylib::BLACK);
+//! 
+//!         rl.end_drawing();
+//!     }
+//! }
+//! ```
+
 #![doc(
     html_logo_url = "https://github.com/deltaphc/raylib-rs/raw/master/logo/raylib-rust_256x256.png",
     html_favicon_url = "https://github.com/deltaphc/raylib-rs/raw/master/logo/raylib-rust.ico"
@@ -24,29 +60,33 @@ use std::ffi::{CString, CStr};
 use lazy_static::lazy_static;
 
 mod raiiwrap;
-mod raymath;
+pub mod raymath;
 pub mod ease;
 
 use raylib_sys::ffi;
 pub use raylib_sys::ffi_types::*;
-pub use crate::raymath::{
-    Vector2, Vector3, Vector4, Quaternion, Matrix
+use crate::raymath::{
+    Vector2, Vector3, Vector4, Matrix
 };
 
+#[doc(hidden)]
 pub use crate::raiiwrap::{
     Image,
     Texture2D,
     RenderTexture2D,
-    Font, FontExt,
+    Font,
     Mesh,
     Shader,
-    Material, MaterialExt,
-    Model, ModelExt,
+    Material,
+    Model,
     Wave,
     Sound,
     Music,
     AudioStream,
-    MaterialMapExt,
+};
+
+pub use crate::raiiwrap::{
+    FontExt, MaterialExt, MaterialMapExt, ModelExt
 };
 
 impl From<Vector2> for ffi::Vector2 {
@@ -160,6 +200,49 @@ impl From<ffi::Matrix> for Matrix {
             m11: m.m11,
             m15: m.m15,
         }
+    }
+}
+
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct Color {
+    r: u8,
+    g: u8,
+    b: u8,
+    a: u8,
+}
+
+impl From<ffi::Color> for Color {
+    fn from(c: ffi::Color) -> Color {
+        Color {
+            r: c.r,
+            g: c.g,
+            b: c.b,
+            a: c.a,
+        }
+    }
+}
+
+impl From<Color> for ffi::Color {
+    fn from(c: Color) -> ffi::Color {
+        ffi::Color {
+            r: c.r,
+            g: c.g,
+            b: c.b,
+            a: c.a,
+        }
+    }
+}
+
+impl From<(u8, u8, u8)> for Color {
+    fn from((r, g, b): (u8, u8, u8)) -> Color {
+        Color { r, g, b, a: 255 }
+    }
+}
+
+impl From<(u8, u8, u8, u8)> for Color {
+    fn from((r, g, b, a): (u8, u8, u8, u8)) -> Color {
+        Color { r, g, b, a }
     }
 }
 
@@ -299,7 +382,11 @@ impl RaylibBuilder {
         self
     }
 
-    /// Builds and initializes a Raylib window. Panics if raylib is already initialized.
+    /// Builds and initializes a Raylib window.
+    /// 
+    /// # Panics
+    /// 
+    /// Attempting to initialize Raylib more than once will result in a panic.
     pub fn build(&self) -> RaylibHandle {
         let mut flags = 0u32;
         if self.show_logo { flags |= FLAG_SHOW_LOGO; }
@@ -362,7 +449,11 @@ pub fn init() -> RaylibBuilder {
     }
 }
 
-/// Initializes window and OpenGL context. Panics if raylib is already initialized.
+/// Initializes window and OpenGL context.
+/// 
+/// # Panics
+/// 
+/// Attempting to initialize Raylib more than once will result in a panic.
 pub fn init_window(width: i32, height: i32, title: &str) -> RaylibHandle {
     if IS_INITIALIZED.load(Ordering::Relaxed) {
         panic!("Attempted to initialize raylib-rs more than once");
@@ -528,7 +619,7 @@ impl RaylibHandle {
     #[inline]
     pub fn clear_background(&self, color: impl Into<Color>) {
         unsafe {
-            ffi::ClearBackground(color.into());
+            ffi::ClearBackground(color.into().into());
         }
     }
 
@@ -656,7 +747,7 @@ impl RaylibHandle {
     #[inline]
     pub fn color_to_int(&self, color: impl Into<Color>) -> i32 {
         unsafe {
-            ffi::ColorToInt(color.into())
+            ffi::ColorToInt(color.into().into())
         }
     }
 
@@ -664,7 +755,7 @@ impl RaylibHandle {
     #[inline]
     pub fn color_normalize(&self, color: impl Into<Color>) -> Vector4 {
         unsafe {
-            ffi::ColorNormalize(color.into()).into()
+            ffi::ColorNormalize(color.into().into()).into()
         }
     }
 
@@ -672,7 +763,7 @@ impl RaylibHandle {
     #[inline]
     pub fn color_to_hsv(&self, color: impl Into<Color>) -> Vector3 {
         unsafe {
-            ffi::ColorToHSV(color.into()).into()
+            ffi::ColorToHSV(color.into().into()).into()
         }
     }
 
@@ -680,7 +771,7 @@ impl RaylibHandle {
     #[inline]
     pub fn get_color(&self, hex_value: i32) -> Color {
         unsafe {
-            ffi::GetColor(hex_value)
+            ffi::GetColor(hex_value).into()
         }
     }
 
@@ -688,7 +779,7 @@ impl RaylibHandle {
     #[inline]
     pub fn fade(&self, color: impl Into<Color>, alpha: f32) -> Color {
         unsafe {
-            ffi::Fade(color.into(), alpha)
+            ffi::Fade(color.into().into(), alpha).into()
         }
     }
 
@@ -1183,7 +1274,7 @@ impl RaylibHandle {
     #[inline]
     pub fn draw_pixel(&self, x: i32, y: i32, color: impl Into<Color>) {
         unsafe {
-            ffi::DrawPixel(x, y, color.into());
+            ffi::DrawPixel(x, y, color.into().into());
         }
     }
 
@@ -1191,7 +1282,7 @@ impl RaylibHandle {
     #[inline]
     pub fn draw_pixel_v(&self, position: impl Into<Vector2>, color: impl Into<Color>) {
         unsafe {
-            ffi::DrawPixelV(position.into().into(), color.into());
+            ffi::DrawPixelV(position.into().into(), color.into().into());
         }
     }
 
@@ -1199,7 +1290,7 @@ impl RaylibHandle {
     #[inline]
     pub fn draw_line(&self, start_pos_x: i32, start_pos_y: i32, end_pos_x: i32, end_pos_y: i32, color: impl Into<Color>) {
         unsafe {
-            ffi::DrawLine(start_pos_x, start_pos_y, end_pos_x, end_pos_y, color.into());
+            ffi::DrawLine(start_pos_x, start_pos_y, end_pos_x, end_pos_y, color.into().into());
         }
     }
 
@@ -1207,7 +1298,7 @@ impl RaylibHandle {
     #[inline]
     pub fn draw_line_v(&self, start_pos: impl Into<Vector2>, end_pos: impl Into<Vector2>, color: impl Into<Color>) {
         unsafe {
-            ffi::DrawLineV(start_pos.into().into(), end_pos.into().into(), color.into());
+            ffi::DrawLineV(start_pos.into().into(), end_pos.into().into(), color.into().into());
         }
     }
 
@@ -1215,7 +1306,7 @@ impl RaylibHandle {
     #[inline]
     pub fn draw_line_ex(&self, start_pos: impl Into<Vector2>, end_pos: impl Into<Vector2>, thick: f32, color: impl Into<Color>) {
         unsafe {
-            ffi::DrawLineEx(start_pos.into().into(), end_pos.into().into(), thick, color.into());
+            ffi::DrawLineEx(start_pos.into().into(), end_pos.into().into(), thick, color.into().into());
         }
     }
 
@@ -1223,7 +1314,7 @@ impl RaylibHandle {
     #[inline]
     pub fn draw_line_bezier(&self, start_pos: impl Into<Vector2>, end_pos: impl Into<Vector2>, thick: f32, color: impl Into<Color>) {
         unsafe {
-            ffi::DrawLineBezier(start_pos.into().into(), end_pos.into().into(), thick, color.into());
+            ffi::DrawLineBezier(start_pos.into().into(), end_pos.into().into(), thick, color.into().into());
         }
     }
 
@@ -1231,7 +1322,7 @@ impl RaylibHandle {
     #[inline]
     pub fn draw_circle(&self, center_x: i32, center_y: i32, radius: f32, color: impl Into<Color>) {
         unsafe {
-            ffi::DrawCircle(center_x, center_y, radius, color.into());
+            ffi::DrawCircle(center_x, center_y, radius, color.into().into());
         }
     }
 
@@ -1239,7 +1330,7 @@ impl RaylibHandle {
     #[inline]
     pub fn draw_circle_gradient(&self, center_x: i32, center_y: i32, radius: f32, color1: impl Into<Color>, color2: impl Into<Color>) {
         unsafe {
-            ffi::DrawCircleGradient(center_x, center_y, radius, color1.into(), color2.into());
+            ffi::DrawCircleGradient(center_x, center_y, radius, color1.into().into(), color2.into().into());
         }
     }
 
@@ -1247,7 +1338,7 @@ impl RaylibHandle {
     #[inline]
     pub fn draw_circle_v(&self, center: impl Into<Vector2>, radius: f32, color: impl Into<Color>) {
         unsafe {
-            ffi::DrawCircleV(center.into().into(), radius, color.into());
+            ffi::DrawCircleV(center.into().into(), radius, color.into().into());
         }
     }
 
@@ -1255,7 +1346,7 @@ impl RaylibHandle {
     #[inline]
     pub fn draw_circle_lines(&self, center_x: i32, center_y: i32, radius: f32, color: impl Into<Color>) {
         unsafe {
-            ffi::DrawCircleLines(center_x, center_y, radius, color.into());
+            ffi::DrawCircleLines(center_x, center_y, radius, color.into().into());
         }
     }
 
@@ -1263,7 +1354,7 @@ impl RaylibHandle {
     #[inline]
     pub fn draw_rectangle(&self, x: i32, y: i32, width: i32, height: i32, color: impl Into<Color>) {
         unsafe {
-            ffi::DrawRectangle(x, y, width, height, color.into());
+            ffi::DrawRectangle(x, y, width, height, color.into().into());
         }
     }
 
@@ -1271,7 +1362,7 @@ impl RaylibHandle {
     #[inline]
     pub fn draw_rectangle_v(&self, position: impl Into<Vector2>, size: impl Into<Vector2>, color: impl Into<Color>) {
         unsafe {
-            ffi::DrawRectangleV(position.into().into(), size.into().into(), color.into());
+            ffi::DrawRectangleV(position.into().into(), size.into().into(), color.into().into());
         }
     }
 
@@ -1279,7 +1370,7 @@ impl RaylibHandle {
     #[inline]
     pub fn draw_rectangle_rec(&self, rec: Rectangle, color: impl Into<Color>) {
         unsafe {
-            ffi::DrawRectangleRec(rec, color.into());
+            ffi::DrawRectangleRec(rec, color.into().into());
         }
     }
 
@@ -1287,7 +1378,7 @@ impl RaylibHandle {
     #[inline]
     pub fn draw_rectangle_pro(&self, rec: Rectangle, origin: impl Into<Vector2>, rotation: f32, color: impl Into<Color>) {
         unsafe {
-            ffi::DrawRectanglePro(rec, origin.into().into(), rotation, color.into());
+            ffi::DrawRectanglePro(rec, origin.into().into(), rotation, color.into().into());
         }
     }
 
@@ -1297,7 +1388,7 @@ impl RaylibHandle {
     #[inline]
     pub fn draw_rectangle_gradient_v(&self, x: i32, y: i32, width: i32, height: i32, color1: impl Into<Color>, color2: impl Into<Color>) {
         unsafe {
-            ffi::DrawRectangleGradientV(x, y, width, height, color1.into(), color2.into());
+            ffi::DrawRectangleGradientV(x, y, width, height, color1.into().into(), color2.into().into());
         }
     }
 
@@ -1307,7 +1398,7 @@ impl RaylibHandle {
     #[inline]
     pub fn draw_rectangle_gradient_h(&self, x: i32, y: i32, width: i32, height: i32, color1: impl Into<Color>, color2: impl Into<Color>) {
         unsafe {
-            ffi::DrawRectangleGradientH(x, y, width, height, color1.into(), color2.into());
+            ffi::DrawRectangleGradientH(x, y, width, height, color1.into().into(), color2.into().into());
         }
     }
 
@@ -1317,7 +1408,7 @@ impl RaylibHandle {
     #[inline]
     pub fn draw_rectangle_gradient_ex(&self, rec: Rectangle, col1: impl Into<Color>, col2: impl Into<Color>, col3: impl Into<Color>, col4: impl Into<Color>) {
         unsafe {
-            ffi::DrawRectangleGradientEx(rec, col1.into(), col2.into(), col3.into(), col4.into());
+            ffi::DrawRectangleGradientEx(rec, col1.into().into(), col2.into().into(), col3.into().into(), col4.into().into());
         }
     }
 
@@ -1325,7 +1416,7 @@ impl RaylibHandle {
     #[inline]
     pub fn draw_rectangle_lines(&self, x: i32, y: i32, width: i32, height: i32, color: impl Into<Color>) {
         unsafe {
-            ffi::DrawRectangleLines(x, y, width, height, color.into());
+            ffi::DrawRectangleLines(x, y, width, height, color.into().into());
         }
     }
 
@@ -1333,7 +1424,7 @@ impl RaylibHandle {
     #[inline]
     pub fn draw_rectangle_lines_ex(&self, rec: Rectangle, line_thick: i32, color: impl Into<Color>) {
         unsafe {
-            ffi::DrawRectangleLinesEx(rec, line_thick, color.into());
+            ffi::DrawRectangleLinesEx(rec, line_thick, color.into().into());
         }
     }
 
@@ -1341,7 +1432,7 @@ impl RaylibHandle {
     #[inline]
     pub fn draw_triangle(&self, v1: impl Into<Vector2>, v2: impl Into<Vector2>, v3: impl Into<Vector2>, color: impl Into<Color>) {
         unsafe {
-            ffi::DrawTriangle(v1.into().into(), v2.into().into(), v3.into().into(), color.into());
+            ffi::DrawTriangle(v1.into().into(), v2.into().into(), v3.into().into(), color.into().into());
         }
     }
 
@@ -1349,7 +1440,7 @@ impl RaylibHandle {
     #[inline]
     pub fn draw_triangle_lines(&self, v1: impl Into<Vector2>, v2: impl Into<Vector2>, v3: impl Into<Vector2>, color: impl Into<Color>) {
         unsafe {
-            ffi::DrawTriangleLines(v1.into().into(), v2.into().into(), v3.into().into(), color.into());
+            ffi::DrawTriangleLines(v1.into().into(), v2.into().into(), v3.into().into(), color.into().into());
         }
     }
 
@@ -1357,7 +1448,7 @@ impl RaylibHandle {
     #[inline]
     pub fn draw_poly(&self, center: impl Into<Vector2>, sides: i32, radius: f32, rotation: f32, color: impl Into<Color>) {
         unsafe {
-            ffi::DrawPoly(center.into().into(), sides, radius, rotation, color.into());
+            ffi::DrawPoly(center.into().into(), sides, radius, rotation, color.into().into());
         }
     }
 
@@ -1365,7 +1456,7 @@ impl RaylibHandle {
     #[inline]
     pub fn draw_poly_ex(&self, points: &mut [Vector2], color: impl Into<Color>) {
         unsafe {
-            ffi::DrawPolyEx(points.as_mut_ptr() as *mut ffi::Vector2, points.len() as i32, color.into());
+            ffi::DrawPolyEx(points.as_mut_ptr() as *mut ffi::Vector2, points.len() as i32, color.into().into());
         }
     }
 
@@ -1373,7 +1464,7 @@ impl RaylibHandle {
     #[inline]
     pub fn draw_poly_ex_lines(&self, points: &mut [Vector2], color: impl Into<Color>) {
         unsafe {
-            ffi::DrawPolyExLines(points.as_mut_ptr() as *mut ffi::Vector2, points.len() as i32, color.into());
+            ffi::DrawPolyExLines(points.as_mut_ptr() as *mut ffi::Vector2, points.len() as i32, color.into().into());
         }
     }
 
@@ -1450,7 +1541,7 @@ impl RaylibHandle {
             panic!("load_image_ex: Data is wrong size. Expected {}, got {}", expected_len, pixels.len());
         }
         unsafe {
-            Image(ffi::LoadImageEx(pixels.as_mut_ptr(), width, height))
+            Image(ffi::LoadImageEx(pixels.as_mut_ptr() as *mut ffi::Color, width, height))
         }
     }
 
@@ -1515,9 +1606,9 @@ impl RaylibHandle {
         unsafe {
             let image_data = ffi::GetImageData(image.0);
             let image_data_len = (image.width * image.height) as usize;
-            let mut safe_image_data = Vec::with_capacity(image_data_len);
+            let mut safe_image_data: Vec<Color> = Vec::with_capacity(image_data_len);
             safe_image_data.set_len(image_data_len);
-            std::ptr::copy(image_data, safe_image_data.as_mut_ptr(), image_data_len);
+            std::ptr::copy(image_data, safe_image_data.as_mut_ptr() as *mut ffi::Color, image_data_len);
             libc::free(image_data as *mut libc::c_void);
             safe_image_data
         }
@@ -1577,7 +1668,7 @@ impl RaylibHandle {
     #[inline]
     pub fn image_to_pot(&self, image: &mut Image, fill_color: impl Into<Color>) {
         unsafe {
-            ffi::ImageToPOT(&mut image.0, fill_color.into());
+            ffi::ImageToPOT(&mut image.0, fill_color.into().into());
         }
     }
 
@@ -1601,7 +1692,7 @@ impl RaylibHandle {
     #[inline]
     pub fn image_alpha_clear(&self, image: &mut Image, color: impl Into<Color>, threshold: f32) {
         unsafe {
-            ffi::ImageAlphaClear(&mut image.0, color.into(), threshold);
+            ffi::ImageAlphaClear(&mut image.0, color.into().into(), threshold);
         }
     }
 
@@ -1649,7 +1740,7 @@ impl RaylibHandle {
     #[inline]
     pub fn image_resize_canvas(&self, image: &mut Image, new_width: i32, new_height: i32, offset_x: i32, offset_y: i32, color: impl Into<Color>) {
         unsafe {
-            ffi::ImageResizeCanvas(&mut image.0, new_width, new_height, offset_x, offset_y, color.into());
+            ffi::ImageResizeCanvas(&mut image.0, new_width, new_height, offset_x, offset_y, color.into().into());
         }
     }
 
@@ -1674,7 +1765,7 @@ impl RaylibHandle {
     pub fn image_text(&self, text: &str, font_size: i32, color: impl Into<Color>) -> Image {
         let c_text = CString::new(text).unwrap();
         unsafe {
-            Image(ffi::ImageText(c_text.as_ptr(), font_size, color.into()))
+            Image(ffi::ImageText(c_text.as_ptr(), font_size, color.into().into()))
         }
     }
 
@@ -1683,7 +1774,7 @@ impl RaylibHandle {
     pub fn image_text_ex(&self, font: &Font, text: &str, font_size: f32, spacing: f32, tint: impl Into<Color>) -> Image {
         let c_text = CString::new(text).unwrap();
         unsafe {
-            Image(ffi::ImageTextEx(font.0, c_text.as_ptr(), font_size, spacing, tint.into()))
+            Image(ffi::ImageTextEx(font.0, c_text.as_ptr(), font_size, spacing, tint.into().into()))
         }
     }
 
@@ -1699,7 +1790,7 @@ impl RaylibHandle {
     #[inline]
     pub fn image_draw_rectangle(&self, dst: &mut Image, position: impl Into<Vector2>, rec: Rectangle, color: impl Into<Color>) {
         unsafe {
-            ffi::ImageDrawRectangle(&mut dst.0, position.into().into(), rec, color.into());
+            ffi::ImageDrawRectangle(&mut dst.0, position.into().into(), rec, color.into().into());
         }
     }
 
@@ -1708,7 +1799,7 @@ impl RaylibHandle {
     pub fn image_draw_text(&self, dst: &mut Image, position: impl Into<Vector2>, text: &str, font_size: i32, color: impl Into<Color>) {
         let c_text = CString::new(text).unwrap();
         unsafe {
-            ffi::ImageDrawText(&mut dst.0, position.into().into(), c_text.as_ptr(), font_size, color.into());
+            ffi::ImageDrawText(&mut dst.0, position.into().into(), c_text.as_ptr(), font_size, color.into().into());
         }
     }
 
@@ -1717,7 +1808,7 @@ impl RaylibHandle {
     pub fn image_draw_text_ex(&self, dst: &mut Image, position: impl Into<Vector2>, font: &Font, text: &str, font_size: f32, spacing: f32, color: impl Into<Color>) {
         let c_text = CString::new(text).unwrap();
         unsafe {
-            ffi::ImageDrawTextEx(&mut dst.0, position.into().into(), font.0, c_text.as_ptr(), font_size, spacing, color.into());
+            ffi::ImageDrawTextEx(&mut dst.0, position.into().into(), font.0, c_text.as_ptr(), font_size, spacing, color.into().into());
         }
     }
 
@@ -1757,7 +1848,7 @@ impl RaylibHandle {
     #[inline]
     pub fn image_color_tint(&self, image: &mut Image, color: impl Into<Color>) {
         unsafe {
-            ffi::ImageColorTint(&mut image.0, color.into());
+            ffi::ImageColorTint(&mut image.0, color.into().into());
         }
     }
 
@@ -1797,7 +1888,7 @@ impl RaylibHandle {
     #[inline]
     pub fn image_color_replace(&self, image: &mut Image, color: impl Into<Color>, replace: impl Into<Color>) {
         unsafe {
-            ffi::ImageColorReplace(&mut image.0, color.into(), replace.into());
+            ffi::ImageColorReplace(&mut image.0, color.into().into(), replace.into().into());
         }
     }
 
@@ -1805,7 +1896,7 @@ impl RaylibHandle {
     #[inline]
     pub fn gen_image_color(&self, width: i32, height: i32, color: impl Into<Color>) -> Image {
         unsafe {
-            Image(ffi::GenImageColor(width, height, color.into()))
+            Image(ffi::GenImageColor(width, height, color.into().into()))
         }
     }
 
@@ -1813,7 +1904,7 @@ impl RaylibHandle {
     #[inline]
     pub fn gen_image_gradient_v(&self, width: i32, height: i32, top: impl Into<Color>, bottom: impl Into<Color>) -> Image {
         unsafe {
-            Image(ffi::GenImageGradientV(width, height, top.into(), bottom.into()))
+            Image(ffi::GenImageGradientV(width, height, top.into().into(), bottom.into().into()))
         }
     }
 
@@ -1821,7 +1912,7 @@ impl RaylibHandle {
     #[inline]
     pub fn gen_image_gradient_h(&self, width: i32, height: i32, left: impl Into<Color>, right: impl Into<Color>) -> Image {
         unsafe {
-            Image(ffi::GenImageGradientH(width, height, left.into(), right.into()))
+            Image(ffi::GenImageGradientH(width, height, left.into().into(), right.into().into()))
         }
     }
 
@@ -1829,7 +1920,7 @@ impl RaylibHandle {
     #[inline]
     pub fn gen_image_gradient_radial(&self, width: i32, height: i32, density: f32, inner: impl Into<Color>, outer: impl Into<Color>) -> Image {
         unsafe {
-            Image(ffi::GenImageGradientRadial(width, height, density, inner.into(), outer.into()))
+            Image(ffi::GenImageGradientRadial(width, height, density, inner.into().into(), outer.into().into()))
         }
     }
 
@@ -1837,7 +1928,7 @@ impl RaylibHandle {
     #[inline]
     pub fn gen_image_checked(&self, width: i32, height: i32, checks_x: i32, checks_y: i32, col1: impl Into<Color>, col2: impl Into<Color>) -> Image {
         unsafe {
-            Image(ffi::GenImageChecked(width, height, checks_x, checks_y, col1.into(), col2.into()))
+            Image(ffi::GenImageChecked(width, height, checks_x, checks_y, col1.into().into(), col2.into().into()))
         }
     }
 
@@ -1893,7 +1984,7 @@ impl RaylibHandle {
     #[inline]
     pub fn draw_texture(&self, texture: &Texture2D, x: i32, y: i32, tint: impl Into<Color>) {
         unsafe {
-            ffi::DrawTexture(texture.0, x, y, tint.into());
+            ffi::DrawTexture(texture.0, x, y, tint.into().into());
         }
     }
 
@@ -1901,7 +1992,7 @@ impl RaylibHandle {
     #[inline]
     pub fn draw_texture_v(&self, texture: &Texture2D, position: impl Into<Vector2>, tint: impl Into<Color>) {
         unsafe {
-            ffi::DrawTextureV(texture.0, position.into().into(), tint.into());
+            ffi::DrawTextureV(texture.0, position.into().into(), tint.into().into());
         }
     }
 
@@ -1909,7 +2000,7 @@ impl RaylibHandle {
     #[inline]
     pub fn draw_texture_ex(&self, texture: &Texture2D, position: impl Into<Vector2>, rotation: f32, scale: f32, tint: impl Into<Color>) {
         unsafe {
-            ffi::DrawTextureEx(texture.0, position.into().into(), rotation, scale, tint.into());
+            ffi::DrawTextureEx(texture.0, position.into().into(), rotation, scale, tint.into().into());
         }
     }
 
@@ -1917,7 +2008,7 @@ impl RaylibHandle {
     #[inline]
     pub fn draw_texture_rec(&self, texture: &Texture2D, source_rec: Rectangle, position: impl Into<Vector2>, tint: impl Into<Color>) {
         unsafe {
-            ffi::DrawTextureRec(texture.0, source_rec, position.into().into(), tint.into());
+            ffi::DrawTextureRec(texture.0, source_rec, position.into().into(), tint.into().into());
         }
     }
 
@@ -1925,7 +2016,7 @@ impl RaylibHandle {
     #[inline]
     pub fn draw_texture_pro(&self, texture: &Texture2D, source_rec: Rectangle, dest_rec: Rectangle, origin: impl Into<Vector2>, rotation: f32, tint: impl Into<Color>) {
         unsafe {
-            ffi::DrawTexturePro(texture.0, source_rec, dest_rec, origin.into().into(), rotation, tint.into());
+            ffi::DrawTexturePro(texture.0, source_rec, dest_rec, origin.into().into(), rotation, tint.into().into());
         }
     }
 
@@ -2000,7 +2091,7 @@ impl RaylibHandle {
     pub fn draw_text(&self, text: &str, x: i32, y: i32, font_size: i32, color: impl Into<Color>) {
         let c_text = CString::new(text).unwrap();
         unsafe {
-            ffi::DrawText(c_text.as_ptr(), x, y, font_size, color.into());
+            ffi::DrawText(c_text.as_ptr(), x, y, font_size, color.into().into());
         }
     }
 
@@ -2009,7 +2100,7 @@ impl RaylibHandle {
     pub fn draw_text_ex(&self, font: &Font, text: &str, position: impl Into<Vector2>, font_size: f32, spacing: f32, tint: impl Into<Color>) {
         let c_text = CString::new(text).unwrap();
         unsafe {
-            ffi::DrawTextEx(font.0, c_text.as_ptr(), position.into().into(), font_size, spacing, tint.into());
+            ffi::DrawTextEx(font.0, c_text.as_ptr(), position.into().into(), font_size, spacing, tint.into().into());
         }
     }
 
@@ -2043,7 +2134,7 @@ impl RaylibHandle {
     #[inline]
     pub fn draw_line_3d(&self, start_pos: impl Into<Vector3>, end_pos: impl Into<Vector3>, color: impl Into<Color>) {
         unsafe {
-            ffi::DrawLine3D(start_pos.into().into(), end_pos.into().into(), color.into());
+            ffi::DrawLine3D(start_pos.into().into(), end_pos.into().into(), color.into().into());
         }
     }
 
@@ -2051,7 +2142,7 @@ impl RaylibHandle {
     #[inline]
     pub fn draw_circle_3d(&self, center: impl Into<Vector3>, radius: f32, rotation_axis: impl Into<Vector3>, rotation_angle: f32, color: impl Into<Color>) {
         unsafe {
-            ffi::DrawCircle3D(center.into().into(), radius, rotation_axis.into().into(), rotation_angle, color.into());
+            ffi::DrawCircle3D(center.into().into(), radius, rotation_axis.into().into(), rotation_angle, color.into().into());
         }
     }
 
@@ -2059,7 +2150,7 @@ impl RaylibHandle {
     #[inline]
     pub fn draw_cube(&self, position: impl Into<Vector3>, width: f32, height: f32, length: f32, color: impl Into<Color>) {
         unsafe {
-            ffi::DrawCube(position.into().into(), width, height, length, color.into());
+            ffi::DrawCube(position.into().into(), width, height, length, color.into().into());
         }
     }
 
@@ -2067,7 +2158,7 @@ impl RaylibHandle {
     #[inline]
     pub fn draw_cube_v(&self, position: impl Into<Vector3>, size: impl Into<Vector3>, color: impl Into<Color>) {
         unsafe {
-            ffi::DrawCubeV(position.into().into(), size.into().into(), color.into());
+            ffi::DrawCubeV(position.into().into(), size.into().into(), color.into().into());
         }
     }
 
@@ -2075,7 +2166,7 @@ impl RaylibHandle {
     #[inline]
     pub fn draw_cube_wires(&self, position: impl Into<Vector3>, width: f32, height: f32, length: f32, color: impl Into<Color>) {
         unsafe {
-            ffi::DrawCubeWires(position.into().into(), width, height, length, color.into());
+            ffi::DrawCubeWires(position.into().into(), width, height, length, color.into().into());
         }
     }
 
@@ -2083,7 +2174,7 @@ impl RaylibHandle {
     #[inline]
     pub fn draw_cube_texture(&self, texture: &Texture2D, position: impl Into<Vector3>, width: f32, height: f32, length: f32, color: impl Into<Color>) {
         unsafe {
-            ffi::DrawCubeTexture(texture.0, position.into().into(), width, height, length, color.into());
+            ffi::DrawCubeTexture(texture.0, position.into().into(), width, height, length, color.into().into());
         }
     }
 
@@ -2091,7 +2182,7 @@ impl RaylibHandle {
     #[inline]
     pub fn draw_sphere(&self, center_pos: impl Into<Vector3>, radius: f32, color: impl Into<Color>) {
         unsafe {
-            ffi::DrawSphere(center_pos.into().into(), radius, color.into());
+            ffi::DrawSphere(center_pos.into().into(), radius, color.into().into());
         }
     }
 
@@ -2099,7 +2190,7 @@ impl RaylibHandle {
     #[inline]
     pub fn draw_sphere_ex(&self, center_pos: impl Into<Vector3>, radius: f32, rings: i32, slices: i32, color: impl Into<Color>) {
         unsafe {
-            ffi::DrawSphereEx(center_pos.into().into(), radius, rings, slices, color.into());
+            ffi::DrawSphereEx(center_pos.into().into(), radius, rings, slices, color.into().into());
         }
     }
 
@@ -2107,7 +2198,7 @@ impl RaylibHandle {
     #[inline]
     pub fn draw_sphere_wires(&self, center_pos: impl Into<Vector3>, radius: f32, rings: i32, slices: i32, color: impl Into<Color>) {
         unsafe {
-            ffi::DrawSphereWires(center_pos.into().into(), radius, rings, slices, color.into());
+            ffi::DrawSphereWires(center_pos.into().into(), radius, rings, slices, color.into().into());
         }
     }
 
@@ -2115,7 +2206,7 @@ impl RaylibHandle {
     #[inline]
     pub fn draw_cylinder(&self, position: impl Into<Vector3>, radius_top: f32, radius_bottom: f32, height: f32, slices: i32, color: impl Into<Color>) {
         unsafe {
-            ffi::DrawCylinder(position.into().into(), radius_top, radius_bottom, height, slices, color.into());
+            ffi::DrawCylinder(position.into().into(), radius_top, radius_bottom, height, slices, color.into().into());
         }
     }
 
@@ -2123,7 +2214,7 @@ impl RaylibHandle {
     #[inline]
     pub fn draw_cylinder_wires(&self, position: impl Into<Vector3>, radius_top: f32, radius_bottom: f32, height: f32, slices: i32, color: impl Into<Color>) {
         unsafe {
-            ffi::DrawCylinderWires(position.into().into(), radius_top, radius_bottom, height, slices, color.into());
+            ffi::DrawCylinderWires(position.into().into(), radius_top, radius_bottom, height, slices, color.into().into());
         }
     }
 
@@ -2131,7 +2222,7 @@ impl RaylibHandle {
     #[inline]
     pub fn draw_plane(&self, center_pos: impl Into<Vector3>, size: impl Into<Vector2>, color: impl Into<Color>) {
         unsafe {
-            ffi::DrawPlane(center_pos.into().into(), size.into().into(), color.into());
+            ffi::DrawPlane(center_pos.into().into(), size.into().into(), color.into().into());
         }
     }
 
@@ -2139,7 +2230,7 @@ impl RaylibHandle {
     #[inline]
     pub fn draw_ray(&self, ray: Ray, color: impl Into<Color>) {
         unsafe {
-            ffi::DrawRay(ray, color.into());
+            ffi::DrawRay(ray, color.into().into());
         }
     }
 
@@ -2311,7 +2402,7 @@ impl RaylibHandle {
     #[inline]
     pub fn draw_model(&self, model: &Model, position: impl Into<Vector3>, scale: f32, tint: impl Into<Color>) {
         unsafe {
-            ffi::DrawModel(model.0, position.into().into(), scale, tint.into());
+            ffi::DrawModel(model.0, position.into().into(), scale, tint.into().into());
         }
     }
 
@@ -2319,7 +2410,7 @@ impl RaylibHandle {
     #[inline]
     pub fn draw_model_ex(&self, model: &Model, position: impl Into<Vector3>, rotation_axis: impl Into<Vector3>, rotation_angle: f32, scale: impl Into<Vector3>, tint: impl Into<Color>) {
         unsafe {
-            ffi::DrawModelEx(model.0, position.into().into(), rotation_axis.into().into(), rotation_angle, scale.into().into(), tint.into());
+            ffi::DrawModelEx(model.0, position.into().into(), rotation_axis.into().into(), rotation_angle, scale.into().into(), tint.into().into());
         }
     }
 
@@ -2327,7 +2418,7 @@ impl RaylibHandle {
     #[inline]
     pub fn draw_model_wires(&self, model: &Model, position: impl Into<Vector3>, scale: f32, tint: impl Into<Color>) {
         unsafe {
-            ffi::DrawModelWires(model.0, position.into().into(), scale, tint.into());
+            ffi::DrawModelWires(model.0, position.into().into(), scale, tint.into().into());
         }
     }
 
@@ -2335,7 +2426,7 @@ impl RaylibHandle {
     #[inline]
     pub fn draw_model_wires_ex(&self, model: &Model, position: impl Into<Vector3>, rotation_axis: impl Into<Vector3>, rotation_angle: f32, scale: impl Into<Vector3>, tint: impl Into<Color>) {
         unsafe {
-            ffi::DrawModelWiresEx(model.0, position.into().into(), rotation_axis.into().into(), rotation_angle, scale.into().into(), tint.into());
+            ffi::DrawModelWiresEx(model.0, position.into().into(), rotation_axis.into().into(), rotation_angle, scale.into().into(), tint.into().into());
         }
     }
 
@@ -2343,7 +2434,7 @@ impl RaylibHandle {
     #[inline]
     pub fn draw_bounding_box(&self, bbox: BoundingBox, color: impl Into<Color>) {
         unsafe {
-            ffi::DrawBoundingBox(bbox, color.into());
+            ffi::DrawBoundingBox(bbox, color.into().into());
         }
     }
 
@@ -2351,7 +2442,7 @@ impl RaylibHandle {
     #[inline]
     pub fn draw_billboard(&self, camera: Camera3D, texture: &Texture2D, center: impl Into<Vector3>, size: f32, tint: impl Into<Color>) {
         unsafe {
-            ffi::DrawBillboard(camera, texture.0, center.into().into(), size, tint.into());
+            ffi::DrawBillboard(camera, texture.0, center.into().into(), size, tint.into().into());
         }
     }
 
@@ -2359,7 +2450,7 @@ impl RaylibHandle {
     #[inline]
     pub fn draw_billboard_rec(&self, camera: Camera3D, texture: &Texture2D, source_rec: Rectangle, center: impl Into<Vector3>, size: f32, tint: impl Into<Color>) {
         unsafe {
-            ffi::DrawBillboardRec(camera, texture.0, source_rec, center.into().into(), size, tint.into());
+            ffi::DrawBillboardRec(camera, texture.0, source_rec, center.into().into(), size, tint.into().into());
         }
     }
 
