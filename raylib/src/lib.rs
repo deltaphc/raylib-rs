@@ -206,13 +206,21 @@ impl From<ffi::Matrix> for Matrix {
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct Color {
-    r: u8,
-    g: u8,
-    b: u8,
-    a: u8,
+    pub r: u8,
+    pub g: u8,
+    pub b: u8,
+    pub a: u8,
+}
+
+impl Color {
+    #[inline]
+    pub fn new(r: u8, g: u8, b: u8, a: u8) -> Color {
+        Color { r, g, b, a }
+    }
 }
 
 impl From<ffi::Color> for Color {
+    #[inline]
     fn from(c: ffi::Color) -> Color {
         Color {
             r: c.r,
@@ -224,6 +232,7 @@ impl From<ffi::Color> for Color {
 }
 
 impl From<Color> for ffi::Color {
+    #[inline]
     fn from(c: Color) -> ffi::Color {
         ffi::Color {
             r: c.r,
@@ -235,12 +244,14 @@ impl From<Color> for ffi::Color {
 }
 
 impl From<(u8, u8, u8)> for Color {
+    #[inline]
     fn from((r, g, b): (u8, u8, u8)) -> Color {
         Color { r, g, b, a: 255 }
     }
 }
 
 impl From<(u8, u8, u8, u8)> for Color {
+    #[inline]
     fn from((r, g, b, a): (u8, u8, u8, u8)) -> Color {
         Color { r, g, b, a }
     }
