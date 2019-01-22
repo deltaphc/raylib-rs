@@ -34,6 +34,8 @@ raylib = { git = "https://github.com/deltaphc/raylib-rs" }
 
 4. Start coding!
 ```rust
+use raylib::Color;
+
 fn main() {
     let rl = raylib::init()
         .size(640, 480)
@@ -42,9 +44,10 @@ fn main() {
     
     while !rl.window_should_close() {
         rl.begin_drawing();
-
-        rl.clear_background(raylib::WHITE);
-        rl.draw_text("Hello, world!", 12, 12, 20, raylib::BLACK);
+        rl.draw_circle_v((200.0, 200.0), 32.0, (50, 50, 200));
+        
+        rl.clear_background(Color::WHITE);
+        rl.draw_text("Hello, world!", 12, 12, 20, Color::BLACK);
 
         rl.end_drawing();
     }
