@@ -1,5 +1,7 @@
 ![logo](logo/raylib-rust_256x256.png)
 
+![rust](https://img.shields.io/badge/rust-1.31+-orange.svg?style=flat-square&logo=rust)
+
 # raylib-rs
 
 raylib-rs is a Rust binding for [raylib](http://www.raylib.com/) 2.0. It currently targets the _stable_ Rust toolchain, version 1.31 or higher.
@@ -23,6 +25,7 @@ So far, I have only tested on Windows. Tips on making things work smoothly on al
 (the git path below is temporary until raylib-rs is published to crates.io)
 
 1. Add the dependency to your `Cargo.toml`:
+
 ```toml
 [dependencies]
 raylib = { git = "https://github.com/deltaphc/raylib-rs" }
@@ -35,6 +38,7 @@ raylib = { git = "https://github.com/deltaphc/raylib-rs" }
    - For rustup/GNU: `.rustup\toolchains\stable-x86_64-pc-windows-gnu\lib\rustlib\x86_64-pc-windows-gnu\lib`
 
 4. Start coding!
+
 ```rust
 use raylib::Color;
 
