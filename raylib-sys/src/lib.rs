@@ -16,6 +16,10 @@ Permission is granted to anyone to use this software for any purpose, including 
 
 #[allow(non_snake_case)]
 #[allow(non_upper_case_globals)]
+pub mod ffi_consts;
+
+#[allow(non_snake_case)]
+#[allow(non_upper_case_globals)]
 pub mod ffi_types;
 
 #[allow(non_snake_case)]
@@ -23,6 +27,7 @@ pub mod ffi_types;
 pub mod ffi_funcs;
 
 pub mod ffi {
+    pub use crate::ffi_consts::*;
     pub use crate::ffi_types::*;
     pub use crate::ffi_funcs::*;
 }

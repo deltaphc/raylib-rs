@@ -62,34 +62,227 @@ use std::ffi::{CString, CStr};
 use lazy_static::lazy_static;
 
 mod raiiwrap;
-pub mod raymath;
+mod raymath;
 pub mod ease;
 
 use raylib_sys::ffi;
-pub use raylib_sys::ffi_types::*;
-use crate::raymath::{
-    Vector2, Vector3, Vector4, Matrix
+pub use raylib_sys::ffi_consts::*;
+pub use raylib_sys::ffi_types::{
+    BoundingBox,
+    Camera2D, Camera3D,
+    CharInfo,
+    Ray, RayHitInfo,
+    Rectangle,
+    VrDeviceInfo,
 };
+pub use crate::raymath::*;
+pub use crate::raiiwrap::*;
 
-#[doc(hidden)]
-pub use crate::raiiwrap::{
-    Image,
-    Texture2D,
-    RenderTexture2D,
-    Font,
-    Mesh,
-    Shader,
-    Material,
-    Model,
-    Wave,
-    Sound,
-    Music,
-    AudioStream,
-};
+macro_rules! bitflag_type {
+    ($name:ident, $t:ty) => {
+        #[repr(C)]
+        #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+        pub struct $name(pub $t);
 
-pub use crate::raiiwrap::{
-    FontExt, MaterialExt, MaterialMapExt, ModelExt
-};
+        impl std::ops::BitOr<$name> for $name {
+            type Output = Self;
+            #[inline]
+            fn bitor(self, other: Self) -> Self {
+                $name(self.0 | other.0)
+            }
+        }
+        impl std::ops::BitOrAssign for $name {
+            #[inline]
+            fn bitor_assign(&mut self, rhs: $name) {
+                self.0 |= rhs.0;
+            }
+        }
+        impl std::ops::BitAnd<$name> for $name {
+            type Output = Self;
+            #[inline]
+            fn bitand(self, other: Self) -> Self {
+                $name(self.0 & other.0)
+            }
+        }
+        impl std::ops::BitAndAssign for $name {
+            #[inline]
+            fn bitand_assign(&mut self, rhs: $name) {
+                self.0 &= rhs.0;
+            }
+        }
+    };
+}
+
+macro_rules! enum_from_i32 {
+    ($name:ident: $repr:ident { $($variant:ident = $value:path, )* }) => {
+        #[repr($repr)]
+        #[derive(Debug, Copy, Clone, PartialEq, Eq)]
+        pub enum $name {
+            $($variant = $value,)*
+        }
+
+        impl From<i32> for $name {
+            #[inline]
+            fn from(format: i32) -> $name {
+                match format as $repr {
+                    $($value => $name::$variant,)*
+                    _ => panic!("Invalid integer {} passed to {}::from(i32)", format, stringify!($name)),
+                }
+            }
+        }
+    }
+}
+
+bitflag_type!(Log, u32);
+impl Log {
+    pub const INFO: Log = Log(ffi::LOG_INFO);
+    pub const WARNING: Log = Log(ffi::LOG_WARNING);
+    pub const ERROR: Log = Log(ffi::LOG_ERROR);
+    pub const DEBUG: Log = Log(ffi::LOG_DEBUG);
+    pub const OTHER: Log = Log(ffi::LOG_OTHER);
+}
+
+bitflag_type!(Gesture, u32);
+impl Gesture {
+    pub const NONE: Gesture = Gesture(ffi::GESTURE_NONE);
+    pub const TAP: Gesture = Gesture(ffi::GESTURE_TAP);
+    pub const DOUBLETAP: Gesture = Gesture(ffi::GESTURE_DOUBLETAP);
+    pub const HOLD: Gesture = Gesture(ffi::GESTURE_HOLD);
+    pub const DRAG: Gesture = Gesture(ffi::GESTURE_DRAG);
+    pub const SWIPE_RIGHT: Gesture = Gesture(ffi::GESTURE_SWIPE_RIGHT);
+    pub const SWIPE_LEFT: Gesture = Gesture(ffi::GESTURE_SWIPE_LEFT);
+    pub const SWIPE_UP: Gesture = Gesture(ffi::GESTURE_SWIPE_UP);
+    pub const SWIPE_DOWN: Gesture = Gesture(ffi::GESTURE_SWIPE_DOWN);
+    pub const PINCH_IN: Gesture = Gesture(ffi::GESTURE_PINCH_IN);
+    pub const PINCH_OUT: Gesture = Gesture(ffi::GESTURE_PINCH_OUT);
+}
+
+enum_from_i32! {
+    ShaderLoc: u32 {
+        VertexPosition = ffi::LOC_VERTEX_POSITION,
+        VertexTexCoord01 = ffi::LOC_VERTEX_TEXCOORD01,
+        VertexTexCoord02 = ffi::LOC_VERTEX_TEXCOORD02,
+        VertexNormal = ffi::LOC_VERTEX_NORMAL,
+        VertexTangent = ffi::LOC_VERTEX_TANGENT,
+        VertexColor = ffi::LOC_VERTEX_COLOR,
+        MatrixMVP = ffi::LOC_MATRIX_MVP,
+        MatrixModel = ffi::LOC_MATRIX_MODEL,
+        MatrixView = ffi::LOC_MATRIX_VIEW,
+        MatrixProjection = ffi::LOC_MATRIX_PROJECTION,
+        VectorView = ffi::LOC_VECTOR_VIEW,
+        ColorDiffuse = ffi::LOC_COLOR_DIFFUSE,
+        ColorSpecular = ffi::LOC_COLOR_SPECULAR,
+        ColorAmbient = ffi::LOC_COLOR_AMBIENT,
+        MapAlbedo = ffi::LOC_MAP_ALBEDO,
+        MapMetalness = ffi::LOC_MAP_METALNESS,
+        MapNormal = ffi::LOC_MAP_NORMAL,
+        MapRoughness = ffi::LOC_MAP_ROUGHNESS,
+        MapOcclusion = ffi::LOC_MAP_OCCLUSION,
+        MapEmission = ffi::LOC_MAP_EMISSION,
+        MapHeight = ffi::LOC_MAP_HEIGHT,
+        MapCubeMap = ffi::LOC_MAP_CUBEMAP,
+        MapIrradiance = ffi::LOC_MAP_IRRADIANCE,
+        MapPrefilter = ffi::LOC_MAP_PREFILTER,
+        MapBRDF = ffi::LOC_MAP_BRDF,
+    }
+}
+
+enum_from_i32! {
+    Texmap: u32 {
+        Albedo = ffi::MAP_ALBEDO,
+        Metalness = ffi::MAP_METALNESS,
+        Normal = ffi::MAP_NORMAL,
+        Roughness = ffi::MAP_ROUGHNESS,
+        Occlusion = ffi::MAP_OCCLUSION,
+        Emission = ffi::MAP_EMISSION,
+        Height = ffi::MAP_HEIGHT,
+        CubeMap = ffi::MAP_CUBEMAP,
+        Irradiance = ffi::MAP_IRRADIANCE,
+        Prefilter = ffi::MAP_PREFILTER,
+        BRDF = ffi::MAP_BRDF,
+    }
+}
+
+enum_from_i32! {
+    PixelFormat: u32 {
+        UncompressedGrayscale = ffi::UNCOMPRESSED_GRAYSCALE,
+        UncompressedGrayAlpha = ffi::UNCOMPRESSED_GRAY_ALPHA,
+        UncompressedR5G6B5 = ffi::UNCOMPRESSED_R5G6B5,
+        UncompressedR8G8B8 = ffi::UNCOMPRESSED_R8G8B8,
+        UncompressedR5G5B5A1 = ffi::UNCOMPRESSED_R5G5B5A1,
+        UncompressedR4G4B4A4 = ffi::UNCOMPRESSED_R4G4B4A4,
+        UncompressedR8G8B8A8 = ffi::UNCOMPRESSED_R8G8B8A8,
+        UncompressedR32 = ffi::UNCOMPRESSED_R32,
+        UncompressedR32G32B32 = ffi::UNCOMPRESSED_R32G32B32,
+        UncompressedR32G32B32A32 = ffi::UNCOMPRESSED_R32G32B32A32,
+        CompressedDXT1RGB = ffi::COMPRESSED_DXT1_RGB,
+        CompressedDXT1RGBA = ffi::COMPRESSED_DXT1_RGBA,
+        CompressedDXT3RGBA = ffi::COMPRESSED_DXT3_RGBA,
+        CompressedDXT5RGBA = ffi::COMPRESSED_DXT5_RGBA,
+        CompressedETC1RGB = ffi::COMPRESSED_ETC1_RGB,
+        CompressedETC2RGB = ffi::COMPRESSED_ETC2_RGB,
+        CompressedETC2EACRGBA = ffi::COMPRESSED_ETC2_EAC_RGBA,
+        CompressedPVRTRGB = ffi::COMPRESSED_PVRT_RGB,
+        CompressedPVRTRGBA = ffi::COMPRESSED_PVRT_RGBA,
+        CompressedASTC4x4RGBA = ffi::COMPRESSED_ASTC_4x4_RGBA,
+        CompressedASTC8x8RGBA = ffi::COMPRESSED_ASTC_8x8_RGBA,
+    }
+}
+
+enum_from_i32! {
+    TextureFilter: u32 {
+        Point = ffi::FILTER_POINT,
+        Bilinear = ffi::FILTER_BILINEAR,
+        Trilinear = ffi::FILTER_TRILINEAR,
+        Anisotropic4x = ffi::FILTER_ANISOTROPIC_4X,
+        Anisotropic8x = ffi::FILTER_ANISOTROPIC_8X,
+        Anisotropic16x = ffi::FILTER_ANISOTROPIC_16X,
+    }
+}
+
+enum_from_i32! {
+    TextureWrap: u32 {
+        Repeat = ffi::WRAP_REPEAT,
+        Clamp = ffi::WRAP_CLAMP,
+        Mirror = ffi::WRAP_MIRROR,
+    }
+}
+
+enum_from_i32! {
+    BlendMode: u32 {
+        Alpha = ffi::BLEND_ALPHA,
+        Additive = ffi::BLEND_ADDITIVE,
+        Multiplied = ffi::BLEND_MULTIPLIED,
+    }
+}
+
+enum_from_i32! {
+    CameraMode: u32 {
+        Custom = ffi::CAMERA_CUSTOM,
+        Free = ffi::CAMERA_FREE,
+        Orbital = ffi::CAMERA_ORBITAL,
+        FirstPerson = ffi::CAMERA_FIRST_PERSON,
+        ThirdPerson = ffi::CAMERA_THIRD_PERSON,
+    }
+}
+
+enum_from_i32! {
+    CameraType: u32 {
+        Perspective = ffi::CAMERA_PERSPECTIVE,
+        Orthographic = ffi::CAMERA_ORTHOGRAPHIC,
+    }
+}
+
+enum_from_i32! {
+    VrDevice: u32 {
+        Default = ffi::HMD_DEFAULT_DEVICE,
+        OculusRiftDK2 = ffi::HMD_OCULUS_RIFT_DK2,
+        OculusRiftCV1 = ffi::HMD_OCULUS_RIFT_CV1,
+        OculusGo = ffi::HMD_OCULUS_GO,
+        ValveHTCVive = ffi::HMD_VALVE_HTC_VIVE,
+        SonyPSVR = ffi::HMD_SONY_PSVR,
+    }
+}
 
 impl From<Vector2> for ffi::Vector2 {
     #[inline]
@@ -320,9 +513,6 @@ lazy_static! {
     };
 }
 
-#[allow(non_upper_case_globals)]
-static mut log_type_flags: LogType = LOG_INFO | LOG_WARNING | LOG_ERROR;
-
 #[derive(Debug, Default)]
 pub struct RaylibBuilder {
     show_logo: bool,
@@ -416,36 +606,18 @@ impl RaylibBuilder {
 
 /// Enables trace log message types (bit flags based).
 #[inline]
-pub fn set_trace_log(types: LogType) {
+pub fn set_trace_log(types: Log) {
     unsafe {
-        log_type_flags = types;
-        ffi::SetTraceLog(types as u8);
+        ffi::SetTraceLog(types.0 as u8);
     }
 }
 
-/// Writes a trace log message (`LOG_INFO`, `LOG_WARNING`, `LOG_ERROR`, `LOG_DEBUG`).
+/// Writes a trace log message (`Log::INFO`, `Log::WARNING`, `Log::ERROR`, `Log::DEBUG`).
 #[inline]
-pub fn trace_log(msg_type: LogType, text: &str) {
+pub fn trace_log(msg_type: Log, text: &str) {
     unsafe {
-        if (log_type_flags & msg_type) == 0 {
-            return;
-        }
-    }
-
-    let mut output = String::new();
-    output += match msg_type {
-        LOG_INFO => "INFO: ",
-        LOG_ERROR => "ERROR: ",
-        LOG_WARNING => "WARNING: ",
-        LOG_DEBUG => "DEBUG: ",
-        _ => ""
-    };
-
-    output += text;
-    println!("{}", output);
-
-    if msg_type == LOG_ERROR {
-        std::process::exit(1);
+        let text = CString::new(text).unwrap();
+        ffi::TraceLog(msg_type.0 as i32, text.as_ptr());
     }
 }
 
@@ -1157,17 +1329,17 @@ impl RaylibHandle {
 
     /// Enables a set of gestures using flags.
     #[inline]
-    pub fn set_gestures_enabled(&self, gesture_flags: Gestures) {
+    pub fn set_gestures_enabled(&self, gesture_flags: Gesture) {
         unsafe {
-            ffi::SetGesturesEnabled(gesture_flags);
+            ffi::SetGesturesEnabled(gesture_flags.0);
         }
     }
 
     /// Checks if a gesture have been detected.
     #[inline]
-    pub fn is_gesture_detected(&self, gesture: Gestures) -> bool {
+    pub fn is_gesture_detected(&self, gesture: Gesture) -> bool {
         unsafe {
-            ffi::IsGestureDetected(gesture as i32)
+            ffi::IsGestureDetected(gesture.0 as i32)
         }
     }
 
@@ -1659,7 +1831,7 @@ impl RaylibHandle {
     /// Updates GPU texture with new data.
     #[inline]
     pub fn update_texture(&self, texture: &mut Texture2D, pixels: &[u8]) {
-        let expected_len = self.get_pixel_data_size(texture.width, texture.height, texture.format as u32) as usize;
+        let expected_len = self.get_pixel_data_size(texture.width, texture.height, texture.format.into()) as usize;
         if pixels.len() != expected_len {
             panic!("update_texture: Data is wrong size. Expected {}, got {}", expected_len, pixels.len());
         }
@@ -1978,7 +2150,7 @@ impl RaylibHandle {
 
     /// Sets `texture` scaling filter mode.
     #[inline]
-    pub fn set_texture_filter(&self, texture: &mut Texture2D, filter_mode: TextureFilterMode) {
+    pub fn set_texture_filter(&self, texture: &mut Texture2D, filter_mode: TextureFilter) {
         unsafe {
             ffi::SetTextureFilter(texture.0, filter_mode as i32);
         }
@@ -1986,7 +2158,7 @@ impl RaylibHandle {
 
     /// Sets texture wrapping mode.
     #[inline]
-    pub fn set_texture_wrap(&self, texture: &mut Texture2D, wrap_mode: TextureWrapMode) {
+    pub fn set_texture_wrap(&self, texture: &mut Texture2D, wrap_mode: TextureWrap) {
         unsafe {
             ffi::SetTextureWrap(texture.0, wrap_mode as i32);
         }
@@ -2713,7 +2885,7 @@ impl RaylibHandle {
 
     /// Gets VR device information for some standard devices.
     #[inline]
-    pub fn get_vr_device_info(&self, vr_device_type: VrDeviceType) -> VrDeviceInfo {
+    pub fn get_vr_device_info(&self, vr_device_type: VrDevice) -> VrDeviceInfo {
         unsafe {
             ffi::GetVrDeviceInfo(vr_device_type as i32)
         }
