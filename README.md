@@ -10,7 +10,7 @@ Though this binding tries to stay close to the simple C API, it makes some chang
 
 - Resources are automatically cleaned up when they go out of scope (or when `std::mem::drop` is called), just like all other resources in Rust. This means that "Unload" functions are not exposed (and not necessary).
 - Most of the Raylib API is exposed through `RaylibHandle`, which is for enforcing that Raylib is only initialized once, and for making sure the window is closed properly.
-- A `RaylibHandle` is obtained through `raylib_rs::init_window(...)` or through the newer `init()` function which will allow you to `build` up some window options before initialization (replaces `set_config_flags`).
+- A `RaylibHandle` is obtained through `raylib::init_window(...)` or through the newer `init()` function which will allow you to `build` up some window options before initialization (replaces `set_config_flags`).
 - Manually closing the window is unnecessary, because `CloseWindow` is automatically called when `RaylibHandle` goes out of scope.
 - `Model::set_material`, `Material::set_shader`, and `MaterialMap::set_texture` methods were added since one cannot set the fields directly. Also enforces correct ownership semantics.
 - `Font::from_data`, `Font::set_chars`, and `Font::set_texture` methods were added to create a `Font` from loaded `CharInfo` data.
@@ -40,6 +40,7 @@ raylib = { git = "https://github.com/deltaphc/raylib-rs" }
 4. Start coding!
 
 ```rust
+use raylib::consts::*;
 use raylib::Color;
 
 fn main() {
