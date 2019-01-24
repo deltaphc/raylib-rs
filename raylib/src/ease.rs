@@ -14,30 +14,85 @@ Permission is granted to anyone to use this software for any purpose, including 
   3. This notice may not be removed or altered from any source distribution.
 */
 
+//! Easing and interpolation helpers.
+//! 
+//! [`Tween`] provides a simple way in which to interpolate a single `f32` value. The various easing functions contained within this module may be used with it.
+//! 
+//! [`Tween`]: struct.Tween.html
+
 use std::f32::consts::PI;
 
+/// The type alias used for all easing functions.
 pub type EaseFn = fn(f32, f32, f32, f32) -> f32;
 
+/// A manager for a tween on a single `f32` value.
 pub struct Tween {
-    pub easer: EaseFn,
-    pub start_value: f32,
-    pub end_value: f32,
-    pub current_time: f32,
-    pub duration: f32,
+    easer: EaseFn,
+    start_value: f32,
+    end_value: f32,
+    current_time: f32,
+    duration: f32,
+    completed: bool,
 }
 
 impl Tween {
+    /// Creates a new `Tween` given the easing function, value bounds, and duration.
+    pub fn new(easer: EaseFn, start_value: f32, end_value: f32, duration: f32) -> Tween {
+        Tween {
+            easer,
+            start_value,
+            end_value,
+            current_time: 0.0,
+            duration,
+            completed: false,
+        }
+    }
+
+    /// Resets the tween to the beginning.
+    pub fn reset(&mut self) {
+        self.current_time = 0.0;
+        self.completed = false;
+    }
+
+    /// Returns true if the tween has completed.
+    pub fn has_completed(&self) -> bool {
+        self.completed
+    }
+
+    /// Returns the new value after applying the tween, advancing time by `time_advance`.
     pub fn apply(&mut self, time_advance: f32) -> f32 {
         self.current_time += time_advance;
-        if self.current_time > self.duration {
+        if self.current_time > self.duration || !self.current_time.is_finite() {
             self.current_time = self.duration;
+            self.completed = true;
         }
         (self.easer)(self.current_time, self.start_value, self.end_value - self.start_value, self.duration)
     }
 
+    /// Reverses the tween, adjusting the current time position such that it will retrace its steps so far.
     pub fn reverse(&mut self) {
         self.current_time = self.duration - self.current_time;
-        ::std::mem::swap(&mut self.start_value, &mut self.end_value);
+        std::mem::swap(&mut self.start_value, &mut self.end_value);
+    }
+
+    /// Returns the current time position of the tween.
+    pub fn current_time(&self) -> f32 {
+        self.current_time
+    }
+
+    /// Returns the starting value of the tween.
+    pub fn start_value(&self) -> f32 {
+        self.start_value
+    }
+
+    /// Returns the ending value of the tween.
+    pub fn end_value(&self) -> f32 {
+        self.end_value
+    }
+
+    /// Returns the duration of the tween.
+    pub fn duration(&self) -> f32 {
+        self.duration
     }
 }
 
