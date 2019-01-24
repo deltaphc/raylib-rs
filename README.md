@@ -24,13 +24,11 @@ Though this binding tries to stay close to the simple C API, it makes some chang
 
 So far, I have only tested on Windows. Tips on making things work smoothly on all platforms is appreciated.
 
-(the git path below is temporary until raylib-rs is published to crates.io)
-
 1. Add the dependency to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-raylib = { git = "https://github.com/deltaphc/raylib-rs" }
+raylib = "0.9"
 ```
 
 2. Download raylib 2.0 from https://github.com/raysan5/raylib/releases/tag/2.0.0, and pick the one that matches your Rust toolchain. MSVC with MSVC, MinGW with GNU, 32-bit or 64-bit.
