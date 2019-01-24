@@ -16,7 +16,7 @@ Permission is granted to anyone to use this software for any purpose, including 
 
 //! # raylib-rs
 //! 
-//! `raylib` is a safe Rust binding to [Raylib](https://raylib.com/), a C library for enjoying games programming.
+//! `raylib` is a safe Rust binding to [Raylib](https://www.raylib.com/), a C library for enjoying games programming.
 //! 
 //! To get started, take a look at the [`init_window`] function. This initializes Raylib and shows a window, and returns a [`RaylibHandle`]. This handle is very important, because it is the way in which one accesses the vast majority of Raylib's functionality. This means that it must not go out of scope until the game is ready to exit.
 //! 
@@ -1016,74 +1016,74 @@ impl RaylibHandle {
 
     /// Detect if a key has been pressed once.
     #[inline]
-    pub fn is_key_pressed(&self, key: i32) -> bool {
+    pub fn is_key_pressed(&self, key: u32) -> bool {
         unsafe {
-            ffi::IsKeyPressed(key)
+            ffi::IsKeyPressed(key as i32)
         }
     }
 
     /// Detect if a key is being pressed.
     #[inline]
-    pub fn is_key_down(&self, key: i32) -> bool {
+    pub fn is_key_down(&self, key: u32) -> bool {
         unsafe {
-            ffi::IsKeyDown(key)
+            ffi::IsKeyDown(key as i32)
         }
     }
 
     /// Detect if a key has been released once.
     #[inline]
-    pub fn is_key_released(&self, key: i32) -> bool {
+    pub fn is_key_released(&self, key: u32) -> bool {
         unsafe {
-            ffi::IsKeyReleased(key)
+            ffi::IsKeyReleased(key as i32)
         }
     }
 
     /// Detect if a key is NOT being pressed.
     #[inline]
-    pub fn is_key_up(&self, key: i32) -> bool {
+    pub fn is_key_up(&self, key: u32) -> bool {
         unsafe {
-            ffi::IsKeyUp(key)
+            ffi::IsKeyUp(key as i32)
         }
     }
 
     /// Gets latest key pressed.
     #[inline]
-    pub fn get_key_pressed(&self) -> i32 {
+    pub fn get_key_pressed(&self) -> u32 {
         unsafe {
-            ffi::GetKeyPressed()
+            ffi::GetKeyPressed() as u32
         }
     }
 
     /// Sets a custom key to exit program (default is ESC).
     #[inline]
-    pub fn set_exit_key(&self, key: i32) {
+    pub fn set_exit_key(&self, key: u32) {
         unsafe {
-            ffi::SetExitKey(key);
+            ffi::SetExitKey(key as i32);
         }
     }
 
     /// Detect if a gamepad is available.
     #[inline]
-    pub fn is_gamepad_available(&self, gamepad: i32) -> bool {
+    pub fn is_gamepad_available(&self, gamepad: u32) -> bool {
         unsafe {
-            ffi::IsGamepadAvailable(gamepad)
+            ffi::IsGamepadAvailable(gamepad as i32)
         }
     }
 
     /// Checks gamepad name (if available).
     #[inline]
-    pub fn is_gamepad_name(&self, gamepad: i32, name: &str) -> bool {
+    pub fn is_gamepad_name(&self, gamepad: u32, name: &str) -> bool {
         let c_name = CString::new(name).unwrap();
         unsafe {
-            ffi::IsGamepadName(gamepad, c_name.as_ptr())
+            ffi::IsGamepadName(gamepad as i32, c_name.as_ptr())
         }
     }
 
     /// Returns gamepad internal name id.
     #[inline]
-    pub fn get_gamepad_name(&self, gamepad: i32) -> Option<String> {
+    pub fn get_gamepad_name(&self, gamepad: u32) -> Option<String> {
         unsafe {
-            let name = ffi::GetGamepadName(gamepad);
+            let name = ffi::GetGamepadName(gamepad as i32);
             match name.is_null() {
                 false => Some(CStr::from_ptr(name).to_str().unwrap().to_owned()),
                 true => None
@@ -1093,89 +1093,89 @@ impl RaylibHandle {
 
     /// Detect if a gamepad button has been pressed once.
     #[inline]
-    pub fn is_gamepad_button_pressed(&self, gamepad: i32, button: i32) -> bool {
+    pub fn is_gamepad_button_pressed(&self, gamepad: u32, button: i32) -> bool {
         unsafe {
-            ffi::IsGamepadButtonPressed(gamepad, button)
+            ffi::IsGamepadButtonPressed(gamepad as i32, button)
         }
     }
 
     /// Detect if a gamepad button is being pressed.
     #[inline]
-    pub fn is_gamepad_button_down(&self, gamepad: i32, button: i32) -> bool {
+    pub fn is_gamepad_button_down(&self, gamepad: u32, button: i32) -> bool {
         unsafe {
-            ffi::IsGamepadButtonDown(gamepad, button)
+            ffi::IsGamepadButtonDown(gamepad as i32, button)
         }
     }
 
     /// Detect if a gamepad button has been released once.
     #[inline]
-    pub fn is_gamepad_button_released(&self, gamepad: i32, button: i32) -> bool {
+    pub fn is_gamepad_button_released(&self, gamepad: u32, button: i32) -> bool {
         unsafe {
-            ffi::IsGamepadButtonReleased(gamepad, button)
+            ffi::IsGamepadButtonReleased(gamepad as i32, button)
         }
     }
 
     /// Detect if a gamepad button is NOT being pressed.
     #[inline]
-    pub fn is_gamepad_button_up(&self, gamepad: i32, button: i32) -> bool {
+    pub fn is_gamepad_button_up(&self, gamepad: u32, button: i32) -> bool {
         unsafe {
-            ffi::IsGamepadButtonUp(gamepad, button)
+            ffi::IsGamepadButtonUp(gamepad as i32, button)
         }
     }
 
     /// Gets the last gamepad button pressed.
     #[inline]
-    pub fn get_gamepad_button_pressed(&self) -> i32 {
+    pub fn get_gamepad_button_pressed(&self) -> u32 {
         unsafe {
-            ffi::GetGamepadButtonPressed()
+            ffi::GetGamepadButtonPressed() as u32
         }
     }
 
     /// Returns gamepad axis count for a gamepad.
     #[inline]
-    pub fn get_gamepad_axis_count(&self, gamepad: i32) -> i32 {
+    pub fn get_gamepad_axis_count(&self, gamepad: u32) -> i32 {
         unsafe {
-            ffi::GetGamepadAxisCount(gamepad)
+            ffi::GetGamepadAxisCount(gamepad as i32)
         }
     }
 
     /// Returns axis movement value for a gamepad axis.
     #[inline]
-    pub fn get_gamepad_axis_movement(&self, gamepad: i32, axis: i32) -> f32 {
+    pub fn get_gamepad_axis_movement(&self, gamepad: u32, axis: u32) -> f32 {
         unsafe {
-            ffi::GetGamepadAxisMovement(gamepad, axis)
+            ffi::GetGamepadAxisMovement(gamepad as i32, axis as i32)
         }
     }
 
     /// Detect if a mouse button has been pressed once.
     #[inline]
-    pub fn is_mouse_button_pressed(&self, button: i32) -> bool {
+    pub fn is_mouse_button_pressed(&self, button: u32) -> bool {
         unsafe {
-            ffi::IsMouseButtonPressed(button)
+            ffi::IsMouseButtonPressed(button as i32)
         }
     }
 
     /// Detect if a mouse button is being pressed.
     #[inline]
-    pub fn is_mouse_button_down(&self, button: i32) -> bool {
+    pub fn is_mouse_button_down(&self, button: u32) -> bool {
         unsafe {
-            ffi::IsMouseButtonDown(button)
+            ffi::IsMouseButtonDown(button as i32)
         }
     }
 
     /// Detect if a mouse button has been released once.
     #[inline]
-    pub fn is_mouse_button_released(&self, button: i32) -> bool {
+    pub fn is_mouse_button_released(&self, button: u32) -> bool {
         unsafe {
-            ffi::IsMouseButtonReleased(button)
+            ffi::IsMouseButtonReleased(button as i32)
         }
     }
 
     /// Detect if a mouse button is NOT being pressed.
     #[inline]
-    pub fn is_mouse_button_up(&self, button: i32) -> bool {
+    pub fn is_mouse_button_up(&self, button: u32) -> bool {
         unsafe {
-            ffi::IsMouseButtonUp(button)
+            ffi::IsMouseButtonUp(button as i32)
         }
     }
 
@@ -1245,9 +1245,9 @@ impl RaylibHandle {
 
     /// Returns touch position XY for a touch point index (relative to screen size).
     #[inline]
-    pub fn get_touch_position(&self, index: i32) -> Vector2 {
+    pub fn get_touch_position(&self, index: u32) -> Vector2 {
         unsafe {
-            ffi::GetTouchPosition(index).into()
+            ffi::GetTouchPosition(index as i32).into()
         }
     }
 
@@ -1269,17 +1269,17 @@ impl RaylibHandle {
 
     /// Gets latest detected gesture.
     #[inline]
-    pub fn get_gesture_detected(&self) -> i32 {
+    pub fn get_gesture_detected(&self) -> Gesture {
         unsafe {
-            ffi::GetGestureDetected()
+            Gesture(ffi::GetGestureDetected() as u32)
         }
     }
 
     /// Gets touch points count.
     #[inline]
-    pub fn get_touch_points_count(&self) -> i32 {
+    pub fn get_touch_points_count(&self) -> u32 {
         unsafe {
-            ffi::GetTouchPointsCount()
+            ffi::GetTouchPointsCount() as u32
         }
     }
 
@@ -1341,40 +1341,40 @@ impl RaylibHandle {
 
     /// Sets camera pan key to combine with mouse movement (free camera).
     #[inline]
-    pub fn set_camera_pan_control(&self, pan_key: i32) {
+    pub fn set_camera_pan_control(&self, pan_key: u32) {
         unsafe {
-            ffi::SetCameraPanControl(pan_key);
+            ffi::SetCameraPanControl(pan_key as i32);
         }
     }
 
     /// Sets camera alt key to combine with mouse movement (free camera).
     #[inline]
-    pub fn set_camera_alt_control(&self, alt_key: i32) {
+    pub fn set_camera_alt_control(&self, alt_key: u32) {
         unsafe {
-            ffi::SetCameraAltControl(alt_key);
+            ffi::SetCameraAltControl(alt_key as i32);
         }
     }
 
     /// Sets camera smooth zoom key to combine with mouse (free camera).
     #[inline]
-    pub fn set_camera_smooth_zoom_control(&self, sz_key: i32) {
+    pub fn set_camera_smooth_zoom_control(&self, sz_key: u32) {
         unsafe {
-            ffi::SetCameraSmoothZoomControl(sz_key);
+            ffi::SetCameraSmoothZoomControl(sz_key as i32);
         }
     }
 
     /// Sets camera move controls (1st person and 3rd person cameras).
     #[inline]
     pub fn set_camera_move_controls(&self,
-        front_key: i32,
-        back_key: i32,
-        right_key: i32,
-        left_key: i32,
-        up_key: i32,
-        down_key: i32)
+        front_key: u32,
+        back_key: u32,
+        right_key: u32,
+        left_key: u32,
+        up_key: u32,
+        down_key: u32)
     {
         unsafe {
-            ffi::SetCameraMoveControls(front_key, back_key, right_key, left_key, up_key, down_key);
+            ffi::SetCameraMoveControls(front_key as i32, back_key as i32, right_key as i32, left_key as i32, up_key as i32, down_key as i32);
         }
     }
 
