@@ -70,8 +70,13 @@ mod raymath;
 pub mod ease;
 
 use raylib_sys::ffi;
-pub use raylib_sys::ffi_consts as consts;
+
+/// Common and useful constants for various kinds of functionality.
+pub mod consts {
+    pub use raylib_sys::ffi_consts::*;
+}
 use consts::*;
+
 pub use raylib_sys::ffi_types::{
     BoundingBox,
     Camera2D, Camera3D,
@@ -136,6 +141,28 @@ macro_rules! enum_from_i32 {
             }
         }
     }
+}
+
+macro_rules! impl_bidirectional_from {
+    ($t1:path, $t2:path, $($field:ident),*) => {
+        impl From<$t1> for $t2 {
+            #[inline]
+            fn from(v: $t1) -> $t2 {
+                $t2 {
+                    $($field: v.$field,)*
+                }
+            }
+        }
+
+        impl From<$t2> for $t1 {
+            #[inline]
+            fn from(v: $t2) -> $t1 {
+                $t1 {
+                    $($field: v.$field,)*
+                }
+            }
+        }
+    };
 }
 
 bitflag_type!(Log, u32);
@@ -289,119 +316,14 @@ enum_from_i32! {
     }
 }
 
-impl From<Vector2> for ffi::Vector2 {
-    #[inline]
-    fn from(v: Vector2) -> ffi::Vector2 {
-        ffi::Vector2 {
-            x: v.x,
-            y: v.y,
-        }
-    }
-}
-
-impl From<ffi::Vector2> for Vector2 {
-    #[inline]
-    fn from(v: ffi::Vector2) -> Vector2 {
-        Vector2 {
-            x: v.x,
-            y: v.y,
-        }
-    }
-}
-
-impl From<Vector3> for ffi::Vector3 {
-    #[inline]
-    fn from(v: Vector3) -> ffi::Vector3 {
-        ffi::Vector3 {
-            x: v.x,
-            y: v.y,
-            z: v.z,
-        }
-    }
-}
-
-impl From<ffi::Vector3> for Vector3 {
-    #[inline]
-    fn from(v: ffi::Vector3) -> Vector3 {
-        Vector3 {
-            x: v.x,
-            y: v.y,
-            z: v.z,
-        }
-    }
-}
-
-impl From<Vector4> for ffi::Vector4 {
-    #[inline]
-    fn from(v: Vector4) -> ffi::Vector4 {
-        ffi::Vector4 {
-            x: v.x,
-            y: v.y,
-            z: v.z,
-            w: v.w,
-        }
-    }
-}
-
-impl From<ffi::Vector4> for Vector4 {
-    #[inline]
-    fn from(v: ffi::Vector4) -> Vector4 {
-        Vector4 {
-            x: v.x,
-            y: v.y,
-            z: v.z,
-            w: v.w,
-        }
-    }
-}
-
-impl From<Matrix> for ffi::Matrix {
-    #[inline]
-    fn from(m: Matrix) -> ffi::Matrix {
-        ffi::Matrix {
-            m0: m.m0,
-            m4: m.m4,
-            m8: m.m8,
-            m12: m.m12,
-            m1: m.m1,
-            m5: m.m5,
-            m9: m.m9,
-            m13: m.m13,
-            m2: m.m2,
-            m6: m.m6,
-            m10: m.m10,
-            m14: m.m14,
-            m3: m.m3,
-            m7: m.m7,
-            m11: m.m11,
-            m15: m.m15,
-        }
-    }
-}
-
-impl From<ffi::Matrix> for Matrix {
-    #[inline]
-    fn from(m: ffi::Matrix) -> Matrix {
-        Matrix {
-            m0: m.m0,
-            m4: m.m4,
-            m8: m.m8,
-            m12: m.m12,
-            m1: m.m1,
-            m5: m.m5,
-            m9: m.m9,
-            m13: m.m13,
-            m2: m.m2,
-            m6: m.m6,
-            m10: m.m10,
-            m14: m.m14,
-            m3: m.m3,
-            m7: m.m7,
-            m11: m.m11,
-            m15: m.m15,
-        }
-    }
-}
+impl_bidirectional_from!(Vector2, ffi::Vector2, x, y);
+impl_bidirectional_from!(Vector3, ffi::Vector3, x, y, z);
+impl_bidirectional_from!(Vector4, ffi::Vector4, x, y, z, w);
+impl_bidirectional_from!(Matrix, ffi::Matrix,
+    m0, m4, m8, m12,
+    m1, m5, m9, m13,
+    m2, m6, m10, m14,
+    m3, m7, m11, m15);
 
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
@@ -446,29 +368,7 @@ impl Color {
     }
 }
 
-impl From<ffi::Color> for Color {
-    #[inline]
-    fn from(c: ffi::Color) -> Color {
-        Color {
-            r: c.r,
-            g: c.g,
-            b: c.b,
-            a: c.a,
-        }
-    }
-}
-
-impl From<Color> for ffi::Color {
-    #[inline]
-    fn from(c: Color) -> ffi::Color {
-        ffi::Color {
-            r: c.r,
-            g: c.g,
-            b: c.b,
-            a: c.a,
-        }
-    }
-}
+impl_bidirectional_from!(Color, ffi::Color, r, g, b, a);
 
 impl From<(u8, u8, u8)> for Color {
     #[inline]
