@@ -1,6 +1,8 @@
 ![logo](logo/raylib-rust_256x256.png)
 
 ![rust](https://img.shields.io/badge/rust-1.31+-orange.svg?style=flat-square&logo=rust)
+[![crates.io](https://img.shields.io/crates/v/raylib.svg?style=flat-square)](https://crates.io/crates/raylib)
+[![docs](https://docs.rs/raylib/badge.svg)](https://docs.rs/raylib)
 
 # raylib-rs
 

@@ -1,14 +1,17 @@
 [package]
 name = "raylib"
-version = "1.0.0"
-authors = ["DeltaPHC"]
+version = "0.9.0"
+authors = ["DeltaPHC <phclem@protonmail.com>"]
 license = "zlib/libpng"
-readme = "README.md"
+readme = "../README.md"
 description = "Safe Rust bindings for Raylib."
+documentation = "https://docs.rs/raylib"
 repository = "https://github.com/deltaphc/raylib-rs"
+keywords = ["bindings", "raylib", "gamedev"]
+categories = ["api-bindings", "game-engines", "graphics"]
 edition = "2018"
 
 [dependencies]
-raylib-sys = { version = "1.0.0", path = "../raylib-sys" }
+raylib-sys = { version = "0.9.0", path = "../raylib-sys" }
 libc = "0.2.45"
 lazy_static = "1.2.0"

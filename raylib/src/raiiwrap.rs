@@ -62,6 +62,7 @@ make_thin_wrapper!(Sound, ffi::Sound, ffi::UnloadSound);
 make_thin_wrapper!(Music, ffi::Music, ffi::UnloadMusicStream);
 make_thin_wrapper!(AudioStream, ffi::AudioStream, ffi::CloseAudioStream);
 
+/// An extension trait allowing for safe manipulation of `Font` structs.
 pub trait FontExt {
     fn from_data(chars: &[ffi::CharInfo], base_size: i32, padding: i32, pack_method: i32) -> Font;
     fn set_chars(&mut self, chars: &[ffi::CharInfo]);
@@ -101,6 +102,7 @@ impl FontExt for ffi::Font {
     }
 }
 
+/// An extension trait allowing for safe manipulation of `MaterialMap` structs.
 pub trait MaterialMapExt {
     fn set_texture(&mut self, tex: Texture2D);
 }
@@ -113,6 +115,7 @@ impl MaterialMapExt for ffi::MaterialMap {
     }
 }
 
+/// An extension trait allowing for safe manipulation of `Material` structs.
 pub trait MaterialExt {
     fn set_shader(&mut self, shader: Shader);
 }
@@ -125,6 +128,7 @@ impl MaterialExt for ffi::Material {
     }
 }
 
+/// An extension trait allowing for safe manipulation of `Model` structs.
 pub trait ModelExt {
     fn set_material(&mut self, material: Material);
 }

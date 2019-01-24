@@ -418,6 +418,7 @@ lazy_static! {
     };
 }
 
+/// A builder that allows more customization of the game window shown to the user before the `RaylibHandle` is created.
 #[derive(Debug, Default)]
 pub struct RaylibBuilder {
     show_logo: bool,
@@ -433,57 +434,68 @@ pub struct RaylibBuilder {
 }
 
 impl RaylibBuilder {
+    /// Shows the raylib logo at startup.
     pub fn with_logo(&mut self) -> &mut Self {
         self.show_logo = true;
         self
     }
 
+    /// Sets the window to be fullscreen.
     pub fn fullscreen(&mut self) -> &mut Self {
         self.fullscreen_mode = true;
         self
     }
 
+    /// Sets the window to be resizable.
     pub fn resizable(&mut self) -> &mut Self {
         self.window_resizable = true;
         self
     }
 
+    /// Sets the window to be undecorated (without a border).
     pub fn undecorated(&mut self) -> &mut Self {
         self.window_undecorated = true;
         self
     }
 
+    /// Sets the window to be transparent.
     pub fn transparent(&mut self) -> &mut Self {
         self.window_transparent = true;
         self
     }
 
+    /// Hints that 4x MSAA (anti-aliasing) should be enabled. The system's graphics drivers may override this setting.
     pub fn msaa_4x(&mut self) -> &mut Self {
         self.msaa_4x_hint = true;
         self
     }
 
+    /// Hints that vertical sync (VSync) should be enabled. The system's graphics drivers may override this setting.
     pub fn vsync(&mut self) -> &mut Self {
         self.vsync_hint = true;
         self
     }
 
+    /// Sets the window's width.
     pub fn width(&mut self, w: i32) -> &mut Self {
         self.width = w;
         self
     }
 
+    /// Sets the window's height.
     pub fn height(&mut self, h: i32) -> &mut Self {
         self.height = h;
         self
     }
 
+    /// Sets the window's width and height.
     pub fn size(&mut self, w: i32, h: i32) -> &mut Self {
         self.width = w;
         self.height = h;
         self
     }
 
+    /// Sets the window title.
     pub fn title(&mut self, text: &str) -> &mut Self {
         self.title = text.to_string();
         self
@@ -526,6 +538,13 @@ pub fn trace_log(msg_type: Log, text: &str) {
     }
 }
 
+/// The main interface into the Raylib API.
+/// 
+/// This is the way in which you will use the vast majority of Raylib's functionality. A `RaylibHandle` can be constructed using the [`init_window`] function or through a [`RaylibBuilder`] obtained with the [`init`] function.
+/// 
+/// [`init_window`]: fn.init_window.html
+/// [`RaylibBuilder`]: struct.RaylibBuilder.html
+/// [`init`]: fn.init.html
 pub struct RaylibHandle;
 
 /// Creates a `RaylibBuilder` for choosing window options before initialization.
@@ -575,7 +594,7 @@ impl RaylibHandle {
         }
     }
 
-    /// Checks if KEY_ESCAPE or Close icon was pressed.
+    /// Checks if `KEY_ESCAPE` or Close icon was pressed.
     #[inline]
     pub fn window_should_close(&self) -> bool {
         unsafe {
