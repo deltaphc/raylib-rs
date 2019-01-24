@@ -2,7 +2,7 @@
 name = "raylib"
 version = "0.9.0"
 authors = ["DeltaPHC <phclem@protonmail.com>"]
-license = "zlib/libpng"
+license = "Zlib"
 readme = "../README.md"
 description = "Safe Rust bindings for Raylib."
 documentation = "https://docs.rs/raylib"
