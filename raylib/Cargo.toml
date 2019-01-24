@@ -1,6 +1,6 @@
 [package]
 name = "raylib"
-version = "0.9.0"
+version = "0.9.1"
 authors = ["DeltaPHC <phclem@protonmail.com>"]
 license = "Zlib"
 readme = "../README.md"

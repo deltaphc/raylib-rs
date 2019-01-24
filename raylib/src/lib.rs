@@ -75,7 +75,7 @@ use raylib_sys::ffi;
 pub mod consts {
     pub use raylib_sys::ffi_consts::*;
 }
-use consts::*;
+use crate::consts::*;
 
 pub use raylib_sys::ffi_types::{
     BoundingBox,
