@@ -36,6 +36,7 @@ use url::Url;
 
 fn main() {
     if cfg!(target_os = "windows") {
+        println!("cargo:rustc-link-lib=dylib=user32");
         println!("cargo:rustc-link-lib=dylib=gdi32");
     }
     if cfg!(target_os = "linux") {
@@ -168,8 +169,6 @@ fn main() {
                     }
                 }
             }
-
-            println!("cargo:rustc-link-lib=user32");
 
             extract_dir
         } else {
