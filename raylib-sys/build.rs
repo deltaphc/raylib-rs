@@ -169,14 +169,16 @@ fn main() {
                 }
             }
 
+            println!("cargo:rustc-link-lib=user32");
+
             extract_dir
         } else {
             unreachable!("should have failed trying to download")
         };
 
         println!(
-            "cargo:rustc-link-search=native={}/lib",
-            extract_dir.display()
+            "cargo:rustc-link-search=native={}",
+            extract_dir.join("lib").display()
         );
 
         println!("cargo:rustc-link-lib=static=raylib");

@@ -1,0 +1,12 @@
+[package]
+name = "raylib-examples"
+version = "0.10.0"
+publish = false
+workspace = ".."
+
+[[bin]]
+name = "hello"
+path = "hello/main.rs"
+
+[dependencies]
+raylib = { path = "../raylib" }
