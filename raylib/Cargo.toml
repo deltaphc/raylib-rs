@@ -12,6 +12,6 @@ categories = ["api-bindings", "game-engines", "graphics"]
 edition = "2018"
 
 [dependencies]
-raylib-sys = { version = "0.9.1", path = "../raylib-sys" }
+raylib-sys = { version = "0.9", path = "../raylib-sys" }
 libc = "0.2.45"
 lazy_static = "1.2.0"
