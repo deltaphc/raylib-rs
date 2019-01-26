@@ -1562,17 +1562,19 @@ impl RaylibHandle {
 
     /// Draws a closed polygon defined by points.
     #[inline]
-    pub fn draw_poly_ex(&self, points: &mut [Vector2], color: impl Into<Color>) {
+    pub fn draw_poly_ex(&self, points: &[Vector2], color: impl Into<Color>) {
         unsafe {
-            ffi::DrawPolyEx(points.as_mut_ptr() as *mut ffi::Vector2, points.len() as i32, color.into().into());
+            // An examination of raylib source (shapes.c) shows that it does not mutate the given points
+            ffi::DrawPolyEx(points.as_ptr() as *mut ffi::Vector2, points.len() as i32, color.into().into());
         }
     }
 
     /// Draws a polygon using lines.
     #[inline]
-    pub fn draw_poly_ex_lines(&self, points: &mut [Vector2], color: impl Into<Color>) {
+    pub fn draw_poly_ex_lines(&self, points: &[Vector2], color: impl Into<Color>) {
         unsafe {
-            ffi::DrawPolyExLines(points.as_mut_ptr() as *mut ffi::Vector2, points.len() as i32, color.into().into());
+            // An examination of raylib source (shapes.c) shows that it does not mutate the given points
+            ffi::DrawPolyExLines(points.as_ptr() as *mut ffi::Vector2, points.len() as i32, color.into().into());
         }
     }
 
@@ -1643,13 +1645,14 @@ impl RaylibHandle {
 
     /// Loads image from Color array data (RGBA - 32bit).
     #[inline]
-    pub fn load_image_ex(&self, pixels: &mut [Color], width: i32, height: i32) -> Image {
+    pub fn load_image_ex(&self, pixels: &[Color], width: i32, height: i32) -> Image {
         let expected_len = (width * height) as usize;
         if pixels.len() != expected_len {
             panic!("load_image_ex: Data is wrong size. Expected {}, got {}", expected_len, pixels.len());
         }
         unsafe {
-            Image(ffi::LoadImageEx(pixels.as_mut_ptr() as *mut ffi::Color, width, height))
+            // An examination of Raylib source (textures.c) shows that it does not mutate the given pixels
+            Image(ffi::LoadImageEx(pixels.as_ptr() as *mut ffi::Color, width, height))
         }
     }
 
@@ -2621,8 +2624,7 @@ impl RaylibHandle {
     #[inline]
     pub fn get_collision_ray_model(&self, ray: Ray, model: &Model) -> RayHitInfo {
         unsafe {
-            let mut model = model.0;
-            ffi::GetCollisionRayModel(ray, &mut model)
+            ffi::GetCollisionRayModel(ray, &mut { model.0 })
         }
     }
 
