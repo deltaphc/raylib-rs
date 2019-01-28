@@ -24,6 +24,24 @@ pub struct Vector2 {
     pub y: f32,
 }
 
+/// A convenience function for making a new `Vector2`.
+#[inline]
+pub fn vec2(x: f32, y: f32) -> Vector2 {
+    Vector2::new(x, y)
+}
+
+/// A convenience function for making a new `Vector3`.
+#[inline]
+pub fn vec3(x: f32, y: f32, z: f32) -> Vector3 {
+    Vector3::new(x, y, z)
+}
+
+/// A convenience function for making a new `Quaternion`.
+#[inline]
+pub fn quat(x: f32, y: f32, z: f32, w: f32) -> Quaternion {
+    Quaternion::new(x, y, z, w)
+}
+
 impl Vector2 {
     /// Returns a new `Vector2` with specified components.
     pub fn new(x: f32, y: f32) -> Vector2 {

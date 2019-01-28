@@ -78,15 +78,151 @@ pub mod consts {
 use crate::consts::*;
 
 pub use raylib_sys::ffi_types::{
-    BoundingBox,
-    Camera2D, Camera3D,
     CharInfo,
-    Ray, RayHitInfo,
     Rectangle,
     VrDeviceInfo,
 };
 pub use crate::raymath::*;
 pub use crate::raiiwrap::*;
+
+#[derive(Debug, Copy, Clone)]
+pub struct Camera3D {
+    pub position: Vector3,
+    pub target: Vector3,
+    pub up: Vector3,
+    pub fovy: f32,
+    pub proj: CameraType,
+}
+
+impl From<Camera3D> for ffi::Camera3D {
+    #[inline]
+    fn from(c: Camera3D) -> ffi::Camera3D {
+        ffi::Camera3D {
+            position: c.position.into(),
+            target: c.target.into(),
+            up: c.up.into(),
+            fovy: c.fovy,
+            type_: c.proj as i32,
+        }
+    }
+}
+
+impl From<ffi::Camera3D> for Camera3D {
+    #[inline]
+    fn from(c: ffi::Camera3D) -> Camera3D {
+        Camera3D {
+            position: c.position.into(),
+            target: c.target.into(),
+            up: c.up.into(),
+            fovy: c.fovy,
+            proj: c.type_.into(),
+        }
+    }
+}
+
+#[derive(Debug, Copy, Clone)]
+pub struct Camera2D {
+    pub offset: Vector2,
+    pub target: Vector2,
+    pub rotation: f32,
+    pub zoom: f32,
+}
+
+impl From<Camera2D> for ffi::Camera2D {
+    #[inline]
+    fn from(c: Camera2D) -> ffi::Camera2D {
+        ffi::Camera2D {
+            offset: c.offset.into(),
+            target: c.target.into(),
+            rotation: c.rotation,
+            zoom: c.zoom,
+        }
+    }
+}
+
+impl From<ffi::Camera2D> for Camera2D {
+    #[inline]
+    fn from(c: ffi::Camera2D) -> Camera2D {
+        Camera2D {
+            offset: c.offset.into(),
+            target: c.target.into(),
+            rotation: c.rotation,
+            zoom: c.zoom,
+        }
+    }
+}
+
+#[derive(Debug, Copy, Clone)]
+pub struct BoundingBox {
+    pub min: Vector3,
+    pub max: Vector3,
+}
+
+impl From<BoundingBox> for ffi::BoundingBox {
+    #[inline]
+    fn from(b: BoundingBox) -> ffi::BoundingBox {
+        ffi::BoundingBox {
+            min: b.min.into(),
+            max: b.max.into(),
+        }
+    }
+}
+
+impl From<ffi::BoundingBox> for BoundingBox {
+    #[inline]
+    fn from(b: ffi::BoundingBox) -> BoundingBox {
+        BoundingBox {
+            min: b.min.into(),
+            max: b.max.into(),
+        }
+    }
+}
+
+#[derive(Debug, Copy, Clone)]
+pub struct Ray {
+    pub position: Vector3,
+    pub direction: Vector3,
+}
+
+impl From<Ray> for ffi::Ray {
+    #[inline]
+    fn from(r: Ray) -> ffi::Ray {
+        ffi::Ray {
+            position: r.position.into(),
+            direction: r.direction.into(),
+        }
+    }
+}
+
+impl From<ffi::Ray> for Ray {
+    #[inline]
+    fn from(r: ffi::Ray) -> Ray {
+        Ray {
+            position: r.position.into(),
+            direction: r.direction.into(),
+        }
+    }
+}
+
+#[derive(Debug, Copy, Clone)]
+pub struct RayHitInfo {
+    pub hit: bool,
+    pub distance: f32,
+    pub position: Vector3,
+    pub normal: Vector3,
+}
+
+impl From<ffi::RayHitInfo> for RayHitInfo {
+    #[inline]
+    fn from(r: ffi::RayHitInfo) -> RayHitInfo {
+        RayHitInfo {
+            hit: r.hit,
+            distance: r.distance,
+            position: r.position.into(),
+            normal: r.normal.into(),
+        }
+    }
+}
 
 macro_rules! bitflag_type {
     ($name:ident, $t:ty) => {
@@ -381,6 +517,22 @@ impl From<(u8, u8, u8, u8)> for Color {
     #[inline]
     fn from((r, g, b, a): (u8, u8, u8, u8)) -> Color {
         Color { r, g, b, a }
+    }
+}
+
+/// A convenience function for making a new `Color` from RGB values.
+#[inline]
+pub fn rgb(r: u8, g: u8, b: u8) -> Color {
+    Color {
+        r, g, b, a: 255
+    }
+}
+
+/// A convenience function for making a new `Color` from RGBA values.
+#[inline]
+pub fn rgba(r: u8, g: u8, b: u8, a: u8) -> Color {
+    Color {
+        r, g, b, a
     }
 }
 
@@ -751,7 +903,7 @@ impl RaylibHandle {
     #[inline]
     pub fn begin_mode_2d(&self, camera: Camera2D) {
         unsafe {
-            ffi::BeginMode2D(camera);
+            ffi::BeginMode2D(camera.into());
         }
     }
 
@@ -767,7 +919,7 @@ impl RaylibHandle {
     #[inline]
     pub fn begin_mode_3d(&self, camera: Camera3D) {
         unsafe {
-            ffi::BeginMode3D(camera);
+            ffi::BeginMode3D(camera.into());
         }
     }
 
@@ -799,7 +951,7 @@ impl RaylibHandle {
     #[inline]
     pub fn get_mouse_ray(&self, mouse_position: impl Into<Vector2>, camera: Camera3D) -> Ray {
         unsafe {
-            ffi::GetMouseRay(mouse_position.into().into(), camera)
+            ffi::GetMouseRay(mouse_position.into().into(), camera.into()).into()
         }
     }
 
@@ -807,7 +959,7 @@ impl RaylibHandle {
     #[inline]
     pub fn get_world_to_screen(&self, position: impl Into<Vector3>, camera: Camera3D) -> Vector2 {
         unsafe {
-            ffi::GetWorldToScreen(position.into().into(), camera).into()
+            ffi::GetWorldToScreen(position.into().into(), camera.into()).into()
         }
     }
 
@@ -815,7 +967,7 @@ impl RaylibHandle {
     #[inline]
     pub fn get_camera_matrix(&self, camera: Camera3D) -> Matrix {
         unsafe {
-            ffi::GetCameraMatrix(camera).into()
+            ffi::GetCameraMatrix(camera.into()).into()
         }
     }
 
@@ -1327,7 +1479,7 @@ impl RaylibHandle {
     #[inline]
     pub fn set_camera_mode(&self, camera: Camera3D, mode: CameraMode) {
         unsafe {
-            ffi::SetCameraMode(camera, mode as i32);
+            ffi::SetCameraMode(camera.into(), mode as i32);
         }
     }
 
@@ -1335,7 +1487,9 @@ impl RaylibHandle {
     #[inline]
     pub fn update_camera(&self, camera: &mut Camera3D) {
         unsafe {
-            ffi::UpdateCamera(camera);
+            let mut fficam: ffi::Camera3D = (*camera).into();
+            ffi::UpdateCamera(&mut fficam);
+            *camera = fficam.into();
         }
     }
 
@@ -2341,7 +2495,7 @@ impl RaylibHandle {
     #[inline]
     pub fn draw_ray(&self, ray: Ray, color: impl Into<Color>) {
         unsafe {
-            ffi::DrawRay(ray, color.into().into());
+            ffi::DrawRay(ray.into(), color.into().into());
         }
     }
 
@@ -2402,7 +2556,7 @@ impl RaylibHandle {
     #[inline]
     pub fn mesh_bounding_box(&self, mesh: &Mesh) -> BoundingBox {
         unsafe {
-            ffi::MeshBoundingBox(mesh.0)
+            ffi::MeshBoundingBox(mesh.0).into()
         }
     }
 
@@ -2545,7 +2699,7 @@ impl RaylibHandle {
     #[inline]
     pub fn draw_bounding_box(&self, bbox: BoundingBox, color: impl Into<Color>) {
         unsafe {
-            ffi::DrawBoundingBox(bbox, color.into().into());
+            ffi::DrawBoundingBox(bbox.into(), color.into().into());
         }
     }
 
@@ -2553,7 +2707,7 @@ impl RaylibHandle {
     #[inline]
     pub fn draw_billboard(&self, camera: Camera3D, texture: &Texture2D, center: impl Into<Vector3>, size: f32, tint: impl Into<Color>) {
         unsafe {
-            ffi::DrawBillboard(camera, texture.0, center.into().into(), size, tint.into().into());
+            ffi::DrawBillboard(camera.into(), texture.0, center.into().into(), size, tint.into().into());
         }
     }
 
@@ -2561,7 +2715,7 @@ impl RaylibHandle {
     #[inline]
     pub fn draw_billboard_rec(&self, camera: Camera3D, texture: &Texture2D, source_rec: Rectangle, center: impl Into<Vector3>, size: f32, tint: impl Into<Color>) {
         unsafe {
-            ffi::DrawBillboardRec(camera, texture.0, source_rec, center.into().into(), size, tint.into().into());
+            ffi::DrawBillboardRec(camera.into(), texture.0, source_rec, center.into().into(), size, tint.into().into());
         }
     }
 
@@ -2577,7 +2731,7 @@ impl RaylibHandle {
     #[inline]
     pub fn check_collision_boxes(&self, box1: BoundingBox, box2: BoundingBox) -> bool {
         unsafe {
-            ffi::CheckCollisionBoxes(box1, box2)
+            ffi::CheckCollisionBoxes(box1.into(), box2.into())
         }
     }
 
@@ -2585,7 +2739,7 @@ impl RaylibHandle {
     #[inline]
     pub fn check_collision_box_sphere(&self, bbox: BoundingBox, center_sphere: impl Into<Vector3>, radius_sphere: f32) -> bool {
         unsafe {
-            ffi::CheckCollisionBoxSphere(bbox, center_sphere.into().into(), radius_sphere)
+            ffi::CheckCollisionBoxSphere(bbox.into(), center_sphere.into().into(), radius_sphere)
         }
     }
 
@@ -2593,7 +2747,7 @@ impl RaylibHandle {
     #[inline]
     pub fn check_collision_ray_sphere(&self, ray: Ray, sphere_position: impl Into<Vector3>, sphere_radius: f32) -> bool {
         unsafe {
-            ffi::CheckCollisionRaySphere(ray, sphere_position.into().into(), sphere_radius)
+            ffi::CheckCollisionRaySphere(ray.into(), sphere_position.into().into(), sphere_radius)
         }
     }
 
@@ -2602,7 +2756,7 @@ impl RaylibHandle {
     pub fn check_collision_ray_sphere_ex(&self, ray: Ray, sphere_position: impl Into<Vector3>, sphere_radius: f32) -> Option<Vector3> {
         unsafe {
             let mut col_point = ffi::Vector3 { x: 0.0, y: 0.0, z: 0.0 };
-            let collision = ffi::CheckCollisionRaySphereEx(ray, sphere_position.into().into(), sphere_radius, &mut col_point);
+            let collision = ffi::CheckCollisionRaySphereEx(ray.into(), sphere_position.into().into(), sphere_radius, &mut col_point);
             if collision {
                 Some(col_point.into())
             }
@@ -2616,7 +2770,7 @@ impl RaylibHandle {
     #[inline]
     pub fn check_collision_ray_box(&self, ray: Ray, bbox: BoundingBox) -> bool {
         unsafe {
-            ffi::CheckCollisionRayBox(ray, bbox)
+            ffi::CheckCollisionRayBox(ray.into(), bbox.into())
         }
     }
 
@@ -2624,7 +2778,7 @@ impl RaylibHandle {
     #[inline]
     pub fn get_collision_ray_model(&self, ray: Ray, model: &Model) -> RayHitInfo {
         unsafe {
-            ffi::GetCollisionRayModel(ray, &mut { model.0 })
+            ffi::GetCollisionRayModel(ray.into(), &mut { model.0 }).into()
         }
     }
 
@@ -2632,7 +2786,7 @@ impl RaylibHandle {
     #[inline]
     pub fn get_collision_ray_triangle(&self, ray: Ray, p1: impl Into<Vector3>, p2: impl Into<Vector3>, p3: impl Into<Vector3>) -> RayHitInfo {
         unsafe {
-            ffi::GetCollisionRayTriangle(ray, p1.into().into(), p2.into().into(), p3.into().into())
+            ffi::GetCollisionRayTriangle(ray.into(), p1.into().into(), p2.into().into(), p3.into().into()).into()
         }
     }
 
@@ -2640,7 +2794,7 @@ impl RaylibHandle {
     #[inline]
     pub fn get_collision_ray_ground(&self, ray: Ray, ground_height: f32) -> RayHitInfo {
         unsafe {
-            ffi::GetCollisionRayGround(ray, ground_height)
+            ffi::GetCollisionRayGround(ray.into(), ground_height).into()
         }
     }
 
@@ -2853,7 +3007,9 @@ impl RaylibHandle {
     #[inline]
     pub fn update_vr_tracking(&self, camera: &mut Camera3D) {
         unsafe {
-            ffi::UpdateVrTracking(camera);
+            let mut fficam: ffi::Camera3D = (*camera).into();
+            ffi::UpdateVrTracking(&mut fficam);
+            *camera = fficam.into();
         }
     }
 
