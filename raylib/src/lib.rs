@@ -67,6 +67,7 @@ use lazy_static::lazy_static;
 
 mod raiiwrap;
 mod raymath;
+pub mod prelude;
 pub mod ease;
 
 use raylib_sys::ffi;
