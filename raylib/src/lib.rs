@@ -22,7 +22,7 @@ Permission is granted to anyone to use this software for any purpose, including 
 //! 
 //! For more control over the game window, the [`init`] function will return a [`RaylibBuilder`] which allows for tweaking various settings such as VSync, anti-aliasing, fullscreen, and so on. Calling [`RaylibBuilder::build`] will then provide a [`RaylibHandle`].
 //! 
-//! Some useful constants can be found in the [`consts`] module. In most cases you will probably want to `use raylib::consts::*;`.
+//! Some useful constants can be found in the [`consts`] module, which is also re-exported in the [`prelude`] module. In most cases you will probably want to `use raylib::prelude::*;` to make your experience more smooth.
 //! 
 //! [`init_window`]: fn.init_window.html
 //! [`init`]: fn.init.html
@@ -30,14 +30,14 @@ Permission is granted to anyone to use this software for any purpose, including 
 //! [`RaylibBuilder`]: struct.RaylibBuilder.html
 //! [`RaylibBuilder::build`]: struct.RaylibBuilder.html#method.build
 //! [`consts`]: consts/index.html
+//! [`prelude`]: prelude/index.html
 //! 
 //! # Examples
 //! 
 //! The classic "Hello, world":
 //! 
 //! ```
-//! use raylib::consts::*;
-//! use raylib::Color;
+//! use raylib::prelude::*;
 //! 
 //! fn main() {
 //!     let rl = raylib::init()
