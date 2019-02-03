@@ -9,6 +9,8 @@
   - Changed several key and gamepad functions to use `u32`, making it more ergonomic with key/gamepad constants.
   - Added optional `prelude` module for conveniently bringing in all the common types and definitions.
 - Fixed unnecessary `&mut` in `load_image_ex` and `draw_poly_ex`.
+- Fixed linking on MSVC toolchains by including `user32`.
+- Prevent `RaylibHandle` from being manually constructed. Fixes a safety soundness hole.
 
 ## 0.9.1
 
