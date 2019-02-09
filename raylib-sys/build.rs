@@ -24,6 +24,7 @@ fn main() {
         println!("cargo:rustc-link-lib=X11");
     }
     if cfg!(target_os = "macos") {
+        println!("cargo:rustc-link-search=native=/usr/local/lib");
         println!("cargo:rustc-link-lib=framework=OpenGL");
         println!("cargo:rustc-link-lib=framework=Cocoa");
         println!("cargo:rustc-link-lib=framework=IOKit");

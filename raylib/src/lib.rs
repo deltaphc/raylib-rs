@@ -63,7 +63,6 @@ Permission is granted to anyone to use this software for any purpose, including 
 
 use std::sync::atomic::{AtomicBool, ATOMIC_BOOL_INIT, Ordering};
 use std::ffi::{CString, CStr};
-use std::marker::PhantomData;
 use lazy_static::lazy_static;
 
 mod raiiwrap;
@@ -699,9 +698,7 @@ pub fn trace_log(msg_type: Log, text: &str) {
 /// [`init_window`]: fn.init_window.html
 /// [`RaylibBuilder`]: struct.RaylibBuilder.html
 /// [`init`]: fn.init.html
-pub struct RaylibHandle {
-    _prevent_manual_construct: PhantomData<()>
-}
+pub struct RaylibHandle(()); // inner field is private, preventing manual construction
 
 /// Creates a `RaylibBuilder` for choosing window options before initialization.
 pub fn init() -> RaylibBuilder {
@@ -728,7 +725,7 @@ pub fn init_window(width: i32, height: i32, title: &str) -> RaylibHandle {
             ffi::InitWindow(width, height, c_title.as_ptr());
         }
         IS_INITIALIZED.store(true, Ordering::Relaxed);
-        RaylibHandle { _prevent_manual_construct: PhantomData }
+        RaylibHandle(())
     }
 }
 
