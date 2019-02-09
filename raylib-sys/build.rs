@@ -20,6 +20,7 @@ fn main() {
         println!("cargo:rustc-link-lib=dylib=user32");
     }
     if cfg!(target_os = "linux") {
+        println!("cargo:rustc-link-search=/usr/local/lib");
         println!("cargo:rustc-link-lib=X11");
     }
     if cfg!(target_os = "macos") {
