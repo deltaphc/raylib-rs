@@ -226,10 +226,10 @@ impl From<ffi::RayHitInfo> for RayHitInfo {
 }
 
 macro_rules! bitflag_type {
-    ($name:ident, $t:ty) => {
+    ($vis:vis struct $name:ident($inner_vis:vis $t:ty);) => {
         #[repr(C)]
         #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-        pub struct $name(pub $t);
+        $vis struct $name($inner_vis $t);
 
         impl std::ops::BitOr<$name> for $name {
             type Output = Self;
@@ -261,17 +261,17 @@ macro_rules! bitflag_type {
 }
 
 macro_rules! enum_from_i32 {
-    ($name:ident: $repr:ident { $($variant:ident = $value:path, )* }) => {
-        #[repr($repr)]
+    ($vis:vis enum $name:ident { $($variant:ident = $value:path, )* }) => {
+        #[repr(u32)]
         #[derive(Debug, Copy, Clone, PartialEq, Eq)]
-        pub enum $name {
+        $vis enum $name {
             $($variant = $value,)*
         }
 
         impl From<i32> for $name {
             #[inline]
             fn from(format: i32) -> $name {
-                match format as $repr {
+                match format as u32 {
                     $($value => $name::$variant,)*
                     _ => panic!("Invalid integer {} passed to {}::from(i32)", format, stringify!($name)),
                 }
@@ -302,7 +302,7 @@ macro_rules! impl_bidirectional_from {
     };
 }
 
-bitflag_type!(Log, u32);
+bitflag_type! { pub struct Log(pub u32); }
 impl Log {
     pub const INFO: Log = Log(ffi::LOG_INFO);
     pub const WARNING: Log = Log(ffi::LOG_WARNING);
@@ -311,7 +311,7 @@ impl Log {
     pub const OTHER: Log = Log(ffi::LOG_OTHER);
 }
 
-bitflag_type!(Gesture, u32);
+bitflag_type! { pub struct Gesture(pub u32); }
 impl Gesture {
     pub const NONE: Gesture = Gesture(ffi::GESTURE_NONE);
     pub const TAP: Gesture = Gesture(ffi::GESTURE_TAP);
@@ -327,7 +327,7 @@ impl Gesture {
 }
 
 enum_from_i32! {
-    ShaderLoc: u32 {
+    pub enum ShaderLoc {
         VertexPosition = ffi::LOC_VERTEX_POSITION,
         VertexTexCoord01 = ffi::LOC_VERTEX_TEXCOORD01,
         VertexTexCoord02 = ffi::LOC_VERTEX_TEXCOORD02,
@@ -357,7 +357,7 @@ enum_from_i32! {
 }
 
 enum_from_i32! {
-    Texmap: u32 {
+    pub enum Texmap {
         Albedo = ffi::MAP_ALBEDO,
         Metalness = ffi::MAP_METALNESS,
         Normal = ffi::MAP_NORMAL,
@@ -373,7 +373,7 @@ enum_from_i32! {
 }
 
 enum_from_i32! {
-    PixelFormat: u32 {
+    pub enum PixelFormat {
         UncompressedGrayscale = ffi::UNCOMPRESSED_GRAYSCALE,
         UncompressedGrayAlpha = ffi::UNCOMPRESSED_GRAY_ALPHA,
         UncompressedR5G6B5 = ffi::UNCOMPRESSED_R5G6B5,
@@ -399,7 +399,7 @@ enum_from_i32! {
 }
 
 enum_from_i32! {
-    TextureFilter: u32 {
+    pub enum TextureFilter {
         Point = ffi::FILTER_POINT,
         Bilinear = ffi::FILTER_BILINEAR,
         Trilinear = ffi::FILTER_TRILINEAR,
@@ -410,7 +410,7 @@ enum_from_i32! {
 }
 
 enum_from_i32! {
-    TextureWrap: u32 {
+    pub enum TextureWrap {
         Repeat = ffi::WRAP_REPEAT,
         Clamp = ffi::WRAP_CLAMP,
         Mirror = ffi::WRAP_MIRROR,
@@ -418,7 +418,7 @@ enum_from_i32! {
 }
 
 enum_from_i32! {
-    BlendMode: u32 {
+    pub enum BlendMode {
         Alpha = ffi::BLEND_ALPHA,
         Additive = ffi::BLEND_ADDITIVE,
         Multiplied = ffi::BLEND_MULTIPLIED,
@@ -426,7 +426,7 @@ enum_from_i32! {
 }
 
 enum_from_i32! {
-    CameraMode: u32 {
+    pub enum CameraMode {
         Custom = ffi::CAMERA_CUSTOM,
         Free = ffi::CAMERA_FREE,
         Orbital = ffi::CAMERA_ORBITAL,
@@ -436,14 +436,14 @@ enum_from_i32! {
 }
 
 enum_from_i32! {
-    CameraType: u32 {
+    pub enum CameraType {
         Perspective = ffi::CAMERA_PERSPECTIVE,
         Orthographic = ffi::CAMERA_ORTHOGRAPHIC,
     }
 }
 
 enum_from_i32! {
-    VrDevice: u32 {
+    pub enum VrDevice {
         Default = ffi::HMD_DEFAULT_DEVICE,
         OculusRiftDK2 = ffi::HMD_OCULUS_RIFT_DK2,
         OculusRiftCV1 = ffi::HMD_OCULUS_RIFT_CV1,
@@ -463,7 +463,7 @@ impl_bidirectional_from!(Matrix, ffi::Matrix,
     m3, m7, m11, m15);
 
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub struct Color {
     pub r: u8,
     pub g: u8,
