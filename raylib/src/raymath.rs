@@ -15,7 +15,7 @@ Permission is granted to anyone to use this software for any purpose, including 
 */
 
 use std::f32::consts::PI;
-use std::ops::{Add, AddAssign, Sub, SubAssign, Mul, MulAssign, Div, DivAssign, Neg};
+use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssign};
 
 #[repr(C)]
 #[derive(Debug, Copy, Clone, PartialEq)]
@@ -50,18 +50,12 @@ impl Vector2 {
 
     /// Returns a new `Vector2` with both components set to zero.
     pub fn zero() -> Vector2 {
-        Vector2 {
-            x: 0.0,
-            y: 0.0,
-        }
+        Vector2 { x: 0.0, y: 0.0 }
     }
 
     /// Returns a new `Vector2` with both components set to one.
     pub fn one() -> Vector2 {
-        Vector2 {
-            x: 1.0,
-            y: 1.0,
-        }
+        Vector2 { x: 1.0, y: 1.0 }
     }
 
     /// Calculates the vector length.
@@ -82,7 +76,9 @@ impl Vector2 {
     /// Calculates the angle towards vector `v` in radians.
     pub fn angle_to(&self, v: Vector2) -> f32 {
         let mut result = (v.y - self.y).atan2(v.x - self.x);
-        if result < 0.0 { result += 2.0 * PI; }
+        if result < 0.0 {
+            result += 2.0 * PI;
+        }
         result
     }
 
@@ -296,15 +292,27 @@ impl Vector3 {
     /// Returns a new `Vector3` perpendicular to `self`.
     pub fn perpendicular(&self) -> Vector3 {
         let mut min = self.x.abs();
-        let mut cardinal_axis = Vector3 { x: 1.0, y: 0.0, z: 0.0 };
+        let mut cardinal_axis = Vector3 {
+            x: 1.0,
+            y: 0.0,
+            z: 0.0,
+        };
 
         if self.y.abs() < min {
             min = self.y.abs();
-            cardinal_axis = Vector3 { x: 0.0, y: 1.0, z: 0.0 };
+            cardinal_axis = Vector3 {
+                x: 0.0,
+                y: 1.0,
+                z: 0.0,
+            };
         }
 
         if self.z.abs() < min {
-            cardinal_axis = Vector3 { x: 0.0, y: 0.0, z: 1.0 };
+            cardinal_axis = Vector3 {
+                x: 0.0,
+                y: 0.0,
+                z: 1.0,
+            };
         }
 
         self.cross(cardinal_axis)
@@ -346,7 +354,9 @@ impl Vector3 {
     /// Returns a new `Vector3` with normalized components from the current vector.
     pub fn normalized(&self) -> Vector3 {
         let mut length = self.length();
-        if length == 0.0 { length = 1.0; }
+        if length == 0.0 {
+            length = 1.0;
+        }
         let ilength = 1.0 / length;
 
         Vector3 {
@@ -385,15 +395,15 @@ impl Vector3 {
     /// Returns a new `Vector3` with components rotated by Quaternion `q`.
     pub fn rotate_by(&self, q: Quaternion) -> Vector3 {
         Vector3 {
-            x: self.x * (q.x * q.x + q.w * q.w - q.y * q.y - q.z * q.z) +
-               self.y * (2.0 * q.x * q.y - 2.0 * q.w * q.z) +
-               self.z * (2.0 * q.x * q.z + 2.0 * q.w * q.y),
-            y: self.x * (2.0 * q.w * q.z + 2.0 * q.x * q.y) +
-               self.y * (q.w * q.w - q.x * q.x + q.y * q.y - q.z * q.z) +
-               self.z * (-2.0 * q.w * q.x + 2.0 * q.y * q.z),
-            z: self.x * (-2.0 * q.w * q.y + 2.0 * q.x * q.z) +
-               self.y * (2.0 * q.w * q.x + 2.0 * q.y * q.z) +
-               self.z * (q.w * q.w - q.x * q.x - q.y * q.y + q.z * q.z),
+            x: self.x * (q.x * q.x + q.w * q.w - q.y * q.y - q.z * q.z)
+                + self.y * (2.0 * q.x * q.y - 2.0 * q.w * q.z)
+                + self.z * (2.0 * q.x * q.z + 2.0 * q.w * q.y),
+            y: self.x * (2.0 * q.w * q.z + 2.0 * q.x * q.y)
+                + self.y * (q.w * q.w - q.x * q.x + q.y * q.y - q.z * q.z)
+                + self.z * (-2.0 * q.w * q.x + 2.0 * q.y * q.z),
+            z: self.x * (-2.0 * q.w * q.y + 2.0 * q.x * q.z)
+                + self.y * (2.0 * q.w * q.x + 2.0 * q.y * q.z)
+                + self.z * (q.w * q.w - q.x * q.x - q.y * q.y + q.z * q.z),
         }
     }
 
@@ -450,7 +460,7 @@ impl Vector3 {
         let d20 = v2.dot(v0);
         let d21 = v2.dot(v1);
         let denom = d00 * d11 - d01 * d01;
-        
+
         let y = (d11 * d20 - d01 * d21) / denom;
         let z = (d00 * d21 - d01 * d20) / denom;
         Vector3 {
@@ -654,7 +664,8 @@ impl Quaternion {
             y: cross.y,
             z: cross.y,
             w: 1.0 + from.dot(to),
-        }.normalized()
+        }
+        .normalized()
     }
 
     /// Returns a quaternion for a given rotation matrix.
@@ -671,9 +682,10 @@ impl Quaternion {
                 y: (mat.m8 - mat.m2) * inv_s,
                 z: (mat.m1 - mat.m4) * inv_s,
             }
-        }
-        else {
-            let m00 = mat.m0; let m11 = mat.m5; let m22 = mat.m10;
+        } else {
+            let m00 = mat.m0;
+            let m11 = mat.m5;
+            let m22 = mat.m10;
 
             if m00 > m11 && m00 > m22 {
                 let s = (1.0 + m00 - m11 - m22).sqrt() * 2.0;
@@ -685,8 +697,7 @@ impl Quaternion {
                     y: (mat.m4 + mat.m1) * inv_s,
                     z: (mat.m8 + mat.m2) * inv_s,
                 }
-            }
-            else if m11 > m22 {
+            } else if m11 > m22 {
                 let s = (1.0 + m11 - m00 - m22).sqrt() * 2.0;
                 let inv_s = 1.0 / s;
 
@@ -696,8 +707,7 @@ impl Quaternion {
                     y: s * 0.25,
                     z: (mat.m9 + mat.m6) * inv_s,
                 }
-            }
-            else {
+            } else {
                 let s = (1.0 + m22 - m00 - m11).sqrt() * 2.0;
                 let inv_s = 1.0 / s;
 
@@ -713,7 +723,10 @@ impl Quaternion {
 
     /// Returns a rotation matrix for the current quaternion.
     pub fn to_matrix(&self) -> Matrix {
-        let x = self.x; let y = self.y; let z = self.z; let w = self.w;
+        let x = self.x;
+        let y = self.y;
+        let z = self.z;
+        let w = self.w;
 
         let x2 = x + x;
         let y2 = y + y;
@@ -775,7 +788,7 @@ impl Quaternion {
     pub fn to_euler(&self) -> Vector3 {
         // roll (x-axis rotation)
         let x0 = 2.0 * (self.w * self.x + self.y * self.z);
-        let x1 = 1.0 - 2.0*(self.x * self.x + self.y * self.y);
+        let x1 = 1.0 - 2.0 * (self.x * self.x + self.y * self.y);
 
         // pitch (y-axis rotation)
         let mut y0 = 2.0 * (self.w * self.y - self.z * self.x);
@@ -799,16 +812,18 @@ impl Quaternion {
         let mut axis = axis;
         let mut angle = angle;
 
-        if axis.length() != 0.0 { angle *= 0.5; }
+        if axis.length() != 0.0 {
+            angle *= 0.5;
+        }
 
         axis.normalize();
 
         let sinres = angle.sin();
         let cosres = angle.cos();
 
-        result.x = axis.x*sinres;
-        result.y = axis.y*sinres;
-        result.z = axis.z*sinres;
+        result.x = axis.x * sinres;
+        result.y = axis.y * sinres;
+        result.z = axis.z * sinres;
         result.w = cosres;
         result.normalized()
     }
@@ -816,7 +831,9 @@ impl Quaternion {
     /// Returns a 2-tuple containing the axis (`Vector3`) and angle (`f32` in radians) for the current quaternion.
     pub fn to_axis_angle(&self) -> (Vector3, f32) {
         let mut q = *self;
-        if q.w.abs() > 1.0 { q = q.normalized(); }
+        if q.w.abs() > 1.0 {
+            q = q.normalized();
+        }
 
         let mut res_axis = Vector3::zero();
         let res_angle = 2.0 * q.w.acos();
@@ -826,8 +843,7 @@ impl Quaternion {
             res_axis.x = q.x / den;
             res_axis.y = q.y / den;
             res_axis.z = q.z / den;
-        }
-        else {
+        } else {
             // This occurs when the angle is zero.
             // Not a problem: just set an arbitrary normalized axis.
             res_axis.x = 1.0;
@@ -844,7 +860,9 @@ impl Quaternion {
     /// Returns a normalized version of the current quaternion.
     pub fn normalized(&self) -> Quaternion {
         let mut length = self.length();
-        if length == 0.0 { length = 1.0; }
+        if length == 0.0 {
+            length = 1.0;
+        }
         let ilength = 1.0 / length;
 
         Quaternion {
@@ -890,9 +908,11 @@ impl Quaternion {
     pub fn slerp(&self, q: Quaternion, amount: f32) -> Quaternion {
         let cos_half_theta = self.x * q.x + self.y * q.y + self.z * q.z + self.w * q.w;
 
-        if cos_half_theta.abs() >= 1.0 { *self }
-        else if cos_half_theta > 0.95 { self.nlerp(q, amount) }
-        else {
+        if cos_half_theta.abs() >= 1.0 {
+            *self
+        } else if cos_half_theta > 0.95 {
+            self.nlerp(q, amount)
+        } else {
             let half_theta = cos_half_theta.acos();
             let sin_half_theta = (1.0 - cos_half_theta * cos_half_theta).sqrt();
 
@@ -903,8 +923,7 @@ impl Quaternion {
                     z: (self.z * 0.5 + q.z * 0.5),
                     w: (self.w * 0.5 + q.w * 0.5),
                 }
-            }
-            else {
+            } else {
                 let ratio_a = ((1.0 - amount) * half_theta).sin() / sin_half_theta;
                 let ratio_b = (amount * half_theta).sin() / sin_half_theta;
 
@@ -939,8 +958,14 @@ impl From<(f32, f32, f32, f32)> for Quaternion {
 impl Mul for Quaternion {
     type Output = Quaternion;
     fn mul(self, q: Quaternion) -> Quaternion {
-        let qax = self.x; let qay = self.y; let qaz = self.z; let qaw = self.w;
-        let qbx = q.x; let qby = q.y; let qbz = q.z; let qbw = q.w;
+        let qax = self.x;
+        let qay = self.y;
+        let qaz = self.z;
+        let qaw = self.w;
+        let qbx = q.x;
+        let qby = q.y;
+        let qbz = q.z;
+        let qbw = q.w;
 
         Quaternion {
             x: (qax * qbw) + (qaw * qbx) + (qay * qbz) - (qaz * qby),
@@ -982,20 +1007,44 @@ impl Matrix {
     /// Returns the identity matrix.
     pub fn identity() -> Matrix {
         Matrix {
-            m0: 1.0, m4: 0.0, m8: 0.0, m12: 0.0,
-            m1: 0.0, m5: 1.0, m9: 0.0, m13: 0.0,
-            m2: 0.0, m6: 0.0, m10: 1.0, m14: 0.0,
-            m3: 0.0, m7: 0.0, m11: 0.0, m15: 1.0,
+            m0: 1.0,
+            m4: 0.0,
+            m8: 0.0,
+            m12: 0.0,
+            m1: 0.0,
+            m5: 1.0,
+            m9: 0.0,
+            m13: 0.0,
+            m2: 0.0,
+            m6: 0.0,
+            m10: 1.0,
+            m14: 0.0,
+            m3: 0.0,
+            m7: 0.0,
+            m11: 0.0,
+            m15: 1.0,
         }
     }
 
     /// Returns a translation matrix.
     pub fn translate(x: f32, y: f32, z: f32) -> Matrix {
         Matrix {
-            m0: 1.0, m4: 0.0, m8: 0.0, m12: x,
-            m1: 0.0, m5: 1.0, m9: 0.0, m13: y,
-            m2: 0.0, m6: 0.0, m10: 1.0, m14: z,
-            m3: 0.0, m7: 0.0, m11: 0.0, m15: 1.0,
+            m0: 1.0,
+            m4: 0.0,
+            m8: 0.0,
+            m12: x,
+            m1: 0.0,
+            m5: 1.0,
+            m9: 0.0,
+            m13: y,
+            m2: 0.0,
+            m6: 0.0,
+            m10: 1.0,
+            m14: z,
+            m3: 0.0,
+            m7: 0.0,
+            m11: 0.0,
+            m15: 1.0,
         }
     }
 
@@ -1085,10 +1134,22 @@ impl Matrix {
     /// Returns a scaling matrix.
     pub fn scale(x: f32, y: f32, z: f32) -> Matrix {
         Matrix {
-            m0: x, m4: 0.0, m8: 0.0, m12: 0.0,
-            m1: 0.0, m5: y, m9: 0.0, m13: 0.0,
-            m2: 0.0, m6: 0.0, m10: z, m14: 0.0,
-            m3: 0.0, m7: 0.0, m11: 0.0, m15: 1.0,
+            m0: x,
+            m4: 0.0,
+            m8: 0.0,
+            m12: 0.0,
+            m1: 0.0,
+            m5: y,
+            m9: 0.0,
+            m13: 0.0,
+            m2: 0.0,
+            m6: 0.0,
+            m10: z,
+            m14: 0.0,
+            m3: 0.0,
+            m7: 0.0,
+            m11: 0.0,
+            m15: 1.0,
         }
     }
 
@@ -1116,7 +1177,7 @@ impl Matrix {
 
             m12: 0.0,
             m13: 0.0,
-            m14: -(far * near * 2.0)/fne,
+            m14: -(far * near * 2.0) / fne,
             m15: 0.0,
         }
     }
@@ -1177,22 +1238,51 @@ impl Matrix {
             m13: eye.y,
             m14: eye.z,
             m15: 1.0,
-        }.inverted()
+        }
+        .inverted()
     }
 
     /// Calculates the determinant of the current matrix.
     pub fn determinant(&self) -> f32 {
-        let a00 = self.m0; let a01 = self.m1; let a02 = self.m2; let a03 = self.m3;
-        let a10 = self.m4; let a11 = self.m5; let a12 = self.m6; let a13 = self.m7;
-        let a20 = self.m8; let a21 = self.m9; let a22 = self.m10; let a23 = self.m11;
-        let a30 = self.m12; let a31 = self.m13; let a32 = self.m14; let a33 = self.m15;
+        let a00 = self.m0;
+        let a01 = self.m1;
+        let a02 = self.m2;
+        let a03 = self.m3;
+        let a10 = self.m4;
+        let a11 = self.m5;
+        let a12 = self.m6;
+        let a13 = self.m7;
+        let a20 = self.m8;
+        let a21 = self.m9;
+        let a22 = self.m10;
+        let a23 = self.m11;
+        let a30 = self.m12;
+        let a31 = self.m13;
+        let a32 = self.m14;
+        let a33 = self.m15;
 
-        a30*a21*a12*a03 - a20*a31*a12*a03 - a30*a11*a22*a03 + a10*a31*a22*a03 +
-        a20*a11*a32*a03 - a10*a21*a32*a03 - a30*a21*a02*a13 + a20*a31*a02*a13 +
-        a30*a01*a22*a13 - a00*a31*a22*a13 - a20*a01*a32*a13 + a00*a21*a32*a13 +
-        a30*a11*a02*a23 - a10*a31*a02*a23 - a30*a01*a12*a23 + a00*a31*a12*a23 +
-        a10*a01*a32*a23 - a00*a11*a32*a23 - a20*a11*a02*a33 + a10*a21*a02*a33 +
-        a20*a01*a12*a33 - a00*a21*a12*a33 - a10*a01*a22*a33 + a00*a11*a22*a33
+        a30 * a21 * a12 * a03 - a20 * a31 * a12 * a03 - a30 * a11 * a22 * a03
+            + a10 * a31 * a22 * a03
+            + a20 * a11 * a32 * a03
+            - a10 * a21 * a32 * a03
+            - a30 * a21 * a02 * a13
+            + a20 * a31 * a02 * a13
+            + a30 * a01 * a22 * a13
+            - a00 * a31 * a22 * a13
+            - a20 * a01 * a32 * a13
+            + a00 * a21 * a32 * a13
+            + a30 * a11 * a02 * a23
+            - a10 * a31 * a02 * a23
+            - a30 * a01 * a12 * a23
+            + a00 * a31 * a12 * a23
+            + a10 * a01 * a32 * a23
+            - a00 * a11 * a32 * a23
+            - a20 * a11 * a02 * a33
+            + a10 * a21 * a02 * a33
+            + a20 * a01 * a12 * a33
+            - a00 * a21 * a12 * a33
+            - a10 * a01 * a22 * a33
+            + a00 * a11 * a22 * a33
     }
 
     /// Calculates the trace of the matrix (sum of the values along the diagonal).
@@ -1224,10 +1314,22 @@ impl Matrix {
 
     /// Returns a new `Matrix` inverted from the current one.
     pub fn inverted(&self) -> Matrix {
-        let a00 = self.m0; let a01 = self.m1; let a02 = self.m2; let a03 = self.m3;
-        let a10 = self.m4; let a11 = self.m5; let a12 = self.m6; let a13 = self.m7;
-        let a20 = self.m8; let a21 = self.m9; let a22 = self.m10; let a23 = self.m11;
-        let a30 = self.m12; let a31 = self.m13; let a32 = self.m14; let a33 = self.m15;
+        let a00 = self.m0;
+        let a01 = self.m1;
+        let a02 = self.m2;
+        let a03 = self.m3;
+        let a10 = self.m4;
+        let a11 = self.m5;
+        let a12 = self.m6;
+        let a13 = self.m7;
+        let a20 = self.m8;
+        let a21 = self.m9;
+        let a22 = self.m10;
+        let a23 = self.m11;
+        let a30 = self.m12;
+        let a31 = self.m13;
+        let a32 = self.m14;
+        let a33 = self.m15;
 
         let b00 = (a00 * a11) - (a01 * a10);
         let b01 = (a00 * a12) - (a02 * a10);
@@ -1242,7 +1344,8 @@ impl Matrix {
         let b10 = (a21 * a33) - (a23 * a31);
         let b11 = (a22 * a33) - (a23 * a32);
 
-        let inv_det = 1.0 / ((b00 * b11) - (b01 * b10) + (b02 * b09) + (b03 * b08) - (b04 * b07) + (b05 * b06));
+        let inv_det = 1.0
+            / ((b00 * b11) - (b01 * b10) + (b02 * b09) + (b03 * b08) - (b04 * b07) + (b05 * b06));
 
         Matrix {
             m0: ((a11 * b11) - (a12 * b10) + (a13 * b09)) * inv_det,
@@ -1289,10 +1392,10 @@ impl Matrix {
 
     /// Returns a 16-length `f32` array containing the current matrix data.
     pub fn to_array(&self) -> [f32; 16] {
-        [self.m0, self.m1, self.m2, self.m3,
-        self.m4, self.m5, self.m6, self.m7,
-        self.m8, self.m9, self.m10, self.m11,
-        self.m12, self.m13, self.m14, self.m15]
+        [
+            self.m0, self.m1, self.m2, self.m3, self.m4, self.m5, self.m6, self.m7, self.m8,
+            self.m9, self.m10, self.m11, self.m12, self.m13, self.m14, self.m15,
+        ]
     }
 }
 

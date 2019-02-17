@@ -9,5 +9,14 @@ repository = "https://github.com/deltaphc/raylib-rs"
 keywords = ["bindings", "raylib", "gamedev", "ffi"]
 categories = ["external-ffi-bindings"]
 edition = "2018"
+build = "build.rs"
 
 [dependencies]
+
+[build-dependencies]
+bindgen = "^0.47"
+pkg-config = "^0.3"
+reqwest = "0.7"
+tar = "0.4"
+flate2 = "0.2"
+cc = "1.0"

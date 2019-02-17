@@ -15,83 +15,93 @@ Permission is granted to anyone to use this software for any purpose, including 
 */
 
 use std::ops::{Deref, DerefMut};
-use raylib_sys::ffi;
 
 macro_rules! impl_wrapper {
-    ($name:ident, $t:ty, $dropfunc:expr, $rawfield:tt) => (
+    ($name:ident, $t:ty, $dropfunc:expr, $rawfield:tt) => {
         impl Drop for $name {
             #[allow(unused_unsafe)]
             fn drop(&mut self) {
-                unsafe { ($dropfunc)(self.$rawfield); }
+                unsafe {
+                    ($dropfunc)(self.$rawfield);
+                }
             }
         }
 
         impl Deref for $name {
             type Target = $t;
             #[inline]
-            fn deref(&self) -> &Self::Target { &self.$rawfield }
+            fn deref(&self) -> &Self::Target {
+                &self.$rawfield
+            }
         }
 
         impl DerefMut for $name {
             #[inline]
-            fn deref_mut(&mut self) -> &mut Self::Target { &mut self.$rawfield }
+            fn deref_mut(&mut self) -> &mut Self::Target {
+                &mut self.$rawfield
+            }
         }
-    )
+    };
 }
 
 macro_rules! make_thin_wrapper {
-    ($name:ident, $t:ty, $dropfunc:expr) => (
+    ($name:ident, $t:ty, $dropfunc:expr) => {
         #[repr(transparent)]
         #[derive(Debug)]
         pub struct $name(pub(crate) $t);
 
         impl_wrapper!($name, $t, $dropfunc, 0);
-    )
+    };
 }
 
-make_thin_wrapper!(Image, ffi::Image, ffi::UnloadImage);
-make_thin_wrapper!(Texture2D, ffi::Texture2D, ffi::UnloadTexture);
-make_thin_wrapper!(RenderTexture2D, ffi::RenderTexture2D, ffi::UnloadRenderTexture);
-make_thin_wrapper!(Font, ffi::Font, ffi::UnloadFont);
-make_thin_wrapper!(Mesh, ffi::Mesh, |mut mesh| ffi::UnloadMesh(&mut mesh));
-make_thin_wrapper!(Shader, ffi::Shader, ffi::UnloadShader);
-make_thin_wrapper!(Material, ffi::Material, ffi::UnloadMaterial);
-make_thin_wrapper!(Model, ffi::Model, ffi::UnloadModel);
-make_thin_wrapper!(Wave, ffi::Wave, ffi::UnloadWave);
-make_thin_wrapper!(Sound, ffi::Sound, ffi::UnloadSound);
-make_thin_wrapper!(Music, ffi::Music, ffi::UnloadMusicStream);
-make_thin_wrapper!(AudioStream, ffi::AudioStream, ffi::CloseAudioStream);
+make_thin_wrapper!(Image, rl::Image, rl::UnloadImage);
+make_thin_wrapper!(Texture2D, rl::Texture2D, rl::UnloadTexture);
+make_thin_wrapper!(
+    RenderTexture2D,
+    rl::RenderTexture2D,
+    rl::UnloadRenderTexture
+);
+make_thin_wrapper!(Font, rl::Font, rl::UnloadFont);
+make_thin_wrapper!(Mesh, rl::Mesh, |mut mesh| rl::UnloadMesh(&mut mesh));
+make_thin_wrapper!(Shader, rl::Shader, rl::UnloadShader);
+make_thin_wrapper!(Material, rl::Material, rl::UnloadMaterial);
+make_thin_wrapper!(Model, rl::Model, rl::UnloadModel);
+make_thin_wrapper!(Wave, rl::Wave, rl::UnloadWave);
+make_thin_wrapper!(Sound, rl::Sound, rl::UnloadSound);
+make_thin_wrapper!(Music, rl::Music, rl::UnloadMusicStream);
+make_thin_wrapper!(AudioStream, rl::AudioStream, rl::CloseAudioStream);
 
 /// An extension trait allowing for safe manipulation of `Font` structs.
 pub trait FontExt {
-    fn from_data(chars: &[ffi::CharInfo], base_size: i32, padding: i32, pack_method: i32) -> Font;
-    fn set_chars(&mut self, chars: &[ffi::CharInfo]);
+    fn from_data(chars: &[rl::CharInfo], base_size: i32, padding: i32, pack_method: i32) -> Font;
+    fn set_chars(&mut self, chars: &[rl::CharInfo]);
     fn set_texture(&mut self, tex: Texture2D);
 }
 
-impl FontExt for ffi::Font {
+impl FontExt for rl::Font {
     /// Returns a new `Font` using provided `CharInfo` data and parameters.
-    fn from_data(chars: &[ffi::CharInfo], base_size: i32, padding: i32, pack_method: i32) -> Font {
+    fn from_data(chars: &[rl::CharInfo], base_size: i32, padding: i32, pack_method: i32) -> Font {
         unsafe {
-            let mut f = std::mem::zeroed::<ffi::Font>();
+            let mut f = std::mem::zeroed::<rl::Font>();
             f.baseSize = base_size;
             f.set_chars(chars);
 
-            let atlas = ffi::GenImageFontAtlas(f.chars, f.baseSize, f.charsCount, padding, pack_method);
-            f.texture = ffi::LoadTextureFromImage(atlas);
-            ffi::UnloadImage(atlas);
+            let atlas =
+                rl::GenImageFontAtlas(f.chars, f.baseSize, f.charsCount, padding, pack_method);
+            f.texture = rl::LoadTextureFromImage(atlas);
+            rl::UnloadImage(atlas);
             Font(f)
         }
     }
 
     /// Sets the character data on the current Font.
-    fn set_chars(&mut self, chars: &[ffi::CharInfo]) {
+    fn set_chars(&mut self, chars: &[rl::CharInfo]) {
         unsafe {
             self.charsCount = chars.len() as i32;
-            let data_size = self.charsCount as usize * std::mem::size_of::<ffi::CharInfo>();
+            let data_size = self.charsCount as usize * std::mem::size_of::<rl::CharInfo>();
             let ci_arr_ptr = libc::malloc(data_size); // raylib frees this data in UnloadFont
-            std::ptr::copy(chars.as_ptr(), ci_arr_ptr as *mut ffi::CharInfo, chars.len());
-            self.chars = ci_arr_ptr as *mut ffi::CharInfo;
+            std::ptr::copy(chars.as_ptr(), ci_arr_ptr as *mut rl::CharInfo, chars.len());
+            self.chars = ci_arr_ptr as *mut rl::CharInfo;
         }
     }
 
@@ -107,7 +117,7 @@ pub trait MaterialMapExt {
     fn set_texture(&mut self, tex: Texture2D);
 }
 
-impl MaterialMapExt for ffi::MaterialMap {
+impl MaterialMapExt for rl::MaterialMap {
     /// Sets the texture on the current MaterialMap, and takes ownership of `tex`.
     fn set_texture(&mut self, tex: Texture2D) {
         self.texture = tex.0;
@@ -120,7 +130,7 @@ pub trait MaterialExt {
     fn set_shader(&mut self, shader: Shader);
 }
 
-impl MaterialExt for ffi::Material {
+impl MaterialExt for rl::Material {
     /// Sets the shader on the current Material, and takes ownership of `shader`.
     fn set_shader(&mut self, shader: Shader) {
         self.shader = shader.0;
@@ -133,7 +143,7 @@ pub trait ModelExt {
     fn set_material(&mut self, material: Material);
 }
 
-impl ModelExt for ffi::Model {
+impl ModelExt for rl::Model {
     /// Sets the material on the current Model and takes ownership of `material`.
     fn set_material(&mut self, material: Material) {
         self.material = material.0;
