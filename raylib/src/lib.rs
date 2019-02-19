@@ -862,9 +862,7 @@ pub fn init_window(width: i32, height: i32, title: &str) -> RaylibHandle {
         panic!("Attempted to initialize raylib-rs more than once");
     } else {
         unsafe {
-            if cfg!(target_arch = "wasm32") {
-                wasm::emscripten_sample_gamepad_data();
-            }
+            sample_gamepad();
 
             let c_title = CString::new(title).unwrap();
             rl::InitWindow(width, height, c_title.as_ptr());
@@ -872,6 +870,14 @@ pub fn init_window(width: i32, height: i32, title: &str) -> RaylibHandle {
         IS_INITIALIZED.store(true, Ordering::Relaxed);
         RaylibHandle(())
     }
+}
+
+#[cfg(not(target_arch = "wasm32"))]
+fn sample_gamepad() {}
+
+#[cfg(target_arch = "wasm32")]
+fn sample_gamepad() {
+    wasm::emscripten_sample_gamepad_data();
 }
 
 impl Drop for RaylibHandle {
