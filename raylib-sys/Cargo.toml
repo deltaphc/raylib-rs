@@ -17,10 +17,5 @@ reqwest = "0.7"
 tar = "0.4"
 flate2 = "0.2"
 cc = "1.0"
+pkg-config = "0.3"
 
-[features]
-default = []
-rglfw = []
-
-[target.'cfg(target_os = "emscripten")'.features]
-default = ["rglfw"]

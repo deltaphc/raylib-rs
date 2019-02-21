@@ -862,6 +862,8 @@ pub fn init_window(width: i32, height: i32, title: &str) -> RaylibHandle {
         panic!("Attempted to initialize raylib-rs more than once");
     } else {
         unsafe {
+            // TODO emscripten complains if you don't sample gamepad before raylib detects it.
+            // fix here remove when raysan fixes it.
             sample_gamepad();
 
             let c_title = CString::new(title).unwrap();
@@ -873,10 +875,10 @@ pub fn init_window(width: i32, height: i32, title: &str) -> RaylibHandle {
 }
 
 #[cfg(not(target_arch = "wasm32"))]
-fn sample_gamepad() {}
+unsafe fn sample_gamepad() {}
 
 #[cfg(target_arch = "wasm32")]
-fn sample_gamepad() {
+unsafe fn sample_gamepad() {
     wasm::emscripten_sample_gamepad_data();
 }
 

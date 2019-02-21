@@ -105,10 +105,6 @@ fn compile_raylib(raylib_src_path: &Path, target: &str, release: bool) -> BuildS
     // NOTE: Some programs like tools could not require audio support
     let _INCLUDE_AUDIO_MODULE = true;
 
-    // Use external GLFW library instead of rglfw module
-    // TODO: Review usage of examples on Linux.
-    let USE_EXTERNAL_GLFW = cfg!(not(feature = "rglfw"));
-
     // Use Wayland display server protocol on Linux desktop
     // by default it uses X11 windowing system
     let mut _USE_WAYLAND_DISPLAY = false;
@@ -142,6 +138,15 @@ fn compile_raylib(raylib_src_path: &Path, target: &str, release: bool) -> BuildS
     } else {
         PlatformOS::Unknown
     };
+
+    // Use external GLFW library instead of rglfw module
+    // TODO replace with a feature once target specific features are merged
+    // https://github.com/rust-lang/cargo/issues/1197
+    let USE_EXTERNAL_GLFW = match PLATFORM_OS {
+        PlatformOS::OSX => false,
+        _ => true
+    };
+
 
     // TODO BUNCH OF ANDROID STUFF IN MAKEFILE
     // MAKEFILE LINE 210
@@ -418,11 +423,16 @@ fn main() {
             println!("cargo:rustc-link-lib=gdi32");
             println!("cargo:rustc-link-lib=user32");
         } else if platform_os == PlatformOS::OSX {
-            -F/System/Library/Frameworks -framework OpenGL  -framework Cocoa -framework IOKit -framework CoreFoundation -framework CoreVideo
-            println!("cargo:rust-link-lib=framework=OpenGL");
-            println!("cargo:rust-link-lib=framework=Cocoa");
-            println!("cargo:rust-link-lib=framework=CoreFoundation");
-            println!("cargo:rust-link-lib=framework=CoreVideo");
+            // On other platforms read raylib.pc with pkg-config
+            fs::write(out_dir.join("raylib.pc"), include_str!("raylib.pc"))
+                .expect("failed to write pkg-config");
+            env::set_var("PKG_CONFIG_PATH", &out_dir);
+            pkg_config::Config::new()
+                .atleast_version(LATEST_RAYLIB_VERSION)
+                .statik(true)
+                .arg(format!("--define-variable=prefix={}", out_dir.display()))
+                .probe("raylib")
+                .unwrap();
         }
         if !bundled_glfw {
             println!("cargo:rustc-link-lib=glfw");
