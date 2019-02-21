@@ -21,8 +21,48 @@ Though this binding tries to stay close to the simple C API, it makes some chang
 **Disclaimer: I created this binding as a way to learn Rust. There may be some things I can do better, or make more ergonomic for users. Feel free to make suggestions!**
 
 # Installation
+Tested on Windows, Mac, Linux (Ubuntu 18.04), and Web (Emscripten).
 
-So far, I have only tested on Windows. Tips on making things work smoothly on all platforms is appreciated.
+Raylib will be downloaded, compiled from source and bundled with your binary.
+
+Bindings will be generated using rust-bindgen. Make sure clang is installed.
+
+## Linux
+Linux uses the system glfw by default.
+
+Install the following (may not be a minimul subset)
+`sudo apt install clang libclang-dev libglfw3-dev`
+
+## MacOS
+Macos bundles rglfw by default. 
+
+Make sure you have the following frameworks installed:
+OpenGL
+Cocoa
+IOKit
+CoreFoundation
+CoreVideo
+
+
+## Web
+Currenlty only emscripten is supported. Emscripten will bundle in glfw if specified.
+
+Targeting web differs depending on what platform you cross compile to. In either case you will need:
+-[emcc](https://emscripten.org/docs/getting_started/downloads.html)
+-[cargo web](https://github.com/koute/cargo-web)
+
+Add the following to your Web.toml
+```
+[target.emscripten]
+# This will enable Emscripten's SDL2 port. Consult Emscripten's documentation
+# for more details.
+link-args = ["-s", "USE_GLFW=3", "-s", "ASSERTIONS=1", "-s",  "ASYNCIFY=1", "--profiling"]
+```
+
+Remember to activate and set the environment variables for
+emscripten.
+
+Currently I've only been able to target webassembly from my mac so good luck.
 
 1. Add the dependency to your `Cargo.toml`:
 
@@ -31,13 +71,7 @@ So far, I have only tested on Windows. Tips on making things work smoothly on al
 raylib = "0.9"
 ```
 
-2. Download raylib 2.0 from https://github.com/raysan5/raylib/releases/tag/2.0.0, and pick the one that matches your Rust toolchain. MSVC with MSVC, MinGW with GNU, 32-bit or 64-bit.
-
-3. Copy `libraylib.a` (for GCC/MinGW) or `raylib.lib` (for MSVC) to the appropriate path in your Rust toolchain.
-   - For rustup/MSVC: `.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\x86_64-pc-windows-msvc\lib`
-   - For rustup/GNU: `.rustup\toolchains\stable-x86_64-pc-windows-gnu\lib\rustlib\x86_64-pc-windows-gnu\lib`
-
-4. Start coding!
+2. 
 
 ```rust
 use raylib::prelude::*;
