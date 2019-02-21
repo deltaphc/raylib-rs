@@ -107,7 +107,7 @@ fn compile_raylib(raylib_src_path: &Path, target: &str, release: bool) -> BuildS
 
     // Use external GLFW library instead of rglfw module
     // TODO: Review usage of examples on Linux.
-    let mut USE_EXTERNAL_GLFW = false;
+    let USE_EXTERNAL_GLFW = cfg!(not(feature = "rglfw"));
 
     // Use Wayland display server protocol on Linux desktop
     // by default it uses X11 windowing system
@@ -155,8 +155,6 @@ fn compile_raylib(raylib_src_path: &Path, target: &str, release: bool) -> BuildS
 
     // raylib prefers clang over cc for building
     if PLATFORM == Platform::Desktop {
-        // for now bundle in glfw
-        USE_EXTERNAL_GLFW = false;
         if PLATFORM_OS == PlatformOS::OSX {
             compiler = Some("clang");
             GLFW_CFLAGS.push("-x");
@@ -181,8 +179,14 @@ fn compile_raylib(raylib_src_path: &Path, target: &str, release: bool) -> BuildS
         "-O1",
         // "-Wall",
         "-std=c11",
-        "-Wno-everything",
+        // "-Wno-everything",
     ]);
+    if PLATFORM_OS == PlatformOS::BSD {
+        CFLAGS.push("-Wno-everything");
+    }
+    if PLATFORM_OS == PlatformOS::Linux {
+        CFLAGS.push("-w");
+    }
     CDEFINES.append(&mut vec!["_DEFAULT_SOURCE"]);
 
     // cc takes care of this
@@ -239,14 +243,7 @@ fn compile_raylib(raylib_src_path: &Path, target: &str, release: bool) -> BuildS
     INCLUDE_PATHS.push(raylib_src_path.join("external/glfw/include"));
     INCLUDE_PATHS.push(raylib_src_path.join("external/glfw/deps/mingw"));
 
-    // let out_dir_ld = format!("-L{}", out_dir.to_str().unwrap());
     if PLATFORM == Platform::Desktop {
-        if PLATFORM_OS == PlatformOS::BSD {
-            // INCLUDE_PATHS.push("/usr/local/include".to_owned());
-            // LDFLAGS.push("-Lraylib");
-            // LDFLAGS.push("-Lraylib/src");
-            // LDFLAGS.push(&out_dir_ld);
-        }
         if USE_EXTERNAL_GLFW {
             LDFLAGS.push("-lglfw")
         }
@@ -259,6 +256,7 @@ fn compile_raylib(raylib_src_path: &Path, target: &str, release: bool) -> BuildS
         bundle_rglfw = true;
     }
 
+    // TODO remove me
     dbg!(bundle_rglfw);
     // Actually compile stuff.
     let modules = vec![
@@ -419,17 +417,12 @@ fn main() {
             println!("cargo:rustc-link-lib=static=raylib");
             println!("cargo:rustc-link-lib=gdi32");
             println!("cargo:rustc-link-lib=user32");
-        } else {
-            // On other platforms read raylib.pc with pkg-config
-            fs::write(out_dir.join("raylib.pc"), include_str!("raylib.pc"))
-                .expect("failed to write pkg-config");
-            env::set_var("PKG_CONFIG_PATH", &out_dir);
-            pkg_config::Config::new()
-                .atleast_version(LATEST_RAYLIB_VERSION)
-                .statik(true)
-                .arg(format!("--define-variable=prefix={}", out_dir.display()))
-                .probe("raylib")
-                .unwrap();
+        } else if platform_os == PlatformOS::OSX {
+            -F/System/Library/Frameworks -framework OpenGL  -framework Cocoa -framework IOKit -framework CoreFoundation -framework CoreVideo
+            println!("cargo:rust-link-lib=framework=OpenGL");
+            println!("cargo:rust-link-lib=framework=Cocoa");
+            println!("cargo:rust-link-lib=framework=CoreFoundation");
+            println!("cargo:rust-link-lib=framework=CoreVideo");
         }
         if !bundled_glfw {
             println!("cargo:rustc-link-lib=glfw");
