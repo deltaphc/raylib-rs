@@ -416,13 +416,138 @@ fn download_to<T: io::Write>(url: &str, mut dest: T) {
 }
 
 /// Download, compile, and link raylib from source
-fn bundle(target: &str, release: bool, out_dir: &Path) {
+fn bundle(target: &str, release: bool, out_dir: &Path) -> BuildSettings {
     let raylib_src_path = download_raylib();
+    let settings = compile_raylib(&raylib_src_path.as_path().join("src"), &target, release);
+
     let BuildSettings {
         platform,
         platform_os,
         bundled_glfw,
-    } = compile_raylib(&raylib_src_path.as_path().join("src"), &target, release);
+    } = settings.clone();
+    // Generate cargo metadata for linking to raylib
+    if platform == Platform::Desktop {
+        if platform_os == PlatformOS::Windows {
+            println!(
+                "cargo:rustc-link-search=native={}",
+                out_dir.join("lib").display()
+            );
+            println!("cargo:rustc-link-lib=static=raylib");
+            println!("cargo:rustc-link-lib=gdi32");
+            println!("cargo:rustc-link-lib=user32");
+        } else if platform_os == PlatformOS::OSX {
+            // On other platforms read raylib.pc with pkg-config
+            fs::write(out_dir.join("raylib.pc"), include_str!("raylib.pc"))
+                .expect("failed to write pkg-config");
+            env::set_var("PKG_CONFIG_PATH", &out_dir);
+            pkg_config::Config::new()
+                .atleast_version(LATEST_RAYLIB_VERSION)
+                .statik(true)
+                .arg(format!("--define-variable=prefix={}", out_dir.display()))
+                .probe("raylib")
+                .unwrap();
+        }
+        if !bundled_glfw {
+            println!("cargo:rustc-link-lib=glfw");
+        }
+    }
+
+    settings
+}
+
+// Link system version of raylib
+fn link(target: &str, _release: bool, _out_dir: &Path) -> BuildSettings {
+    if cfg!(target_os = "windows") {
+        println!("cargo:rustc-link-lib=dylib=user32");
+        println!("cargo:rustc-link-lib=dylib=gdi32");
+    }
+    if cfg!(target_os = "linux") {
+        println!("cargo:rustc-link-lib=X11");
+    }
+    if cfg!(target_os = "macos") {
+        println!("cargo:rustc-link-lib=framework=OpenGL");
+        println!("cargo:rustc-link-lib=framework=Cocoa");
+        println!("cargo:rustc-link-lib=framework=IOKit");
+        println!("cargo:rustc-link-lib=framework=CoreFoundation");
+        println!("cargo:rustc-link-lib=framework=CoreVideo");
+    }
+
+    pkg_config::Config::new()
+        .atleast_version(LATEST_RAYLIB_VERSION)
+        .probe("raylib")
+        .expect("failed to find valid raylib version");
+
+    println!("cargo:rustc-link-lib=static=raylib");
+
+    let PLATFORM = if target.contains("wasm32") {
+        // make sure cmake knows that it should bundle glfw in
+        // Cargo web takes care of this but better safe than sorry
+        env::set_var("EMMAKEN_CFLAGS", "-s USE_GLFW=3");
+        Platform::Web
+    } else if target.contains("armv7-unknown-linux") {
+        Platform::RPI
+    } else {
+        Platform::Desktop
+    };
+
+    let PLATFORM_OS = if PLATFORM == Platform::Desktop {
+        // Determine PLATFORM_OS in case PLATFORM_DESKTOP selected
+        if env::var("OS")
+            .unwrap_or("".to_owned())
+            .contains("Windows_NT")
+        {
+            // No uname.exe on MinGW!, but OS=Windows_NT on Windows!
+            // ifeq ($(UNAME),Msys) -> Windows
+            PlatformOS::Windows
+        } else {
+            let un: &str = &uname();
+            match un {
+                "Linux" => PlatformOS::Linux,
+                "FreeBSD" => PlatformOS::BSD,
+                "OpenBSD" => PlatformOS::BSD,
+                "NetBSD" => PlatformOS::BSD,
+                "DragonFly" => PlatformOS::BSD,
+                "Darwin" => PlatformOS::OSX,
+                _ => panic!("Unknown platform {}", uname()),
+            }
+        }
+    } else if PLATFORM == Platform::RPI {
+        let un: &str = &uname();
+        if un == "Linux" {
+            PlatformOS::Linux
+        } else {
+            PlatformOS::Unknown
+        }
+    } else {
+        PlatformOS::Unknown
+    };
+
+    BuildSettings {
+        platform: PLATFORM,
+        platform_os: PLATFORM_OS,
+        bundled_glfw: false,
+    }
+}
+
+fn main() {
+    let target = env::var("TARGET").expect("Cargo build scripts always have TARGET");
+    let release = env::var("PROFILE")
+        .expect("Cargo build scripts always have a PROFILE")
+        .contains("release");
+    let out_dir =
+        PathBuf::from(env::var("OUT_DIR").expect("Cargo build scripts always have an OUT_DIR"));
+
+    // TODO if we ever have a shared feature determine whether
+    // we download and compile from source here
+    let BuildSettings {
+        platform,
+        platform_os,
+        bundled_glfw: _,
+    } = if cfg!(feature = "bundled") || target.contains("emscripten") {
+        bundle(&target, release, &out_dir)
+    } else {
+        link(&target, release, &out_dir)
+    };
 
     // Generate bindings
     match (cfg!(feature = "genbindings"), &platform, &platform_os) {
@@ -452,85 +577,13 @@ fn bundle(target: &str, release: bool, out_dir: &Path) {
         _ => {
             bindgen::Builder::default()
                 .rustfmt_bindings(true)
-                .header(format!(
-                    "{}",
-                    raylib_src_path.join("src/raylib.h").display()
-                ))
+                .header("raylib.h")
                 .constified_enum_module("*")
                 .generate()
                 .expect("Failed to generate bindings")
                 .write_to_file(out_dir.join("bindings.rs"))
                 .expect("Failed to write bindings");
         }
-    }
-
-    // Generate cargo metadata for linking to raylib
-    if platform == Platform::Desktop {
-        if platform_os == PlatformOS::Windows {
-            println!(
-                "cargo:rustc-link-search=native={}",
-                out_dir.join("lib").display()
-            );
-            println!("cargo:rustc-link-lib=static=raylib");
-            println!("cargo:rustc-link-lib=gdi32");
-            println!("cargo:rustc-link-lib=user32");
-        } else if platform_os == PlatformOS::OSX {
-            // On other platforms read raylib.pc with pkg-config
-            fs::write(out_dir.join("raylib.pc"), include_str!("raylib.pc"))
-                .expect("failed to write pkg-config");
-            env::set_var("PKG_CONFIG_PATH", &out_dir);
-            pkg_config::Config::new()
-                .atleast_version(LATEST_RAYLIB_VERSION)
-                .statik(true)
-                .arg(format!("--define-variable=prefix={}", out_dir.display()))
-                .probe("raylib")
-                .unwrap();
-        }
-        if !bundled_glfw {
-            println!("cargo:rustc-link-lib=glfw");
-        }
-    }
-}
-
-// Link system version of raylib
-fn link() {
-    if cfg!(target_os = "windows") {
-        println!("cargo:rustc-link-lib=dylib=user32");
-        println!("cargo:rustc-link-lib=dylib=gdi32");
-    }
-    if cfg!(target_os = "linux") {
-        println!("cargo:rustc-link-lib=X11");
-    }
-    if cfg!(target_os = "macos") {
-        println!("cargo:rustc-link-lib=framework=OpenGL");
-        println!("cargo:rustc-link-lib=framework=Cocoa");
-        println!("cargo:rustc-link-lib=framework=IOKit");
-        println!("cargo:rustc-link-lib=framework=CoreFoundation");
-        println!("cargo:rustc-link-lib=framework=CoreVideo");
-    }
-
-    pkg_config::Config::new()
-        .atleast_version(LATEST_RAYLIB_VERSION)
-        .probe("raylib")
-        .expect("failed to find valid raylib version");
-
-    println!("cargo:rustc-link-lib=static=raylib");
-}
-
-fn main() {
-    let target = env::var("TARGET").expect("Cargo build scripts always have TARGET");
-    let release = env::var("PROFILE")
-        .expect("Cargo build scripts always have a PROFILE")
-        .contains("release");
-    let out_dir =
-        PathBuf::from(env::var("OUT_DIR").expect("Cargo build scripts always have an OUT_DIR"));
-
-    // TODO if we ever have a shared feature determine whether
-    // we download and compile from source here
-    if cfg!(feature = "bundled") || target.contains("emscripten") {
-        bundle(&target, release, &out_dir);
-    } else {
-        link();
     }
 }
 
@@ -546,14 +599,14 @@ fn uname() -> String {
     .to_owned()
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 enum Platform {
     Web,
     Desktop,
     RPI, // raspberry pi
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 enum PlatformOS {
     Windows,
     Linux,
@@ -562,18 +615,19 @@ enum PlatformOS {
     Unknown,
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 enum LibType {
     Static,
     _Shared,
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 enum BuildMode {
     Release,
     Debug,
 }
 
+#[derive(Debug, Clone)]
 struct BuildSettings {
     pub platform: Platform,
     pub platform_os: PlatformOS,
