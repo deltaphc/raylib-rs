@@ -67,6 +67,7 @@ fn compile_obj<P>(
 /// make file does in a rusty way so none unix platforms work
 /// and we can enable features in the future
 fn compile_raylib(raylib_src_path: &Path, target: &str, release: bool) -> BuildSettings {
+    dbg!(target);
     // Set compiler defaults
     let mut compiler = None;
     let mut GLFW_CFLAGS = Vec::new();
@@ -78,9 +79,9 @@ fn compile_raylib(raylib_src_path: &Path, target: &str, release: bool) -> BuildS
     // Set configruation defaults
     let SHARED = false; // TODO enabled shared libraries
     let mut bundle_rglfw = false;
-    let INCLUDE_AUDIO_MODULE = false;
+    let INCLUDE_AUDIO_MODULE = true;
     let build_raudio_object = INCLUDE_AUDIO_MODULE;
-    let build_mini_al_object = INCLUDE_AUDIO_MODULE;
+    let build_mini_al_object = false;
 
     let PLATFORM = if target.contains("wasm32") {
         // make sure cmake knows that it should bundle glfw in
@@ -144,9 +145,9 @@ fn compile_raylib(raylib_src_path: &Path, target: &str, release: bool) -> BuildS
     // https://github.com/rust-lang/cargo/issues/1197
     let USE_EXTERNAL_GLFW = match PLATFORM_OS {
         PlatformOS::OSX => false,
-        _ => true
+        PlatformOS::Windows => false,
+        _ => true,
     };
-
 
     // TODO BUNCH OF ANDROID STUFF IN MAKEFILE
     // MAKEFILE LINE 210
@@ -183,7 +184,7 @@ fn compile_raylib(raylib_src_path: &Path, target: &str, release: bool) -> BuildS
     CFLAGS.append(&mut vec![
         "-O1",
         // "-Wall",
-        "-std=c11",
+        // "-std=c11",
         // "-Wno-everything",
     ]);
     if PLATFORM_OS == PlatformOS::BSD {
@@ -198,8 +199,10 @@ fn compile_raylib(raylib_src_path: &Path, target: &str, release: bool) -> BuildS
     if !release {
         // CFLAGS.push("-g");
     }
-
-    if PLATFORM == Platform::Desktop {
+    // TODO remove
+    dbg!(&PLATFORM);
+    dbg!(&PLATFORM_OS);
+    if PLATFORM == Platform::Desktop && PLATFORM_OS != PlatformOS::Windows {
         CFLAGS.push("-Werror=implicit-function-declaration");
     }
 
@@ -398,18 +401,32 @@ fn main() {
     } = compile_raylib(&raylib_src_path.as_path().join("src"), &target, release);
 
     // Generate bindings
-    if platform == Platform::Desktop || platform == Platform::RPI {
-        bindgen::Builder::default()
-            .header(format!("{}", raylib_src_path.join("src/raylib.h").display()))
-            // .clang_arg(format!("-I{}", out_dir.join("include").display()))
-            .constified_enum_module("*")
-            .generate()
-            .expect("Failed to generate bindings")
-            .write_to_file(out_dir.join("bindings.rs"))
-            .expect("Failed to write bindings");
-    } else {
-        // have to pregenerate web bindings 
-        fs::write(out_dir.join("bindings.rs"), include_str!("bindings_web.rs")).expect("failed to write bindings");
+    match (cfg!(feature = "genbindings"), &platform, &platform_os) {
+        (false, _, PlatformOS::Windows) => {
+            fs::write(
+                out_dir.join("bindings.rs"),
+                include_str!("bindings_windows.rs"),
+            )
+            .expect("failed to write bindings");
+        }
+        (false, Platform::Web, _) => {
+            fs::write(out_dir.join("bindings.rs"), include_str!("bindings_web.rs"))
+                .expect("failed to write bindings");
+        }
+        // for other platforms use bindgen and hope it works
+        _ => {
+            bindgen::Builder::default()
+                .rustfmt_bindings(true)
+                .header(format!(
+                    "{}",
+                    raylib_src_path.join("src/raylib.h").display()
+                ))
+                .constified_enum_module("*")
+                .generate()
+                .expect("Failed to generate bindings")
+                .write_to_file(out_dir.join("bindings.rs"))
+                .expect("Failed to write bindings");
+        }
     }
 
     // Generate cargo metadata for linking to raylib

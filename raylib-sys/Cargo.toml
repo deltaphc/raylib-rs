@@ -19,3 +19,6 @@ flate2 = "0.2"
 cc = "1.0"
 pkg-config = "0.3"
 
+[features]
+default = []
+genbindings = []
