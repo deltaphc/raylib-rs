@@ -527,7 +527,7 @@ fn main() {
 
     // TODO if we ever have a shared feature determine whether
     // we download and compile from source here
-    if cfg!(feature = "bundled") {
+    if cfg!(feature = "bundled") || target.contains("emscripten") {
         bundle(&target, release, &out_dir);
     } else {
         link();
