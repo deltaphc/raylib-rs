@@ -1,12 +1,10 @@
 extern crate raylib;
 
-use raylib::prelude::*;
-
 fn main() {
     let w = 800;
     let h = 450;
-    let rust_orange = Color::new(222, 165, 132, 255);
-    let ray_white = Color::new(255, 255, 255, 255);
+    let rust_orange = raylib::Color::new(222, 165, 132, 255);
+    let ray_white = raylib::Color::new(255, 255, 255, 255);
     let rl = raylib::init().size(w, h).title("Logo").build();
 
     while !rl.window_should_close() {
