@@ -25,7 +25,10 @@ Tested on Windows, Mac, Linux (Ubuntu 18.04), and Web (Emscripten).
 
 Raylib will be downloaded, compiled from source and bundled with your binary.
 
-Bindings will be generated using rust-bindgen. Make sure clang is installed.
+Bindings can be generated using rust-bindgen with the `genbindings` feaute. Make sure clang is installed. This is not recommended if you are building on a platform with premade bindings.
+
+## Windows
+Install msvc.
 
 ## Linux
 Linux uses the system glfw by default.
