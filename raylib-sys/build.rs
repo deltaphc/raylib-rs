@@ -4,6 +4,7 @@ use std::path::{Path, PathBuf};
 use std::{env, fs, io};
 
 // latest version on github's release page
+// Unused until 2.5 released
 const LATEST_RAYLIB_VERSION: &str = "2.0.0";
 const LATEST_RAYLIB_API_VERSION: &str = "2";
 
@@ -64,8 +65,8 @@ fn compile_obj<P>(
 }
 
 /// compile_raylib by doing exactly what the current
-/// make file does in a rusty way so none unix platforms work
-/// and we can enable features in the future
+/// Makefile does in a rusty way so none unix platforms work
+/// we can divide logic into features in the future
 fn compile_raylib(raylib_src_path: &Path, target: &str, release: bool) -> BuildSettings {
     dbg!(target);
     // Set compiler defaults
@@ -85,6 +86,7 @@ fn compile_raylib(raylib_src_path: &Path, target: &str, release: bool) -> BuildS
 
     let PLATFORM = if target.contains("wasm32") {
         // make sure cmake knows that it should bundle glfw in
+        // Cargo web takes care of this but better safe than sorry
         env::set_var("EMMAKEN_CFLAGS", "-s USE_GLFW=3");
         Platform::Web
     } else {
@@ -140,6 +142,9 @@ fn compile_raylib(raylib_src_path: &Path, target: &str, release: bool) -> BuildS
         PlatformOS::Unknown
     };
 
+      dbg!(&PLATFORM);
+    dbg!(&PLATFORM_OS);
+
     // Use external GLFW library instead of rglfw module
     // TODO replace with a feature once target specific features are merged
     // https://github.com/rust-lang/cargo/issues/1197
@@ -179,13 +184,11 @@ fn compile_raylib(raylib_src_path: &Path, target: &str, release: bool) -> BuildS
         compiler = Some("emcc");
     }
 
+    // ton of warnings just compiling raylib
     // skip warnings for a bit cleaner output
     // Raysan pls
     CFLAGS.append(&mut vec![
         "-O1",
-        // "-Wall",
-        // "-std=c11",
-        // "-Wno-everything",
     ]);
     if PLATFORM_OS == PlatformOS::BSD {
         CFLAGS.push("-Wno-everything");
@@ -195,13 +198,11 @@ fn compile_raylib(raylib_src_path: &Path, target: &str, release: bool) -> BuildS
     }
     CDEFINES.append(&mut vec!["_DEFAULT_SOURCE"]);
 
-    // cc takes care of this
+    // cc crate takes care of this. turn on if we ever use something else
     if !release {
         // CFLAGS.push("-g");
     }
-    // TODO remove
-    dbg!(&PLATFORM);
-    dbg!(&PLATFORM_OS);
+
     if PLATFORM == Platform::Desktop && PLATFORM_OS != PlatformOS::Windows {
         CFLAGS.push("-Werror=implicit-function-declaration");
     }
@@ -264,8 +265,9 @@ fn compile_raylib(raylib_src_path: &Path, target: &str, release: bool) -> BuildS
         bundle_rglfw = true;
     }
 
-    // TODO remove me
     dbg!(bundle_rglfw);
+    dbg!(build_raudio_object);
+    dbg!(build_mini_al_object);
     // Actually compile stuff.
     let modules = vec![
         "core", "shapes", "textures", "text", "models", "utils", "rglfw", "raudio", "mini_al",
@@ -337,7 +339,8 @@ fn download_raylib() -> PathBuf {
     // let raylib_archive_name = format!("{}.tar.gz", LATEST_RAYLIB_VERSION);
     let raylib_archive_name = format!("{}.tar.gz", "master");
     // Unfortunately 2.0.0 fails to build on mac for me due to CMAKE not finding pthread
-    // This is fixed in master. As soon as we get a new release I'll change it.
+    // This is fixed in master. As soon as we get a new release we'll change it.
+    // It's also a bit less confusing to users of the cheatsheet. 2.0.0 differs somewhat from the website.
     let raylib_archive_url = format!(
         "https://github.com/raysan5/raylib/archive/{}",
         raylib_archive_name
@@ -393,6 +396,9 @@ fn main() {
     let out_dir =
         PathBuf::from(env::var("OUT_DIR").expect("Cargo build scripts always have an OUT_DIR"));
 
+    // TODO if we ever have a shared feature determine whether
+    // we download and compile from source here
+
     let raylib_src_path = download_raylib();
     let BuildSettings {
         platform,
@@ -406,6 +412,13 @@ fn main() {
             fs::write(
                 out_dir.join("bindings.rs"),
                 include_str!("bindings_windows.rs"),
+            )
+            .expect("failed to write bindings");
+        }
+        (false, _, PlatformOS::Linux) => {
+            fs::write(
+                out_dir.join("bindings.rs"),
+                include_str!("bindings_linux.rs"),
             )
             .expect("failed to write bindings");
         }
