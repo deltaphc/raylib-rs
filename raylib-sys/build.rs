@@ -12,7 +12,7 @@ const LATEST_RAYLIB_API_VERSION: &str = "2";
 fn compile_obj<P>(
     src_dir: &Path,
     name: &str,
-    compiler: &Option<&str>,
+    (compiler, archiver): &(&Option<&str>, &Option<&str>),
     glfw_cflags: &Vec<&str>,
     cflags: &Vec<&str>,
     cdefines: &Vec<&str>,
@@ -26,6 +26,9 @@ fn compile_obj<P>(
 
     if let Some(c) = compiler {
         builder.compiler(c);
+    }
+    if let Some(ar) = archiver {
+        builder.archiver(ar);
     }
 
     // set glfw flags
@@ -71,6 +74,7 @@ fn compile_raylib(raylib_src_path: &Path, target: &str, release: bool) -> BuildS
     dbg!(target);
     // Set compiler defaults
     let mut compiler = None;
+    let mut archiver = None;
     let mut GLFW_CFLAGS = Vec::new();
     let mut CFLAGS = Vec::new();
     let mut CDEFINES = Vec::new();
@@ -89,6 +93,8 @@ fn compile_raylib(raylib_src_path: &Path, target: &str, release: bool) -> BuildS
         // Cargo web takes care of this but better safe than sorry
         env::set_var("EMMAKEN_CFLAGS", "-s USE_GLFW=3");
         Platform::Web
+    } else if target.contains("armv7-unknown-linux") {
+        Platform::RPI
     } else {
         Platform::Desktop
     };
@@ -137,20 +143,26 @@ fn compile_raylib(raylib_src_path: &Path, target: &str, release: bool) -> BuildS
             }
         }
     } else if PLATFORM == Platform::RPI {
-        PlatformOS::Linux
+        let un: &str = &uname();
+        if un == "Linux" {
+            PlatformOS::Linux
+        } else {
+            PlatformOS::Unknown
+        }
     } else {
         PlatformOS::Unknown
     };
 
-      dbg!(&PLATFORM);
+    dbg!(&PLATFORM);
     dbg!(&PLATFORM_OS);
 
     // Use external GLFW library instead of rglfw module
     // TODO replace with a feature once target specific features are merged
     // https://github.com/rust-lang/cargo/issues/1197
-    let USE_EXTERNAL_GLFW = match PLATFORM_OS {
-        PlatformOS::OSX => false,
-        PlatformOS::Windows => false,
+    let USE_EXTERNAL_GLFW = match (&PLATFORM, &PLATFORM_OS) {
+        (_, PlatformOS::OSX) => false,
+        (_, PlatformOS::Windows) => false,
+        (Platform::RPI, _) => false,
         _ => true,
     };
 
@@ -174,6 +186,9 @@ fn compile_raylib(raylib_src_path: &Path, target: &str, release: bool) -> BuildS
         if PLATFORM_OS == PlatformOS::BSD {
             compiler = Some("clang");
         }
+    } else if PLATFORM == Platform::RPI {
+        compiler = Some("arm-linux-gnueabihf-gcc");
+        archiver = Some("arm-linux-gnueabihf-ar");
     }
 
     // TODO BUNCH OF RASPBERRY PI STUFF IN MAKEFILE
@@ -187,9 +202,7 @@ fn compile_raylib(raylib_src_path: &Path, target: &str, release: bool) -> BuildS
     // ton of warnings just compiling raylib
     // skip warnings for a bit cleaner output
     // Raysan pls
-    CFLAGS.append(&mut vec![
-        "-O1",
-    ]);
+    CFLAGS.append(&mut vec!["-O1"]);
     if PLATFORM_OS == PlatformOS::BSD {
         CFLAGS.push("-Wno-everything");
     }
@@ -257,6 +270,17 @@ fn compile_raylib(raylib_src_path: &Path, target: &str, release: bool) -> BuildS
             LDFLAGS.push("-lglfw")
         }
     }
+    if PLATFORM == Platform::RPI {
+        LDFLAGS.append(&mut vec![
+            "-lbrcmGLESv2",
+            "-lbrcmEGL",
+            "-lpthread",
+            "-lrt",
+            "-lm",
+            "-lbcm_host",
+            "-ldl",
+        ]);
+    }
 
     // TODOBUNCH OF ANDROID/PI STUFF IN MAKEFILE  # Define additional directories containing required header files
     // MAKEFILE LINE 371
@@ -295,7 +319,7 @@ fn compile_raylib(raylib_src_path: &Path, target: &str, release: bool) -> BuildS
             compile_obj(
                 raylib_src_path,
                 module,
-                &compiler,
+                &(&compiler, &archiver),
                 &glfw_cflags,
                 &CFLAGS,
                 &CDEFINES,
@@ -316,6 +340,9 @@ fn compile_raylib(raylib_src_path: &Path, target: &str, release: bool) -> BuildS
 
     if let Some(c) = compiler {
         builder.compiler(c);
+    }
+    if let Some(ar) = archiver {
+        builder.archiver(ar);
     }
 
     builder
@@ -388,17 +415,8 @@ fn download_to<T: io::Write>(url: &str, mut dest: T) {
     }
 }
 
-fn main() {
-    let target = env::var("TARGET").expect("Cargo build scripts always have TARGET");
-    let release = env::var("PROFILE")
-        .expect("Cargo build scripts always have a PROFILE")
-        .contains("release");
-    let out_dir =
-        PathBuf::from(env::var("OUT_DIR").expect("Cargo build scripts always have an OUT_DIR"));
-
-    // TODO if we ever have a shared feature determine whether
-    // we download and compile from source here
-
+/// Download, compile, and link raylib from source
+fn bundle(target: &str, release: bool, out_dir: &Path) {
     let raylib_src_path = download_raylib();
     let BuildSettings {
         platform,
@@ -423,11 +441,8 @@ fn main() {
             .expect("failed to write bindings");
         }
         (false, _, PlatformOS::OSX) => {
-            fs::write(
-                out_dir.join("bindings.rs"),
-                include_str!("bindings_osx.rs"),
-            )
-            .expect("failed to write bindings");
+            fs::write(out_dir.join("bindings.rs"), include_str!("bindings_osx.rs"))
+                .expect("failed to write bindings");
         }
         (false, Platform::Web, _) => {
             fs::write(out_dir.join("bindings.rs"), include_str!("bindings_web.rs"))
@@ -474,6 +489,48 @@ fn main() {
         if !bundled_glfw {
             println!("cargo:rustc-link-lib=glfw");
         }
+    }
+}
+
+// Link system version of raylib
+fn link() {
+    if cfg!(target_os = "windows") {
+        println!("cargo:rustc-link-lib=dylib=user32");
+        println!("cargo:rustc-link-lib=dylib=gdi32");
+    }
+    if cfg!(target_os = "linux") {
+        println!("cargo:rustc-link-lib=X11");
+    }
+    if cfg!(target_os = "macos") {
+        println!("cargo:rustc-link-lib=framework=OpenGL");
+        println!("cargo:rustc-link-lib=framework=Cocoa");
+        println!("cargo:rustc-link-lib=framework=IOKit");
+        println!("cargo:rustc-link-lib=framework=CoreFoundation");
+        println!("cargo:rustc-link-lib=framework=CoreVideo");
+    }
+
+    pkg_config::Config::new()
+        .atleast_version(LATEST_RAYLIB_VERSION)
+        .probe("raylib")
+        .expect("failed to find valid raylib version");
+
+    println!("cargo:rustc-link-lib=static=raylib");
+}
+
+fn main() {
+    let target = env::var("TARGET").expect("Cargo build scripts always have TARGET");
+    let release = env::var("PROFILE")
+        .expect("Cargo build scripts always have a PROFILE")
+        .contains("release");
+    let out_dir =
+        PathBuf::from(env::var("OUT_DIR").expect("Cargo build scripts always have an OUT_DIR"));
+
+    // TODO if we ever have a shared feature determine whether
+    // we download and compile from source here
+    if cfg!(feature = "bundled") {
+        bundle(&target, release, &out_dir);
+    } else {
+        link();
     }
 }
 

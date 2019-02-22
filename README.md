@@ -23,7 +23,7 @@ Though this binding tries to stay close to the simple C API, it makes some chang
 # Installation
 Tested on Windows, Mac, Linux (Ubuntu 18.04), and Web (Emscripten).
 
-Raylib will be downloaded, compiled from source and bundled with your binary.
+By default, the system raylib will be used. If you use the `--features bundled` flag, raylib will be downloaded, compiled from source and bundled with your binary.
 
 Bindings will be generated using rust-bindgen. Make sure clang is installed.
 
