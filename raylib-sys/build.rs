@@ -422,6 +422,13 @@ fn main() {
             )
             .expect("failed to write bindings");
         }
+        (false, _, PlatformOS::OSX) => {
+            fs::write(
+                out_dir.join("bindings.rs"),
+                include_str!("bindings_osx.rs"),
+            )
+            .expect("failed to write bindings");
+        }
         (false, Platform::Web, _) => {
             fs::write(out_dir.join("bindings.rs"), include_str!("bindings_web.rs"))
                 .expect("failed to write bindings");
