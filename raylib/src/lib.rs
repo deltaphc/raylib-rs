@@ -66,6 +66,9 @@ mod raymath;
 mod safe_funcs;
 mod safe_types;
 
+#[cfg(target_os = "emscripten")]
+mod wasm;
+
 pub use rl::{CharInfo, Rectangle, VrDeviceInfo};
 
 pub use crate::raymath::*;

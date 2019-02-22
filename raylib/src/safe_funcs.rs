@@ -16,6 +16,8 @@ Permission is granted to anyone to use this software for any purpose, including 
 
 use crate::raymath::*;
 use crate::safe_types::*;
+#[cfg(target_os = "emscripten")]
+use crate::wasm;
 use lazy_static::lazy_static;
 use rl::{CharInfo, Rectangle, VrDeviceInfo};
 use std::ffi::{CStr, CString};
@@ -222,12 +224,21 @@ pub fn init_window(width: i32, height: i32, title: &str) -> RaylibHandle {
         panic!("Attempted to initialize raylib-rs more than once");
     } else {
         unsafe {
+            sample_gamepad();
             let c_title = CString::new(title).unwrap();
             rl::InitWindow(width, height, c_title.as_ptr());
         }
         IS_INITIALIZED.store(true, Ordering::Relaxed);
         RaylibHandle(())
     }
+}
+
+#[cfg(not(target_os = "emscripten"))]
+unsafe fn sample_gamepad() {}
+
+#[cfg(target_os = "emscripten")]
+unsafe fn sample_gamepad() {
+    wasm::emscripten_sample_gamepad_data();
 }
 
 impl Drop for RaylibHandle {
