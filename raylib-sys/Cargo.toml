@@ -11,3 +11,6 @@ categories = ["external-ffi-bindings"]
 edition = "2018"
 
 [dependencies]
+
+[build-dependencies]
+cmake = "0.1.35"

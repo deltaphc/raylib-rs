@@ -15,14 +15,21 @@ Permission is granted to anyone to use this software for any purpose, including 
 */
 
 fn main() {
+    let c = cmake::Config::new("raylib")
+        .define("BUILD_EXAMPLES", "OFF")
+        .define("BUILD_GAMES", "OFF")
+        .build();
+
     if cfg!(target_os = "windows") {
         println!("cargo:rustc-link-lib=dylib=gdi32");
         println!("cargo:rustc-link-lib=dylib=user32");
     }
+
     if cfg!(target_os = "linux") {
         println!("cargo:rustc-link-search=/usr/local/lib");
         println!("cargo:rustc-link-lib=X11");
     }
+
     if cfg!(target_os = "macos") {
         println!("cargo:rustc-link-search=native=/usr/local/lib");
         println!("cargo:rustc-link-lib=framework=OpenGL");
@@ -31,5 +38,7 @@ fn main() {
         println!("cargo:rustc-link-lib=framework=CoreFoundation");
         println!("cargo:rustc-link-lib=framework=CoreVideo");
     }
+
+    println!("cargo:rustc-link-search={}", c.join("build/release").display());
     println!("cargo:rustc-link-lib=static=raylib");
 }
