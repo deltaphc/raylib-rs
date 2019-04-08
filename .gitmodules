@@ -1,6 +1,3 @@
 [submodule "ratlib-sys/raylib"]
 	path = ratlib-sys/raylib
 	url = https://github.com/raysan5/raylib
-[submodule "raylib-sys/raylib"]
-	path = raylib-sys/raylib
-	url = https://github.com/raysan5/raylib
