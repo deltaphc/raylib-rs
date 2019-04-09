@@ -18,6 +18,7 @@ fn main() {
     let c = cmake::Config::new("raylib")
         .define("BUILD_EXAMPLES", "OFF")
         .define("BUILD_GAMES", "OFF")
+        .define("CMAKE_BUILD_TYPE", "Release")
         .build();
 
     if cfg!(target_os = "windows") {
@@ -39,6 +40,6 @@ fn main() {
         println!("cargo:rustc-link-lib=framework=CoreVideo");
     }
 
-    println!("cargo:rustc-link-search={}", c.join("build/release").display());
-    println!("cargo:rustc-link-lib=static=raylib");
+    println!("cargo:rustc-link-search={}", c.join("lib").display());
+    println!("cargo:rustc-link-lib=static=raylib_static");
 }
