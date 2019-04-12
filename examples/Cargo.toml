@@ -1,5 +1,7 @@
 [workspace]
 
 members = [
-	"core/basic_window/"
+	"core/basic_window/",
+	"core/input_mouse/",
+	"core/input_keys/",
 ]

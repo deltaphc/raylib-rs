@@ -1,0 +1,8 @@
+[package]
+name = "input_mouse"
+version = "0.1.0"
+authors = ["12ColcloughJ <joshuacolclough2@googlemail.com>"]
+edition = "2018"
+
+[dependencies]
+raylib = "0.9"
