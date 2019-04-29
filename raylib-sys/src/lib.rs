@@ -28,6 +28,6 @@ pub mod ffi_funcs;
 
 pub mod ffi {
     pub use crate::ffi_consts::*;
-    pub use crate::ffi_types::*;
     pub use crate::ffi_funcs::*;
+    pub use crate::ffi_types::*;
 }
