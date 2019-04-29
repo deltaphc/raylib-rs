@@ -20,10 +20,5 @@ before_script:
       libgl1-mesa-dev
       libglu1-mesa-dev
 
-  - rustup component add clippy
-  - rustup component add rustfmt
-
 script:
-  - cargo fmt -- --check
-  - cargo clippy
   - cargo test
