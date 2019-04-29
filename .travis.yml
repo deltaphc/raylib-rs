@@ -7,8 +7,21 @@ rust:
 
 before_script:
   - sudo apt update
-  - sudo apt install cmake
+  - sudo apt install
+      cmake
+      libasound2-dev
+      libxcursor-dev
+      libxinerama-dev
+      mesa-common-dev
+      libx11-dev
+      libxrandr-dev
+      libxrandr2
+      libxi-dev
+      libgl1-mesa-dev
+      libglu1-mesa-dev
+
   - rustup component add clippy
+  - rustup component add rustfmt
 
 script:
   - cargo fmt --check
