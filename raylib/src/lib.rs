@@ -36,7 +36,7 @@ Permission is granted to anyone to use this software for any purpose, including 
 //! 
 //! The classic "Hello, world":
 //! 
-//! ```
+//! ```rust,ignore
 //! use raylib::prelude::*;
 //! 
 //! fn main() {
