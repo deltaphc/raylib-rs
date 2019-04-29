@@ -18,6 +18,7 @@ script:
 
 addons:
     apt:
+        update: true
         packages:
             - cmake
             - libasound2-dev
@@ -31,5 +32,6 @@ addons:
             - libgl1-mesa-dev
             - libglu1-mesa-dev
     homebrew:
+        update: true
         packages:
             - cmake
