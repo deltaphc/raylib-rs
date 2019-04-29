@@ -3,26 +3,33 @@ language: rust
 cache: cargo
 
 rust:
-  - stable
+    - stable
 
 os:
-  - linux
-  - osx
+    - linux
+    - osx
 
 before_script:
-  - sudo apt update
-  - sudo apt install
-      cmake
-      libasound2-dev
-      libxcursor-dev
-      libxinerama-dev
-      mesa-common-dev
-      libx11-dev
-      libxrandr-dev
-      libxrandr2
-      libxi-dev
-      libgl1-mesa-dev
-      libglu1-mesa-dev
+    - sudo apt update
+    - sudo apt install
 
 script:
-  - cargo test
+    - cargo test
+
+addons:
+    apt:
+        packages:
+            - cmake
+            - libasound2-dev
+            - libxcursor-dev
+            - libxinerama-dev
+            - mesa-common-dev
+            - libx11-dev
+            - libxrandr-dev
+            - libxrandr2
+            - libxi-dev
+            - libgl1-mesa-dev
+            - libglu1-mesa-dev
+    homebrew:
+        packages:
+            - cmake
