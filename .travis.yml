@@ -7,7 +7,6 @@ rust:
 
 os:
     - linux
-    - osx
 
 script:
     - cargo test
@@ -27,7 +26,3 @@ addons:
             - libxi-dev
             - libgl1-mesa-dev
             - libglu1-mesa-dev
-    homebrew:
-        update: true
-        packages:
-            - cmake
