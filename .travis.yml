@@ -9,10 +9,6 @@ os:
     - linux
     - osx
 
-before_script:
-    - sudo apt update
-    - sudo apt install
-
 script:
     - cargo test
 
