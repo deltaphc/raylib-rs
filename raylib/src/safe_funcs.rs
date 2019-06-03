@@ -14,11 +14,11 @@ Permission is granted to anyone to use this software for any purpose, including 
   3. This notice may not be removed or altered from any source distribution.
 */
 
-use std::sync::atomic::{AtomicBool, ATOMIC_BOOL_INIT, Ordering};
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::ffi::{CString, CStr};
 use lazy_static::lazy_static;
-use raylib_sys::ffi;
-use raylib_sys::ffi_types::{
+use crate::ffi;
+use crate::ffi::{
     CharInfo,
     Rectangle,
     VrDeviceInfo,
@@ -49,7 +49,7 @@ impl AudioSample for u8 { }
 impl AudioSample for i16 { }
 impl AudioSample for f32 { }
 
-static IS_INITIALIZED: AtomicBool = ATOMIC_BOOL_INIT;
+static IS_INITIALIZED: AtomicBool = AtomicBool::new(false);
 
 lazy_static! {
     static ref FONT_DEFAULT: Font = {

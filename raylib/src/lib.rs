@@ -72,7 +72,12 @@ pub mod consts {
     pub use raylib_sys::ffi_consts::*;
 }
 
-pub use raylib_sys::ffi_types::{
+/// The raw, unsafe FFI binding, in case you need that escape hatch or the safe layer doesn't provide something you need.
+pub mod ffi {
+    pub use raylib_sys::ffi::*;
+}
+
+pub use crate::ffi::{
     CharInfo,
     Rectangle,
     VrDeviceInfo,

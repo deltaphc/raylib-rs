@@ -15,7 +15,7 @@ Permission is granted to anyone to use this software for any purpose, including 
 */
 
 use std::ops::{Deref, DerefMut};
-use raylib_sys::ffi;
+use crate::ffi;
 use crate::raymath::*;
 
 #[derive(Debug, Copy, Clone)]
