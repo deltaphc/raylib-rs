@@ -16,12 +16,12 @@ Permission is granted to anyone to use this software for any purpose, including 
 
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::ffi::{CString, CStr};
+use std::mem;
 use lazy_static::lazy_static;
 use crate::ffi;
 use crate::ffi::{
     CharInfo,
     Rectangle,
-    VrDeviceInfo,
 };
 use crate::consts::*;
 use crate::raymath::*;
@@ -167,13 +167,13 @@ impl RaylibBuilder {
     /// Attempting to initialize Raylib more than once will result in a panic.
     pub fn build(&self) -> RaylibHandle {
         let mut flags = 0u32;
-        if self.show_logo { flags |= FLAG_SHOW_LOGO; }
-        if self.fullscreen_mode { flags |= FLAG_FULLSCREEN_MODE; }
-        if self.window_resizable { flags |= FLAG_WINDOW_RESIZABLE; }
-        if self.window_undecorated { flags |= FLAG_WINDOW_UNDECORATED; }
-        if self.window_transparent { flags |= FLAG_WINDOW_TRANSPARENT; }
-        if self.msaa_4x_hint { flags |= FLAG_MSAA_4X_HINT; }
-        if self.vsync_hint { flags |= FLAG_VSYNC_HINT; }
+        if self.show_logo { flags |= FLAG_SHOW_LOGO as u32; }
+        if self.fullscreen_mode { flags |= FLAG_FULLSCREEN_MODE as u32; }
+        if self.window_resizable { flags |= FLAG_WINDOW_RESIZABLE as u32; }
+        if self.window_undecorated { flags |= FLAG_WINDOW_UNDECORATED as u32; }
+        if self.window_transparent { flags |= FLAG_WINDOW_TRANSPARENT as u32; }
+        if self.msaa_4x_hint { flags |= FLAG_MSAA_4X_HINT as u32; }
+        if self.vsync_hint { flags |= FLAG_VSYNC_HINT as u32; }
 
         unsafe { ffi::SetConfigFlags(flags as u8); }
         init_window(self.width, self.height, &self.title)
@@ -184,7 +184,7 @@ impl RaylibBuilder {
 #[inline]
 pub fn set_trace_log(types: Log) {
     unsafe {
-        ffi::SetTraceLog(types.0 as u8);
+        ffi::SetTraceLogLevel(types as i32);
     }
 }
 
@@ -193,7 +193,7 @@ pub fn set_trace_log(types: Log) {
 pub fn trace_log(msg_type: Log, text: &str) {
     unsafe {
         let text = CString::new(text).unwrap();
-        ffi::TraceLog(msg_type.0 as i32, text.as_ptr());
+        ffi::TraceLog(msg_type as i32, text.as_ptr());
     }
 }
 
@@ -866,15 +866,16 @@ impl RaylibHandle {
     #[inline]
     pub fn set_mouse_position(&self, position: impl Into<Vector2>) {
         unsafe {
-            ffi::SetMousePosition(position.into().into());
+            let Vector2 {x, y} = position.into();
+            ffi::SetMousePosition(x as i32, y as i32);
         }
     }
 
     /// Sets mouse scaling.
     #[inline]
-    pub fn set_mouse_scale(&self, scale: f32) {
+    pub fn set_mouse_scale(&self, scale_x: f32, scale_y: f32) {
         unsafe {
-            ffi::SetMouseScale(scale);
+            ffi::SetMouseScale(scale_x, scale_y);
         }
     }
 
@@ -914,7 +915,7 @@ impl RaylibHandle {
     #[inline]
     pub fn set_gestures_enabled(&self, gesture_flags: Gesture) {
         unsafe {
-            ffi::SetGesturesEnabled(gesture_flags.0);
+            ffi::SetGesturesEnabled(gesture_flags as u32);
         }
     }
 
@@ -922,7 +923,7 @@ impl RaylibHandle {
     #[inline]
     pub fn is_gesture_detected(&self, gesture: Gesture) -> bool {
         unsafe {
-            ffi::IsGestureDetected(gesture.0 as i32)
+            ffi::IsGestureDetected(gesture as i32)
         }
     }
 
@@ -930,7 +931,7 @@ impl RaylibHandle {
     #[inline]
     pub fn get_gesture_detected(&self) -> Gesture {
         unsafe {
-            Gesture(ffi::GetGestureDetected() as u32)
+            mem::transmute::<i32, Gesture>(ffi::GetGestureDetected())
         }
     }
 
@@ -1221,24 +1222,6 @@ impl RaylibHandle {
         }
     }
 
-    /// Draws a closed polygon defined by points.
-    #[inline]
-    pub fn draw_poly_ex(&self, points: &[Vector2], color: impl Into<Color>) {
-        unsafe {
-            // An examination of raylib source (shapes.c) shows that it does not mutate the given points
-            ffi::DrawPolyEx(points.as_ptr() as *mut ffi::Vector2, points.len() as i32, color.into().into());
-        }
-    }
-
-    /// Draws a polygon using lines.
-    #[inline]
-    pub fn draw_poly_ex_lines(&self, points: &[Vector2], color: impl Into<Color>) {
-        unsafe {
-            // An examination of raylib source (shapes.c) shows that it does not mutate the given points
-            ffi::DrawPolyExLines(points.as_ptr() as *mut ffi::Vector2, points.len() as i32, color.into().into());
-        }
-    }
-
     /// Checks collision between two rectangles.
     #[inline]
     pub fn check_collision_recs(&self, rec1: Rectangle, rec2: Rectangle) -> bool {
@@ -1340,10 +1323,10 @@ impl RaylibHandle {
 
     /// Exports image as a PNG file.
     #[inline]
-    pub fn export_image(&self, filename: &str, image: &Image) {
+    pub fn export_image(&self, image: Image, filename: &str) {
         let c_filename = CString::new(filename).unwrap();
         unsafe {
-            ffi::ExportImage(c_filename.as_ptr(), image.0);
+            ffi::ExportImage( image.0, c_filename.as_ptr());
         }
     }
 
@@ -1419,7 +1402,9 @@ impl RaylibHandle {
     /// Updates GPU texture with new data.
     #[inline]
     pub fn update_texture(&self, texture: &mut Texture2D, pixels: &[u8]) {
-        let expected_len = self.get_pixel_data_size(texture.width, texture.height, texture.format.into()) as usize;
+       let expected_len =  unsafe {
+        self.get_pixel_data_size(texture.width, texture.height, mem::transmute::<i32, ffi::PixelFormat>(texture.format)) as usize
+        };
         if pixels.len() != expected_len {
             panic!("update_texture: Data is wrong size. Expected {}, got {}", expected_len, pixels.len());
         }
@@ -1560,9 +1545,9 @@ impl RaylibHandle {
 
     /// Draws a rectangle within an image.
     #[inline]
-    pub fn image_draw_rectangle(&self, dst: &mut Image, position: impl Into<Vector2>, rec: Rectangle, color: impl Into<Color>) {
+    pub fn image_draw_rectangle(&self, dst: &mut Image, rec: Rectangle, color: impl Into<Color>) {
         unsafe {
-            ffi::ImageDrawRectangle(&mut dst.0, position.into().into(), rec, color.into().into());
+            ffi::ImageDrawRectangle(&mut dst.0, rec, color.into().into());
         }
     }
 
@@ -1813,21 +1798,31 @@ impl RaylibHandle {
         let c_filename = CString::new(filename).unwrap();
         unsafe {
             match chars {
-                Some(c) => Font(ffi::LoadFontEx(c_filename.as_ptr(), font_size, c.len() as i32, c.as_ptr() as *mut i32)),
-                None => Font(ffi::LoadFontEx(c_filename.as_ptr(), font_size, 0, std::ptr::null_mut()))
+                Some(c) => Font(ffi::LoadFontEx(c_filename.as_ptr(), font_size, c.as_ptr() as *mut i32, c.len() as i32)),
+                None => Font(ffi::LoadFontEx(c_filename.as_ptr(), font_size, std::ptr::null_mut(), 0))
             }
         }
     }
 
     /// Loads font data for further use (see also `Font::from_data`).
     #[inline]
-    pub fn load_font_data(&self, filename: &str, font_size: i32, chars: Option<&[i32]>, sdf: bool) -> Vec<CharInfo> {
+    pub fn load_font_data(
+        &self,
+        filename: &str,
+        font_size: i32,
+        chars: Option<&[i32]>,
+        sdf: i32,
+    ) -> Vec<CharInfo> {
         let c_filename = CString::new(filename).unwrap();
         unsafe {
             let ci_arr_ptr = match chars {
-                Some(c) => {
-                    ffi::LoadFontData(c_filename.as_ptr(), font_size, c.as_ptr() as *mut i32, c.len() as i32, sdf)
-                }
+                Some(c) => ffi::LoadFontData(
+                    c_filename.as_ptr(),
+                    font_size,
+                    c.as_ptr() as *mut i32,
+                    c.len() as i32,
+                    sdf,
+                ),
                 None => {
                     ffi::LoadFontData(c_filename.as_ptr(), font_size, std::ptr::null_mut(), 0, sdf)
                 }
@@ -2041,21 +2036,12 @@ impl RaylibHandle {
         }
     }
 
-    /// Loads mesh from file.
-    #[inline]
-    pub fn load_mesh(&self, filename: &str) -> Mesh {
-        let c_filename = CString::new(filename).unwrap();
-        unsafe {
-            Mesh(ffi::LoadMesh(c_filename.as_ptr()))
-        }
-    }
-
     /// Exports mesh as an OBJ file.
     #[inline]
     pub fn export_mesh(&self, filename: &str, mesh: &Mesh) {
         let c_filename = CString::new(filename).unwrap();
         unsafe {
-            ffi::ExportMesh(c_filename.as_ptr(), mesh.0);
+            ffi::ExportMesh( mesh.0, c_filename.as_ptr());
         }
     }
 
@@ -2110,9 +2096,7 @@ impl RaylibHandle {
     /// Generates half-sphere mesh (no bottom cap).
     #[inline]
     pub fn gen_mesh_hemisphere(&self, radius: f32, rings: i32, slices: i32) -> Mesh {
-        unsafe {
-            Mesh(ffi::GenMeshHemiSphere(radius, rings, slices))
-        }
+        unsafe { Mesh(ffi::GenMeshHemiSphere(radius, rings, slices)) }
     }
 
     /// Generates cylinder mesh.
@@ -2152,15 +2136,6 @@ impl RaylibHandle {
     pub fn gen_mesh_cubicmap(&self, cubicmap: &Image, cube_size: impl Into<Vector3>) -> Mesh {
         unsafe {
             Mesh(ffi::GenMeshCubicmap(cubicmap.0, cube_size.into().into()))
-        }
-    }
-
-    /// Loads material from file.
-    #[inline]
-    pub fn load_material(&self, filename: &str) -> Material {
-        let c_filename = CString::new(filename).unwrap();
-        unsafe {
-            Material(ffi::LoadMaterial(c_filename.as_ptr()))
         }
     }
 
@@ -2362,15 +2337,7 @@ impl RaylibHandle {
     #[inline]
     pub fn set_shader_value(&self, shader: &mut Shader, uniform_loc: i32, value: &[f32]) {
         unsafe {
-            ffi::SetShaderValue(shader.0, uniform_loc, value.as_ptr(), value.len() as i32);
-        }
-    }
-
-    /// Sets shader uniform value (`i32`).
-    #[inline]
-    pub fn set_shader_value_i(&self, shader: &mut Shader, uniform_loc: i32, value: &[i32]) {
-        unsafe {
-            ffi::SetShaderValuei(shader.0, uniform_loc, value.as_ptr(), value.len() as i32);
+            ffi::SetShaderValue(shader.0, uniform_loc, value.as_ptr() as *const ::std::os::raw::c_void, value.len() as i32);
         }
     }
 
@@ -2432,9 +2399,9 @@ impl RaylibHandle {
 
     /// Generates BRDF texture using cubemap data.
     #[inline]
-    pub fn gen_texture_brdf(&self, shader: &Shader, cubemap: &Texture2D, size: i32) -> Texture2D {
+    pub fn gen_texture_brdf(&self, shader: &Shader, size: i32) -> Texture2D {
         unsafe {
-            Texture2D(ffi::GenTextureBRDF(shader.0, cubemap.0, size))
+            Texture2D(ffi::GenTextureBRDF(shader.0,  size))
         }
     }
 
@@ -2462,7 +2429,7 @@ impl RaylibHandle {
         }
     }
 
-    /// Ends blending mode (reset to default: alpha blending).
+     /// Ends blending mode (reset to default: alpha blending).
     #[inline]
     pub fn end_blend_mode(&self) {
         unsafe {
@@ -2470,19 +2437,11 @@ impl RaylibHandle {
         }
     }
 
-    /// Gets VR device information for some standard devices.
-    #[inline]
-    pub fn get_vr_device_info(&self, vr_device_type: VrDevice) -> VrDeviceInfo {
-        unsafe {
-            ffi::GetVrDeviceInfo(vr_device_type as i32)
-        }
-    }
-
     /// Initializes VR simulator for selected device parameters.
     #[inline]
-    pub fn init_vr_simulator(&self, info: VrDeviceInfo) {
+    pub fn init_vr_simulator(&self) {
         unsafe {
-            ffi::InitVrSimulator(info);
+            ffi::InitVrSimulator();
         }
     }
 
@@ -2499,14 +2458,6 @@ impl RaylibHandle {
     pub fn is_vr_simulator_ready(&self) -> bool {
         unsafe {
             ffi::IsVrSimulatorReady()
-        }
-    }
-
-    /// Sets VR distortion shader for stereoscopic rendering.
-    #[inline]
-    pub fn set_vr_distortion_shader(&self, shader: &Shader) {
-        unsafe {
-            ffi::SetVrDistortionShader(shader.0);
         }
     }
 

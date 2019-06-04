@@ -19,33 +19,37 @@ use crate::ffi;
 use crate::raymath::*;
 
 #[derive(Debug, Copy, Clone)]
-pub struct Camera3D(pub(crate) ffi::Camera3D);
-
-impl Deref for Camera3D {
-    type Target = ffi::Camera3D;
-
-    fn deref(&self) -> &ffi::Camera3D {
-        &self.0
-    }
-}
-
-impl DerefMut for Camera3D {
-    fn deref_mut(&mut self) -> &mut ffi::Camera3D {
-        &mut self.0
-    }
+pub struct Camera3D {
+    pub position: Vector3,
+    pub target: Vector3,
+    pub up: Vector3,
+    pub fovy: f32,
+    pub proj: CameraType,
 }
 
 impl From<Camera3D> for ffi::Camera3D {
     #[inline]
     fn from(c: Camera3D) -> ffi::Camera3D {
-        c.0
+        ffi::Camera3D {
+            position: c.position.into(),
+            target: c.target.into(),
+            up: c.up.into(),
+            fovy: c.fovy,
+            type_: c.proj as i32,
+        }
     }
 }
 
 impl From<ffi::Camera3D> for Camera3D {
     #[inline]
     fn from(c: ffi::Camera3D) -> Camera3D {
-        Camera3D(c)
+        Camera3D {
+            position: c.position.into(),
+            target: c.target.into(),
+            up: c.up.into(),
+            fovy: c.fovy,
+            proj: c.type_.into(),
+        }
     }
 }
 
@@ -153,6 +157,26 @@ impl From<ffi::RayHitInfo> for RayHitInfo {
     }
 }
 
+macro_rules! enum_from_i32 {
+    ($vis:vis enum $name:ident { $($variant:ident = $value:path, )* }) => {
+        #[repr(u32)]
+        #[derive(Debug, Copy, Clone, PartialEq, Eq)]
+        $vis enum $name {
+            $($variant = $value as u32,)*
+        }
+
+        impl From<i32> for $name {
+            #[inline]
+            fn from(format: i32) -> $name {
+                match format as u32 {
+                    $($value => $name::$variant,)*
+                    _ => panic!("Invalid integer {} passed to {}::from(i32)", format, stringify!($name)),
+                }
+            }
+        }
+    }
+}
+
 macro_rules! impl_bidirectional_from {
     ($t1:path, $t2:path, $($field:ident),*) => {
         impl From<$t1> for $t2 {
@@ -177,15 +201,127 @@ macro_rules! impl_bidirectional_from {
 
 
 pub type Log = ffi::TraceLogType;
+
+
 pub type Gesture = ffi::GestureType;
-pub type ShaderLoc = ffi::ShaderLocationIndex;
-pub type Texmap = ffi::MaterialMapType;
-pub type PixelFormat = ffi::PixelFormat;
-pub type TextureFilter = ffi::TextureFilterMode;
-pub type TextureWrap = ffi::TextureWrapMode;
-pub type BlendMode = ffi::BlendMode;
-pub type CameraMode = ffi::CameraMode;
-pub type CameraType = ffi::CameraType;
+
+
+enum_from_i32! {
+    pub enum ShaderLoc {
+        VertexPosition = ffi::ShaderLocationIndex::LOC_VERTEX_POSITION,
+        VertexTexCoord01 = ffi::ShaderLocationIndex::LOC_VERTEX_TEXCOORD01,
+        VertexTexCoord02 = ffi::ShaderLocationIndex::LOC_VERTEX_TEXCOORD02,
+        VertexNormal = ffi::ShaderLocationIndex::LOC_VERTEX_NORMAL,
+        VertexTangent = ffi::ShaderLocationIndex::LOC_VERTEX_TANGENT,
+        VertexColor = ffi::ShaderLocationIndex::LOC_VERTEX_COLOR,
+        MatrixMVP = ffi::ShaderLocationIndex::LOC_MATRIX_MVP,
+        MatrixModel = ffi::ShaderLocationIndex::LOC_MATRIX_MODEL,
+        MatrixView = ffi::ShaderLocationIndex::LOC_MATRIX_VIEW,
+        MatrixProjection = ffi::ShaderLocationIndex::LOC_MATRIX_PROJECTION,
+        VectorView = ffi::ShaderLocationIndex::LOC_VECTOR_VIEW,
+        ColorDiffuse = ffi::ShaderLocationIndex::LOC_COLOR_DIFFUSE,
+        ColorSpecular = ffi::ShaderLocationIndex::LOC_COLOR_SPECULAR,
+        ColorAmbient = ffi::ShaderLocationIndex::LOC_COLOR_AMBIENT,
+        MapAlbedo = ffi::ShaderLocationIndex::LOC_MAP_ALBEDO,
+        MapMetalness = ffi::ShaderLocationIndex::LOC_MAP_METALNESS,
+        MapNormal = ffi::ShaderLocationIndex::LOC_MAP_NORMAL,
+        MapRoughness = ffi::ShaderLocationIndex::LOC_MAP_ROUGHNESS,
+        MapOcclusion = ffi::ShaderLocationIndex::LOC_MAP_OCCLUSION,
+        MapEmission = ffi::ShaderLocationIndex::LOC_MAP_EMISSION,
+        MapHeight = ffi::ShaderLocationIndex::LOC_MAP_HEIGHT,
+        MapCubeMap = ffi::ShaderLocationIndex::LOC_MAP_CUBEMAP,
+        MapIrradiance = ffi::ShaderLocationIndex::LOC_MAP_IRRADIANCE,
+        MapPrefilter = ffi::ShaderLocationIndex::LOC_MAP_PREFILTER,
+MapBRDF = ffi::ShaderLocationIndex::LOC_MAP_BRDF,
+    }
+}
+
+enum_from_i32! {
+    pub enum Texmap {
+        Albedo = ffi::MaterialMapType::MAP_ALBEDO,
+        Metalness = ffi::MaterialMapType::MAP_METALNESS,
+        Normal = ffi::MaterialMapType::MAP_NORMAL,
+        Roughness = ffi::MaterialMapType::MAP_ROUGHNESS,
+        Occlusion = ffi::MaterialMapType::MAP_OCCLUSION,
+        Emission = ffi::MaterialMapType::MAP_EMISSION,
+        Height = ffi::MaterialMapType::MAP_HEIGHT,
+        CubeMap = ffi::MaterialMapType::MAP_CUBEMAP,
+        Irradiance = ffi::MaterialMapType::MAP_IRRADIANCE,
+        Prefilter = ffi::MaterialMapType::MAP_PREFILTER,
+BRDF = ffi::MaterialMapType::MAP_BRDF,
+    }
+}
+
+enum_from_i32! {
+    pub enum PixelFormat {
+        UncompressedGrayscale = ffi::PixelFormat::UNCOMPRESSED_GRAYSCALE,
+        UncompressedGrayAlpha = ffi::PixelFormat::UNCOMPRESSED_GRAY_ALPHA,
+        UncompressedR5G6B5 = ffi::PixelFormat::UNCOMPRESSED_R5G6B5,
+        UncompressedR8G8B8 = ffi::PixelFormat::UNCOMPRESSED_R8G8B8,
+        UncompressedR5G5B5A1 = ffi::PixelFormat::UNCOMPRESSED_R5G5B5A1,
+        UncompressedR4G4B4A4 = ffi::PixelFormat::UNCOMPRESSED_R4G4B4A4,
+        UncompressedR8G8B8A8 = ffi::PixelFormat::UNCOMPRESSED_R8G8B8A8,
+        UncompressedR32 = ffi::PixelFormat::UNCOMPRESSED_R32,
+        UncompressedR32G32B32 = ffi::PixelFormat::UNCOMPRESSED_R32G32B32,
+        UncompressedR32G32B32A32 = ffi::PixelFormat::UNCOMPRESSED_R32G32B32A32,
+        CompressedDXT1RGB = ffi::PixelFormat::COMPRESSED_DXT1_RGB,
+        CompressedDXT1RGBA = ffi::PixelFormat::COMPRESSED_DXT1_RGBA,
+        CompressedDXT3RGBA = ffi::PixelFormat::COMPRESSED_DXT3_RGBA,
+        CompressedDXT5RGBA = ffi::PixelFormat::COMPRESSED_DXT5_RGBA,
+        CompressedETC1RGB = ffi::PixelFormat::COMPRESSED_ETC1_RGB,
+        CompressedETC2RGB = ffi::PixelFormat::COMPRESSED_ETC2_RGB,
+        CompressedETC2EACRGBA = ffi::PixelFormat::COMPRESSED_ETC2_EAC_RGBA,
+        CompressedPVRTRGB = ffi::PixelFormat::COMPRESSED_PVRT_RGB,
+        CompressedPVRTRGBA = ffi::PixelFormat::COMPRESSED_PVRT_RGBA,
+        CompressedASTC4x4RGBA = ffi::PixelFormat::COMPRESSED_ASTC_4x4_RGBA,
+CompressedASTC8x8RGBA = ffi::PixelFormat::COMPRESSED_ASTC_8x8_RGBA,
+    }
+}
+
+enum_from_i32! {
+    pub enum TextureFilter {
+        Point = ffi::TextureFilterMode::FILTER_POINT,
+        Bilinear = ffi::TextureFilterMode::FILTER_BILINEAR,
+        Trilinear = ffi::TextureFilterMode::FILTER_TRILINEAR,
+        Anisotropic4x = ffi::TextureFilterMode::FILTER_ANISOTROPIC_4X,
+        Anisotropic8x = ffi::TextureFilterMode::FILTER_ANISOTROPIC_8X,
+Anisotropic16x = ffi::TextureFilterMode::FILTER_ANISOTROPIC_16X,
+    }
+}
+
+enum_from_i32! {
+    pub enum TextureWrap {
+        Repeat = ffi::TextureWrapMode::WRAP_REPEAT,
+        Clamp = ffi::TextureWrapMode::WRAP_CLAMP,
+        MirrorRepeat = ffi::TextureWrapMode::WRAP_MIRROR_REPEAT,
+MirrorClamp = ffi::TextureWrapMode::WRAP_MIRROR_CLAMP,
+    }
+}
+
+enum_from_i32! {
+    pub enum BlendMode {
+        Alpha = ffi::BlendMode::BLEND_ALPHA,
+        Additive = ffi::BlendMode::BLEND_ADDITIVE,
+Multiplied = ffi::BlendMode::BLEND_MULTIPLIED,
+    }
+}
+
+enum_from_i32! {
+    pub enum CameraMode {
+        Custom = ffi::CameraMode::CAMERA_CUSTOM,
+        Free = ffi::CameraMode::CAMERA_FREE,
+        Orbital = ffi::CameraMode::CAMERA_ORBITAL,
+        FirstPerson = ffi::CameraMode::CAMERA_FIRST_PERSON,
+ThirdPerson = ffi::CameraMode::CAMERA_THIRD_PERSON,
+    }
+}
+
+enum_from_i32! {
+    pub enum CameraType {
+        Perspective = ffi::CameraType::CAMERA_PERSPECTIVE,
+Orthographic = ffi::CameraType::CAMERA_ORTHOGRAPHIC,
+    }
+}
 
 impl_bidirectional_from!(Vector2, ffi::Vector2, x, y);
 impl_bidirectional_from!(Vector3, ffi::Vector3, x, y, z);
@@ -369,6 +505,14 @@ impl MaterialExt for ffi::Material {
 /// An extension trait allowing for safe manipulation of `Model` structs.
 pub trait ModelExt {
     fn set_material(&mut self, material: Material);
+}
+
+impl ModelExt for ffi::Model {
+    /// Sets the material on the current Model and takes ownership of `material`.
+    fn set_material(&mut self, material: Material) {
+        self.material = material.0;
+        std::mem::forget(material); // UnloadModel will also unload the material
+    }
 }
 
 // Workarounds for lazy_static

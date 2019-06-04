@@ -61,27 +61,17 @@ Permission is granted to anyone to use this software for any purpose, including 
     html_favicon_url = "https://github.com/deltaphc/raylib-rs/raw/master/logo/raylib-rust.ico"
 )]
 
+pub mod consts;
 mod safe_types;
 mod safe_funcs;
 mod raymath;
 pub mod prelude;
 pub mod ease;
 
-/// Common and useful constants for various kinds of functionality.
-pub mod consts {
-    pub use raylib_sys::ffi_consts::*;
-}
-
 /// The raw, unsafe FFI binding, in case you need that escape hatch or the safe layer doesn't provide something you need.
 pub mod ffi {
-    pub use raylib_sys::ffi::*;
+    pub use raylib_sys::*;
 }
-
-pub use crate::ffi::{
-    CharInfo,
-    Rectangle,
-    VrDeviceInfo,
-};
 
 pub use crate::raymath::*;
 pub use crate::safe_types::*;
