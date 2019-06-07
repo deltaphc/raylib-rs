@@ -2121,293 +2121,356 @@ fn bindgen_test_layout_VrDeviceInfo() {
         )
     );
 }
-pub const ConfigFlag_FLAG_SHOW_LOGO: ConfigFlag = 1;
-pub const ConfigFlag_FLAG_FULLSCREEN_MODE: ConfigFlag = 2;
-pub const ConfigFlag_FLAG_WINDOW_RESIZABLE: ConfigFlag = 4;
-pub const ConfigFlag_FLAG_WINDOW_UNDECORATED: ConfigFlag = 8;
-pub const ConfigFlag_FLAG_WINDOW_TRANSPARENT: ConfigFlag = 16;
-pub const ConfigFlag_FLAG_WINDOW_HIDDEN: ConfigFlag = 128;
-pub const ConfigFlag_FLAG_MSAA_4X_HINT: ConfigFlag = 32;
-pub const ConfigFlag_FLAG_VSYNC_HINT: ConfigFlag = 64;
-pub type ConfigFlag = u32;
-pub const TraceLogType_LOG_ALL: TraceLogType = 0;
-pub const TraceLogType_LOG_TRACE: TraceLogType = 1;
-pub const TraceLogType_LOG_DEBUG: TraceLogType = 2;
-pub const TraceLogType_LOG_INFO: TraceLogType = 3;
-pub const TraceLogType_LOG_WARNING: TraceLogType = 4;
-pub const TraceLogType_LOG_ERROR: TraceLogType = 5;
-pub const TraceLogType_LOG_FATAL: TraceLogType = 6;
-pub const TraceLogType_LOG_NONE: TraceLogType = 7;
-pub type TraceLogType = u32;
-pub const KeyboardKey_KEY_APOSTROPHE: KeyboardKey = 39;
-pub const KeyboardKey_KEY_COMMA: KeyboardKey = 44;
-pub const KeyboardKey_KEY_MINUS: KeyboardKey = 45;
-pub const KeyboardKey_KEY_PERIOD: KeyboardKey = 46;
-pub const KeyboardKey_KEY_SLASH: KeyboardKey = 47;
-pub const KeyboardKey_KEY_ZERO: KeyboardKey = 48;
-pub const KeyboardKey_KEY_ONE: KeyboardKey = 49;
-pub const KeyboardKey_KEY_TWO: KeyboardKey = 50;
-pub const KeyboardKey_KEY_THREE: KeyboardKey = 51;
-pub const KeyboardKey_KEY_FOUR: KeyboardKey = 52;
-pub const KeyboardKey_KEY_FIVE: KeyboardKey = 53;
-pub const KeyboardKey_KEY_SIX: KeyboardKey = 54;
-pub const KeyboardKey_KEY_SEVEN: KeyboardKey = 55;
-pub const KeyboardKey_KEY_EIGHT: KeyboardKey = 56;
-pub const KeyboardKey_KEY_NINE: KeyboardKey = 57;
-pub const KeyboardKey_KEY_SEMICOLON: KeyboardKey = 59;
-pub const KeyboardKey_KEY_EQUAL: KeyboardKey = 61;
-pub const KeyboardKey_KEY_A: KeyboardKey = 65;
-pub const KeyboardKey_KEY_B: KeyboardKey = 66;
-pub const KeyboardKey_KEY_C: KeyboardKey = 67;
-pub const KeyboardKey_KEY_D: KeyboardKey = 68;
-pub const KeyboardKey_KEY_E: KeyboardKey = 69;
-pub const KeyboardKey_KEY_F: KeyboardKey = 70;
-pub const KeyboardKey_KEY_G: KeyboardKey = 71;
-pub const KeyboardKey_KEY_H: KeyboardKey = 72;
-pub const KeyboardKey_KEY_I: KeyboardKey = 73;
-pub const KeyboardKey_KEY_J: KeyboardKey = 74;
-pub const KeyboardKey_KEY_K: KeyboardKey = 75;
-pub const KeyboardKey_KEY_L: KeyboardKey = 76;
-pub const KeyboardKey_KEY_M: KeyboardKey = 77;
-pub const KeyboardKey_KEY_N: KeyboardKey = 78;
-pub const KeyboardKey_KEY_O: KeyboardKey = 79;
-pub const KeyboardKey_KEY_P: KeyboardKey = 80;
-pub const KeyboardKey_KEY_Q: KeyboardKey = 81;
-pub const KeyboardKey_KEY_R: KeyboardKey = 82;
-pub const KeyboardKey_KEY_S: KeyboardKey = 83;
-pub const KeyboardKey_KEY_T: KeyboardKey = 84;
-pub const KeyboardKey_KEY_U: KeyboardKey = 85;
-pub const KeyboardKey_KEY_V: KeyboardKey = 86;
-pub const KeyboardKey_KEY_W: KeyboardKey = 87;
-pub const KeyboardKey_KEY_X: KeyboardKey = 88;
-pub const KeyboardKey_KEY_Y: KeyboardKey = 89;
-pub const KeyboardKey_KEY_Z: KeyboardKey = 90;
-pub const KeyboardKey_KEY_SPACE: KeyboardKey = 32;
-pub const KeyboardKey_KEY_ESCAPE: KeyboardKey = 256;
-pub const KeyboardKey_KEY_ENTER: KeyboardKey = 257;
-pub const KeyboardKey_KEY_TAB: KeyboardKey = 258;
-pub const KeyboardKey_KEY_BACKSPACE: KeyboardKey = 259;
-pub const KeyboardKey_KEY_INSERT: KeyboardKey = 260;
-pub const KeyboardKey_KEY_DELETE: KeyboardKey = 261;
-pub const KeyboardKey_KEY_RIGHT: KeyboardKey = 262;
-pub const KeyboardKey_KEY_LEFT: KeyboardKey = 263;
-pub const KeyboardKey_KEY_DOWN: KeyboardKey = 264;
-pub const KeyboardKey_KEY_UP: KeyboardKey = 265;
-pub const KeyboardKey_KEY_PAGE_UP: KeyboardKey = 266;
-pub const KeyboardKey_KEY_PAGE_DOWN: KeyboardKey = 267;
-pub const KeyboardKey_KEY_HOME: KeyboardKey = 268;
-pub const KeyboardKey_KEY_END: KeyboardKey = 269;
-pub const KeyboardKey_KEY_CAPS_LOCK: KeyboardKey = 280;
-pub const KeyboardKey_KEY_SCROLL_LOCK: KeyboardKey = 281;
-pub const KeyboardKey_KEY_NUM_LOCK: KeyboardKey = 282;
-pub const KeyboardKey_KEY_PRINT_SCREEN: KeyboardKey = 283;
-pub const KeyboardKey_KEY_PAUSE: KeyboardKey = 284;
-pub const KeyboardKey_KEY_F1: KeyboardKey = 290;
-pub const KeyboardKey_KEY_F2: KeyboardKey = 291;
-pub const KeyboardKey_KEY_F3: KeyboardKey = 292;
-pub const KeyboardKey_KEY_F4: KeyboardKey = 293;
-pub const KeyboardKey_KEY_F5: KeyboardKey = 294;
-pub const KeyboardKey_KEY_F6: KeyboardKey = 295;
-pub const KeyboardKey_KEY_F7: KeyboardKey = 296;
-pub const KeyboardKey_KEY_F8: KeyboardKey = 297;
-pub const KeyboardKey_KEY_F9: KeyboardKey = 298;
-pub const KeyboardKey_KEY_F10: KeyboardKey = 299;
-pub const KeyboardKey_KEY_F11: KeyboardKey = 300;
-pub const KeyboardKey_KEY_F12: KeyboardKey = 301;
-pub const KeyboardKey_KEY_LEFT_SHIFT: KeyboardKey = 340;
-pub const KeyboardKey_KEY_LEFT_CONTROL: KeyboardKey = 341;
-pub const KeyboardKey_KEY_LEFT_ALT: KeyboardKey = 342;
-pub const KeyboardKey_KEY_LEFT_SUPER: KeyboardKey = 343;
-pub const KeyboardKey_KEY_RIGHT_SHIFT: KeyboardKey = 344;
-pub const KeyboardKey_KEY_RIGHT_CONTROL: KeyboardKey = 345;
-pub const KeyboardKey_KEY_RIGHT_ALT: KeyboardKey = 346;
-pub const KeyboardKey_KEY_RIGHT_SUPER: KeyboardKey = 347;
-pub const KeyboardKey_KEY_KB_MENU: KeyboardKey = 348;
-pub const KeyboardKey_KEY_LEFT_BRACKET: KeyboardKey = 91;
-pub const KeyboardKey_KEY_BACKSLASH: KeyboardKey = 92;
-pub const KeyboardKey_KEY_RIGHT_BRACKET: KeyboardKey = 93;
-pub const KeyboardKey_KEY_GRAVE: KeyboardKey = 96;
-pub const KeyboardKey_KEY_KP_0: KeyboardKey = 320;
-pub const KeyboardKey_KEY_KP_1: KeyboardKey = 321;
-pub const KeyboardKey_KEY_KP_2: KeyboardKey = 322;
-pub const KeyboardKey_KEY_KP_3: KeyboardKey = 323;
-pub const KeyboardKey_KEY_KP_4: KeyboardKey = 324;
-pub const KeyboardKey_KEY_KP_5: KeyboardKey = 325;
-pub const KeyboardKey_KEY_KP_6: KeyboardKey = 326;
-pub const KeyboardKey_KEY_KP_7: KeyboardKey = 327;
-pub const KeyboardKey_KEY_KP_8: KeyboardKey = 328;
-pub const KeyboardKey_KEY_KP_9: KeyboardKey = 329;
-pub const KeyboardKey_KEY_KP_DECIMAL: KeyboardKey = 330;
-pub const KeyboardKey_KEY_KP_DIVIDE: KeyboardKey = 331;
-pub const KeyboardKey_KEY_KP_MULTIPLY: KeyboardKey = 332;
-pub const KeyboardKey_KEY_KP_SUBTRACT: KeyboardKey = 333;
-pub const KeyboardKey_KEY_KP_ADD: KeyboardKey = 334;
-pub const KeyboardKey_KEY_KP_ENTER: KeyboardKey = 335;
-pub const KeyboardKey_KEY_KP_EQUAL: KeyboardKey = 336;
-pub type KeyboardKey = u32;
-pub const AndroidButton_KEY_BACK: AndroidButton = 4;
-pub const AndroidButton_KEY_MENU: AndroidButton = 82;
-pub const AndroidButton_KEY_VOLUME_UP: AndroidButton = 24;
-pub const AndroidButton_KEY_VOLUME_DOWN: AndroidButton = 25;
-pub type AndroidButton = u32;
-pub const MouseButton_MOUSE_LEFT_BUTTON: MouseButton = 0;
-pub const MouseButton_MOUSE_RIGHT_BUTTON: MouseButton = 1;
-pub const MouseButton_MOUSE_MIDDLE_BUTTON: MouseButton = 2;
-pub type MouseButton = u32;
-pub const GamepadNumber_GAMEPAD_PLAYER1: GamepadNumber = 0;
-pub const GamepadNumber_GAMEPAD_PLAYER2: GamepadNumber = 1;
-pub const GamepadNumber_GAMEPAD_PLAYER3: GamepadNumber = 2;
-pub const GamepadNumber_GAMEPAD_PLAYER4: GamepadNumber = 3;
-pub type GamepadNumber = u32;
-pub const GamepadButton_GAMEPAD_BUTTON_UNKNOWN: GamepadButton = 0;
-pub const GamepadButton_GAMEPAD_BUTTON_LEFT_FACE_UP: GamepadButton = 1;
-pub const GamepadButton_GAMEPAD_BUTTON_LEFT_FACE_RIGHT: GamepadButton = 2;
-pub const GamepadButton_GAMEPAD_BUTTON_LEFT_FACE_DOWN: GamepadButton = 3;
-pub const GamepadButton_GAMEPAD_BUTTON_LEFT_FACE_LEFT: GamepadButton = 4;
-pub const GamepadButton_GAMEPAD_BUTTON_RIGHT_FACE_UP: GamepadButton = 5;
-pub const GamepadButton_GAMEPAD_BUTTON_RIGHT_FACE_RIGHT: GamepadButton = 6;
-pub const GamepadButton_GAMEPAD_BUTTON_RIGHT_FACE_DOWN: GamepadButton = 7;
-pub const GamepadButton_GAMEPAD_BUTTON_RIGHT_FACE_LEFT: GamepadButton = 8;
-pub const GamepadButton_GAMEPAD_BUTTON_LEFT_TRIGGER_1: GamepadButton = 9;
-pub const GamepadButton_GAMEPAD_BUTTON_LEFT_TRIGGER_2: GamepadButton = 10;
-pub const GamepadButton_GAMEPAD_BUTTON_RIGHT_TRIGGER_1: GamepadButton = 11;
-pub const GamepadButton_GAMEPAD_BUTTON_RIGHT_TRIGGER_2: GamepadButton = 12;
-pub const GamepadButton_GAMEPAD_BUTTON_MIDDLE_LEFT: GamepadButton = 13;
-pub const GamepadButton_GAMEPAD_BUTTON_MIDDLE: GamepadButton = 14;
-pub const GamepadButton_GAMEPAD_BUTTON_MIDDLE_RIGHT: GamepadButton = 15;
-pub const GamepadButton_GAMEPAD_BUTTON_LEFT_THUMB: GamepadButton = 16;
-pub const GamepadButton_GAMEPAD_BUTTON_RIGHT_THUMB: GamepadButton = 17;
-pub type GamepadButton = u32;
-pub const GamepadAxis_GAMEPAD_AXIS_UNKNOWN: GamepadAxis = 0;
-pub const GamepadAxis_GAMEPAD_AXIS_LEFT_X: GamepadAxis = 1;
-pub const GamepadAxis_GAMEPAD_AXIS_LEFT_Y: GamepadAxis = 2;
-pub const GamepadAxis_GAMEPAD_AXIS_RIGHT_X: GamepadAxis = 3;
-pub const GamepadAxis_GAMEPAD_AXIS_RIGHT_Y: GamepadAxis = 4;
-pub const GamepadAxis_GAMEPAD_AXIS_LEFT_TRIGGER: GamepadAxis = 5;
-pub const GamepadAxis_GAMEPAD_AXIS_RIGHT_TRIGGER: GamepadAxis = 6;
-pub type GamepadAxis = u32;
-pub const ShaderLocationIndex_LOC_VERTEX_POSITION: ShaderLocationIndex = 0;
-pub const ShaderLocationIndex_LOC_VERTEX_TEXCOORD01: ShaderLocationIndex = 1;
-pub const ShaderLocationIndex_LOC_VERTEX_TEXCOORD02: ShaderLocationIndex = 2;
-pub const ShaderLocationIndex_LOC_VERTEX_NORMAL: ShaderLocationIndex = 3;
-pub const ShaderLocationIndex_LOC_VERTEX_TANGENT: ShaderLocationIndex = 4;
-pub const ShaderLocationIndex_LOC_VERTEX_COLOR: ShaderLocationIndex = 5;
-pub const ShaderLocationIndex_LOC_MATRIX_MVP: ShaderLocationIndex = 6;
-pub const ShaderLocationIndex_LOC_MATRIX_MODEL: ShaderLocationIndex = 7;
-pub const ShaderLocationIndex_LOC_MATRIX_VIEW: ShaderLocationIndex = 8;
-pub const ShaderLocationIndex_LOC_MATRIX_PROJECTION: ShaderLocationIndex = 9;
-pub const ShaderLocationIndex_LOC_VECTOR_VIEW: ShaderLocationIndex = 10;
-pub const ShaderLocationIndex_LOC_COLOR_DIFFUSE: ShaderLocationIndex = 11;
-pub const ShaderLocationIndex_LOC_COLOR_SPECULAR: ShaderLocationIndex = 12;
-pub const ShaderLocationIndex_LOC_COLOR_AMBIENT: ShaderLocationIndex = 13;
-pub const ShaderLocationIndex_LOC_MAP_ALBEDO: ShaderLocationIndex = 14;
-pub const ShaderLocationIndex_LOC_MAP_METALNESS: ShaderLocationIndex = 15;
-pub const ShaderLocationIndex_LOC_MAP_NORMAL: ShaderLocationIndex = 16;
-pub const ShaderLocationIndex_LOC_MAP_ROUGHNESS: ShaderLocationIndex = 17;
-pub const ShaderLocationIndex_LOC_MAP_OCCLUSION: ShaderLocationIndex = 18;
-pub const ShaderLocationIndex_LOC_MAP_EMISSION: ShaderLocationIndex = 19;
-pub const ShaderLocationIndex_LOC_MAP_HEIGHT: ShaderLocationIndex = 20;
-pub const ShaderLocationIndex_LOC_MAP_CUBEMAP: ShaderLocationIndex = 21;
-pub const ShaderLocationIndex_LOC_MAP_IRRADIANCE: ShaderLocationIndex = 22;
-pub const ShaderLocationIndex_LOC_MAP_PREFILTER: ShaderLocationIndex = 23;
-pub const ShaderLocationIndex_LOC_MAP_BRDF: ShaderLocationIndex = 24;
-pub type ShaderLocationIndex = u32;
-pub const ShaderUniformDataType_UNIFORM_FLOAT: ShaderUniformDataType = 0;
-pub const ShaderUniformDataType_UNIFORM_VEC2: ShaderUniformDataType = 1;
-pub const ShaderUniformDataType_UNIFORM_VEC3: ShaderUniformDataType = 2;
-pub const ShaderUniformDataType_UNIFORM_VEC4: ShaderUniformDataType = 3;
-pub const ShaderUniformDataType_UNIFORM_INT: ShaderUniformDataType = 4;
-pub const ShaderUniformDataType_UNIFORM_IVEC2: ShaderUniformDataType = 5;
-pub const ShaderUniformDataType_UNIFORM_IVEC3: ShaderUniformDataType = 6;
-pub const ShaderUniformDataType_UNIFORM_IVEC4: ShaderUniformDataType = 7;
-pub const ShaderUniformDataType_UNIFORM_SAMPLER2D: ShaderUniformDataType = 8;
-pub type ShaderUniformDataType = u32;
-pub const MaterialMapType_MAP_ALBEDO: MaterialMapType = 0;
-pub const MaterialMapType_MAP_METALNESS: MaterialMapType = 1;
-pub const MaterialMapType_MAP_NORMAL: MaterialMapType = 2;
-pub const MaterialMapType_MAP_ROUGHNESS: MaterialMapType = 3;
-pub const MaterialMapType_MAP_OCCLUSION: MaterialMapType = 4;
-pub const MaterialMapType_MAP_EMISSION: MaterialMapType = 5;
-pub const MaterialMapType_MAP_HEIGHT: MaterialMapType = 6;
-pub const MaterialMapType_MAP_CUBEMAP: MaterialMapType = 7;
-pub const MaterialMapType_MAP_IRRADIANCE: MaterialMapType = 8;
-pub const MaterialMapType_MAP_PREFILTER: MaterialMapType = 9;
-pub const MaterialMapType_MAP_BRDF: MaterialMapType = 10;
-pub type MaterialMapType = u32;
-pub const PixelFormat_UNCOMPRESSED_GRAYSCALE: PixelFormat = 1;
-pub const PixelFormat_UNCOMPRESSED_GRAY_ALPHA: PixelFormat = 2;
-pub const PixelFormat_UNCOMPRESSED_R5G6B5: PixelFormat = 3;
-pub const PixelFormat_UNCOMPRESSED_R8G8B8: PixelFormat = 4;
-pub const PixelFormat_UNCOMPRESSED_R5G5B5A1: PixelFormat = 5;
-pub const PixelFormat_UNCOMPRESSED_R4G4B4A4: PixelFormat = 6;
-pub const PixelFormat_UNCOMPRESSED_R8G8B8A8: PixelFormat = 7;
-pub const PixelFormat_UNCOMPRESSED_R32: PixelFormat = 8;
-pub const PixelFormat_UNCOMPRESSED_R32G32B32: PixelFormat = 9;
-pub const PixelFormat_UNCOMPRESSED_R32G32B32A32: PixelFormat = 10;
-pub const PixelFormat_COMPRESSED_DXT1_RGB: PixelFormat = 11;
-pub const PixelFormat_COMPRESSED_DXT1_RGBA: PixelFormat = 12;
-pub const PixelFormat_COMPRESSED_DXT3_RGBA: PixelFormat = 13;
-pub const PixelFormat_COMPRESSED_DXT5_RGBA: PixelFormat = 14;
-pub const PixelFormat_COMPRESSED_ETC1_RGB: PixelFormat = 15;
-pub const PixelFormat_COMPRESSED_ETC2_RGB: PixelFormat = 16;
-pub const PixelFormat_COMPRESSED_ETC2_EAC_RGBA: PixelFormat = 17;
-pub const PixelFormat_COMPRESSED_PVRT_RGB: PixelFormat = 18;
-pub const PixelFormat_COMPRESSED_PVRT_RGBA: PixelFormat = 19;
-pub const PixelFormat_COMPRESSED_ASTC_4x4_RGBA: PixelFormat = 20;
-pub const PixelFormat_COMPRESSED_ASTC_8x8_RGBA: PixelFormat = 21;
-pub type PixelFormat = u32;
-pub const TextureFilterMode_FILTER_POINT: TextureFilterMode = 0;
-pub const TextureFilterMode_FILTER_BILINEAR: TextureFilterMode = 1;
-pub const TextureFilterMode_FILTER_TRILINEAR: TextureFilterMode = 2;
-pub const TextureFilterMode_FILTER_ANISOTROPIC_4X: TextureFilterMode = 3;
-pub const TextureFilterMode_FILTER_ANISOTROPIC_8X: TextureFilterMode = 4;
-pub const TextureFilterMode_FILTER_ANISOTROPIC_16X: TextureFilterMode = 5;
-pub type TextureFilterMode = u32;
-pub const CubemapLayoutType_CUBEMAP_AUTO_DETECT: CubemapLayoutType = 0;
-pub const CubemapLayoutType_CUBEMAP_LINE_VERTICAL: CubemapLayoutType = 1;
-pub const CubemapLayoutType_CUBEMAP_LINE_HORIZONTAL: CubemapLayoutType = 2;
-pub const CubemapLayoutType_CUBEMAP_CROSS_THREE_BY_FOUR: CubemapLayoutType = 3;
-pub const CubemapLayoutType_CUBEMAP_CROSS_FOUR_BY_THREE: CubemapLayoutType = 4;
-pub const CubemapLayoutType_CUBEMAP_PANORAMA: CubemapLayoutType = 5;
-pub type CubemapLayoutType = u32;
-pub const TextureWrapMode_WRAP_REPEAT: TextureWrapMode = 0;
-pub const TextureWrapMode_WRAP_CLAMP: TextureWrapMode = 1;
-pub const TextureWrapMode_WRAP_MIRROR_REPEAT: TextureWrapMode = 2;
-pub const TextureWrapMode_WRAP_MIRROR_CLAMP: TextureWrapMode = 3;
-pub type TextureWrapMode = u32;
-pub const FontType_FONT_DEFAULT: FontType = 0;
-pub const FontType_FONT_BITMAP: FontType = 1;
-pub const FontType_FONT_SDF: FontType = 2;
-pub type FontType = u32;
-pub const BlendMode_BLEND_ALPHA: BlendMode = 0;
-pub const BlendMode_BLEND_ADDITIVE: BlendMode = 1;
-pub const BlendMode_BLEND_MULTIPLIED: BlendMode = 2;
-pub type BlendMode = u32;
-pub const GestureType_GESTURE_NONE: GestureType = 0;
-pub const GestureType_GESTURE_TAP: GestureType = 1;
-pub const GestureType_GESTURE_DOUBLETAP: GestureType = 2;
-pub const GestureType_GESTURE_HOLD: GestureType = 4;
-pub const GestureType_GESTURE_DRAG: GestureType = 8;
-pub const GestureType_GESTURE_SWIPE_RIGHT: GestureType = 16;
-pub const GestureType_GESTURE_SWIPE_LEFT: GestureType = 32;
-pub const GestureType_GESTURE_SWIPE_UP: GestureType = 64;
-pub const GestureType_GESTURE_SWIPE_DOWN: GestureType = 128;
-pub const GestureType_GESTURE_PINCH_IN: GestureType = 256;
-pub const GestureType_GESTURE_PINCH_OUT: GestureType = 512;
-pub type GestureType = u32;
-pub const CameraMode_CAMERA_CUSTOM: CameraMode = 0;
-pub const CameraMode_CAMERA_FREE: CameraMode = 1;
-pub const CameraMode_CAMERA_ORBITAL: CameraMode = 2;
-pub const CameraMode_CAMERA_FIRST_PERSON: CameraMode = 3;
-pub const CameraMode_CAMERA_THIRD_PERSON: CameraMode = 4;
-pub type CameraMode = u32;
-pub const CameraType_CAMERA_PERSPECTIVE: CameraType = 0;
-pub const CameraType_CAMERA_ORTHOGRAPHIC: CameraType = 1;
-pub type CameraType = u32;
-pub const NPatchType_NPT_9PATCH: NPatchType = 0;
-pub const NPatchType_NPT_3PATCH_VERTICAL: NPatchType = 1;
-pub const NPatchType_NPT_3PATCH_HORIZONTAL: NPatchType = 2;
-pub type NPatchType = u32;
+#[repr(u32)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+pub enum ConfigFlag {
+    FLAG_SHOW_LOGO = 1,
+    FLAG_FULLSCREEN_MODE = 2,
+    FLAG_WINDOW_RESIZABLE = 4,
+    FLAG_WINDOW_UNDECORATED = 8,
+    FLAG_WINDOW_TRANSPARENT = 16,
+    FLAG_WINDOW_HIDDEN = 128,
+    FLAG_MSAA_4X_HINT = 32,
+    FLAG_VSYNC_HINT = 64,
+}
+#[repr(u32)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+pub enum TraceLogType {
+    LOG_ALL = 0,
+    LOG_TRACE = 1,
+    LOG_DEBUG = 2,
+    LOG_INFO = 3,
+    LOG_WARNING = 4,
+    LOG_ERROR = 5,
+    LOG_FATAL = 6,
+    LOG_NONE = 7,
+}
+#[repr(u32)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+pub enum KeyboardKey {
+    KEY_APOSTROPHE = 39,
+    KEY_COMMA = 44,
+    KEY_MINUS = 45,
+    KEY_PERIOD = 46,
+    KEY_SLASH = 47,
+    KEY_ZERO = 48,
+    KEY_ONE = 49,
+    KEY_TWO = 50,
+    KEY_THREE = 51,
+    KEY_FOUR = 52,
+    KEY_FIVE = 53,
+    KEY_SIX = 54,
+    KEY_SEVEN = 55,
+    KEY_EIGHT = 56,
+    KEY_NINE = 57,
+    KEY_SEMICOLON = 59,
+    KEY_EQUAL = 61,
+    KEY_A = 65,
+    KEY_B = 66,
+    KEY_C = 67,
+    KEY_D = 68,
+    KEY_E = 69,
+    KEY_F = 70,
+    KEY_G = 71,
+    KEY_H = 72,
+    KEY_I = 73,
+    KEY_J = 74,
+    KEY_K = 75,
+    KEY_L = 76,
+    KEY_M = 77,
+    KEY_N = 78,
+    KEY_O = 79,
+    KEY_P = 80,
+    KEY_Q = 81,
+    KEY_R = 82,
+    KEY_S = 83,
+    KEY_T = 84,
+    KEY_U = 85,
+    KEY_V = 86,
+    KEY_W = 87,
+    KEY_X = 88,
+    KEY_Y = 89,
+    KEY_Z = 90,
+    KEY_SPACE = 32,
+    KEY_ESCAPE = 256,
+    KEY_ENTER = 257,
+    KEY_TAB = 258,
+    KEY_BACKSPACE = 259,
+    KEY_INSERT = 260,
+    KEY_DELETE = 261,
+    KEY_RIGHT = 262,
+    KEY_LEFT = 263,
+    KEY_DOWN = 264,
+    KEY_UP = 265,
+    KEY_PAGE_UP = 266,
+    KEY_PAGE_DOWN = 267,
+    KEY_HOME = 268,
+    KEY_END = 269,
+    KEY_CAPS_LOCK = 280,
+    KEY_SCROLL_LOCK = 281,
+    KEY_NUM_LOCK = 282,
+    KEY_PRINT_SCREEN = 283,
+    KEY_PAUSE = 284,
+    KEY_F1 = 290,
+    KEY_F2 = 291,
+    KEY_F3 = 292,
+    KEY_F4 = 293,
+    KEY_F5 = 294,
+    KEY_F6 = 295,
+    KEY_F7 = 296,
+    KEY_F8 = 297,
+    KEY_F9 = 298,
+    KEY_F10 = 299,
+    KEY_F11 = 300,
+    KEY_F12 = 301,
+    KEY_LEFT_SHIFT = 340,
+    KEY_LEFT_CONTROL = 341,
+    KEY_LEFT_ALT = 342,
+    KEY_LEFT_SUPER = 343,
+    KEY_RIGHT_SHIFT = 344,
+    KEY_RIGHT_CONTROL = 345,
+    KEY_RIGHT_ALT = 346,
+    KEY_RIGHT_SUPER = 347,
+    KEY_KB_MENU = 348,
+    KEY_LEFT_BRACKET = 91,
+    KEY_BACKSLASH = 92,
+    KEY_RIGHT_BRACKET = 93,
+    KEY_GRAVE = 96,
+    KEY_KP_0 = 320,
+    KEY_KP_1 = 321,
+    KEY_KP_2 = 322,
+    KEY_KP_3 = 323,
+    KEY_KP_4 = 324,
+    KEY_KP_5 = 325,
+    KEY_KP_6 = 326,
+    KEY_KP_7 = 327,
+    KEY_KP_8 = 328,
+    KEY_KP_9 = 329,
+    KEY_KP_DECIMAL = 330,
+    KEY_KP_DIVIDE = 331,
+    KEY_KP_MULTIPLY = 332,
+    KEY_KP_SUBTRACT = 333,
+    KEY_KP_ADD = 334,
+    KEY_KP_ENTER = 335,
+    KEY_KP_EQUAL = 336,
+}
+#[repr(u32)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+pub enum AndroidButton {
+    KEY_BACK = 4,
+    KEY_MENU = 82,
+    KEY_VOLUME_UP = 24,
+    KEY_VOLUME_DOWN = 25,
+}
+#[repr(u32)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+pub enum MouseButton {
+    MOUSE_LEFT_BUTTON = 0,
+    MOUSE_RIGHT_BUTTON = 1,
+    MOUSE_MIDDLE_BUTTON = 2,
+}
+#[repr(u32)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+pub enum GamepadNumber {
+    GAMEPAD_PLAYER1 = 0,
+    GAMEPAD_PLAYER2 = 1,
+    GAMEPAD_PLAYER3 = 2,
+    GAMEPAD_PLAYER4 = 3,
+}
+#[repr(u32)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+pub enum GamepadButton {
+    GAMEPAD_BUTTON_UNKNOWN = 0,
+    GAMEPAD_BUTTON_LEFT_FACE_UP = 1,
+    GAMEPAD_BUTTON_LEFT_FACE_RIGHT = 2,
+    GAMEPAD_BUTTON_LEFT_FACE_DOWN = 3,
+    GAMEPAD_BUTTON_LEFT_FACE_LEFT = 4,
+    GAMEPAD_BUTTON_RIGHT_FACE_UP = 5,
+    GAMEPAD_BUTTON_RIGHT_FACE_RIGHT = 6,
+    GAMEPAD_BUTTON_RIGHT_FACE_DOWN = 7,
+    GAMEPAD_BUTTON_RIGHT_FACE_LEFT = 8,
+    GAMEPAD_BUTTON_LEFT_TRIGGER_1 = 9,
+    GAMEPAD_BUTTON_LEFT_TRIGGER_2 = 10,
+    GAMEPAD_BUTTON_RIGHT_TRIGGER_1 = 11,
+    GAMEPAD_BUTTON_RIGHT_TRIGGER_2 = 12,
+    GAMEPAD_BUTTON_MIDDLE_LEFT = 13,
+    GAMEPAD_BUTTON_MIDDLE = 14,
+    GAMEPAD_BUTTON_MIDDLE_RIGHT = 15,
+    GAMEPAD_BUTTON_LEFT_THUMB = 16,
+    GAMEPAD_BUTTON_RIGHT_THUMB = 17,
+}
+#[repr(u32)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+pub enum GamepadAxis {
+    GAMEPAD_AXIS_UNKNOWN = 0,
+    GAMEPAD_AXIS_LEFT_X = 1,
+    GAMEPAD_AXIS_LEFT_Y = 2,
+    GAMEPAD_AXIS_RIGHT_X = 3,
+    GAMEPAD_AXIS_RIGHT_Y = 4,
+    GAMEPAD_AXIS_LEFT_TRIGGER = 5,
+    GAMEPAD_AXIS_RIGHT_TRIGGER = 6,
+}
+#[repr(u32)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+pub enum ShaderLocationIndex {
+    LOC_VERTEX_POSITION = 0,
+    LOC_VERTEX_TEXCOORD01 = 1,
+    LOC_VERTEX_TEXCOORD02 = 2,
+    LOC_VERTEX_NORMAL = 3,
+    LOC_VERTEX_TANGENT = 4,
+    LOC_VERTEX_COLOR = 5,
+    LOC_MATRIX_MVP = 6,
+    LOC_MATRIX_MODEL = 7,
+    LOC_MATRIX_VIEW = 8,
+    LOC_MATRIX_PROJECTION = 9,
+    LOC_VECTOR_VIEW = 10,
+    LOC_COLOR_DIFFUSE = 11,
+    LOC_COLOR_SPECULAR = 12,
+    LOC_COLOR_AMBIENT = 13,
+    LOC_MAP_ALBEDO = 14,
+    LOC_MAP_METALNESS = 15,
+    LOC_MAP_NORMAL = 16,
+    LOC_MAP_ROUGHNESS = 17,
+    LOC_MAP_OCCLUSION = 18,
+    LOC_MAP_EMISSION = 19,
+    LOC_MAP_HEIGHT = 20,
+    LOC_MAP_CUBEMAP = 21,
+    LOC_MAP_IRRADIANCE = 22,
+    LOC_MAP_PREFILTER = 23,
+    LOC_MAP_BRDF = 24,
+}
+#[repr(u32)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+pub enum ShaderUniformDataType {
+    UNIFORM_FLOAT = 0,
+    UNIFORM_VEC2 = 1,
+    UNIFORM_VEC3 = 2,
+    UNIFORM_VEC4 = 3,
+    UNIFORM_INT = 4,
+    UNIFORM_IVEC2 = 5,
+    UNIFORM_IVEC3 = 6,
+    UNIFORM_IVEC4 = 7,
+    UNIFORM_SAMPLER2D = 8,
+}
+#[repr(u32)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+pub enum MaterialMapType {
+    MAP_ALBEDO = 0,
+    MAP_METALNESS = 1,
+    MAP_NORMAL = 2,
+    MAP_ROUGHNESS = 3,
+    MAP_OCCLUSION = 4,
+    MAP_EMISSION = 5,
+    MAP_HEIGHT = 6,
+    MAP_CUBEMAP = 7,
+    MAP_IRRADIANCE = 8,
+    MAP_PREFILTER = 9,
+    MAP_BRDF = 10,
+}
+#[repr(u32)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+pub enum PixelFormat {
+    UNCOMPRESSED_GRAYSCALE = 1,
+    UNCOMPRESSED_GRAY_ALPHA = 2,
+    UNCOMPRESSED_R5G6B5 = 3,
+    UNCOMPRESSED_R8G8B8 = 4,
+    UNCOMPRESSED_R5G5B5A1 = 5,
+    UNCOMPRESSED_R4G4B4A4 = 6,
+    UNCOMPRESSED_R8G8B8A8 = 7,
+    UNCOMPRESSED_R32 = 8,
+    UNCOMPRESSED_R32G32B32 = 9,
+    UNCOMPRESSED_R32G32B32A32 = 10,
+    COMPRESSED_DXT1_RGB = 11,
+    COMPRESSED_DXT1_RGBA = 12,
+    COMPRESSED_DXT3_RGBA = 13,
+    COMPRESSED_DXT5_RGBA = 14,
+    COMPRESSED_ETC1_RGB = 15,
+    COMPRESSED_ETC2_RGB = 16,
+    COMPRESSED_ETC2_EAC_RGBA = 17,
+    COMPRESSED_PVRT_RGB = 18,
+    COMPRESSED_PVRT_RGBA = 19,
+    COMPRESSED_ASTC_4x4_RGBA = 20,
+    COMPRESSED_ASTC_8x8_RGBA = 21,
+}
+#[repr(u32)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+pub enum TextureFilterMode {
+    FILTER_POINT = 0,
+    FILTER_BILINEAR = 1,
+    FILTER_TRILINEAR = 2,
+    FILTER_ANISOTROPIC_4X = 3,
+    FILTER_ANISOTROPIC_8X = 4,
+    FILTER_ANISOTROPIC_16X = 5,
+}
+#[repr(u32)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+pub enum CubemapLayoutType {
+    CUBEMAP_AUTO_DETECT = 0,
+    CUBEMAP_LINE_VERTICAL = 1,
+    CUBEMAP_LINE_HORIZONTAL = 2,
+    CUBEMAP_CROSS_THREE_BY_FOUR = 3,
+    CUBEMAP_CROSS_FOUR_BY_THREE = 4,
+    CUBEMAP_PANORAMA = 5,
+}
+#[repr(u32)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+pub enum TextureWrapMode {
+    WRAP_REPEAT = 0,
+    WRAP_CLAMP = 1,
+    WRAP_MIRROR_REPEAT = 2,
+    WRAP_MIRROR_CLAMP = 3,
+}
+#[repr(u32)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+pub enum FontType {
+    FONT_DEFAULT = 0,
+    FONT_BITMAP = 1,
+    FONT_SDF = 2,
+}
+#[repr(u32)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+pub enum BlendMode {
+    BLEND_ALPHA = 0,
+    BLEND_ADDITIVE = 1,
+    BLEND_MULTIPLIED = 2,
+}
+#[repr(u32)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+pub enum GestureType {
+    GESTURE_NONE = 0,
+    GESTURE_TAP = 1,
+    GESTURE_DOUBLETAP = 2,
+    GESTURE_HOLD = 4,
+    GESTURE_DRAG = 8,
+    GESTURE_SWIPE_RIGHT = 16,
+    GESTURE_SWIPE_LEFT = 32,
+    GESTURE_SWIPE_UP = 64,
+    GESTURE_SWIPE_DOWN = 128,
+    GESTURE_PINCH_IN = 256,
+    GESTURE_PINCH_OUT = 512,
+}
+#[repr(u32)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+pub enum CameraMode {
+    CAMERA_CUSTOM = 0,
+    CAMERA_FREE = 1,
+    CAMERA_ORBITAL = 2,
+    CAMERA_FIRST_PERSON = 3,
+    CAMERA_THIRD_PERSON = 4,
+}
+#[repr(u32)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+pub enum CameraType {
+    CAMERA_PERSPECTIVE = 0,
+    CAMERA_ORTHOGRAPHIC = 1,
+}
+#[repr(u32)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+pub enum NPatchType {
+    NPT_9PATCH = 0,
+    NPT_3PATCH_VERTICAL = 1,
+    NPT_3PATCH_HORIZONTAL = 2,
+}
 pub type TraceLogCallback = ::std::option::Option<
     unsafe extern "C" fn(
         logType: ::std::os::raw::c_int,

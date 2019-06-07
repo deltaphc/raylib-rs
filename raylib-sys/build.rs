@@ -13,19 +13,46 @@ Permission is granted to anyone to use this software for any purpose, including 
 
   3. This notice may not be removed or altered from any source distribution.
 */
+#![allow(dead_code)]
 
-use std::path::{PathBuf};
+use std::path::{Path, PathBuf};
 use std::{env, fs};
 
 /// latest version on github's release page as of time or writing
 const LATEST_RAYLIB_VERSION: &str = "2.5.0";
 const LATEST_RAYLIB_API_VERSION: &str = "2";
 
+fn build_with_cmake(src_path: &str) {
+    let target = env::var("TARGET").expect("Cargo build scripts always have TARGET");
+    let (platform, _platform_os) = platform_from_target(&target);
+
+    let mut conf = cmake::Config::new(src_path);
+        conf
+        .define("BUILD_EXAMPLES", "OFF")
+        .define("BUILD_GAMES", "OFF")
+        .define("CMAKE_BUILD_TYPE", "Release")
+        .define("STATIC", "TRUE");
+    
+    match platform {
+        Platform::Desktop => conf.define("PLATFORM", "Desktop"),
+        Platform::Web => conf.define("PLATFORM", "Web"),
+        Platform::RPI => conf.define("PLATFORM", "Raspberry Pi")
+    };
+
+    let c = conf.build();
+    // on web copy libraylib.bc to libraylib.a
+    if platform == Platform::Web {
+        std::fs::copy(c.join("lib/libraylib.bc"), c.join("lib/libraylib.a")).expect("filed to create wasm library");
+    }
+    println!("cmake build {}", c.display());
+    println!("cargo:rustc-link-search=native={}", c.join("lib").display());
+}
 
 fn gen_bindings() {
     let target = env::var("TARGET").expect("Cargo build scripts always have TARGET");
     let out_dir =
         PathBuf::from(env::var("OUT_DIR").expect("Cargo build scripts always have an OUT_DIR"));
+    
     let (platform, platform_os) = platform_from_target(&target);
 
     // Generate bindings
@@ -60,29 +87,125 @@ fn gen_bindings() {
 }
 
 fn main() {
+    let target = env::var("TARGET").expect("Cargo build scripts always have TARGET");
+    let (platform, platform_os) = platform_from_target(&target);
+
+    // Donwload raylib source
+    let src = download_raylib();
+    println!("src path {}", src.display());
+    build_with_cmake(src.to_str().expect("failed to download raylib"));
+
     gen_bindings();
-    
-    if cfg!(target_os = "windows") {
-        println!("cargo:rustc-link-lib=dylib=gdi32");
+    println!("platform, platform_os {:?}, {:?}", platform, platform_os);
+
+    match platform_os {
+        PlatformOS::Windows => {
+            println!("cargo:rustc-link-lib=dylib=gdi32");
         println!("cargo:rustc-link-lib=dylib=user32");
-    }
-    if cfg!(target_os = "linux") {
-        println!("cargo:rustc-link-search=/usr/local/lib");
+        println!("cargo:rustc-link-lib=dylib=shell32");
+        },
+        PlatformOS::Linux => {
+             println!("cargo:rustc-link-search=/usr/local/lib");
         println!("cargo:rustc-link-lib=X11");
-    }
-    if cfg!(target_os = "macos") {
-        println!("cargo:rustc-link-search=native=/usr/local/lib");
+        },
+        PlatformOS::OSX => {
+                println!("cargo:rustc-link-search=native=/usr/local/lib");
         println!("cargo:rustc-link-lib=framework=OpenGL");
         println!("cargo:rustc-link-lib=framework=Cocoa");
         println!("cargo:rustc-link-lib=framework=IOKit");
         println!("cargo:rustc-link-lib=framework=CoreFoundation");
         println!("cargo:rustc-link-lib=framework=CoreVideo");
+        },
+        _ => ()
     }
+    if platform == Platform::Web {
+        println!("cargo:rustc-link-lib=glfw");
+    }
+
+    // if cfg!(target_os = "windows") {
+    //     println!("cargo:rustc-link-lib=dylib=gdi32");
+    //     println!("cargo:rustc-link-lib=dylib=user32");
+    //     println!("cargo:rustc-link-lib=dylib=shell32");
+    // }
+    // if cfg!(target_os = "linux") {
+    //     println!("cargo:rustc-link-search=/usr/local/lib");
+    //     println!("cargo:rustc-link-lib=X11");
+    // }
+    // if cfg!(target_os = "macos") {
+    //     println!("cargo:rustc-link-search=native=/usr/local/lib");
+    //     println!("cargo:rustc-link-lib=framework=OpenGL");
+    //     println!("cargo:rustc-link-lib=framework=Cocoa");
+    //     println!("cargo:rustc-link-lib=framework=IOKit");
+    //     println!("cargo:rustc-link-lib=framework=CoreFoundation");
+    //     println!("cargo:rustc-link-lib=framework=CoreVideo");
+    // }
+    
     println!("cargo:rustc-link-lib=static=raylib");
 }
 
+/// download_raylib downloads raylib
+fn download_raylib() -> PathBuf {
+    let out_dir = env::var("OUT_DIR").unwrap();
+
+    let raylib_archive_name = format!("{}.tar.gz", LATEST_RAYLIB_VERSION);
+    let raylib_archive_url = format!(
+        "https://codeload.github.com/raysan5/raylib/tar.gz/{}",
+        LATEST_RAYLIB_VERSION
+    );
+    println!("out: {:?}", out_dir);
+    println!("url: {:?}", raylib_archive_url);
+
+    let raylib_archive_path = Path::new(&out_dir).join(raylib_archive_name);
+    let raylib_build_path = Path::new(&out_dir).join(format!("raylib-{}", LATEST_RAYLIB_VERSION));
+
+    // avoid re-downloading the archive if it already exist
+    if !raylib_build_path.exists() {
+        download_to(&raylib_archive_url, raylib_archive_path.to_str().expect("Download path not stringable"));
+    }
+
+    // Uncomment when we go back to tar.gz
+    let reader =
+        flate2::read::GzDecoder::new(fs::File::open(&raylib_archive_path).unwrap()).unwrap();
+    let mut ar = tar::Archive::new(reader);
+    ar.unpack(&out_dir).unwrap();
+
+    raylib_build_path
+}
+
+/// download_to uses powershell or curl to download raylib to the output directory.
+fn download_to(url: &str, dest: &str) {
+    if cfg!(windows) {
+        run_command("powershell", &[
+            "-NoProfile", "-NonInteractive",
+            "-Command", &format!("& {{
+                $client = New-Object System.Net.WebClient
+                $client.DownloadFile(\"{0}\", \"{1}\")
+                if (!$?) {{ Exit 1 }}
+            }}", url, dest).as_str()
+        ]);
+    } else {
+        run_command("curl", &[url, "-o", dest]);
+    }
+}
+
+// run_command runs a command to completion or panics. Used for running curl and powershell.
+fn run_command(cmd: &str, args: &[&str]) {
+    use std::process::Command;
+    match Command::new(cmd).args(args).output() {
+        Ok(output) => {
+            if !output.status.success() {
+                let error = std::str::from_utf8(&output.stderr).unwrap();
+                panic!("Command '{}' failed: {}", cmd, error);
+            }
+        }
+        Err(error) => {
+            panic!("Error running command '{}': {:#}", cmd, error);
+        }
+    }
+}
+
 fn platform_from_target(target: &str) -> (Platform, PlatformOS) {
-    let PLATFORM = if target.contains("wasm32") {
+    let platform = if target.contains("wasm32") {
         // make sure cmake knows that it should bundle glfw in
         // Cargo web takes care of this but better safe than sorry
         env::set_var("EMMAKEN_CFLAGS", "-s USE_GLFW=3");
@@ -93,7 +216,7 @@ fn platform_from_target(target: &str) -> (Platform, PlatformOS) {
         Platform::Desktop
     };
 
-    let PLATFORM_OS = if PLATFORM == Platform::Desktop {
+    let platform_os = if platform == Platform::Desktop {
         // Determine PLATFORM_OS in case PLATFORM_DESKTOP selected
         if env::var("OS")
             .unwrap_or("".to_owned())
@@ -114,7 +237,7 @@ fn platform_from_target(target: &str) -> (Platform, PlatformOS) {
                 _ => panic!("Unknown platform {}", uname()),
             }
         }
-    } else if PLATFORM == Platform::RPI {
+    } else if platform == Platform::RPI {
         let un: &str = &uname();
         if un == "Linux" {
             PlatformOS::Linux
@@ -125,7 +248,7 @@ fn platform_from_target(target: &str) -> (Platform, PlatformOS) {
         PlatformOS::Unknown
     };
     
-    (PLATFORM, PLATFORM_OS)
+    (platform, platform_os)
 }
 
 fn uname() -> String {

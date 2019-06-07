@@ -10,4 +10,7 @@ keywords = ["bindings", "raylib", "gamedev", "ffi"]
 categories = ["external-ffi-bindings"]
 edition = "2018"
 
-[dependencies]
+[build-dependencies]
+tar = "0.4"
+flate2 = "0.2"
+cmake = "0.1.35"
