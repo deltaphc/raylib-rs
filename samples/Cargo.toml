@@ -1,0 +1,16 @@
+[package]
+name = "raylib-examples"
+version = "0.11.0"
+authors = ["David Ayeke"]
+edition = "2018"
+license = "Zlib"
+readme = "../README.md"
+repository = "https://github.com/deltaphc/raylib-rs"
+
+
+[dependencies]
+raylib = { version = "0.11", path = "../raylib" }
+
+[[bin]]
+name = "logo"
+path = "./logo.rs"
