@@ -14,9 +14,9 @@ Permission is granted to anyone to use this software for any purpose, including 
   3. This notice may not be removed or altered from any source distribution.
 */
 
-use std::ops::{Deref, DerefMut};
 use crate::ffi;
 use crate::raymath::*;
+use std::ops::{Deref, DerefMut};
 
 #[derive(Debug, Copy, Clone)]
 pub struct Camera3D(pub(crate) ffi::Camera3D);
@@ -175,7 +175,6 @@ macro_rules! impl_bidirectional_from {
     };
 }
 
-
 pub type Log = ffi::TraceLogType;
 pub type Gesture = ffi::GestureType;
 pub type ShaderLoc = ffi::ShaderLocationIndex;
@@ -190,11 +189,26 @@ pub type CameraType = ffi::CameraType;
 impl_bidirectional_from!(Vector2, ffi::Vector2, x, y);
 impl_bidirectional_from!(Vector3, ffi::Vector3, x, y, z);
 impl_bidirectional_from!(Vector4, ffi::Vector4, x, y, z, w);
-impl_bidirectional_from!(Matrix, ffi::Matrix,
-    m0, m4, m8, m12,
-    m1, m5, m9, m13,
-    m2, m6, m10, m14,
-    m3, m7, m11, m15);
+impl_bidirectional_from!(
+    Matrix,
+    ffi::Matrix,
+    m0,
+    m4,
+    m8,
+    m12,
+    m1,
+    m5,
+    m9,
+    m13,
+    m2,
+    m6,
+    m10,
+    m14,
+    m3,
+    m7,
+    m11,
+    m15
+);
 
 #[repr(C)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
@@ -206,32 +220,162 @@ pub struct Color {
 }
 
 impl Color {
-    pub const LIGHTGRAY  : Color = Color { r: 200, g: 200, b: 200, a: 255 };
-    pub const GRAY       : Color = Color { r: 130, g: 130, b: 130, a: 255 };
-    pub const DARKGRAY   : Color = Color { r: 80,  g: 80,  b: 80,  a: 255 };
-    pub const YELLOW     : Color = Color { r: 253, g: 249, b: 0,   a: 255 };
-    pub const GOLD       : Color = Color { r: 255, g: 203, b: 0,   a: 255 };
-    pub const ORANGE     : Color = Color { r: 255, g: 161, b: 0,   a: 255 };
-    pub const PINK       : Color = Color { r: 255, g: 109, b: 194, a: 255 };
-    pub const RED        : Color = Color { r: 230, g: 41,  b: 55,  a: 255 };
-    pub const MAROON     : Color = Color { r: 190, g: 33,  b: 55,  a: 255 };
-    pub const GREEN      : Color = Color { r: 0,   g: 228, b: 48,  a: 255 };
-    pub const LIME       : Color = Color { r: 0,   g: 158, b: 47,  a: 255 };
-    pub const DARKGREEN  : Color = Color { r: 0,   g: 117, b: 44,  a: 255 };
-    pub const SKYBLUE    : Color = Color { r: 102, g: 191, b: 255, a: 255 };
-    pub const BLUE       : Color = Color { r: 0,   g: 121, b: 241, a: 255 };
-    pub const DARKBLUE   : Color = Color { r: 0,   g: 82,  b: 172, a: 255 };
-    pub const PURPLE     : Color = Color { r: 200, g: 122, b: 255, a: 255 };
-    pub const VIOLET     : Color = Color { r: 135, g: 60,  b: 190, a: 255 };
-    pub const DARKPURPLE : Color = Color { r: 112, g: 31,  b: 126, a: 255 };
-    pub const BEIGE      : Color = Color { r: 211, g: 176, b: 131, a: 255 };
-    pub const BROWN      : Color = Color { r: 127, g: 106, b: 79,  a: 255 };
-    pub const DARKBROWN  : Color = Color { r: 76,  g: 63,  b: 47,  a: 255 };
-    pub const WHITE      : Color = Color { r: 255, g: 255, b: 255, a: 255 };
-    pub const BLACK      : Color = Color { r: 0,   g: 0,   b: 0,   a: 255 };
-    pub const BLANK      : Color = Color { r: 0,   g: 0,   b: 0,   a: 0   };
-    pub const MAGENTA    : Color = Color { r: 255, g: 0,   b: 255, a: 255 };
-    pub const RAYWHITE   : Color = Color { r: 245, g: 245, b: 245, a: 255 };
+    pub const LIGHTGRAY: Color = Color {
+        r: 200,
+        g: 200,
+        b: 200,
+        a: 255,
+    };
+    pub const GRAY: Color = Color {
+        r: 130,
+        g: 130,
+        b: 130,
+        a: 255,
+    };
+    pub const DARKGRAY: Color = Color {
+        r: 80,
+        g: 80,
+        b: 80,
+        a: 255,
+    };
+    pub const YELLOW: Color = Color {
+        r: 253,
+        g: 249,
+        b: 0,
+        a: 255,
+    };
+    pub const GOLD: Color = Color {
+        r: 255,
+        g: 203,
+        b: 0,
+        a: 255,
+    };
+    pub const ORANGE: Color = Color {
+        r: 255,
+        g: 161,
+        b: 0,
+        a: 255,
+    };
+    pub const PINK: Color = Color {
+        r: 255,
+        g: 109,
+        b: 194,
+        a: 255,
+    };
+    pub const RED: Color = Color {
+        r: 230,
+        g: 41,
+        b: 55,
+        a: 255,
+    };
+    pub const MAROON: Color = Color {
+        r: 190,
+        g: 33,
+        b: 55,
+        a: 255,
+    };
+    pub const GREEN: Color = Color {
+        r: 0,
+        g: 228,
+        b: 48,
+        a: 255,
+    };
+    pub const LIME: Color = Color {
+        r: 0,
+        g: 158,
+        b: 47,
+        a: 255,
+    };
+    pub const DARKGREEN: Color = Color {
+        r: 0,
+        g: 117,
+        b: 44,
+        a: 255,
+    };
+    pub const SKYBLUE: Color = Color {
+        r: 102,
+        g: 191,
+        b: 255,
+        a: 255,
+    };
+    pub const BLUE: Color = Color {
+        r: 0,
+        g: 121,
+        b: 241,
+        a: 255,
+    };
+    pub const DARKBLUE: Color = Color {
+        r: 0,
+        g: 82,
+        b: 172,
+        a: 255,
+    };
+    pub const PURPLE: Color = Color {
+        r: 200,
+        g: 122,
+        b: 255,
+        a: 255,
+    };
+    pub const VIOLET: Color = Color {
+        r: 135,
+        g: 60,
+        b: 190,
+        a: 255,
+    };
+    pub const DARKPURPLE: Color = Color {
+        r: 112,
+        g: 31,
+        b: 126,
+        a: 255,
+    };
+    pub const BEIGE: Color = Color {
+        r: 211,
+        g: 176,
+        b: 131,
+        a: 255,
+    };
+    pub const BROWN: Color = Color {
+        r: 127,
+        g: 106,
+        b: 79,
+        a: 255,
+    };
+    pub const DARKBROWN: Color = Color {
+        r: 76,
+        g: 63,
+        b: 47,
+        a: 255,
+    };
+    pub const WHITE: Color = Color {
+        r: 255,
+        g: 255,
+        b: 255,
+        a: 255,
+    };
+    pub const BLACK: Color = Color {
+        r: 0,
+        g: 0,
+        b: 0,
+        a: 255,
+    };
+    pub const BLANK: Color = Color {
+        r: 0,
+        g: 0,
+        b: 0,
+        a: 0,
+    };
+    pub const MAGENTA: Color = Color {
+        r: 255,
+        g: 0,
+        b: 255,
+        a: 255,
+    };
+    pub const RAYWHITE: Color = Color {
+        r: 245,
+        g: 245,
+        b: 245,
+        a: 255,
+    };
 
     #[inline]
     pub fn new(r: u8, g: u8, b: u8, a: u8) -> Color {
@@ -256,40 +400,50 @@ impl From<(u8, u8, u8, u8)> for Color {
 }
 
 macro_rules! impl_wrapper {
-    ($name:ident, $t:ty, $dropfunc:expr, $rawfield:tt) => (
+    ($name:ident, $t:ty, $dropfunc:expr, $rawfield:tt) => {
         impl Drop for $name {
             #[allow(unused_unsafe)]
             fn drop(&mut self) {
-                unsafe { ($dropfunc)(self.$rawfield); }
+                unsafe {
+                    ($dropfunc)(self.$rawfield);
+                }
             }
         }
 
         impl Deref for $name {
             type Target = $t;
             #[inline]
-            fn deref(&self) -> &Self::Target { &self.$rawfield }
+            fn deref(&self) -> &Self::Target {
+                &self.$rawfield
+            }
         }
 
         impl DerefMut for $name {
             #[inline]
-            fn deref_mut(&mut self) -> &mut Self::Target { &mut self.$rawfield }
+            fn deref_mut(&mut self) -> &mut Self::Target {
+                &mut self.$rawfield
+            }
         }
-    )
+    };
 }
 
 macro_rules! make_thin_wrapper {
-    ($name:ident, $t:ty, $dropfunc:expr) => (
+    ($name:ident, $t:ty, $dropfunc:expr) => {
         #[repr(transparent)]
         #[derive(Debug)]
         pub struct $name(pub(crate) $t);
 
         impl_wrapper!($name, $t, $dropfunc, 0);
-    )
+    };
 }
 
 make_thin_wrapper!(Image, ffi::Image, ffi::UnloadImage);
 make_thin_wrapper!(Texture2D, ffi::Texture2D, ffi::UnloadTexture);
-make_thin_wrapper!(RenderTexture2D, ffi::RenderTexture2D, ffi::UnloadRenderTexture);
+make_thin_wrapper!(
+    RenderTexture2D,
+    ffi::RenderTexture2D,
+    ffi::UnloadRenderTexture
+);
 make_thin_wrapper!(Font, ffi::Font, ffi::UnloadFont);
 make_thin_wrapper!(Mesh, ffi::Mesh, |mut mesh| ffi::UnloadMesh(&mut mesh));
 make_thin_wrapper!(Shader, ffi::Shader, ffi::UnloadShader);
@@ -315,7 +469,8 @@ impl FontExt for ffi::Font {
             f.baseSize = base_size;
             f.set_chars(chars);
 
-            let atlas = ffi::GenImageFontAtlas(f.chars, f.baseSize, f.charsCount, padding, pack_method);
+            let atlas =
+                ffi::GenImageFontAtlas(f.chars, f.baseSize, f.charsCount, padding, pack_method);
             f.texture = ffi::LoadTextureFromImage(atlas);
             ffi::UnloadImage(atlas);
             Font(f)
@@ -328,7 +483,11 @@ impl FontExt for ffi::Font {
             self.charsCount = chars.len() as i32;
             let data_size = self.charsCount as usize * std::mem::size_of::<ffi::CharInfo>();
             let ci_arr_ptr = libc::malloc(data_size); // raylib frees this data in UnloadFont
-            std::ptr::copy(chars.as_ptr(), ci_arr_ptr as *mut ffi::CharInfo, chars.len());
+            std::ptr::copy(
+                chars.as_ptr(),
+                ci_arr_ptr as *mut ffi::CharInfo,
+                chars.len(),
+            );
             self.chars = ci_arr_ptr as *mut ffi::CharInfo;
         }
     }

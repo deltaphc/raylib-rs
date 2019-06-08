@@ -24,25 +24,29 @@ const LATEST_RAYLIB_API_VERSION: &str = "2";
 
 fn build_with_cmake(src_path: &str) {
     let target = env::var("TARGET").expect("Cargo build scripts always have TARGET");
-    let (platform, _platform_os) = platform_from_target(&target);
+    let (platform, platform_os) = platform_from_target(&target);
 
     let mut conf = cmake::Config::new(src_path);
-        conf
-        .define("BUILD_EXAMPLES", "OFF")
+    conf.define("BUILD_EXAMPLES", "OFF")
         .define("BUILD_GAMES", "OFF")
         .define("CMAKE_BUILD_TYPE", "Release")
         .define("STATIC", "TRUE");
-    
+
     match platform {
         Platform::Desktop => conf.define("PLATFORM", "Desktop"),
         Platform::Web => conf.define("PLATFORM", "Web"),
-        Platform::RPI => conf.define("PLATFORM", "Raspberry Pi")
+        Platform::RPI => conf.define("PLATFORM", "Raspberry Pi"),
     };
 
     let c = conf.build();
-    // on web copy libraylib.bc to libraylib.a
+    // on windows copy the static library to the proper file name
+    if platform_os == PlatformOS::Windows {
+        std::fs::copy(c.join("lib/raylib_static.lib"), c.join("lib/raylib.lib"))
+            .expect("filed to create windows library");
+    } // on web copy libraylib.bc to libraylib.a
     if platform == Platform::Web {
-        std::fs::copy(c.join("lib/libraylib.bc"), c.join("lib/libraylib.a")).expect("filed to create wasm library");
+        std::fs::copy(c.join("lib/libraylib.bc"), c.join("lib/libraylib.a"))
+            .expect("filed to create wasm library");
     }
     println!("cmake build {}", c.display());
     println!("cargo:rustc-link-search=native={}", c.join("lib").display());
@@ -52,7 +56,7 @@ fn gen_bindings() {
     let target = env::var("TARGET").expect("Cargo build scripts always have TARGET");
     let out_dir =
         PathBuf::from(env::var("OUT_DIR").expect("Cargo build scripts always have an OUT_DIR"));
-    
+
     let (platform, platform_os) = platform_from_target(&target);
 
     // Generate bindings
@@ -80,9 +84,7 @@ fn gen_bindings() {
                 .expect("failed to write bindings");
         }
         // for other platforms use bindgen and hope it works
-        _ => {
-            panic!("raylib-rs not supported on your platform")
-        }
+        _ => panic!("raylib-rs not supported on your platform"),
     }
 }
 
@@ -100,23 +102,24 @@ fn main() {
 
     match platform_os {
         PlatformOS::Windows => {
+            println!("cargo:rustc-link-lib=dylib=winmm");
             println!("cargo:rustc-link-lib=dylib=gdi32");
-        println!("cargo:rustc-link-lib=dylib=user32");
-        println!("cargo:rustc-link-lib=dylib=shell32");
-        },
+            println!("cargo:rustc-link-lib=dylib=user32");
+            println!("cargo:rustc-link-lib=dylib=shell32");
+        }
         PlatformOS::Linux => {
-             println!("cargo:rustc-link-search=/usr/local/lib");
-        println!("cargo:rustc-link-lib=X11");
-        },
+            println!("cargo:rustc-link-search=/usr/local/lib");
+            println!("cargo:rustc-link-lib=X11");
+        }
         PlatformOS::OSX => {
-                println!("cargo:rustc-link-search=native=/usr/local/lib");
-        println!("cargo:rustc-link-lib=framework=OpenGL");
-        println!("cargo:rustc-link-lib=framework=Cocoa");
-        println!("cargo:rustc-link-lib=framework=IOKit");
-        println!("cargo:rustc-link-lib=framework=CoreFoundation");
-        println!("cargo:rustc-link-lib=framework=CoreVideo");
-        },
-        _ => ()
+            println!("cargo:rustc-link-search=native=/usr/local/lib");
+            println!("cargo:rustc-link-lib=framework=OpenGL");
+            println!("cargo:rustc-link-lib=framework=Cocoa");
+            println!("cargo:rustc-link-lib=framework=IOKit");
+            println!("cargo:rustc-link-lib=framework=CoreFoundation");
+            println!("cargo:rustc-link-lib=framework=CoreVideo");
+        }
+        _ => (),
     }
     if platform == Platform::Web {
         println!("cargo:rustc-link-lib=glfw");
@@ -139,7 +142,7 @@ fn main() {
     //     println!("cargo:rustc-link-lib=framework=CoreFoundation");
     //     println!("cargo:rustc-link-lib=framework=CoreVideo");
     // }
-    
+
     println!("cargo:rustc-link-lib=static=raylib");
 }
 
@@ -160,7 +163,12 @@ fn download_raylib() -> PathBuf {
 
     // avoid re-downloading the archive if it already exist
     if !raylib_build_path.exists() {
-        download_to(&raylib_archive_url, raylib_archive_path.to_str().expect("Download path not stringable"));
+        download_to(
+            &raylib_archive_url,
+            raylib_archive_path
+                .to_str()
+                .expect("Download path not stringable"),
+        );
     }
 
     // Uncomment when we go back to tar.gz
@@ -174,18 +182,7 @@ fn download_raylib() -> PathBuf {
 
 /// download_to uses powershell or curl to download raylib to the output directory.
 fn download_to(url: &str, dest: &str) {
-    if cfg!(windows) {
-        run_command("powershell", &[
-            "-NoProfile", "-NonInteractive",
-            "-Command", &format!("& {{
-                $client = New-Object System.Net.WebClient
-                $client.DownloadFile(\"{0}\", \"{1}\")
-                if (!$?) {{ Exit 1 }}
-            }}", url, dest).as_str()
-        ]);
-    } else {
-        run_command("curl", &[url, "-o", dest]);
-    }
+    run_command("curl", &[url, "-o", dest]);
 }
 
 // run_command runs a command to completion or panics. Used for running curl and powershell.
@@ -247,7 +244,7 @@ fn platform_from_target(target: &str) -> (Platform, PlatformOS) {
     } else {
         PlatformOS::Unknown
     };
-    
+
     (platform, platform_os)
 }
 

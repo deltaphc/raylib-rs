@@ -14,67 +14,50 @@ Permission is granted to anyone to use this software for any purpose, including 
   3. This notice may not be removed or altered from any source distribution.
 */
 
-use std::sync::atomic::{AtomicBool, Ordering};
-use std::ffi::{CString, CStr};
-use std::mem;
-use lazy_static::lazy_static;
-use crate::ffi;
-use crate::ffi::{
-    CharInfo,
-    Rectangle,
-};
 use crate::consts::*;
+use crate::ffi;
+use crate::ffi::{CharInfo, Rectangle};
 use crate::raymath::*;
 use crate::safe_types::*;
+use lazy_static::lazy_static;
+use std::ffi::{CStr, CString};
+use std::mem;
+use std::sync::atomic::{AtomicBool, Ordering};
 
 /// A convenience function for making a new `Color` from RGB values.
 #[inline]
 pub fn rgb(r: u8, g: u8, b: u8) -> Color {
-    Color {
-        r, g, b, a: 255
-    }
+    Color { r, g, b, a: 255 }
 }
 
 /// A convenience function for making a new `Color` from RGBA values.
 #[inline]
 pub fn rgba(r: u8, g: u8, b: u8, a: u8) -> Color {
-    Color {
-        r, g, b, a
-    }
+    Color { r, g, b, a }
 }
 
 /// A marker trait specifying an audio sample (`u8`, `i16`, or `f32`).
-pub trait AudioSample { }
-impl AudioSample for u8 { }
-impl AudioSample for i16 { }
-impl AudioSample for f32 { }
+pub trait AudioSample {}
+impl AudioSample for u8 {}
+impl AudioSample for i16 {}
+impl AudioSample for f32 {}
 
 static IS_INITIALIZED: AtomicBool = AtomicBool::new(false);
 
 lazy_static! {
-    static ref FONT_DEFAULT: Font = {
-        unsafe { Font(ffi::GetFontDefault()) }
-    };
+    static ref FONT_DEFAULT: Font = { unsafe { Font(ffi::GetFontDefault()) } };
 }
 
 lazy_static! {
-    static ref MATERIAL_DEFAULT: Material = {
-        unsafe { Material(ffi::LoadMaterialDefault()) }
-    };
+    static ref MATERIAL_DEFAULT: Material = { unsafe { Material(ffi::LoadMaterialDefault()) } };
 }
 
 lazy_static! {
-    static ref SHADER_DEFAULT: Shader = {
-        unsafe { Shader(ffi::GetShaderDefault()) }
-    };
+    static ref SHADER_DEFAULT: Shader = { unsafe { Shader(ffi::GetShaderDefault()) } };
 }
 
 lazy_static! {
-    static ref TEXTURE_DEFAULT: Texture2D = {
-        unsafe {
-            Texture2D(ffi::GetTextureDefault())
-        }
-    };
+    static ref TEXTURE_DEFAULT: Texture2D = { unsafe { Texture2D(ffi::GetTextureDefault()) } };
 }
 
 /// A builder that allows more customization of the game window shown to the user before the `RaylibHandle` is created.
@@ -161,21 +144,37 @@ impl RaylibBuilder {
     }
 
     /// Builds and initializes a Raylib window.
-    /// 
+    ///
     /// # Panics
-    /// 
+    ///
     /// Attempting to initialize Raylib more than once will result in a panic.
     pub fn build(&self) -> RaylibHandle {
         let mut flags = 0u32;
-        if self.show_logo { flags |= FLAG_SHOW_LOGO as u32; }
-        if self.fullscreen_mode { flags |= FLAG_FULLSCREEN_MODE as u32; }
-        if self.window_resizable { flags |= FLAG_WINDOW_RESIZABLE as u32; }
-        if self.window_undecorated { flags |= FLAG_WINDOW_UNDECORATED as u32; }
-        if self.window_transparent { flags |= FLAG_WINDOW_TRANSPARENT as u32; }
-        if self.msaa_4x_hint { flags |= FLAG_MSAA_4X_HINT as u32; }
-        if self.vsync_hint { flags |= FLAG_VSYNC_HINT as u32; }
+        if self.show_logo {
+            flags |= FLAG_SHOW_LOGO as u32;
+        }
+        if self.fullscreen_mode {
+            flags |= FLAG_FULLSCREEN_MODE as u32;
+        }
+        if self.window_resizable {
+            flags |= FLAG_WINDOW_RESIZABLE as u32;
+        }
+        if self.window_undecorated {
+            flags |= FLAG_WINDOW_UNDECORATED as u32;
+        }
+        if self.window_transparent {
+            flags |= FLAG_WINDOW_TRANSPARENT as u32;
+        }
+        if self.msaa_4x_hint {
+            flags |= FLAG_MSAA_4X_HINT as u32;
+        }
+        if self.vsync_hint {
+            flags |= FLAG_VSYNC_HINT as u32;
+        }
 
-        unsafe { ffi::SetConfigFlags(flags as u8); }
+        unsafe {
+            ffi::SetConfigFlags(flags as u8);
+        }
         init_window(self.width, self.height, &self.title)
     }
 }
@@ -198,9 +197,9 @@ pub fn trace_log(msg_type: Log, text: &str) {
 }
 
 /// The main interface into the Raylib API.
-/// 
+///
 /// This is the way in which you will use the vast majority of Raylib's functionality. A `RaylibHandle` can be constructed using the [`init_window`] function or through a [`RaylibBuilder`] obtained with the [`init`] function.
-/// 
+///
 /// [`init_window`]: fn.init_window.html
 /// [`RaylibBuilder`]: struct.RaylibBuilder.html
 /// [`init`]: fn.init.html
@@ -217,15 +216,14 @@ pub fn init() -> RaylibBuilder {
 }
 
 /// Initializes window and OpenGL context.
-/// 
+///
 /// # Panics
-/// 
+///
 /// Attempting to initialize Raylib more than once will result in a panic.
 pub fn init_window(width: i32, height: i32, title: &str) -> RaylibHandle {
     if IS_INITIALIZED.load(Ordering::Relaxed) {
         panic!("Attempted to initialize raylib-rs more than once");
-    }
-    else {
+    } else {
         unsafe {
             let c_title = CString::new(title).unwrap();
             ffi::InitWindow(width, height, c_title.as_ptr());
@@ -238,7 +236,9 @@ pub fn init_window(width: i32, height: i32, title: &str) -> RaylibHandle {
 impl Drop for RaylibHandle {
     fn drop(&mut self) {
         if IS_INITIALIZED.load(Ordering::Relaxed) {
-            unsafe { ffi::CloseWindow(); }
+            unsafe {
+                ffi::CloseWindow();
+            }
             IS_INITIALIZED.store(false, Ordering::Relaxed);
         }
     }
@@ -248,25 +248,19 @@ impl RaylibHandle {
     /// Checks if window has been initialized successfully.
     #[inline]
     pub fn is_window_ready(&self) -> bool {
-        unsafe {
-            ffi::IsWindowReady()
-        }
+        unsafe { ffi::IsWindowReady() }
     }
 
     /// Checks if `KEY_ESCAPE` or Close icon was pressed.
     #[inline]
     pub fn window_should_close(&self) -> bool {
-        unsafe {
-            ffi::WindowShouldClose()
-        }
+        unsafe { ffi::WindowShouldClose() }
     }
 
     /// Checks if window has been minimized (or lost focus).
     #[inline]
     pub fn is_window_minimized(&self) -> bool {
-        unsafe {
-            ffi::IsWindowMinimized()
-        }
+        unsafe { ffi::IsWindowMinimized() }
     }
 
     /// Toggles fullscreen mode (only on desktop platforms).
@@ -329,17 +323,13 @@ impl RaylibHandle {
     /// Gets current screen width.
     #[inline]
     pub fn get_screen_width(&self) -> i32 {
-        unsafe {
-            ffi::GetScreenWidth()
-        }
+        unsafe { ffi::GetScreenWidth() }
     }
 
     /// Gets current screen height.
     #[inline]
     pub fn get_screen_height(&self) -> i32 {
-        unsafe {
-            ffi::GetScreenHeight()
-        }
+        unsafe { ffi::GetScreenHeight() }
     }
 
     /// Shows mouse cursor.
@@ -361,9 +351,7 @@ impl RaylibHandle {
     /// Checks if mouse cursor is not visible.
     #[inline]
     pub fn is_cursor_hidden(&self) -> bool {
-        unsafe {
-            ffi::IsCursorHidden()
-        }
+        unsafe { ffi::IsCursorHidden() }
     }
 
     /// Enables mouse cursor (unlock cursor).
@@ -457,25 +445,19 @@ impl RaylibHandle {
     /// Returns a ray trace from mouse position.
     #[inline]
     pub fn get_mouse_ray(&self, mouse_position: impl Into<Vector2>, camera: Camera3D) -> Ray {
-        unsafe {
-            ffi::GetMouseRay(mouse_position.into().into(), camera.into()).into()
-        }
+        unsafe { ffi::GetMouseRay(mouse_position.into().into(), camera.into()).into() }
     }
 
     /// Returns the screen space position for a 3D world space position.
     #[inline]
     pub fn get_world_to_screen(&self, position: impl Into<Vector3>, camera: Camera3D) -> Vector2 {
-        unsafe {
-            ffi::GetWorldToScreen(position.into().into(), camera.into()).into()
-        }
+        unsafe { ffi::GetWorldToScreen(position.into().into(), camera.into()).into() }
     }
 
     /// Returns camera transform matrix (view matrix).
     #[inline]
     pub fn get_camera_matrix(&self, camera: Camera3D) -> Matrix {
-        unsafe {
-            ffi::GetCameraMatrix(camera.into()).into()
-        }
+        unsafe { ffi::GetCameraMatrix(camera.into()).into() }
     }
 
     /// Sets target FPS (maximum).
@@ -489,65 +471,49 @@ impl RaylibHandle {
     /// Returns current FPS.
     #[inline]
     pub fn get_fps(&self) -> i32 {
-        unsafe {
-            ffi::GetFPS()
-        }
+        unsafe { ffi::GetFPS() }
     }
 
     /// Returns time in seconds for last frame drawn.
     #[inline]
     pub fn get_frame_time(&self) -> f32 {
-        unsafe {
-            ffi::GetFrameTime()
-        }
+        unsafe { ffi::GetFrameTime() }
     }
 
     /// Returns elapsed time in seconds since `init_window` was called.
     #[inline]
     pub fn get_time(&self) -> f64 {
-        unsafe {
-            ffi::GetTime()
-        }
+        unsafe { ffi::GetTime() }
     }
 
     /// Returns hexadecimal value for a Color.
     #[inline]
     pub fn color_to_int(&self, color: impl Into<Color>) -> i32 {
-        unsafe {
-            ffi::ColorToInt(color.into().into())
-        }
+        unsafe { ffi::ColorToInt(color.into().into()) }
     }
 
     /// Returns color normalized as `f32` [0..1].
     #[inline]
     pub fn color_normalize(&self, color: impl Into<Color>) -> Vector4 {
-        unsafe {
-            ffi::ColorNormalize(color.into().into()).into()
-        }
+        unsafe { ffi::ColorNormalize(color.into().into()).into() }
     }
 
     /// Returns HSV values for a Color.
     #[inline]
     pub fn color_to_hsv(&self, color: impl Into<Color>) -> Vector3 {
-        unsafe {
-            ffi::ColorToHSV(color.into().into()).into()
-        }
+        unsafe { ffi::ColorToHSV(color.into().into()).into() }
     }
 
     /// Returns a Color struct from hexadecimal value.
     #[inline]
     pub fn get_color(&self, hex_value: i32) -> Color {
-        unsafe {
-            ffi::GetColor(hex_value).into()
-        }
+        unsafe { ffi::GetColor(hex_value).into() }
     }
 
     /// Color fade-in or fade-out, `alpha` goes from `0.0` to `1.0`.
     #[inline]
     pub fn fade(&self, color: impl Into<Color>, alpha: f32) -> Color {
-        unsafe {
-            ffi::Fade(color.into().into(), alpha).into()
-        }
+        unsafe { ffi::Fade(color.into().into(), alpha).into() }
     }
 
     /// Takes a screenshot of current screen (in PNG format).
@@ -562,9 +528,7 @@ impl RaylibHandle {
     /// Returns a random value between min and max (both included).
     #[inline]
     pub fn get_random_value(&self, min: i32, max: i32) -> i32 {
-        unsafe {
-            ffi::GetRandomValue(min, max)
-        }
+        unsafe { ffi::GetRandomValue(min, max) }
     }
 
     /// Checks if `filename` has an `ext` extension.
@@ -572,9 +536,7 @@ impl RaylibHandle {
     pub fn is_file_extension(&self, filename: &str, ext: &str) -> bool {
         let c_filename = CString::new(filename).unwrap();
         let c_ext = CString::new(ext).unwrap();
-        unsafe {
-            ffi::IsFileExtension(c_filename.as_ptr(), c_ext.as_ptr())
-        }
+        unsafe { ffi::IsFileExtension(c_filename.as_ptr(), c_ext.as_ptr()) }
     }
 
     /// Gets the extension for a `filename` string.
@@ -620,17 +582,13 @@ impl RaylibHandle {
     #[inline]
     pub fn change_directory(&self, dir: &str) -> bool {
         let c_dir = CString::new(dir).unwrap();
-        unsafe {
-            ffi::ChangeDirectory(c_dir.as_ptr())
-        }
+        unsafe { ffi::ChangeDirectory(c_dir.as_ptr()) }
     }
 
     /// Checks if a file has been dropped into the window.
     #[inline]
     pub fn is_file_dropped(&self) -> bool {
-        unsafe {
-            ffi::IsFileDropped()
-        }
+        unsafe { ffi::IsFileDropped() }
     }
 
     /// Gets dropped filenames.
@@ -641,7 +599,9 @@ impl RaylibHandle {
             let mut count: i32 = 0;
             let dropfiles = ffi::GetDroppedFiles(&mut count);
             for i in 0..count {
-                let filestr = CStr::from_ptr(*dropfiles.offset(i as isize)).to_str().unwrap();
+                let filestr = CStr::from_ptr(*dropfiles.offset(i as isize))
+                    .to_str()
+                    .unwrap();
                 let file = String::from(filestr);
                 v.push(file);
             }
@@ -668,49 +628,37 @@ impl RaylibHandle {
     /// Loads integer value from storage file (from defined `position`).
     #[inline]
     pub fn storage_load_value(&self, position: i32) -> i32 {
-        unsafe {
-            ffi::StorageLoadValue(position)
-        }
+        unsafe { ffi::StorageLoadValue(position) }
     }
 
     /// Detect if a key has been pressed once.
     #[inline]
     pub fn is_key_pressed(&self, key: u32) -> bool {
-        unsafe {
-            ffi::IsKeyPressed(key as i32)
-        }
+        unsafe { ffi::IsKeyPressed(key as i32) }
     }
 
     /// Detect if a key is being pressed.
     #[inline]
     pub fn is_key_down(&self, key: u32) -> bool {
-        unsafe {
-            ffi::IsKeyDown(key as i32)
-        }
+        unsafe { ffi::IsKeyDown(key as i32) }
     }
 
     /// Detect if a key has been released once.
     #[inline]
     pub fn is_key_released(&self, key: u32) -> bool {
-        unsafe {
-            ffi::IsKeyReleased(key as i32)
-        }
+        unsafe { ffi::IsKeyReleased(key as i32) }
     }
 
     /// Detect if a key is NOT being pressed.
     #[inline]
     pub fn is_key_up(&self, key: u32) -> bool {
-        unsafe {
-            ffi::IsKeyUp(key as i32)
-        }
+        unsafe { ffi::IsKeyUp(key as i32) }
     }
 
     /// Gets latest key pressed.
     #[inline]
     pub fn get_key_pressed(&self) -> u32 {
-        unsafe {
-            ffi::GetKeyPressed() as u32
-        }
+        unsafe { ffi::GetKeyPressed() as u32 }
     }
 
     /// Sets a custom key to exit program (default is ESC).
@@ -724,18 +672,14 @@ impl RaylibHandle {
     /// Detect if a gamepad is available.
     #[inline]
     pub fn is_gamepad_available(&self, gamepad: u32) -> bool {
-        unsafe {
-            ffi::IsGamepadAvailable(gamepad as i32)
-        }
+        unsafe { ffi::IsGamepadAvailable(gamepad as i32) }
     }
 
     /// Checks gamepad name (if available).
     #[inline]
     pub fn is_gamepad_name(&self, gamepad: u32, name: &str) -> bool {
         let c_name = CString::new(name).unwrap();
-        unsafe {
-            ffi::IsGamepadName(gamepad as i32, c_name.as_ptr())
-        }
+        unsafe { ffi::IsGamepadName(gamepad as i32, c_name.as_ptr()) }
     }
 
     /// Returns gamepad internal name id.
@@ -745,7 +689,7 @@ impl RaylibHandle {
             let name = ffi::GetGamepadName(gamepad as i32);
             match name.is_null() {
                 false => Some(CStr::from_ptr(name).to_str().unwrap().to_owned()),
-                true => None
+                true => None,
             }
         }
     }
@@ -753,120 +697,92 @@ impl RaylibHandle {
     /// Detect if a gamepad button has been pressed once.
     #[inline]
     pub fn is_gamepad_button_pressed(&self, gamepad: u32, button: i32) -> bool {
-        unsafe {
-            ffi::IsGamepadButtonPressed(gamepad as i32, button)
-        }
+        unsafe { ffi::IsGamepadButtonPressed(gamepad as i32, button) }
     }
 
     /// Detect if a gamepad button is being pressed.
     #[inline]
     pub fn is_gamepad_button_down(&self, gamepad: u32, button: i32) -> bool {
-        unsafe {
-            ffi::IsGamepadButtonDown(gamepad as i32, button)
-        }
+        unsafe { ffi::IsGamepadButtonDown(gamepad as i32, button) }
     }
 
     /// Detect if a gamepad button has been released once.
     #[inline]
     pub fn is_gamepad_button_released(&self, gamepad: u32, button: i32) -> bool {
-        unsafe {
-            ffi::IsGamepadButtonReleased(gamepad as i32, button)
-        }
+        unsafe { ffi::IsGamepadButtonReleased(gamepad as i32, button) }
     }
 
     /// Detect if a gamepad button is NOT being pressed.
     #[inline]
     pub fn is_gamepad_button_up(&self, gamepad: u32, button: i32) -> bool {
-        unsafe {
-            ffi::IsGamepadButtonUp(gamepad as i32, button)
-        }
+        unsafe { ffi::IsGamepadButtonUp(gamepad as i32, button) }
     }
 
     /// Gets the last gamepad button pressed.
     #[inline]
     pub fn get_gamepad_button_pressed(&self) -> u32 {
-        unsafe {
-            ffi::GetGamepadButtonPressed() as u32
-        }
+        unsafe { ffi::GetGamepadButtonPressed() as u32 }
     }
 
     /// Returns gamepad axis count for a gamepad.
     #[inline]
     pub fn get_gamepad_axis_count(&self, gamepad: u32) -> i32 {
-        unsafe {
-            ffi::GetGamepadAxisCount(gamepad as i32)
-        }
+        unsafe { ffi::GetGamepadAxisCount(gamepad as i32) }
     }
 
     /// Returns axis movement value for a gamepad axis.
     #[inline]
     pub fn get_gamepad_axis_movement(&self, gamepad: u32, axis: u32) -> f32 {
-        unsafe {
-            ffi::GetGamepadAxisMovement(gamepad as i32, axis as i32)
-        }
+        unsafe { ffi::GetGamepadAxisMovement(gamepad as i32, axis as i32) }
     }
 
     /// Detect if a mouse button has been pressed once.
     #[inline]
     pub fn is_mouse_button_pressed(&self, button: u32) -> bool {
-        unsafe {
-            ffi::IsMouseButtonPressed(button as i32)
-        }
+        unsafe { ffi::IsMouseButtonPressed(button as i32) }
     }
 
     /// Detect if a mouse button is being pressed.
     #[inline]
     pub fn is_mouse_button_down(&self, button: u32) -> bool {
-        unsafe {
-            ffi::IsMouseButtonDown(button as i32)
-        }
+        unsafe { ffi::IsMouseButtonDown(button as i32) }
     }
 
     /// Detect if a mouse button has been released once.
     #[inline]
     pub fn is_mouse_button_released(&self, button: u32) -> bool {
-        unsafe {
-            ffi::IsMouseButtonReleased(button as i32)
-        }
+        unsafe { ffi::IsMouseButtonReleased(button as i32) }
     }
 
     /// Detect if a mouse button is NOT being pressed.
     #[inline]
     pub fn is_mouse_button_up(&self, button: u32) -> bool {
-        unsafe {
-            ffi::IsMouseButtonUp(button as i32)
-        }
+        unsafe { ffi::IsMouseButtonUp(button as i32) }
     }
 
     /// Returns mouse position X.
     #[inline]
     pub fn get_mouse_x(&self) -> i32 {
-        unsafe {
-            ffi::GetMouseX()
-        }
+        unsafe { ffi::GetMouseX() }
     }
 
     /// Returns mouse position Y.
     #[inline]
     pub fn get_mouse_y(&self) -> i32 {
-        unsafe {
-            ffi::GetMouseY()
-        }
+        unsafe { ffi::GetMouseY() }
     }
 
     /// Returns mouse position.
     #[inline]
     pub fn get_mouse_position(&self) -> Vector2 {
-        unsafe {
-            ffi::GetMousePosition().into()
-        }
+        unsafe { ffi::GetMousePosition().into() }
     }
 
     /// Sets mouse position.
     #[inline]
     pub fn set_mouse_position(&self, position: impl Into<Vector2>) {
         unsafe {
-            let Vector2 {x, y} = position.into();
+            let Vector2 { x, y } = position.into();
             ffi::SetMousePosition(x as i32, y as i32);
         }
     }
@@ -882,33 +798,25 @@ impl RaylibHandle {
     /// Returns mouse wheel movement Y.
     #[inline]
     pub fn get_mouse_wheel_move(&self) -> i32 {
-        unsafe {
-            ffi::GetMouseWheelMove()
-        }
+        unsafe { ffi::GetMouseWheelMove() }
     }
 
     /// Returns touch position X for touch point 0 (relative to screen size).
     #[inline]
     pub fn get_touch_x(&self) -> i32 {
-        unsafe {
-            ffi::GetTouchX()
-        }
+        unsafe { ffi::GetTouchX() }
     }
 
     /// Returns touch position Y for touch point 0 (relative to screen size).
     #[inline]
     pub fn get_touch_y(&self) -> i32 {
-        unsafe {
-            ffi::GetTouchY()
-        }
+        unsafe { ffi::GetTouchY() }
     }
 
     /// Returns touch position XY for a touch point index (relative to screen size).
     #[inline]
     pub fn get_touch_position(&self, index: u32) -> Vector2 {
-        unsafe {
-            ffi::GetTouchPosition(index as i32).into()
-        }
+        unsafe { ffi::GetTouchPosition(index as i32).into() }
     }
 
     /// Enables a set of gestures using flags.
@@ -922,65 +830,49 @@ impl RaylibHandle {
     /// Checks if a gesture have been detected.
     #[inline]
     pub fn is_gesture_detected(&self, gesture: Gesture) -> bool {
-        unsafe {
-            ffi::IsGestureDetected(gesture as i32)
-        }
+        unsafe { ffi::IsGestureDetected(gesture as i32) }
     }
 
     /// Gets latest detected gesture.
     #[inline]
     pub fn get_gesture_detected(&self) -> Gesture {
-        unsafe {
-            mem::transmute::<i32, Gesture>(ffi::GetGestureDetected())
-        }
+        unsafe { mem::transmute::<i32, Gesture>(ffi::GetGestureDetected()) }
     }
 
     /// Gets touch points count.
     #[inline]
     pub fn get_touch_points_count(&self) -> u32 {
-        unsafe {
-            ffi::GetTouchPointsCount() as u32
-        }
+        unsafe { ffi::GetTouchPointsCount() as u32 }
     }
 
     /// Gets gesture hold time in milliseconds.
     #[inline]
     pub fn get_gesture_hold_duration(&self) -> f32 {
-        unsafe {
-            ffi::GetGestureHoldDuration()
-        }
+        unsafe { ffi::GetGestureHoldDuration() }
     }
 
     /// Gets gesture drag vector.
     #[inline]
     pub fn get_gesture_drag_vector(&self) -> Vector2 {
-        unsafe {
-            ffi::GetGestureDragVector().into()
-        }
+        unsafe { ffi::GetGestureDragVector().into() }
     }
 
     /// Gets gesture drag angle.
     #[inline]
     pub fn get_gesture_drag_angle(&self) -> f32 {
-        unsafe {
-            ffi::GetGestureDragAngle()
-        }
+        unsafe { ffi::GetGestureDragAngle() }
     }
 
     /// Gets gesture pinch delta.
     #[inline]
     pub fn get_gesture_pinch_vector(&self) -> Vector2 {
-        unsafe {
-            ffi::GetGesturePinchVector().into()
-        }
+        unsafe { ffi::GetGesturePinchVector().into() }
     }
 
     /// Gets gesture pinch angle.
     #[inline]
     pub fn get_gesture_pinch_angle(&self) -> f32 {
-        unsafe {
-            ffi::GetGesturePinchAngle()
-        }
+        unsafe { ffi::GetGesturePinchAngle() }
     }
 
     /// Sets camera mode.
@@ -1027,16 +919,24 @@ impl RaylibHandle {
 
     /// Sets camera move controls (1st person and 3rd person cameras).
     #[inline]
-    pub fn set_camera_move_controls(&self,
+    pub fn set_camera_move_controls(
+        &self,
         front_key: u32,
         back_key: u32,
         right_key: u32,
         left_key: u32,
         up_key: u32,
-        down_key: u32)
-    {
+        down_key: u32,
+    ) {
         unsafe {
-            ffi::SetCameraMoveControls(front_key as i32, back_key as i32, right_key as i32, left_key as i32, up_key as i32, down_key as i32);
+            ffi::SetCameraMoveControls(
+                front_key as i32,
+                back_key as i32,
+                right_key as i32,
+                left_key as i32,
+                up_key as i32,
+                down_key as i32,
+            );
         }
     }
 
@@ -1058,33 +958,77 @@ impl RaylibHandle {
 
     /// Draws a line.
     #[inline]
-    pub fn draw_line(&self, start_pos_x: i32, start_pos_y: i32, end_pos_x: i32, end_pos_y: i32, color: impl Into<Color>) {
+    pub fn draw_line(
+        &self,
+        start_pos_x: i32,
+        start_pos_y: i32,
+        end_pos_x: i32,
+        end_pos_y: i32,
+        color: impl Into<Color>,
+    ) {
         unsafe {
-            ffi::DrawLine(start_pos_x, start_pos_y, end_pos_x, end_pos_y, color.into().into());
+            ffi::DrawLine(
+                start_pos_x,
+                start_pos_y,
+                end_pos_x,
+                end_pos_y,
+                color.into().into(),
+            );
         }
     }
 
     /// Draws a line (Vector version).
     #[inline]
-    pub fn draw_line_v(&self, start_pos: impl Into<Vector2>, end_pos: impl Into<Vector2>, color: impl Into<Color>) {
+    pub fn draw_line_v(
+        &self,
+        start_pos: impl Into<Vector2>,
+        end_pos: impl Into<Vector2>,
+        color: impl Into<Color>,
+    ) {
         unsafe {
-            ffi::DrawLineV(start_pos.into().into(), end_pos.into().into(), color.into().into());
+            ffi::DrawLineV(
+                start_pos.into().into(),
+                end_pos.into().into(),
+                color.into().into(),
+            );
         }
     }
 
     /// Draws a line with thickness.
     #[inline]
-    pub fn draw_line_ex(&self, start_pos: impl Into<Vector2>, end_pos: impl Into<Vector2>, thick: f32, color: impl Into<Color>) {
+    pub fn draw_line_ex(
+        &self,
+        start_pos: impl Into<Vector2>,
+        end_pos: impl Into<Vector2>,
+        thick: f32,
+        color: impl Into<Color>,
+    ) {
         unsafe {
-            ffi::DrawLineEx(start_pos.into().into(), end_pos.into().into(), thick, color.into().into());
+            ffi::DrawLineEx(
+                start_pos.into().into(),
+                end_pos.into().into(),
+                thick,
+                color.into().into(),
+            );
         }
     }
 
     /// Draws a line using cubic-bezier curves in-out.
     #[inline]
-    pub fn draw_line_bezier(&self, start_pos: impl Into<Vector2>, end_pos: impl Into<Vector2>, thick: f32, color: impl Into<Color>) {
+    pub fn draw_line_bezier(
+        &self,
+        start_pos: impl Into<Vector2>,
+        end_pos: impl Into<Vector2>,
+        thick: f32,
+        color: impl Into<Color>,
+    ) {
         unsafe {
-            ffi::DrawLineBezier(start_pos.into().into(), end_pos.into().into(), thick, color.into().into());
+            ffi::DrawLineBezier(
+                start_pos.into().into(),
+                end_pos.into().into(),
+                thick,
+                color.into().into(),
+            );
         }
     }
 
@@ -1098,9 +1042,22 @@ impl RaylibHandle {
 
     /// Draws a gradient-filled circle.
     #[inline]
-    pub fn draw_circle_gradient(&self, center_x: i32, center_y: i32, radius: f32, color1: impl Into<Color>, color2: impl Into<Color>) {
+    pub fn draw_circle_gradient(
+        &self,
+        center_x: i32,
+        center_y: i32,
+        radius: f32,
+        color1: impl Into<Color>,
+        color2: impl Into<Color>,
+    ) {
         unsafe {
-            ffi::DrawCircleGradient(center_x, center_y, radius, color1.into().into(), color2.into().into());
+            ffi::DrawCircleGradient(
+                center_x,
+                center_y,
+                radius,
+                color1.into().into(),
+                color2.into().into(),
+            );
         }
     }
 
@@ -1114,7 +1071,13 @@ impl RaylibHandle {
 
     /// Draws circle outline.
     #[inline]
-    pub fn draw_circle_lines(&self, center_x: i32, center_y: i32, radius: f32, color: impl Into<Color>) {
+    pub fn draw_circle_lines(
+        &self,
+        center_x: i32,
+        center_y: i32,
+        radius: f32,
+        color: impl Into<Color>,
+    ) {
         unsafe {
             ffi::DrawCircleLines(center_x, center_y, radius, color.into().into());
         }
@@ -1130,9 +1093,18 @@ impl RaylibHandle {
 
     /// Draws a color-filled rectangle (Vector version).
     #[inline]
-    pub fn draw_rectangle_v(&self, position: impl Into<Vector2>, size: impl Into<Vector2>, color: impl Into<Color>) {
+    pub fn draw_rectangle_v(
+        &self,
+        position: impl Into<Vector2>,
+        size: impl Into<Vector2>,
+        color: impl Into<Color>,
+    ) {
         unsafe {
-            ffi::DrawRectangleV(position.into().into(), size.into().into(), color.into().into());
+            ffi::DrawRectangleV(
+                position.into().into(),
+                size.into().into(),
+                color.into().into(),
+            );
         }
     }
 
@@ -1146,7 +1118,13 @@ impl RaylibHandle {
 
     /// Draws a color-filled rectangle with pro parameters.
     #[inline]
-    pub fn draw_rectangle_pro(&self, rec: Rectangle, origin: impl Into<Vector2>, rotation: f32, color: impl Into<Color>) {
+    pub fn draw_rectangle_pro(
+        &self,
+        rec: Rectangle,
+        origin: impl Into<Vector2>,
+        rotation: f32,
+        color: impl Into<Color>,
+    ) {
         unsafe {
             ffi::DrawRectanglePro(rec, origin.into().into(), rotation, color.into().into());
         }
@@ -1156,9 +1134,24 @@ impl RaylibHandle {
     ///
     /// **NOTE**: Gradient goes from bottom (`color1`) to top (`color2`).
     #[inline]
-    pub fn draw_rectangle_gradient_v(&self, x: i32, y: i32, width: i32, height: i32, color1: impl Into<Color>, color2: impl Into<Color>) {
+    pub fn draw_rectangle_gradient_v(
+        &self,
+        x: i32,
+        y: i32,
+        width: i32,
+        height: i32,
+        color1: impl Into<Color>,
+        color2: impl Into<Color>,
+    ) {
         unsafe {
-            ffi::DrawRectangleGradientV(x, y, width, height, color1.into().into(), color2.into().into());
+            ffi::DrawRectangleGradientV(
+                x,
+                y,
+                width,
+                height,
+                color1.into().into(),
+                color2.into().into(),
+            );
         }
     }
 
@@ -1166,9 +1159,24 @@ impl RaylibHandle {
     ///
     /// **NOTE**: Gradient goes from bottom (`color1`) to top (`color2`).
     #[inline]
-    pub fn draw_rectangle_gradient_h(&self, x: i32, y: i32, width: i32, height: i32, color1: impl Into<Color>, color2: impl Into<Color>) {
+    pub fn draw_rectangle_gradient_h(
+        &self,
+        x: i32,
+        y: i32,
+        width: i32,
+        height: i32,
+        color1: impl Into<Color>,
+        color2: impl Into<Color>,
+    ) {
         unsafe {
-            ffi::DrawRectangleGradientH(x, y, width, height, color1.into().into(), color2.into().into());
+            ffi::DrawRectangleGradientH(
+                x,
+                y,
+                width,
+                height,
+                color1.into().into(),
+                color2.into().into(),
+            );
         }
     }
 
@@ -1176,15 +1184,35 @@ impl RaylibHandle {
     ///
     /// **NOTE**: Colors refer to corners, starting at top-left corner and going counter-clockwise.
     #[inline]
-    pub fn draw_rectangle_gradient_ex(&self, rec: Rectangle, col1: impl Into<Color>, col2: impl Into<Color>, col3: impl Into<Color>, col4: impl Into<Color>) {
+    pub fn draw_rectangle_gradient_ex(
+        &self,
+        rec: Rectangle,
+        col1: impl Into<Color>,
+        col2: impl Into<Color>,
+        col3: impl Into<Color>,
+        col4: impl Into<Color>,
+    ) {
         unsafe {
-            ffi::DrawRectangleGradientEx(rec, col1.into().into(), col2.into().into(), col3.into().into(), col4.into().into());
+            ffi::DrawRectangleGradientEx(
+                rec,
+                col1.into().into(),
+                col2.into().into(),
+                col3.into().into(),
+                col4.into().into(),
+            );
         }
     }
 
     /// Draws rectangle outline.
     #[inline]
-    pub fn draw_rectangle_lines(&self, x: i32, y: i32, width: i32, height: i32, color: impl Into<Color>) {
+    pub fn draw_rectangle_lines(
+        &self,
+        x: i32,
+        y: i32,
+        width: i32,
+        height: i32,
+        color: impl Into<Color>,
+    ) {
         unsafe {
             ffi::DrawRectangleLines(x, y, width, height, color.into().into());
         }
@@ -1192,7 +1220,12 @@ impl RaylibHandle {
 
     /// Draws rectangle outline with extended parameters.
     #[inline]
-    pub fn draw_rectangle_lines_ex(&self, rec: Rectangle, line_thick: i32, color: impl Into<Color>) {
+    pub fn draw_rectangle_lines_ex(
+        &self,
+        rec: Rectangle,
+        line_thick: i32,
+        color: impl Into<Color>,
+    ) {
         unsafe {
             ffi::DrawRectangleLinesEx(rec, line_thick, color.into().into());
         }
@@ -1200,81 +1233,138 @@ impl RaylibHandle {
 
     /// Draws a triangle.
     #[inline]
-    pub fn draw_triangle(&self, v1: impl Into<Vector2>, v2: impl Into<Vector2>, v3: impl Into<Vector2>, color: impl Into<Color>) {
+    pub fn draw_triangle(
+        &self,
+        v1: impl Into<Vector2>,
+        v2: impl Into<Vector2>,
+        v3: impl Into<Vector2>,
+        color: impl Into<Color>,
+    ) {
         unsafe {
-            ffi::DrawTriangle(v1.into().into(), v2.into().into(), v3.into().into(), color.into().into());
+            ffi::DrawTriangle(
+                v1.into().into(),
+                v2.into().into(),
+                v3.into().into(),
+                color.into().into(),
+            );
         }
     }
 
     /// Draws a triangle using lines.
     #[inline]
-    pub fn draw_triangle_lines(&self, v1: impl Into<Vector2>, v2: impl Into<Vector2>, v3: impl Into<Vector2>, color: impl Into<Color>) {
+    pub fn draw_triangle_lines(
+        &self,
+        v1: impl Into<Vector2>,
+        v2: impl Into<Vector2>,
+        v3: impl Into<Vector2>,
+        color: impl Into<Color>,
+    ) {
         unsafe {
-            ffi::DrawTriangleLines(v1.into().into(), v2.into().into(), v3.into().into(), color.into().into());
+            ffi::DrawTriangleLines(
+                v1.into().into(),
+                v2.into().into(),
+                v3.into().into(),
+                color.into().into(),
+            );
         }
     }
 
     /// Draws a regular polygon of n sides (Vector version).
     #[inline]
-    pub fn draw_poly(&self, center: impl Into<Vector2>, sides: i32, radius: f32, rotation: f32, color: impl Into<Color>) {
+    pub fn draw_poly(
+        &self,
+        center: impl Into<Vector2>,
+        sides: i32,
+        radius: f32,
+        rotation: f32,
+        color: impl Into<Color>,
+    ) {
         unsafe {
-            ffi::DrawPoly(center.into().into(), sides, radius, rotation, color.into().into());
+            ffi::DrawPoly(
+                center.into().into(),
+                sides,
+                radius,
+                rotation,
+                color.into().into(),
+            );
         }
     }
 
     /// Checks collision between two rectangles.
     #[inline]
     pub fn check_collision_recs(&self, rec1: Rectangle, rec2: Rectangle) -> bool {
-        unsafe {
-            ffi::CheckCollisionRecs(rec1, rec2)
-        }
+        unsafe { ffi::CheckCollisionRecs(rec1, rec2) }
     }
 
     /// Checks collision between two circles.
     #[inline]
-    pub fn check_collision_circles(&self, center1: impl Into<Vector2>, radius1: f32, center2: impl Into<Vector2>, radius2: f32) -> bool {
+    pub fn check_collision_circles(
+        &self,
+        center1: impl Into<Vector2>,
+        radius1: f32,
+        center2: impl Into<Vector2>,
+        radius2: f32,
+    ) -> bool {
         unsafe {
-            ffi::CheckCollisionCircles(center1.into().into(), radius1, center2.into().into(), radius2)
+            ffi::CheckCollisionCircles(
+                center1.into().into(),
+                radius1,
+                center2.into().into(),
+                radius2,
+            )
         }
     }
 
     /// Checks collision between circle and rectangle.
     #[inline]
-    pub fn check_collision_circle_rec(&self, center: impl Into<Vector2>, radius: f32, rec: Rectangle) -> bool {
-        unsafe {
-            ffi::CheckCollisionCircleRec(center.into().into(), radius, rec)
-        }
+    pub fn check_collision_circle_rec(
+        &self,
+        center: impl Into<Vector2>,
+        radius: f32,
+        rec: Rectangle,
+    ) -> bool {
+        unsafe { ffi::CheckCollisionCircleRec(center.into().into(), radius, rec) }
     }
 
     /// Gets the overlap between two colliding rectangles.
     #[inline]
     pub fn get_collision_rec(&self, rec1: Rectangle, rec2: Rectangle) -> Rectangle {
-        unsafe {
-            ffi::GetCollisionRec(rec1, rec2)
-        }
+        unsafe { ffi::GetCollisionRec(rec1, rec2) }
     }
 
     /// Checks if point is inside rectangle.
     #[inline]
     pub fn check_collision_point_rec(&self, point: impl Into<Vector2>, rec: Rectangle) -> bool {
-        unsafe {
-            ffi::CheckCollisionPointRec(point.into().into(), rec)
-        }
+        unsafe { ffi::CheckCollisionPointRec(point.into().into(), rec) }
     }
 
     /// Checks if point is inside circle.
     #[inline]
-    pub fn check_collision_point_circle(&self, point: impl Into<Vector2>, center: impl Into<Vector2>, radius: f32) -> bool {
-        unsafe {
-            ffi::CheckCollisionPointCircle(point.into().into(), center.into().into(), radius)
-        }
+    pub fn check_collision_point_circle(
+        &self,
+        point: impl Into<Vector2>,
+        center: impl Into<Vector2>,
+        radius: f32,
+    ) -> bool {
+        unsafe { ffi::CheckCollisionPointCircle(point.into().into(), center.into().into(), radius) }
     }
 
     /// Checks if point is inside a triangle.
     #[inline]
-    pub fn check_collision_point_triangle(&self, point: impl Into<Vector2>, p1: impl Into<Vector2>, p2: impl Into<Vector2>, p3: impl Into<Vector2>) -> bool {
+    pub fn check_collision_point_triangle(
+        &self,
+        point: impl Into<Vector2>,
+        p1: impl Into<Vector2>,
+        p2: impl Into<Vector2>,
+        p3: impl Into<Vector2>,
+    ) -> bool {
         unsafe {
-            ffi::CheckCollisionPointTriangle(point.into().into(), p1.into().into(), p2.into().into(), p3.into().into())
+            ffi::CheckCollisionPointTriangle(
+                point.into().into(),
+                p1.into().into(),
+                p2.into().into(),
+                p3.into().into(),
+            )
         }
     }
 
@@ -1282,9 +1372,7 @@ impl RaylibHandle {
     #[inline]
     pub fn load_image(&self, filename: &str) -> Image {
         let c_filename = CString::new(filename).unwrap();
-        unsafe {
-            Image(ffi::LoadImage(c_filename.as_ptr()))
-        }
+        unsafe { Image(ffi::LoadImage(c_filename.as_ptr())) }
     }
 
     /// Loads image from Color array data (RGBA - 32bit).
@@ -1292,32 +1380,68 @@ impl RaylibHandle {
     pub fn load_image_ex(&self, pixels: &[Color], width: i32, height: i32) -> Image {
         let expected_len = (width * height) as usize;
         if pixels.len() != expected_len {
-            panic!("load_image_ex: Data is wrong size. Expected {}, got {}", expected_len, pixels.len());
+            panic!(
+                "load_image_ex: Data is wrong size. Expected {}, got {}",
+                expected_len,
+                pixels.len()
+            );
         }
         unsafe {
             // An examination of Raylib source (textures.c) shows that it does not mutate the given pixels
-            Image(ffi::LoadImageEx(pixels.as_ptr() as *mut ffi::Color, width, height))
+            Image(ffi::LoadImageEx(
+                pixels.as_ptr() as *mut ffi::Color,
+                width,
+                height,
+            ))
         }
     }
 
     /// Loads image from raw data with parameters.
     #[inline]
-    pub fn load_image_pro(&self, data: &[u8], width: i32, height: i32, format: PixelFormat) -> Image {
+    pub fn load_image_pro(
+        &self,
+        data: &[u8],
+        width: i32,
+        height: i32,
+        format: PixelFormat,
+    ) -> Image {
         let expected_len = self.get_pixel_data_size(width, height, format) as usize;
         if data.len() != expected_len {
-            panic!("load_image_pro: Data is wrong size. Expected {}, got {}", expected_len, data.len());
+            panic!(
+                "load_image_pro: Data is wrong size. Expected {}, got {}",
+                expected_len,
+                data.len()
+            );
         }
         unsafe {
-            Image(ffi::LoadImagePro(data.as_ptr() as *mut std::os::raw::c_void, width, height, format as i32))
+            Image(ffi::LoadImagePro(
+                data.as_ptr() as *mut std::os::raw::c_void,
+                width,
+                height,
+                format as i32,
+            ))
         }
     }
 
     /// Loads image from RAW file data.
     #[inline]
-    pub fn load_image_raw(&self, filename: &str, width: i32, height: i32, format: i32, header_size: i32) -> Image {
+    pub fn load_image_raw(
+        &self,
+        filename: &str,
+        width: i32,
+        height: i32,
+        format: i32,
+        header_size: i32,
+    ) -> Image {
         let c_filename = CString::new(filename).unwrap();
         unsafe {
-            Image(ffi::LoadImageRaw(c_filename.as_ptr(), width, height, format, header_size))
+            Image(ffi::LoadImageRaw(
+                c_filename.as_ptr(),
+                width,
+                height,
+                format,
+                header_size,
+            ))
         }
     }
 
@@ -1326,7 +1450,7 @@ impl RaylibHandle {
     pub fn export_image(&self, image: Image, filename: &str) {
         let c_filename = CString::new(filename).unwrap();
         unsafe {
-            ffi::ExportImage( image.0, c_filename.as_ptr());
+            ffi::ExportImage(image.0, c_filename.as_ptr());
         }
     }
 
@@ -1334,25 +1458,19 @@ impl RaylibHandle {
     #[inline]
     pub fn load_texture(&self, filename: &str) -> Texture2D {
         let c_filename = CString::new(filename).unwrap();
-        unsafe {
-            Texture2D(ffi::LoadTexture(c_filename.as_ptr()))
-        }
+        unsafe { Texture2D(ffi::LoadTexture(c_filename.as_ptr())) }
     }
 
     /// Loads texture from image data.
     #[inline]
     pub fn load_texture_from_image(&self, image: &Image) -> Texture2D {
-        unsafe {
-            Texture2D(ffi::LoadTextureFromImage(image.0))
-        }
+        unsafe { Texture2D(ffi::LoadTextureFromImage(image.0)) }
     }
 
     /// Loads texture for rendering (framebuffer).
     #[inline]
     pub fn load_render_texture(&self, width: i32, height: i32) -> RenderTexture2D {
-        unsafe {
-            RenderTexture2D(ffi::LoadRenderTexture(width, height))
-        }
+        unsafe { RenderTexture2D(ffi::LoadRenderTexture(width, height)) }
     }
 
     /// Gets pixel data from `image` as a Vec of Color structs.
@@ -1363,7 +1481,11 @@ impl RaylibHandle {
             let image_data_len = (image.width * image.height) as usize;
             let mut safe_image_data: Vec<Color> = Vec::with_capacity(image_data_len);
             safe_image_data.set_len(image_data_len);
-            std::ptr::copy(image_data, safe_image_data.as_mut_ptr() as *mut ffi::Color, image_data_len);
+            std::ptr::copy(
+                image_data,
+                safe_image_data.as_mut_ptr() as *mut ffi::Color,
+                image_data_len,
+            );
             libc::free(image_data as *mut libc::c_void);
             safe_image_data
         }
@@ -1377,7 +1499,11 @@ impl RaylibHandle {
             let image_data_len = (image.width * image.height) as usize;
             let mut safe_image_data: Vec<Vector4> = Vec::with_capacity(image_data_len);
             safe_image_data.set_len(image_data_len);
-            std::ptr::copy(image_data, safe_image_data.as_mut_ptr() as *mut ffi::Vector4, image_data_len);
+            std::ptr::copy(
+                image_data,
+                safe_image_data.as_mut_ptr() as *mut ffi::Vector4,
+                image_data_len,
+            );
             libc::free(image_data as *mut libc::c_void);
             safe_image_data
         }
@@ -1386,27 +1512,31 @@ impl RaylibHandle {
     /// Gets pixel data size in bytes (image or texture).
     #[inline]
     pub fn get_pixel_data_size(&self, width: i32, height: i32, format: PixelFormat) -> i32 {
-        unsafe {
-            ffi::GetPixelDataSize(width, height, format as i32)
-        }
+        unsafe { ffi::GetPixelDataSize(width, height, format as i32) }
     }
 
     /// Gets pixel data from GPU texture and returns an `Image`.
     #[inline]
     pub fn get_texture_data(&self, texture: &Texture2D) -> Image {
-        unsafe {
-            Image(ffi::GetTextureData(texture.0))
-        }
+        unsafe { Image(ffi::GetTextureData(texture.0)) }
     }
 
     /// Updates GPU texture with new data.
     #[inline]
     pub fn update_texture(&self, texture: &mut Texture2D, pixels: &[u8]) {
-       let expected_len =  unsafe {
-        self.get_pixel_data_size(texture.width, texture.height, mem::transmute::<i32, ffi::PixelFormat>(texture.format)) as usize
+        let expected_len = unsafe {
+            self.get_pixel_data_size(
+                texture.width,
+                texture.height,
+                mem::transmute::<i32, ffi::PixelFormat>(texture.format),
+            ) as usize
         };
         if pixels.len() != expected_len {
-            panic!("update_texture: Data is wrong size. Expected {}, got {}", expected_len, pixels.len());
+            panic!(
+                "update_texture: Data is wrong size. Expected {}, got {}",
+                expected_len,
+                pixels.len()
+            );
         }
         unsafe {
             ffi::UpdateTexture(texture.0, pixels.as_ptr() as *const std::os::raw::c_void);
@@ -1416,9 +1546,7 @@ impl RaylibHandle {
     /// Creates an image duplicate (useful for transformations).
     #[inline]
     pub fn image_copy(&self, image: &Image) -> Image {
-        unsafe {
-            Image(ffi::ImageCopy(image.0))
-        }
+        unsafe { Image(ffi::ImageCopy(image.0)) }
     }
 
     /// Converts `image` to POT (power-of-two).
@@ -1495,9 +1623,24 @@ impl RaylibHandle {
 
     /// Resizes `image` canvas and fills with `color`.
     #[inline]
-    pub fn image_resize_canvas(&self, image: &mut Image, new_width: i32, new_height: i32, offset_x: i32, offset_y: i32, color: impl Into<Color>) {
+    pub fn image_resize_canvas(
+        &self,
+        image: &mut Image,
+        new_width: i32,
+        new_height: i32,
+        offset_x: i32,
+        offset_y: i32,
+        color: impl Into<Color>,
+    ) {
         unsafe {
-            ffi::ImageResizeCanvas(&mut image.0, new_width, new_height, offset_x, offset_y, color.into().into());
+            ffi::ImageResizeCanvas(
+                &mut image.0,
+                new_width,
+                new_height,
+                offset_x,
+                offset_y,
+                color.into().into(),
+            );
         }
     }
 
@@ -1522,16 +1665,33 @@ impl RaylibHandle {
     pub fn image_text(&self, text: &str, font_size: i32, color: impl Into<Color>) -> Image {
         let c_text = CString::new(text).unwrap();
         unsafe {
-            Image(ffi::ImageText(c_text.as_ptr(), font_size, color.into().into()))
+            Image(ffi::ImageText(
+                c_text.as_ptr(),
+                font_size,
+                color.into().into(),
+            ))
         }
     }
 
     /// Creates an image from `text` (custom font).
     #[inline]
-    pub fn image_text_ex(&self, font: &Font, text: &str, font_size: f32, spacing: f32, tint: impl Into<Color>) -> Image {
+    pub fn image_text_ex(
+        &self,
+        font: &Font,
+        text: &str,
+        font_size: f32,
+        spacing: f32,
+        tint: impl Into<Color>,
+    ) -> Image {
         let c_text = CString::new(text).unwrap();
         unsafe {
-            Image(ffi::ImageTextEx(font.0, c_text.as_ptr(), font_size, spacing, tint.into().into()))
+            Image(ffi::ImageTextEx(
+                font.0,
+                c_text.as_ptr(),
+                font_size,
+                spacing,
+                tint.into().into(),
+            ))
         }
     }
 
@@ -1553,19 +1713,49 @@ impl RaylibHandle {
 
     /// Draws text (default font) within an image (destination).
     #[inline]
-    pub fn image_draw_text(&self, dst: &mut Image, position: impl Into<Vector2>, text: &str, font_size: i32, color: impl Into<Color>) {
+    pub fn image_draw_text(
+        &self,
+        dst: &mut Image,
+        position: impl Into<Vector2>,
+        text: &str,
+        font_size: i32,
+        color: impl Into<Color>,
+    ) {
         let c_text = CString::new(text).unwrap();
         unsafe {
-            ffi::ImageDrawText(&mut dst.0, position.into().into(), c_text.as_ptr(), font_size, color.into().into());
+            ffi::ImageDrawText(
+                &mut dst.0,
+                position.into().into(),
+                c_text.as_ptr(),
+                font_size,
+                color.into().into(),
+            );
         }
     }
 
     /// Draws text (custom font) within an image (destination).
     #[inline]
-    pub fn image_draw_text_ex(&self, dst: &mut Image, position: impl Into<Vector2>, font: &Font, text: &str, font_size: f32, spacing: f32, color: impl Into<Color>) {
+    pub fn image_draw_text_ex(
+        &self,
+        dst: &mut Image,
+        position: impl Into<Vector2>,
+        font: &Font,
+        text: &str,
+        font_size: f32,
+        spacing: f32,
+        color: impl Into<Color>,
+    ) {
         let c_text = CString::new(text).unwrap();
         unsafe {
-            ffi::ImageDrawTextEx(&mut dst.0, position.into().into(), font.0, c_text.as_ptr(), font_size, spacing, color.into().into());
+            ffi::ImageDrawTextEx(
+                &mut dst.0,
+                position.into().into(),
+                font.0,
+                c_text.as_ptr(),
+                font_size,
+                spacing,
+                color.into().into(),
+            );
         }
     }
 
@@ -1643,7 +1833,12 @@ impl RaylibHandle {
 
     /// Searches `image` for all occurences of `color` and replaces them with `replace` color.
     #[inline]
-    pub fn image_color_replace(&self, image: &mut Image, color: impl Into<Color>, replace: impl Into<Color>) {
+    pub fn image_color_replace(
+        &self,
+        image: &mut Image,
+        color: impl Into<Color>,
+        replace: impl Into<Color>,
+    ) {
         unsafe {
             ffi::ImageColorReplace(&mut image.0, color.into().into(), replace.into().into());
         }
@@ -1652,65 +1847,118 @@ impl RaylibHandle {
     /// Generates a plain `color` Image.
     #[inline]
     pub fn gen_image_color(&self, width: i32, height: i32, color: impl Into<Color>) -> Image {
-        unsafe {
-            Image(ffi::GenImageColor(width, height, color.into().into()))
-        }
+        unsafe { Image(ffi::GenImageColor(width, height, color.into().into())) }
     }
 
     /// Generates an Image containing a vertical gradient.
     #[inline]
-    pub fn gen_image_gradient_v(&self, width: i32, height: i32, top: impl Into<Color>, bottom: impl Into<Color>) -> Image {
+    pub fn gen_image_gradient_v(
+        &self,
+        width: i32,
+        height: i32,
+        top: impl Into<Color>,
+        bottom: impl Into<Color>,
+    ) -> Image {
         unsafe {
-            Image(ffi::GenImageGradientV(width, height, top.into().into(), bottom.into().into()))
+            Image(ffi::GenImageGradientV(
+                width,
+                height,
+                top.into().into(),
+                bottom.into().into(),
+            ))
         }
     }
 
     /// Generates an Image containing a horizonal gradient.
     #[inline]
-    pub fn gen_image_gradient_h(&self, width: i32, height: i32, left: impl Into<Color>, right: impl Into<Color>) -> Image {
+    pub fn gen_image_gradient_h(
+        &self,
+        width: i32,
+        height: i32,
+        left: impl Into<Color>,
+        right: impl Into<Color>,
+    ) -> Image {
         unsafe {
-            Image(ffi::GenImageGradientH(width, height, left.into().into(), right.into().into()))
+            Image(ffi::GenImageGradientH(
+                width,
+                height,
+                left.into().into(),
+                right.into().into(),
+            ))
         }
     }
 
     /// Generates an Image containing a radial gradient.
     #[inline]
-    pub fn gen_image_gradient_radial(&self, width: i32, height: i32, density: f32, inner: impl Into<Color>, outer: impl Into<Color>) -> Image {
+    pub fn gen_image_gradient_radial(
+        &self,
+        width: i32,
+        height: i32,
+        density: f32,
+        inner: impl Into<Color>,
+        outer: impl Into<Color>,
+    ) -> Image {
         unsafe {
-            Image(ffi::GenImageGradientRadial(width, height, density, inner.into().into(), outer.into().into()))
+            Image(ffi::GenImageGradientRadial(
+                width,
+                height,
+                density,
+                inner.into().into(),
+                outer.into().into(),
+            ))
         }
     }
 
     /// Generates an Image containing a checkerboard pattern.
     #[inline]
-    pub fn gen_image_checked(&self, width: i32, height: i32, checks_x: i32, checks_y: i32, col1: impl Into<Color>, col2: impl Into<Color>) -> Image {
+    pub fn gen_image_checked(
+        &self,
+        width: i32,
+        height: i32,
+        checks_x: i32,
+        checks_y: i32,
+        col1: impl Into<Color>,
+        col2: impl Into<Color>,
+    ) -> Image {
         unsafe {
-            Image(ffi::GenImageChecked(width, height, checks_x, checks_y, col1.into().into(), col2.into().into()))
+            Image(ffi::GenImageChecked(
+                width,
+                height,
+                checks_x,
+                checks_y,
+                col1.into().into(),
+                col2.into().into(),
+            ))
         }
     }
 
     /// Generates an Image containing white noise.
     #[inline]
     pub fn gen_image_white_noise(&self, width: i32, height: i32, factor: f32) -> Image {
-        unsafe {
-            Image(ffi::GenImageWhiteNoise(width, height, factor))
-        }
+        unsafe { Image(ffi::GenImageWhiteNoise(width, height, factor)) }
     }
 
     /// Generates an Image containing perlin noise.
     #[inline]
-    pub fn gen_image_perlin_noise(&self, width: i32, height: i32, offset_x: i32, offset_y: i32, scale: f32) -> Image {
+    pub fn gen_image_perlin_noise(
+        &self,
+        width: i32,
+        height: i32,
+        offset_x: i32,
+        offset_y: i32,
+        scale: f32,
+    ) -> Image {
         unsafe {
-            Image(ffi::GenImagePerlinNoise(width, height, offset_x, offset_y, scale))
+            Image(ffi::GenImagePerlinNoise(
+                width, height, offset_x, offset_y, scale,
+            ))
         }
     }
 
     /// Generates an Image using a cellular algorithm. Bigger `tile_size` means bigger cells.
     #[inline]
     pub fn gen_image_cellular(&self, width: i32, height: i32, tile_size: i32) -> Image {
-        unsafe {
-            Image(ffi::GenImageCellular(width, height, tile_size))
-        }
+        unsafe { Image(ffi::GenImageCellular(width, height, tile_size)) }
     }
 
     /// Generates GPU mipmaps for a `texture`.
@@ -1747,7 +1995,12 @@ impl RaylibHandle {
 
     /// Draws a `texture` using specified `position` vector and `tint` color.
     #[inline]
-    pub fn draw_texture_v(&self, texture: &Texture2D, position: impl Into<Vector2>, tint: impl Into<Color>) {
+    pub fn draw_texture_v(
+        &self,
+        texture: &Texture2D,
+        position: impl Into<Vector2>,
+        tint: impl Into<Color>,
+    ) {
         unsafe {
             ffi::DrawTextureV(texture.0, position.into().into(), tint.into().into());
         }
@@ -1755,25 +2008,64 @@ impl RaylibHandle {
 
     /// Draws a `texture` with extended parameters.
     #[inline]
-    pub fn draw_texture_ex(&self, texture: &Texture2D, position: impl Into<Vector2>, rotation: f32, scale: f32, tint: impl Into<Color>) {
+    pub fn draw_texture_ex(
+        &self,
+        texture: &Texture2D,
+        position: impl Into<Vector2>,
+        rotation: f32,
+        scale: f32,
+        tint: impl Into<Color>,
+    ) {
         unsafe {
-            ffi::DrawTextureEx(texture.0, position.into().into(), rotation, scale, tint.into().into());
+            ffi::DrawTextureEx(
+                texture.0,
+                position.into().into(),
+                rotation,
+                scale,
+                tint.into().into(),
+            );
         }
     }
 
     /// Draws from a region of `texture` defined by the `source_rec` rectangle.
     #[inline]
-    pub fn draw_texture_rec(&self, texture: &Texture2D, source_rec: Rectangle, position: impl Into<Vector2>, tint: impl Into<Color>) {
+    pub fn draw_texture_rec(
+        &self,
+        texture: &Texture2D,
+        source_rec: Rectangle,
+        position: impl Into<Vector2>,
+        tint: impl Into<Color>,
+    ) {
         unsafe {
-            ffi::DrawTextureRec(texture.0, source_rec, position.into().into(), tint.into().into());
+            ffi::DrawTextureRec(
+                texture.0,
+                source_rec,
+                position.into().into(),
+                tint.into().into(),
+            );
         }
     }
 
     /// Draw from a region of `texture` defined by the `source_rec` rectangle with pro parameters.
     #[inline]
-    pub fn draw_texture_pro(&self, texture: &Texture2D, source_rec: Rectangle, dest_rec: Rectangle, origin: impl Into<Vector2>, rotation: f32, tint: impl Into<Color>) {
+    pub fn draw_texture_pro(
+        &self,
+        texture: &Texture2D,
+        source_rec: Rectangle,
+        dest_rec: Rectangle,
+        origin: impl Into<Vector2>,
+        rotation: f32,
+        tint: impl Into<Color>,
+    ) {
         unsafe {
-            ffi::DrawTexturePro(texture.0, source_rec, dest_rec, origin.into().into(), rotation, tint.into().into());
+            ffi::DrawTexturePro(
+                texture.0,
+                source_rec,
+                dest_rec,
+                origin.into().into(),
+                rotation,
+                tint.into().into(),
+            );
         }
     }
 
@@ -1787,9 +2079,7 @@ impl RaylibHandle {
     #[inline]
     pub fn load_font(&self, filename: &str) -> Font {
         let c_filename = CString::new(filename).unwrap();
-        unsafe {
-            Font(ffi::LoadFont(c_filename.as_ptr()))
-        }
+        unsafe { Font(ffi::LoadFont(c_filename.as_ptr())) }
     }
 
     /// Loads font from file with extended parameters.
@@ -1798,8 +2088,18 @@ impl RaylibHandle {
         let c_filename = CString::new(filename).unwrap();
         unsafe {
             match chars {
-                Some(c) => Font(ffi::LoadFontEx(c_filename.as_ptr(), font_size, c.as_ptr() as *mut i32, c.len() as i32)),
-                None => Font(ffi::LoadFontEx(c_filename.as_ptr(), font_size, std::ptr::null_mut(), 0))
+                Some(c) => Font(ffi::LoadFontEx(
+                    c_filename.as_ptr(),
+                    font_size,
+                    c.as_ptr() as *mut i32,
+                    c.len() as i32,
+                )),
+                None => Font(ffi::LoadFontEx(
+                    c_filename.as_ptr(),
+                    font_size,
+                    std::ptr::null_mut(),
+                    0,
+                )),
             }
         }
     }
@@ -1839,9 +2139,21 @@ impl RaylibHandle {
 
     /// Generates image font atlas using `chars` info.
     #[inline]
-    pub fn gen_image_font_atlas(&self, chars: &mut [CharInfo], font_size: i32, padding: i32, pack_method: i32) -> Image {
+    pub fn gen_image_font_atlas(
+        &self,
+        chars: &mut [CharInfo],
+        font_size: i32,
+        padding: i32,
+        pack_method: i32,
+    ) -> Image {
         unsafe {
-            Image(ffi::GenImageFontAtlas(chars.as_mut_ptr(), font_size, chars.len() as i32, padding, pack_method))
+            Image(ffi::GenImageFontAtlas(
+                chars.as_mut_ptr(),
+                font_size,
+                chars.len() as i32,
+                padding,
+                pack_method,
+            ))
         }
     }
 
@@ -1864,10 +2176,25 @@ impl RaylibHandle {
 
     /// Draws text using `font` and additional parameters.
     #[inline]
-    pub fn draw_text_ex(&self, font: &Font, text: &str, position: impl Into<Vector2>, font_size: f32, spacing: f32, tint: impl Into<Color>) {
+    pub fn draw_text_ex(
+        &self,
+        font: &Font,
+        text: &str,
+        position: impl Into<Vector2>,
+        font_size: f32,
+        spacing: f32,
+        tint: impl Into<Color>,
+    ) {
         let c_text = CString::new(text).unwrap();
         unsafe {
-            ffi::DrawTextEx(font.0, c_text.as_ptr(), position.into().into(), font_size, spacing, tint.into().into());
+            ffi::DrawTextEx(
+                font.0,
+                c_text.as_ptr(),
+                position.into().into(),
+                font_size,
+                spacing,
+                tint.into().into(),
+            );
         }
     }
 
@@ -1875,79 +2202,156 @@ impl RaylibHandle {
     #[inline]
     pub fn measure_text(&self, text: &str, font_size: i32) -> i32 {
         let c_text = CString::new(text).unwrap();
-        unsafe {
-            ffi::MeasureText(c_text.as_ptr(), font_size)
-        }
+        unsafe { ffi::MeasureText(c_text.as_ptr(), font_size) }
     }
 
     /// Measures string width in pixels for `font`.
     #[inline]
-    pub fn measure_text_ex(&self, font: &Font, text: &str, font_size: f32, spacing: f32) -> Vector2 {
+    pub fn measure_text_ex(
+        &self,
+        font: &Font,
+        text: &str,
+        font_size: f32,
+        spacing: f32,
+    ) -> Vector2 {
         let c_text = CString::new(text).unwrap();
-        unsafe {
-            ffi::MeasureTextEx(font.0, c_text.as_ptr(), font_size, spacing).into()
-        }
+        unsafe { ffi::MeasureTextEx(font.0, c_text.as_ptr(), font_size, spacing).into() }
     }
 
     /// Gets index position for a unicode character on `font`.
     #[inline]
     pub fn get_glyph_index(&self, font: &Font, character: i32) -> i32 {
-        unsafe {
-            ffi::GetGlyphIndex(font.0, character)
-        }
+        unsafe { ffi::GetGlyphIndex(font.0, character) }
     }
 
     /// Draws a line in 3D world space.
     #[inline]
-    pub fn draw_line_3d(&self, start_pos: impl Into<Vector3>, end_pos: impl Into<Vector3>, color: impl Into<Color>) {
+    pub fn draw_line_3d(
+        &self,
+        start_pos: impl Into<Vector3>,
+        end_pos: impl Into<Vector3>,
+        color: impl Into<Color>,
+    ) {
         unsafe {
-            ffi::DrawLine3D(start_pos.into().into(), end_pos.into().into(), color.into().into());
+            ffi::DrawLine3D(
+                start_pos.into().into(),
+                end_pos.into().into(),
+                color.into().into(),
+            );
         }
     }
 
     /// Draws a circle in 3D world space.
     #[inline]
-    pub fn draw_circle_3d(&self, center: impl Into<Vector3>, radius: f32, rotation_axis: impl Into<Vector3>, rotation_angle: f32, color: impl Into<Color>) {
+    pub fn draw_circle_3d(
+        &self,
+        center: impl Into<Vector3>,
+        radius: f32,
+        rotation_axis: impl Into<Vector3>,
+        rotation_angle: f32,
+        color: impl Into<Color>,
+    ) {
         unsafe {
-            ffi::DrawCircle3D(center.into().into(), radius, rotation_axis.into().into(), rotation_angle, color.into().into());
+            ffi::DrawCircle3D(
+                center.into().into(),
+                radius,
+                rotation_axis.into().into(),
+                rotation_angle,
+                color.into().into(),
+            );
         }
     }
 
     /// Draws a cube.
     #[inline]
-    pub fn draw_cube(&self, position: impl Into<Vector3>, width: f32, height: f32, length: f32, color: impl Into<Color>) {
+    pub fn draw_cube(
+        &self,
+        position: impl Into<Vector3>,
+        width: f32,
+        height: f32,
+        length: f32,
+        color: impl Into<Color>,
+    ) {
         unsafe {
-            ffi::DrawCube(position.into().into(), width, height, length, color.into().into());
+            ffi::DrawCube(
+                position.into().into(),
+                width,
+                height,
+                length,
+                color.into().into(),
+            );
         }
     }
 
     /// Draws a cube (Vector version).
     #[inline]
-    pub fn draw_cube_v(&self, position: impl Into<Vector3>, size: impl Into<Vector3>, color: impl Into<Color>) {
+    pub fn draw_cube_v(
+        &self,
+        position: impl Into<Vector3>,
+        size: impl Into<Vector3>,
+        color: impl Into<Color>,
+    ) {
         unsafe {
-            ffi::DrawCubeV(position.into().into(), size.into().into(), color.into().into());
+            ffi::DrawCubeV(
+                position.into().into(),
+                size.into().into(),
+                color.into().into(),
+            );
         }
     }
 
     /// Draws a cube in wireframe.
     #[inline]
-    pub fn draw_cube_wires(&self, position: impl Into<Vector3>, width: f32, height: f32, length: f32, color: impl Into<Color>) {
+    pub fn draw_cube_wires(
+        &self,
+        position: impl Into<Vector3>,
+        width: f32,
+        height: f32,
+        length: f32,
+        color: impl Into<Color>,
+    ) {
         unsafe {
-            ffi::DrawCubeWires(position.into().into(), width, height, length, color.into().into());
+            ffi::DrawCubeWires(
+                position.into().into(),
+                width,
+                height,
+                length,
+                color.into().into(),
+            );
         }
     }
 
     /// Draws a textured cube.
     #[inline]
-    pub fn draw_cube_texture(&self, texture: &Texture2D, position: impl Into<Vector3>, width: f32, height: f32, length: f32, color: impl Into<Color>) {
+    pub fn draw_cube_texture(
+        &self,
+        texture: &Texture2D,
+        position: impl Into<Vector3>,
+        width: f32,
+        height: f32,
+        length: f32,
+        color: impl Into<Color>,
+    ) {
         unsafe {
-            ffi::DrawCubeTexture(texture.0, position.into().into(), width, height, length, color.into().into());
+            ffi::DrawCubeTexture(
+                texture.0,
+                position.into().into(),
+                width,
+                height,
+                length,
+                color.into().into(),
+            );
         }
     }
 
     /// Draws a sphere.
     #[inline]
-    pub fn draw_sphere(&self, center_pos: impl Into<Vector3>, radius: f32, color: impl Into<Color>) {
+    pub fn draw_sphere(
+        &self,
+        center_pos: impl Into<Vector3>,
+        radius: f32,
+        color: impl Into<Color>,
+    ) {
         unsafe {
             ffi::DrawSphere(center_pos.into().into(), radius, color.into().into());
         }
@@ -1955,41 +2359,106 @@ impl RaylibHandle {
 
     /// Draws a sphere with extended parameters.
     #[inline]
-    pub fn draw_sphere_ex(&self, center_pos: impl Into<Vector3>, radius: f32, rings: i32, slices: i32, color: impl Into<Color>) {
+    pub fn draw_sphere_ex(
+        &self,
+        center_pos: impl Into<Vector3>,
+        radius: f32,
+        rings: i32,
+        slices: i32,
+        color: impl Into<Color>,
+    ) {
         unsafe {
-            ffi::DrawSphereEx(center_pos.into().into(), radius, rings, slices, color.into().into());
+            ffi::DrawSphereEx(
+                center_pos.into().into(),
+                radius,
+                rings,
+                slices,
+                color.into().into(),
+            );
         }
     }
 
     /// Draws a sphere in wireframe.
     #[inline]
-    pub fn draw_sphere_wires(&self, center_pos: impl Into<Vector3>, radius: f32, rings: i32, slices: i32, color: impl Into<Color>) {
+    pub fn draw_sphere_wires(
+        &self,
+        center_pos: impl Into<Vector3>,
+        radius: f32,
+        rings: i32,
+        slices: i32,
+        color: impl Into<Color>,
+    ) {
         unsafe {
-            ffi::DrawSphereWires(center_pos.into().into(), radius, rings, slices, color.into().into());
+            ffi::DrawSphereWires(
+                center_pos.into().into(),
+                radius,
+                rings,
+                slices,
+                color.into().into(),
+            );
         }
     }
 
     /// Draws a cylinder.
     #[inline]
-    pub fn draw_cylinder(&self, position: impl Into<Vector3>, radius_top: f32, radius_bottom: f32, height: f32, slices: i32, color: impl Into<Color>) {
+    pub fn draw_cylinder(
+        &self,
+        position: impl Into<Vector3>,
+        radius_top: f32,
+        radius_bottom: f32,
+        height: f32,
+        slices: i32,
+        color: impl Into<Color>,
+    ) {
         unsafe {
-            ffi::DrawCylinder(position.into().into(), radius_top, radius_bottom, height, slices, color.into().into());
+            ffi::DrawCylinder(
+                position.into().into(),
+                radius_top,
+                radius_bottom,
+                height,
+                slices,
+                color.into().into(),
+            );
         }
     }
 
     /// Draws a cylinder in wireframe.
     #[inline]
-    pub fn draw_cylinder_wires(&self, position: impl Into<Vector3>, radius_top: f32, radius_bottom: f32, height: f32, slices: i32, color: impl Into<Color>) {
+    pub fn draw_cylinder_wires(
+        &self,
+        position: impl Into<Vector3>,
+        radius_top: f32,
+        radius_bottom: f32,
+        height: f32,
+        slices: i32,
+        color: impl Into<Color>,
+    ) {
         unsafe {
-            ffi::DrawCylinderWires(position.into().into(), radius_top, radius_bottom, height, slices, color.into().into());
+            ffi::DrawCylinderWires(
+                position.into().into(),
+                radius_top,
+                radius_bottom,
+                height,
+                slices,
+                color.into().into(),
+            );
         }
     }
 
     /// Draws an X/Z plane.
     #[inline]
-    pub fn draw_plane(&self, center_pos: impl Into<Vector3>, size: impl Into<Vector2>, color: impl Into<Color>) {
+    pub fn draw_plane(
+        &self,
+        center_pos: impl Into<Vector3>,
+        size: impl Into<Vector2>,
+        color: impl Into<Color>,
+    ) {
         unsafe {
-            ffi::DrawPlane(center_pos.into().into(), size.into().into(), color.into().into());
+            ffi::DrawPlane(
+                center_pos.into().into(),
+                size.into().into(),
+                color.into().into(),
+            );
         }
     }
 
@@ -2021,9 +2490,7 @@ impl RaylibHandle {
     #[inline]
     pub fn load_model(&self, filename: &str) -> Model {
         let c_filename = CString::new(filename).unwrap();
-        unsafe {
-            Model(ffi::LoadModel(c_filename.as_ptr()))
-        }
+        unsafe { Model(ffi::LoadModel(c_filename.as_ptr())) }
     }
 
     /// Loads model from generated mesh. Returned Model takes ownership of `mesh`.
@@ -2041,16 +2508,14 @@ impl RaylibHandle {
     pub fn export_mesh(&self, filename: &str, mesh: &Mesh) {
         let c_filename = CString::new(filename).unwrap();
         unsafe {
-            ffi::ExportMesh( mesh.0, c_filename.as_ptr());
+            ffi::ExportMesh(mesh.0, c_filename.as_ptr());
         }
     }
 
     /// Computes mesh bounding box limits.
     #[inline]
     pub fn mesh_bounding_box(&self, mesh: &Mesh) -> BoundingBox {
-        unsafe {
-            ffi::MeshBoundingBox(mesh.0).into()
-        }
+        unsafe { ffi::MeshBoundingBox(mesh.0).into() }
     }
 
     /// Computes mesh tangents.
@@ -2072,25 +2537,19 @@ impl RaylibHandle {
     /// Generates plane mesh (with subdivisions).
     #[inline]
     pub fn gen_mesh_plane(&self, width: f32, length: f32, res_x: i32, res_z: i32) -> Mesh {
-        unsafe {
-            Mesh(ffi::GenMeshPlane(width, length, res_x, res_z))
-        }
+        unsafe { Mesh(ffi::GenMeshPlane(width, length, res_x, res_z)) }
     }
 
     /// Generates cuboid mesh.
     #[inline]
     pub fn gen_mesh_cube(&self, width: f32, height: f32, length: f32) -> Mesh {
-        unsafe {
-            Mesh(ffi::GenMeshCube(width, height, length))
-        }
+        unsafe { Mesh(ffi::GenMeshCube(width, height, length)) }
     }
 
     /// Generates sphere mesh (standard sphere).
     #[inline]
     pub fn gen_mesh_sphere(&self, radius: f32, rings: i32, slices: i32) -> Mesh {
-        unsafe {
-            Mesh(ffi::GenMeshSphere(radius, rings, slices))
-        }
+        unsafe { Mesh(ffi::GenMeshSphere(radius, rings, slices)) }
     }
 
     /// Generates half-sphere mesh (no bottom cap).
@@ -2102,41 +2561,31 @@ impl RaylibHandle {
     /// Generates cylinder mesh.
     #[inline]
     pub fn gen_mesh_cylinder(&self, radius: f32, height: f32, slices: i32) -> Mesh {
-        unsafe {
-            Mesh(ffi::GenMeshCylinder(radius, height, slices))
-        }
+        unsafe { Mesh(ffi::GenMeshCylinder(radius, height, slices)) }
     }
 
     /// Generates torus mesh.
     #[inline]
     pub fn gen_mesh_torus(&self, radius: f32, size: f32, rad_seg: i32, sides: i32) -> Mesh {
-        unsafe {
-            Mesh(ffi::GenMeshTorus(radius, size, rad_seg, sides))
-        }
+        unsafe { Mesh(ffi::GenMeshTorus(radius, size, rad_seg, sides)) }
     }
 
     /// Generates trefoil knot mesh.
     #[inline]
     pub fn gen_mesh_knot(&self, radius: f32, size: f32, rad_seg: i32, sides: i32) -> Mesh {
-        unsafe {
-            Mesh(ffi::GenMeshKnot(radius, size, rad_seg, sides))
-        }
+        unsafe { Mesh(ffi::GenMeshKnot(radius, size, rad_seg, sides)) }
     }
 
     /// Generates heightmap mesh from image data.
     #[inline]
     pub fn gen_mesh_heightmap(&self, heightmap: &Image, size: impl Into<Vector3>) -> Mesh {
-        unsafe {
-            Mesh(ffi::GenMeshHeightmap(heightmap.0, size.into().into()))
-        }
+        unsafe { Mesh(ffi::GenMeshHeightmap(heightmap.0, size.into().into())) }
     }
 
     /// Generates cubes-based map mesh from image data.
     #[inline]
     pub fn gen_mesh_cubicmap(&self, cubicmap: &Image, cube_size: impl Into<Vector3>) -> Mesh {
-        unsafe {
-            Mesh(ffi::GenMeshCubicmap(cubicmap.0, cube_size.into().into()))
-        }
+        unsafe { Mesh(ffi::GenMeshCubicmap(cubicmap.0, cube_size.into().into())) }
     }
 
     /// Loads default material (supports `DIFFUSE`, `SPECULAR`, and `NORMAL` maps).
@@ -2147,7 +2596,13 @@ impl RaylibHandle {
 
     /// Draws a model (with texture if set).
     #[inline]
-    pub fn draw_model(&self, model: &Model, position: impl Into<Vector3>, scale: f32, tint: impl Into<Color>) {
+    pub fn draw_model(
+        &self,
+        model: &Model,
+        position: impl Into<Vector3>,
+        scale: f32,
+        tint: impl Into<Color>,
+    ) {
         unsafe {
             ffi::DrawModel(model.0, position.into().into(), scale, tint.into().into());
         }
@@ -2155,15 +2610,36 @@ impl RaylibHandle {
 
     /// Draws a model with extended parameters.
     #[inline]
-    pub fn draw_model_ex(&self, model: &Model, position: impl Into<Vector3>, rotation_axis: impl Into<Vector3>, rotation_angle: f32, scale: impl Into<Vector3>, tint: impl Into<Color>) {
+    pub fn draw_model_ex(
+        &self,
+        model: &Model,
+        position: impl Into<Vector3>,
+        rotation_axis: impl Into<Vector3>,
+        rotation_angle: f32,
+        scale: impl Into<Vector3>,
+        tint: impl Into<Color>,
+    ) {
         unsafe {
-            ffi::DrawModelEx(model.0, position.into().into(), rotation_axis.into().into(), rotation_angle, scale.into().into(), tint.into().into());
+            ffi::DrawModelEx(
+                model.0,
+                position.into().into(),
+                rotation_axis.into().into(),
+                rotation_angle,
+                scale.into().into(),
+                tint.into().into(),
+            );
         }
     }
 
     /// Draws a model with wires (with texture if set).
     #[inline]
-    pub fn draw_model_wires(&self, model: &Model, position: impl Into<Vector3>, scale: f32, tint: impl Into<Color>) {
+    pub fn draw_model_wires(
+        &self,
+        model: &Model,
+        position: impl Into<Vector3>,
+        scale: f32,
+        tint: impl Into<Color>,
+    ) {
         unsafe {
             ffi::DrawModelWires(model.0, position.into().into(), scale, tint.into().into());
         }
@@ -2171,9 +2647,24 @@ impl RaylibHandle {
 
     /// Draws a model with wires.
     #[inline]
-    pub fn draw_model_wires_ex(&self, model: &Model, position: impl Into<Vector3>, rotation_axis: impl Into<Vector3>, rotation_angle: f32, scale: impl Into<Vector3>, tint: impl Into<Color>) {
+    pub fn draw_model_wires_ex(
+        &self,
+        model: &Model,
+        position: impl Into<Vector3>,
+        rotation_axis: impl Into<Vector3>,
+        rotation_angle: f32,
+        scale: impl Into<Vector3>,
+        tint: impl Into<Color>,
+    ) {
         unsafe {
-            ffi::DrawModelWiresEx(model.0, position.into().into(), rotation_axis.into().into(), rotation_angle, scale.into().into(), tint.into().into());
+            ffi::DrawModelWiresEx(
+                model.0,
+                position.into().into(),
+                rotation_axis.into().into(),
+                rotation_angle,
+                scale.into().into(),
+                tint.into().into(),
+            );
         }
     }
 
@@ -2187,39 +2678,81 @@ impl RaylibHandle {
 
     /// Draws a billboard texture.
     #[inline]
-    pub fn draw_billboard(&self, camera: Camera3D, texture: &Texture2D, center: impl Into<Vector3>, size: f32, tint: impl Into<Color>) {
+    pub fn draw_billboard(
+        &self,
+        camera: Camera3D,
+        texture: &Texture2D,
+        center: impl Into<Vector3>,
+        size: f32,
+        tint: impl Into<Color>,
+    ) {
         unsafe {
-            ffi::DrawBillboard(camera.into(), texture.0, center.into().into(), size, tint.into().into());
+            ffi::DrawBillboard(
+                camera.into(),
+                texture.0,
+                center.into().into(),
+                size,
+                tint.into().into(),
+            );
         }
     }
 
     /// Draws a billboard texture defined by `source_rec`.
     #[inline]
-    pub fn draw_billboard_rec(&self, camera: Camera3D, texture: &Texture2D, source_rec: Rectangle, center: impl Into<Vector3>, size: f32, tint: impl Into<Color>) {
+    pub fn draw_billboard_rec(
+        &self,
+        camera: Camera3D,
+        texture: &Texture2D,
+        source_rec: Rectangle,
+        center: impl Into<Vector3>,
+        size: f32,
+        tint: impl Into<Color>,
+    ) {
         unsafe {
-            ffi::DrawBillboardRec(camera.into(), texture.0, source_rec, center.into().into(), size, tint.into().into());
+            ffi::DrawBillboardRec(
+                camera.into(),
+                texture.0,
+                source_rec,
+                center.into().into(),
+                size,
+                tint.into().into(),
+            );
         }
     }
 
     /// Detects collision between two spheres.
     #[inline]
-    pub fn check_collision_spheres(&self, center_a: impl Into<Vector3>, radius_a: f32, center_b: impl Into<Vector3>, radius_b: f32) -> bool {
+    pub fn check_collision_spheres(
+        &self,
+        center_a: impl Into<Vector3>,
+        radius_a: f32,
+        center_b: impl Into<Vector3>,
+        radius_b: f32,
+    ) -> bool {
         unsafe {
-            ffi::CheckCollisionSpheres(center_a.into().into(), radius_a, center_b.into().into(), radius_b)
+            ffi::CheckCollisionSpheres(
+                center_a.into().into(),
+                radius_a,
+                center_b.into().into(),
+                radius_b,
+            )
         }
     }
 
     /// Detects collision between two boxes.
     #[inline]
     pub fn check_collision_boxes(&self, box1: BoundingBox, box2: BoundingBox) -> bool {
-        unsafe {
-            ffi::CheckCollisionBoxes(box1.into(), box2.into())
-        }
+        unsafe { ffi::CheckCollisionBoxes(box1.into(), box2.into()) }
     }
 
     /// Detects collision between box and sphere.
     #[inline]
-    pub fn check_collision_box_sphere(&self, bbox: BoundingBox, center_sphere: impl Into<Vector3>, radius_sphere: f32) -> bool {
+    pub fn check_collision_box_sphere(
+        &self,
+        bbox: BoundingBox,
+        center_sphere: impl Into<Vector3>,
+        radius_sphere: f32,
+    ) -> bool {
         unsafe {
             ffi::CheckCollisionBoxSphere(bbox.into(), center_sphere.into().into(), radius_sphere)
         }
@@ -2227,7 +2760,12 @@ impl RaylibHandle {
 
     /// Detects collision between ray and sphere.
     #[inline]
-    pub fn check_collision_ray_sphere(&self, ray: Ray, sphere_position: impl Into<Vector3>, sphere_radius: f32) -> bool {
+    pub fn check_collision_ray_sphere(
+        &self,
+        ray: Ray,
+        sphere_position: impl Into<Vector3>,
+        sphere_radius: f32,
+    ) -> bool {
         unsafe {
             ffi::CheckCollisionRaySphere(ray.into(), sphere_position.into().into(), sphere_radius)
         }
@@ -2235,14 +2773,27 @@ impl RaylibHandle {
 
     /// Detects collision between ray and sphere, and returns the collision point.
     #[inline]
-    pub fn check_collision_ray_sphere_ex(&self, ray: Ray, sphere_position: impl Into<Vector3>, sphere_radius: f32) -> Option<Vector3> {
+    pub fn check_collision_ray_sphere_ex(
+        &self,
+        ray: Ray,
+        sphere_position: impl Into<Vector3>,
+        sphere_radius: f32,
+    ) -> Option<Vector3> {
         unsafe {
-            let mut col_point = ffi::Vector3 { x: 0.0, y: 0.0, z: 0.0 };
-            let collision = ffi::CheckCollisionRaySphereEx(ray.into(), sphere_position.into().into(), sphere_radius, &mut col_point);
+            let mut col_point = ffi::Vector3 {
+                x: 0.0,
+                y: 0.0,
+                z: 0.0,
+            };
+            let collision = ffi::CheckCollisionRaySphereEx(
+                ray.into(),
+                sphere_position.into().into(),
+                sphere_radius,
+                &mut col_point,
+            );
             if collision {
                 Some(col_point.into())
-            }
-            else {
+            } else {
                 None
             }
         }
@@ -2251,33 +2802,39 @@ impl RaylibHandle {
     /// Detects collision between ray and box.
     #[inline]
     pub fn check_collision_ray_box(&self, ray: Ray, bbox: BoundingBox) -> bool {
-        unsafe {
-            ffi::CheckCollisionRayBox(ray.into(), bbox.into())
-        }
+        unsafe { ffi::CheckCollisionRayBox(ray.into(), bbox.into()) }
     }
 
     /// Gets collision info between ray and model.
     #[inline]
     pub fn get_collision_ray_model(&self, ray: Ray, model: &Model) -> RayHitInfo {
-        unsafe {
-            ffi::GetCollisionRayModel(ray.into(), &mut { model.0 }).into()
-        }
+        unsafe { ffi::GetCollisionRayModel(ray.into(), &mut { model.0 }).into() }
     }
 
     /// Gets collision info between ray and triangle.
     #[inline]
-    pub fn get_collision_ray_triangle(&self, ray: Ray, p1: impl Into<Vector3>, p2: impl Into<Vector3>, p3: impl Into<Vector3>) -> RayHitInfo {
+    pub fn get_collision_ray_triangle(
+        &self,
+        ray: Ray,
+        p1: impl Into<Vector3>,
+        p2: impl Into<Vector3>,
+        p3: impl Into<Vector3>,
+    ) -> RayHitInfo {
         unsafe {
-            ffi::GetCollisionRayTriangle(ray.into(), p1.into().into(), p2.into().into(), p3.into().into()).into()
+            ffi::GetCollisionRayTriangle(
+                ray.into(),
+                p1.into().into(),
+                p2.into().into(),
+                p3.into().into(),
+            )
+            .into()
         }
     }
 
     /// Gets collision info between ray and ground plane (Y-normal plane).
     #[inline]
     pub fn get_collision_ray_ground(&self, ray: Ray, ground_height: f32) -> RayHitInfo {
-        unsafe {
-            ffi::GetCollisionRayGround(ray.into(), ground_height).into()
-        }
+        unsafe { ffi::GetCollisionRayGround(ray.into(), ground_height).into() }
     }
 
     /// Loads a text file and returns its contents in a string.
@@ -2298,7 +2855,10 @@ impl RaylibHandle {
         let c_vs_filename = CString::new(vs_filename).unwrap();
         let c_fs_filename = CString::new(fs_filename).unwrap();
         unsafe {
-            Shader(ffi::LoadShader(c_vs_filename.as_ptr(), c_fs_filename.as_ptr()))
+            Shader(ffi::LoadShader(
+                c_vs_filename.as_ptr(),
+                c_fs_filename.as_ptr(),
+            ))
         }
     }
 
@@ -2308,7 +2868,10 @@ impl RaylibHandle {
         let c_vs_code = CString::new(vs_code).unwrap();
         let c_fs_code = CString::new(fs_code).unwrap();
         unsafe {
-            Shader(ffi::LoadShaderCode(c_vs_code.as_ptr() as *mut i8, c_fs_code.as_ptr() as *mut i8))
+            Shader(ffi::LoadShaderCode(
+                c_vs_code.as_ptr() as *mut i8,
+                c_fs_code.as_ptr() as *mut i8,
+            ))
         }
     }
 
@@ -2328,16 +2891,19 @@ impl RaylibHandle {
     #[inline]
     pub fn get_shader_location(&self, shader: &Shader, uniform_name: &str) -> i32 {
         let c_uniform_name = CString::new(uniform_name).unwrap();
-        unsafe {
-            ffi::GetShaderLocation(shader.0, c_uniform_name.as_ptr())
-        }
+        unsafe { ffi::GetShaderLocation(shader.0, c_uniform_name.as_ptr()) }
     }
 
     /// Sets shader uniform value (`f32`).
     #[inline]
     pub fn set_shader_value(&self, shader: &mut Shader, uniform_loc: i32, value: &[f32]) {
         unsafe {
-            ffi::SetShaderValue(shader.0, uniform_loc, value.as_ptr() as *const ::std::os::raw::c_void, value.len() as i32);
+            ffi::SetShaderValue(
+                shader.0,
+                uniform_loc,
+                value.as_ptr() as *const ::std::os::raw::c_void,
+                value.len() as i32,
+            );
         }
     }
 
@@ -2368,41 +2934,46 @@ impl RaylibHandle {
     /// Gets internal modelview matrix.
     #[inline]
     pub fn get_matrix_modelview(&self) -> Matrix {
-        unsafe {
-            ffi::GetMatrixModelview().into()
-        }
+        unsafe { ffi::GetMatrixModelview().into() }
     }
 
     /// Generates cubemap texture from HDR texture.
     #[inline]
-    pub fn gen_texture_cubemap(&self, shader: &Shader, sky_hdr: &Texture2D, size: i32) -> Texture2D {
-        unsafe {
-            Texture2D(ffi::GenTextureCubemap(shader.0, sky_hdr.0, size))
-        }
+    pub fn gen_texture_cubemap(
+        &self,
+        shader: &Shader,
+        sky_hdr: &Texture2D,
+        size: i32,
+    ) -> Texture2D {
+        unsafe { Texture2D(ffi::GenTextureCubemap(shader.0, sky_hdr.0, size)) }
     }
 
     /// Generates irradiance texture using cubemap data.
     #[inline]
-    pub fn gen_texture_irradiance(&self, shader: &Shader, cubemap: &Texture2D, size: i32) -> Texture2D {
-        unsafe {
-            Texture2D(ffi::GenTextureIrradiance(shader.0, cubemap.0, size))
-        }
+    pub fn gen_texture_irradiance(
+        &self,
+        shader: &Shader,
+        cubemap: &Texture2D,
+        size: i32,
+    ) -> Texture2D {
+        unsafe { Texture2D(ffi::GenTextureIrradiance(shader.0, cubemap.0, size)) }
     }
 
     /// Generates prefilter texture using cubemap data.
     #[inline]
-    pub fn gen_texture_prefilter(&self, shader: &Shader, cubemap: &Texture2D, size: i32) -> Texture2D {
-        unsafe {
-            Texture2D(ffi::GenTexturePrefilter(shader.0, cubemap.0, size))
-        }
+    pub fn gen_texture_prefilter(
+        &self,
+        shader: &Shader,
+        cubemap: &Texture2D,
+        size: i32,
+    ) -> Texture2D {
+        unsafe { Texture2D(ffi::GenTexturePrefilter(shader.0, cubemap.0, size)) }
     }
 
     /// Generates BRDF texture using cubemap data.
     #[inline]
     pub fn gen_texture_brdf(&self, shader: &Shader, size: i32) -> Texture2D {
-        unsafe {
-            Texture2D(ffi::GenTextureBRDF(shader.0,  size))
-        }
+        unsafe { Texture2D(ffi::GenTextureBRDF(shader.0, size)) }
     }
 
     /// Begins custom shader drawing.
@@ -2429,7 +3000,7 @@ impl RaylibHandle {
         }
     }
 
-     /// Ends blending mode (reset to default: alpha blending).
+    /// Ends blending mode (reset to default: alpha blending).
     #[inline]
     pub fn end_blend_mode(&self) {
         unsafe {
@@ -2456,9 +3027,7 @@ impl RaylibHandle {
     /// Detects if VR simulator is ready.
     #[inline]
     pub fn is_vr_simulator_ready(&self) -> bool {
-        unsafe {
-            ffi::IsVrSimulatorReady()
-        }
+        unsafe { ffi::IsVrSimulatorReady() }
     }
 
     /// Updates VR tracking (position and orientation) and camera.
@@ -2514,9 +3083,7 @@ impl RaylibHandle {
     /// Checks if audio device is ready.
     #[inline]
     pub fn is_audio_device_ready(&self) -> bool {
-        unsafe {
-            ffi::IsAudioDeviceReady()
-        }
+        unsafe { ffi::IsAudioDeviceReady() }
     }
 
     /// Sets master volume (listener).
@@ -2531,16 +3098,27 @@ impl RaylibHandle {
     #[inline]
     pub fn load_wave(&self, filename: &str) -> Wave {
         let c_filename = CString::new(filename).unwrap();
-        unsafe {
-            Wave(ffi::LoadWave(c_filename.as_ptr()))
-        }
+        unsafe { Wave(ffi::LoadWave(c_filename.as_ptr())) }
     }
 
     /// Loads wave data from raw array data.
     #[inline]
-    pub fn load_wave_ex(&self, data: &[u8], sample_count: i32, sample_rate: i32, sample_size: i32, channels: i32) -> Wave {
+    pub fn load_wave_ex(
+        &self,
+        data: &[u8],
+        sample_count: i32,
+        sample_rate: i32,
+        sample_size: i32,
+        channels: i32,
+    ) -> Wave {
         unsafe {
-            Wave(ffi::LoadWaveEx(data.as_ptr() as *mut std::os::raw::c_void, sample_count, sample_rate, sample_size, channels))
+            Wave(ffi::LoadWaveEx(
+                data.as_ptr() as *mut std::os::raw::c_void,
+                sample_count,
+                sample_rate,
+                sample_size,
+                channels,
+            ))
         }
     }
 
@@ -2548,24 +3126,24 @@ impl RaylibHandle {
     #[inline]
     pub fn load_sound(&self, filename: &str) -> Sound {
         let c_filename = CString::new(filename).unwrap();
-        unsafe {
-            Sound(ffi::LoadSound(c_filename.as_ptr()))
-        }
+        unsafe { Sound(ffi::LoadSound(c_filename.as_ptr())) }
     }
 
     /// Loads sound from wave data.
     #[inline]
     pub fn load_sound_from_wave(&self, wave: &Wave) -> Sound {
-        unsafe {
-            Sound(ffi::LoadSoundFromWave(wave.0))
-        }
+        unsafe { Sound(ffi::LoadSoundFromWave(wave.0)) }
     }
 
     /// Updates sound buffer with new data.
     #[inline]
     pub fn update_sound(&self, sound: &mut Sound, data: &[impl AudioSample]) {
         unsafe {
-            ffi::UpdateSound(sound.0, data.as_ptr() as *const std::os::raw::c_void, data.len() as i32);
+            ffi::UpdateSound(
+                sound.0,
+                data.as_ptr() as *const std::os::raw::c_void,
+                data.len() as i32,
+            );
         }
     }
 
@@ -2604,9 +3182,7 @@ impl RaylibHandle {
     /// Checks if a sound is currently playing.
     #[inline]
     pub fn is_sound_playing(&self, sound: &Sound) -> bool {
-        unsafe {
-            ffi::IsSoundPlaying(sound.0)
-        }
+        unsafe { ffi::IsSoundPlaying(sound.0) }
     }
 
     /// Sets volume for a sound (`1.0` is max level).
@@ -2636,9 +3212,7 @@ impl RaylibHandle {
     /// Copies a wave to a new wave.
     #[inline]
     pub fn wave_copy(&self, wave: &Wave) -> Wave {
-        unsafe {
-            Wave(ffi::WaveCopy(wave.0))
-        }
+        unsafe { Wave(ffi::WaveCopy(wave.0)) }
     }
 
     /// Crops a wave to defined sample range.
@@ -2667,9 +3241,7 @@ impl RaylibHandle {
     #[inline]
     pub fn load_music_stream(&self, filename: &str) -> Music {
         let c_filename = CString::new(filename).unwrap();
-        unsafe {
-            Music(ffi::LoadMusicStream(c_filename.as_ptr()))
-        }
+        unsafe { Music(ffi::LoadMusicStream(c_filename.as_ptr())) }
     }
 
     /// Starts music playing.
@@ -2715,9 +3287,7 @@ impl RaylibHandle {
     /// Checks if music is playing.
     #[inline]
     pub fn is_music_playing(&self, music: &Music) -> bool {
-        unsafe {
-            ffi::IsMusicPlaying(music.0)
-        }
+        unsafe { ffi::IsMusicPlaying(music.0) }
     }
 
     /// Sets volume for music (`1.0` is max level).
@@ -2747,41 +3317,42 @@ impl RaylibHandle {
     /// Gets music time length in seconds.
     #[inline]
     pub fn get_music_time_length(&self, music: &Music) -> f32 {
-        unsafe {
-            ffi::GetMusicTimeLength(music.0)
-        }
+        unsafe { ffi::GetMusicTimeLength(music.0) }
     }
 
     /// Gets current music time played in seconds.
     #[inline]
     pub fn get_music_time_played(&self, music: &Music) -> f32 {
-        unsafe {
-            ffi::GetMusicTimePlayed(music.0)
-        }
+        unsafe { ffi::GetMusicTimePlayed(music.0) }
     }
 
     /// Initializes audio stream (to stream raw PCM data).
     #[inline]
-    pub fn init_audio_stream(&self, sample_rate: u32, sample_size: u32, channels: u32) -> AudioStream {
-        unsafe {
-            AudioStream(ffi::InitAudioStream(sample_rate, sample_size, channels))
-        }
+    pub fn init_audio_stream(
+        &self,
+        sample_rate: u32,
+        sample_size: u32,
+        channels: u32,
+    ) -> AudioStream {
+        unsafe { AudioStream(ffi::InitAudioStream(sample_rate, sample_size, channels)) }
     }
 
     /// Updates audio stream buffers with data.
     #[inline]
     pub fn update_audio_stream(&self, stream: &mut AudioStream, data: &[impl AudioSample]) {
         unsafe {
-            ffi::UpdateAudioStream(stream.0, data.as_ptr() as *const std::os::raw::c_void, data.len() as i32);
+            ffi::UpdateAudioStream(
+                stream.0,
+                data.as_ptr() as *const std::os::raw::c_void,
+                data.len() as i32,
+            );
         }
     }
 
     /// Checks if any audio stream buffers requires refill.
     #[inline]
     pub fn is_audio_buffer_processed(&self, stream: &AudioStream) -> bool {
-        unsafe {
-            ffi::IsAudioBufferProcessed(stream.0)
-        }
+        unsafe { ffi::IsAudioBufferProcessed(stream.0) }
     }
 
     /// Plays audio stream.
@@ -2811,9 +3382,7 @@ impl RaylibHandle {
     /// Checks if audio stream is currently playing.
     #[inline]
     pub fn is_audio_stream_playing(&self, stream: &AudioStream) -> bool {
-        unsafe {
-            ffi::IsAudioStreamPlaying(stream.0)
-        }
+        unsafe { ffi::IsAudioStreamPlaying(stream.0) }
     }
 
     /// Stops audio stream.
