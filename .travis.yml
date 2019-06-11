@@ -1,0 +1,28 @@
+language: rust
+
+cache: cargo
+
+rust:
+    - stable
+
+os:
+    - linux
+
+script:
+    - cargo test
+
+addons:
+    apt:
+        update: true
+        packages:
+            - cmake
+            - libasound2-dev
+            - libxcursor-dev
+            - libxinerama-dev
+            - mesa-common-dev
+            - libx11-dev
+            - libxrandr-dev
+            - libxrandr2
+            - libxi-dev
+            - libgl1-mesa-dev
+            - libglu1-mesa-dev 

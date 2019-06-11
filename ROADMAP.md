@@ -50,7 +50,6 @@ GetMonitorName
 GetClipboardText
 SetClipboardText
 
-GetMouseRay
 GetWorldToScreen
 GetCameraMatrix
 
@@ -151,6 +150,9 @@ SetWindowTitle
 SetWindowPosition
 GetScreenWidth
 GetScreenHeight
+
+GetMouseRay
+
 
 ShowCursor
 HideCursor

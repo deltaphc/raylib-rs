@@ -1,0 +1,191 @@
+mod camera;
+mod color;
+mod file;
+mod input;
+mod math;
+mod misc;
+mod storage;
+mod window;
+
+pub use self::camera::*;
+pub use self::color::*;
+pub use self::file::*;
+pub use self::input::*;
+pub use self::math::*;
+pub use self::misc::*;
+pub use self::storage::*;
+pub use self::window::*;
+
+use crate::consts::*;
+use crate::ffi;
+use std::ffi::CString;
+use std::sync::atomic::{AtomicBool, Ordering};
+
+static IS_INITIALIZED: AtomicBool = AtomicBool::new(false);
+
+/// The main interface into the Raylib API.
+///
+/// This is the way in which you will use the vast majority of Raylib's functionality. A `RaylibHandle` can be constructed using the [`init_window`] function or through a [`RaylibBuilder`] obtained with the [`init`] function.
+///
+/// [`init_window`]: fn.init_window.html
+/// [`RaylibBuilder`]: struct.RaylibBuilder.html
+/// [`init`]: fn.init.html
+pub struct RaylibHandle(()); // inner field is private, preventing manual construction
+
+impl Drop for RaylibHandle {
+    fn drop(&mut self) {
+        if IS_INITIALIZED.load(Ordering::Relaxed) {
+            unsafe {
+                ffi::CloseWindow();
+            }
+            IS_INITIALIZED.store(false, Ordering::Relaxed);
+        }
+    }
+}
+
+/// A builder that allows more customization of the game window shown to the user before the `RaylibHandle` is created.
+#[derive(Debug, Default)]
+pub struct RaylibBuilder {
+    show_logo: bool,
+    fullscreen_mode: bool,
+    window_resizable: bool,
+    window_undecorated: bool,
+    window_transparent: bool,
+    msaa_4x_hint: bool,
+    vsync_hint: bool,
+    width: i32,
+    height: i32,
+    title: String,
+}
+
+/// Creates a `RaylibBuilder` for choosing window options before initialization.
+pub fn init() -> RaylibBuilder {
+    RaylibBuilder {
+        width: 640,
+        height: 480,
+        title: "raylib-rs".to_string(),
+        ..Default::default()
+    }
+}
+
+impl RaylibBuilder {
+    /// Shows the raylib logo at startup.
+    pub fn with_logo(&mut self) -> &mut Self {
+        self.show_logo = true;
+        self
+    }
+
+    /// Sets the window to be fullscreen.
+    pub fn fullscreen(&mut self) -> &mut Self {
+        self.fullscreen_mode = true;
+        self
+    }
+
+    /// Sets the window to be resizable.
+    pub fn resizable(&mut self) -> &mut Self {
+        self.window_resizable = true;
+        self
+    }
+
+    /// Sets the window to be undecorated (without a border).
+    pub fn undecorated(&mut self) -> &mut Self {
+        self.window_undecorated = true;
+        self
+    }
+
+    /// Sets the window to be transparent.
+    pub fn transparent(&mut self) -> &mut Self {
+        self.window_transparent = true;
+        self
+    }
+
+    /// Hints that 4x MSAA (anti-aliasing) should be enabled. The system's graphics drivers may override this setting.
+    pub fn msaa_4x(&mut self) -> &mut Self {
+        self.msaa_4x_hint = true;
+        self
+    }
+
+    /// Hints that vertical sync (VSync) should be enabled. The system's graphics drivers may override this setting.
+    pub fn vsync(&mut self) -> &mut Self {
+        self.vsync_hint = true;
+        self
+    }
+
+    /// Sets the window's width.
+    pub fn width(&mut self, w: i32) -> &mut Self {
+        self.width = w;
+        self
+    }
+
+    /// Sets the window's height.
+    pub fn height(&mut self, h: i32) -> &mut Self {
+        self.height = h;
+        self
+    }
+
+    /// Sets the window's width and height.
+    pub fn size(&mut self, w: i32, h: i32) -> &mut Self {
+        self.width = w;
+        self.height = h;
+        self
+    }
+
+    /// Sets the window title.
+    pub fn title(&mut self, text: &str) -> &mut Self {
+        self.title = text.to_string();
+        self
+    }
+
+    /// Builds and initializes a Raylib window.
+    ///
+    /// # Panics
+    ///
+    /// Attempting to initialize Raylib more than once will result in a panic.
+    pub fn build(&self) -> RaylibHandle {
+        let mut flags = 0u32;
+        if self.show_logo {
+            flags |= FLAG_SHOW_LOGO as u32;
+        }
+        if self.fullscreen_mode {
+            flags |= FLAG_FULLSCREEN_MODE as u32;
+        }
+        if self.window_resizable {
+            flags |= FLAG_WINDOW_RESIZABLE as u32;
+        }
+        if self.window_undecorated {
+            flags |= FLAG_WINDOW_UNDECORATED as u32;
+        }
+        if self.window_transparent {
+            flags |= FLAG_WINDOW_TRANSPARENT as u32;
+        }
+        if self.msaa_4x_hint {
+            flags |= FLAG_MSAA_4X_HINT as u32;
+        }
+        if self.vsync_hint {
+            flags |= FLAG_VSYNC_HINT as u32;
+        }
+
+        unsafe {
+            ffi::SetConfigFlags(flags as u8);
+        }
+        init_window(self.width, self.height, &self.title)
+    }
+}
+
+/// Initializes window and OpenGL context.
+///
+/// # Panics
+///
+/// Attempting to initialize Raylib more than once will result in a panic.
+pub fn init_window(width: i32, height: i32, title: &str) -> RaylibHandle {
+    if IS_INITIALIZED.load(Ordering::Relaxed) {
+        panic!("Attempted to initialize raylib-rs more than once");
+    } else {
+        unsafe {
+            let c_title = CString::new(title).unwrap();
+            ffi::InitWindow(width, height, c_title.as_ptr());
+        }
+        IS_INITIALIZED.store(true, Ordering::Relaxed);
+        RaylibHandle(())
+    }
+}

@@ -877,7 +877,7 @@ impl RaylibHandle {
 
     /// Sets camera mode.
     #[inline]
-    pub fn set_camera_mode(&self, camera: Camera3D, mode: CameraMode) {
+    pub fn set_camera_mode(&self, camera: Camera3D, mode: ffi::CameraMode) {
         unsafe {
             ffi::SetCameraMode(camera.into(), mode as i32);
         }

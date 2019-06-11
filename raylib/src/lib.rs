@@ -40,33 +40,27 @@ Permission is granted to anyone to use this software for any purpose, including 
 //! use raylib::prelude::*;
 //!
 //! fn main() {
-//!     let rl = raylib::init()
-//!         .size(640, 480)
-//!         .title("Hello, World")
-//!         .build();
 //!     
-//!     while !rl.window_should_close() {
-//!         rl.begin_drawing();
-//!
-//!         rl.clear_background(Color::WHITE);
-//!         rl.draw_text("Hello, world!", 12, 12, 20, Color::BLACK);
-//!
-//!         rl.end_drawing();
-//!     }
 //! }
 //! ```
-
+#![feature(custom_test_frameworks)]
+#![test_runner(crate::test::test_runner)]
+#![allow(dead_code)]
 #![doc(
     html_logo_url = "https://github.com/deltaphc/raylib-rs/raw/master/logo/raylib-rust_256x256.png",
     html_favicon_url = "https://github.com/deltaphc/raylib-rs/raw/master/logo/raylib-rust.ico"
 )]
 
+pub mod core;
 pub mod consts;
 pub mod ease;
 pub mod prelude;
 mod raymath;
 mod safe_funcs;
 mod safe_types;
+
+#[cfg(test)]
+mod test;
 
 /// The raw, unsafe FFI binding, in case you need that escape hatch or the safe layer doesn't provide something you need.
 pub mod ffi {
