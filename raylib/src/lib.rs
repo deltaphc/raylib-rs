@@ -51,8 +51,8 @@ Permission is granted to anyone to use this software for any purpose, including 
     html_favicon_url = "https://github.com/deltaphc/raylib-rs/raw/master/logo/raylib-rust.ico"
 )]
 
-pub mod core;
 pub mod consts;
+pub mod core;
 pub mod ease;
 pub mod prelude;
 mod raymath;

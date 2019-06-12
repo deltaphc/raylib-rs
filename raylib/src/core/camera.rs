@@ -36,6 +36,38 @@ impl Into<ffi::Camera3D> for &Camera3D {
     }
 }
 
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct Camera2D {
+    pub offset: Vector2,
+    pub target: Vector2,
+    pub rotation: f32,
+    pub zoom: f32,
+}
+
+impl From<ffi::Camera2D> for Camera2D {
+    fn from(v: ffi::Camera2D) -> Camera2D {
+        unsafe { std::mem::transmute(v) }
+    }
+}
+
+impl Into<ffi::Camera2D> for Camera2D {
+    fn into(self) -> ffi::Camera2D {
+        unsafe { std::mem::transmute(self) }
+    }
+}
+
+impl Into<ffi::Camera2D> for &Camera2D {
+    fn into(self) -> ffi::Camera2D {
+        ffi::Camera2D {
+            offset: self.offset.into(),
+            target: self.target.into(),
+            rotation: self.rotation,
+            zoom: self.zoom,
+        }
+    }
+}
+
 impl Camera3D {
     pub fn perspective(position: Vector3, target: Vector3, up: Vector3, fovy: f32) -> Camera3D {
         Camera3D {
@@ -56,7 +88,11 @@ impl Camera3D {
 impl RaylibHandle {
     /// Sets camera mode.
     #[inline]
-    pub fn set_camera_mode(&mut self, camera: &Camera3D, mode: crate::consts::CameraMode) {
+    pub fn set_camera_mode(
+        &mut self,
+        camera: impl Into<ffi::Camera3D>,
+        mode: crate::consts::CameraMode,
+    ) {
         unsafe {
             ffi::SetCameraMode(camera.into(), mode as i32);
         }

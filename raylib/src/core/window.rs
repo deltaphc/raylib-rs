@@ -65,7 +65,7 @@ pub fn get_monitor_info(index: i32) -> Result<MonitorInfo, IntoStringError> {
 ///        let m = get_camera_matrix(&c);
 /// }
 /// ```
-pub fn get_camera_matrix(camera: &Camera) -> Matrix {
+pub fn get_camera_matrix(camera: impl Into<ffi::Camera>) -> Matrix {
     unsafe { ffi::GetCameraMatrix(camera.into()).into() }
 }
 
@@ -92,12 +92,20 @@ impl RaylibHandle {
 // Screen-space-related functions
 impl RaylibHandle {
     /// Returns a ray trace from mouse position
-    pub fn get_mouse_ray(&self, mouse_position: &Vector2, camera: &Camera) -> Ray {
+    pub fn get_mouse_ray(
+        &self,
+        mouse_position: impl Into<ffi::Vector2>,
+        camera: impl Into<ffi::Camera>,
+    ) -> Ray {
         unsafe { ffi::GetMouseRay(mouse_position.into(), camera.into()).into() }
     }
 
     /// Returns the screen space position for a 3d world space position
-    pub fn get_world_to_screen(&self, position: &Vector3, camera: &Camera) -> Vector2 {
+    pub fn get_world_to_screen(
+        &self,
+        position: impl Into<ffi::Vector3>,
+        camera: impl Into<ffi::Camera>,
+    ) -> Vector2 {
         unsafe { ffi::GetWorldToScreen(position.into(), camera.into()).into() }
     }
 }
@@ -127,6 +135,166 @@ impl RaylibHandle {
     }
 }
 
+// Window handling functions
+impl RaylibHandle {
+    /// Checks if `KEY_ESCAPE` or Close icon was pressed.
+    #[inline]
+    pub fn window_should_close(&self) -> bool {
+        unsafe { ffi::WindowShouldClose() }
+    }
+
+    /// Checks if window has been initialized successfully.
+    #[inline]
+    pub fn is_window_ready(&self) -> bool {
+        unsafe { ffi::IsWindowReady() }
+    }
+
+    /// Checks if window has been minimized (or lost focus).
+    #[inline]
+    pub fn is_window_minimized(&self) -> bool {
+        unsafe { ffi::IsWindowMinimized() }
+    }
+
+    /// Checks if window has been resized.
+    #[inline]
+    pub fn is_window_resized(&self) -> bool {
+        unsafe { ffi::IsWindowResized() }
+    }
+
+    /// Checks if window has been hidden.
+    #[inline]
+    pub fn is_window_hidden(&self) -> bool {
+        unsafe { ffi::IsWindowResized() }
+    }
+
+    /// Toggles fullscreen mode (only on desktop platforms).
+    #[inline]
+    pub fn toggle_fullscreen(&mut self) {
+        unsafe {
+            ffi::ToggleFullscreen();
+        }
+    }
+
+    /// Show the window.
+    #[inline]
+    pub fn unhide_window(&mut self) {
+        unsafe {
+            ffi::UnhideWindow();
+        }
+    }
+
+    /// Hide the window.
+    #[inline]
+    pub fn hide_window(&mut self) {
+        unsafe {
+            ffi::HideWindow();
+        }
+    }
+
+    /// TODO uncomment this when imaging is up
+    // /// Sets icon for window (only on desktop platforms).
+    // #[inline]
+    // pub fn set_window_icon(&self, image: &Image) {
+    //     unsafe {
+    //         ffi::SetWindowIcon(image.0);
+    //     }
+    // }
+
+    /// Sets title for window (only on desktop platforms).
+    #[inline]
+    pub fn set_window_title(&self, title: &str) {
+        let c_title = CString::new(title).unwrap();
+        unsafe {
+            ffi::SetWindowTitle(c_title.as_ptr());
+        }
+    }
+
+    /// Sets window position on screen (only on desktop platforms).
+    #[inline]
+    pub fn set_window_position(&mut self, x: i32, y: i32) {
+        unsafe {
+            ffi::SetWindowPosition(x, y);
+        }
+    }
+
+    /// Sets monitor for the current window (fullscreen mode).
+    #[inline]
+    pub fn set_window_monitor(&mut self, monitor: i32) {
+        unsafe {
+            ffi::SetWindowMonitor(monitor);
+        }
+    }
+
+    /// Sets minimum window dimensions (for `FLAG_WINDOW_RESIZABLE`).
+    #[inline]
+    pub fn set_window_min_size(&mut self, width: i32, height: i32) {
+        unsafe {
+            ffi::SetWindowMinSize(width, height);
+        }
+    }
+
+    /// Sets window dimensions.
+    #[inline]
+    pub fn set_window_size(&mut self, width: i32, height: i32) {
+        unsafe {
+            ffi::SetWindowSize(width, height);
+        }
+    }
+
+    /// Gets current screen width.
+    #[inline]
+    pub fn get_screen_width(&self) -> i32 {
+        unsafe { ffi::GetScreenWidth() }
+    }
+
+    /// Gets current screen height.
+    #[inline]
+    pub fn get_screen_height(&self) -> i32 {
+        unsafe { ffi::GetScreenHeight() }
+    }
+}
+
+// Cursor-related functions
+impl RaylibHandle {
+    /// Shows mouse cursor.
+    #[inline]
+    pub fn show_cursor(&mut self) {
+        unsafe {
+            ffi::ShowCursor();
+        }
+    }
+
+    /// Hides mouse cursor.
+    #[inline]
+    pub fn hide_cursor(&mut self) {
+        unsafe {
+            ffi::HideCursor();
+        }
+    }
+
+    /// Checks if mouse cursor is not visible.
+    #[inline]
+    pub fn is_cursor_hidden(&self) -> bool {
+        unsafe { ffi::IsCursorHidden() }
+    }
+
+    /// Enables mouse cursor (unlock cursor).
+    #[inline]
+    pub fn enable_cursor(&mut self) {
+        unsafe {
+            ffi::EnableCursor();
+        }
+    }
+
+    /// Disables mouse cursor (lock cursor).
+    #[inline]
+    pub fn disable_cursor(&mut self) {
+        unsafe {
+            ffi::DisableCursor();
+        }
+    }
+}
+
 #[cfg(test)]
 mod core_test {
     use crate::core::*;
@@ -151,9 +319,9 @@ mod core_test {
             Vector3::up(),
             90.0,
         );
-        let _ = rl.get_mouse_ray(&Vector2::zero(), &c);
+        let _ = rl.get_mouse_ray(Vector2::zero(), &c);
         // Should be the middle of the screen
-        let _ = rl.get_world_to_screen(&Vector3::zero(), &c);
+        let _ = rl.get_world_to_screen(Vector3::zero(), &c);
     }
 
     #[test_case]
@@ -167,5 +335,56 @@ mod core_test {
         // make sure they don't panic
         rl.get_frame_time();
         rl.get_time();
+    }
+
+    #[test_case]
+    fn test_window_ops() {
+        // Call twice to make sure multiple calls won't panic
+        let mut handle = TEST_HANDLE.write().unwrap();
+        let rl = handle.as_mut().unwrap();
+
+        // double hide double show
+        rl.hide_window();
+        rl.hide_window();
+        // TODO uncomment this when we can draw a frame
+        // assert!(rl.is_window_hidden(), "window is not hidden!");
+
+        rl.unhide_window();
+        rl.unhide_window();
+        // assert!(!rl.is_window_hidden(), "window is hidden!");
+
+        rl.set_window_title("raylib test");
+        assert_eq!(
+            rl.get_screen_width(),
+            TEST_WIDTH,
+            "screen width is not the expected size!"
+        );
+        assert_eq!(
+            rl.get_screen_height(),
+            TEST_HEIGHT,
+            "screen height is not the expected size!"
+        );
+    }
+
+    #[test_case]
+    fn test_cursor() {
+        // Call twice to make sure multiple calls won't panic
+        let mut handle = TEST_HANDLE.write().unwrap();
+        let rl = handle.as_mut().unwrap();
+
+        // double hide double show
+        rl.hide_cursor();
+        rl.hide_cursor();
+        // TODO uncomment this when we can draw a frame
+        // assert!(rl.is_cursor_hidden(), "window is not hidden!");
+
+        rl.show_cursor();
+        rl.show_cursor();
+        // assert!(!rl.is_cursor_hidden(), "window is hidden!");
+
+        rl.disable_cursor();
+        rl.disable_cursor();
+        rl.enable_cursor();
+        rl.enable_cursor();
     }
 }

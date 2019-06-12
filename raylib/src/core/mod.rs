@@ -1,11 +1,13 @@
 mod camera;
 mod color;
+mod drawing;
 mod file;
 mod input;
 mod math;
 mod misc;
 mod storage;
 mod window;
+mod shapes;
 
 pub use self::camera::*;
 pub use self::color::*;
@@ -15,6 +17,8 @@ pub use self::math::*;
 pub use self::misc::*;
 pub use self::storage::*;
 pub use self::window::*;
+pub use self::drawing::*;
+pub use self::shapes::*;
 
 use crate::consts::*;
 use crate::ffi;
