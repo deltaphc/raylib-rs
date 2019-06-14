@@ -14,3 +14,7 @@ raylib = { version = "0.11", path = "../raylib" }
 [[bin]]
 name = "logo"
 path = "./logo.rs"
+
+[[bin]]
+name = "logoraw"
+path = "./logo_raw.rs"

@@ -1641,7 +1641,7 @@ mod math_test {
     use crate::core::*;
     use crate::ffi;
 
-    #[test_case]
+    #[test]
     fn test_into() {
         let v2: ffi::Vector2 = (Vector2 { x: 1.0, y: 2.0 }).into();
         assert!(v2.x == 1.0 && v2.y == 2.0, "bad memory transmutation");

@@ -19,8 +19,8 @@ impl RaylibHandle {
 
 #[cfg(test)]
 mod core_test {
-    use crate::test::*;
-    #[test_case]
+    use crate::tests::*;
+    #[test]
     fn test_storage() {
         let mut handle = TEST_HANDLE.write().unwrap();
         let rl = handle.as_mut().unwrap();

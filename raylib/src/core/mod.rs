@@ -5,20 +5,20 @@ mod file;
 mod input;
 mod math;
 mod misc;
+mod shapes;
 mod storage;
 mod window;
-mod shapes;
 
 pub use self::camera::*;
 pub use self::color::*;
+pub use self::drawing::*;
 pub use self::file::*;
 pub use self::input::*;
 pub use self::math::*;
 pub use self::misc::*;
+pub use self::shapes::*;
 pub use self::storage::*;
 pub use self::window::*;
-pub use self::drawing::*;
-pub use self::shapes::*;
 
 use crate::consts::*;
 use crate::ffi;
@@ -26,6 +26,13 @@ use std::ffi::CString;
 use std::sync::atomic::{AtomicBool, Ordering};
 
 static IS_INITIALIZED: AtomicBool = AtomicBool::new(false);
+
+/// This token is used to ensure certain functions are only running on the same
+/// thread raylib was initialized from. This is useful for architectures like macos
+/// where cocoa can only be called from one thread.
+pub struct RaylibThread(());
+impl !Send for RaylibThread {}
+impl !Sync for RaylibThread {}
 
 /// The main interface into the Raylib API.
 ///
@@ -145,7 +152,7 @@ impl RaylibBuilder {
     /// # Panics
     ///
     /// Attempting to initialize Raylib more than once will result in a panic.
-    pub fn build(&self) -> RaylibHandle {
+    pub fn build(&self) -> (RaylibHandle, RaylibThread) {
         let mut flags = 0u32;
         if self.show_logo {
             flags |= FLAG_SHOW_LOGO as u32;
@@ -172,7 +179,10 @@ impl RaylibBuilder {
         unsafe {
             ffi::SetConfigFlags(flags as u8);
         }
-        init_window(self.width, self.height, &self.title)
+        (
+            init_window(self.width, self.height, &self.title),
+            RaylibThread(()),
+        )
     }
 }
 

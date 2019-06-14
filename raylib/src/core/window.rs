@@ -202,7 +202,7 @@ impl RaylibHandle {
 
     /// Sets title for window (only on desktop platforms).
     #[inline]
-    pub fn set_window_title(&self, title: &str) {
+    pub fn set_window_title(&self, _: &RaylibThread, title: &str) {
         let c_title = CString::new(title).unwrap();
         unsafe {
             ffi::SetWindowTitle(c_title.as_ptr());
@@ -298,8 +298,8 @@ impl RaylibHandle {
 #[cfg(test)]
 mod core_test {
     use crate::core::*;
-    use crate::test::*;
-    #[test_case]
+    use crate::tests::*;
+    #[test]
     fn test_clipboard() {
         let mut handle = TEST_HANDLE.write().unwrap();
         let rl = handle.as_mut().unwrap();
@@ -309,7 +309,7 @@ mod core_test {
         assert_eq!(s, other);
     }
 
-    #[test_case]
+    #[test]
     fn test_screen_space() {
         let handle = TEST_HANDLE.read().unwrap();
         let rl = handle.as_ref().unwrap();
@@ -324,20 +324,17 @@ mod core_test {
         let _ = rl.get_world_to_screen(Vector3::zero(), &c);
     }
 
-    #[test_case]
+    #[test]
     fn test_timing_functions() {
         let mut handle = TEST_HANDLE.write().unwrap();
         let rl = handle.as_mut().unwrap();
         rl.set_target_fps(24);
         let _fps = rl.get_fps();
-        // TODO uncomment this once drawing is possible
-        // assert_eq!(fps, 24, "fps doeesn't match up after set");
-        // make sure they don't panic
         rl.get_frame_time();
         rl.get_time();
     }
 
-    #[test_case]
+    #[test]
     fn test_window_ops() {
         // Call twice to make sure multiple calls won't panic
         let mut handle = TEST_HANDLE.write().unwrap();
@@ -352,8 +349,14 @@ mod core_test {
         rl.unhide_window();
         rl.unhide_window();
         // assert!(!rl.is_window_hidden(), "window is hidden!");
+    }
 
-        rl.set_window_title("raylib test");
+    ray_test!(test_set_window_name);
+    fn test_set_window_name(thread: &RaylibThread) {
+        let mut handle = TEST_HANDLE.write().unwrap();
+        let rl = handle.as_mut().unwrap();
+
+        rl.set_window_title(thread, "raylib test");
         assert_eq!(
             rl.get_screen_width(),
             TEST_WIDTH,
@@ -366,7 +369,7 @@ mod core_test {
         );
     }
 
-    #[test_case]
+    // #[test]
     fn test_cursor() {
         // Call twice to make sure multiple calls won't panic
         let mut handle = TEST_HANDLE.write().unwrap();

@@ -27,7 +27,8 @@ fn build_with_cmake(src_path: &str) {
     let (platform, platform_os) = platform_from_target(&target);
 
     let mut conf = cmake::Config::new(src_path);
-    conf.define("BUILD_EXAMPLES", "OFF")
+    conf.profile("Debug")
+        .define("BUILD_EXAMPLES", "OFF")
         .define("BUILD_GAMES", "OFF")
         .define("CMAKE_BUILD_TYPE", "Release")
         .define("STATIC", "TRUE");

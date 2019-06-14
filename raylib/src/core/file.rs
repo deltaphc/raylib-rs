@@ -1,4 +1,3 @@
-use crate::core::*;
 use crate::ffi;
 
 use std::ffi::{CStr, CString};

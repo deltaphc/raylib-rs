@@ -27,30 +27,28 @@ pub fn open_url(url: &str) {
 
 impl RaylibHandle {
     /// Takes a screenshot of current screen (saved a .png)
-    pub fn take_screenshot(&self, file_name: &str) -> Result<(), std::ffi::NulError> {
-        let s = CString::new(file_name)?;
+    pub fn take_screenshot(&mut self, _: &RaylibThread, filename: &str) {
+        let c_filename = CString::new(filename).unwrap();
         unsafe {
-            ffi::TakeScreenshot(s.as_ptr());
+            ffi::TakeScreenshot(c_filename.as_ptr());
         }
-        Ok(())
     }
 }
 
 #[cfg(test)]
 mod core_test {
     use crate::core::*;
-    use crate::test::*;
-    #[test_case]
-    fn test_screenshot() {
-        let handle = TEST_HANDLE.read().unwrap();
-        let rl = handle.as_ref().unwrap();
+    use crate::tests::*;
+    // ray_test!(test_screenshot);
+    fn test_screenshot(t: &RaylibThread) {
+        let mut handle = TEST_HANDLE.write().unwrap();
+        let rl = handle.as_mut().unwrap();
         let filename = std::env::temp_dir()
             .join("screenshot.png")
             .to_str()
             .expect("no tempdir available")
             .to_owned();
-        // println!("Out : {}", filename);
-        rl.take_screenshot(&filename)
-            .expect("couldn't take screenshot");
+        rl.take_screenshot(t, &filename);
+        assert!(std::path::Path::new(&filename).exists());
     }
 }
