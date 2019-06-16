@@ -369,7 +369,7 @@ mod core_test {
         );
     }
 
-    // #[test]
+    #[test]
     fn test_cursor() {
         // Call twice to make sure multiple calls won't panic
         let mut handle = TEST_HANDLE.write().unwrap();

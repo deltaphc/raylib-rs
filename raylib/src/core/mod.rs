@@ -1,12 +1,17 @@
+#[macro_use]
+mod macros;
+
 mod camera;
 mod color;
 mod drawing;
 mod file;
 mod input;
+mod logging;
 mod math;
 mod misc;
 mod shapes;
 mod storage;
+mod texture;
 mod window;
 
 pub use self::camera::*;
@@ -14,10 +19,12 @@ pub use self::color::*;
 pub use self::drawing::*;
 pub use self::file::*;
 pub use self::input::*;
+pub use self::logging::*;
 pub use self::math::*;
 pub use self::misc::*;
 pub use self::shapes::*;
 pub use self::storage::*;
+pub use self::texture::*;
 pub use self::window::*;
 
 use crate::consts::*;

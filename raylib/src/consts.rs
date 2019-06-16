@@ -11,6 +11,7 @@ pub use ffi::KeyboardKey;
 pub use ffi::KeyboardKey::*;
 pub use ffi::MouseButton;
 pub use ffi::MouseButton::*;
+pub use ffi::TraceLogType;
 pub use ffi::DEG2RAD;
 pub use ffi::MAX_MATERIAL_MAPS;
 pub use ffi::MAX_SHADER_LOCATIONS;

@@ -18,3 +18,7 @@ path = "./logo.rs"
 [[bin]]
 name = "logoraw"
 path = "./logo_raw.rs"
+
+[[bin]]
+name = "triangleraw"
+path = "./triangle_raw.rs"

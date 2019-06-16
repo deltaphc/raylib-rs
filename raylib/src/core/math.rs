@@ -1609,7 +1609,7 @@ impl MulAssign for Matrix {
 }
 
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct Ray {
     pub position: Vector3,
     pub direction: Vector3,
@@ -1634,6 +1634,120 @@ impl Into<ffi::Ray> for &Ray {
             direction: self.direction.into(),
         }
     }
+}
+
+#[repr(C)]
+#[derive(Debug, Copy, Clone, PartialEq)]
+pub struct Rectangle {
+    pub x: f32,
+    pub y: f32,
+    pub width: f32,
+    pub height: f32,
+}
+
+impl From<ffi::Rectangle> for Rectangle {
+    fn from(r: ffi::Rectangle) -> Rectangle {
+        unsafe { std::mem::transmute(r) }
+    }
+}
+
+impl Into<ffi::Rectangle> for Rectangle {
+    fn into(self) -> ffi::Rectangle {
+        unsafe { std::mem::transmute(self) }
+    }
+}
+
+impl Into<ffi::Rectangle> for &Rectangle {
+    fn into(self) -> ffi::Rectangle {
+        ffi::Rectangle {
+            x: self.x,
+            y: self.y,
+            width: self.width,
+            height: self.height,
+        }
+    }
+}
+
+impl Rectangle {
+    pub const EMPTY: Rectangle = Rectangle::new(0.0, 0.0, 0.0, 0.0);
+    pub const fn new(x: f32, y: f32, width: f32, height: f32) -> Self {
+        Self {
+            x,
+            y,
+            width,
+            height,
+        }
+    }
+
+    /// Check collision between two rectangles
+    #[inline]
+    pub fn check_collision_recs(&self, other: &Rectangle) -> bool {
+        unsafe { ffi::CheckCollisionRecs(self.into(), other.into()) }
+    }
+
+    /// Checks collision between circle and rectangle.
+    #[inline]
+    pub fn check_collision_circle_rec(&self, center: impl Into<ffi::Vector2>, radius: f32) -> bool {
+        unsafe { ffi::CheckCollisionCircleRec(center.into().into(), radius, self.into()) }
+    }
+
+    /// Gets the overlap between two colliding rectangles.
+    /// ```rust
+    /// use raylib::core::*;
+    /// use raylib::*;
+    /// fn main() {
+    ///    let r1 = Rectangle::new(0.0, 0.0, 10.0, 10.0);
+    ///    let r2 = Rectangle::new(20.0, 20.0, 10.0, 10.0);
+    ///    assert_eq!(None, r1.get_collision_rec(&r2));
+    ///    assert_eq!(Some(r1), r1.get_collision_rec(&r1));
+    /// }
+    /// ```
+    #[inline]
+    pub fn get_collision_rec(&self, other: &Rectangle) -> Option<Rectangle> {
+        if self.check_collision_recs(other) {
+            return Some(unsafe { ffi::GetCollisionRec(self.into(), other.into()).into() });
+        }
+        return None;
+    }
+
+    /// Checks if point is inside rectangle.
+    #[inline]
+    pub fn check_collision_point_rec(&self, point: impl Into<ffi::Vector2>) -> bool {
+        unsafe { ffi::CheckCollisionPointRec(point.into(), self.into()) }
+    }
+}
+
+// Collision Handling
+/// Checks collision between two circles.
+#[inline]
+pub fn check_collision_circles(
+    center1: impl Into<ffi::Vector2>,
+    radius1: f32,
+    center2: impl Into<ffi::Vector2>,
+    radius2: f32,
+) -> bool {
+    unsafe { ffi::CheckCollisionCircles(center1.into(), radius1, center2.into(), radius2) }
+}
+
+/// Checks if point is inside circle.
+#[inline]
+pub fn check_collision_point_circle(
+    point: impl Into<ffi::Vector2>,
+    center: impl Into<ffi::Vector2>,
+    radius: f32,
+) -> bool {
+    unsafe { ffi::CheckCollisionPointCircle(point.into(), center.into(), radius) }
+}
+
+/// Checks if point is inside a triangle.
+#[inline]
+pub fn check_collision_point_triangle(
+    point: impl Into<ffi::Vector2>,
+    p1: impl Into<ffi::Vector2>,
+    p2: impl Into<ffi::Vector2>,
+    p3: impl Into<ffi::Vector2>,
+) -> bool {
+    unsafe { ffi::CheckCollisionPointTriangle(point.into(), p1.into(), p2.into(), p3.into()) }
 }
 
 #[cfg(test)]
