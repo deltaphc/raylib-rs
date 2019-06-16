@@ -94,7 +94,7 @@ pub fn test_runner(tests: &[&Testable]) {
             d.clear_background(Color::WHITE);
         });
         // take_screenshot takes the last frames screenshot
-        rl.take_screenshot(&local, &format!("{}.png", t.name));
+        rl.take_screenshot(&local, &format!("test_out/{}.png", t.name));
     }
 }
 

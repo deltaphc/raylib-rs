@@ -192,7 +192,7 @@ impl Color {
     };
 
     #[inline]
-    pub fn new(r: u8, g: u8, b: u8, a: u8) -> Color {
+    pub const fn new(r: u8, g: u8, b: u8, a: u8) -> Color {
         Color { r, g, b, a }
     }
 

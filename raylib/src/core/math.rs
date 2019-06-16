@@ -67,7 +67,7 @@ pub fn quat(x: f32, y: f32, z: f32, w: f32) -> Quaternion {
 
 impl Vector2 {
     /// Returns a new `Vector2` with specified components.
-    pub fn new(x: f32, y: f32) -> Vector2 {
+    pub const fn new(x: f32, y: f32) -> Vector2 {
         Vector2 { x, y }
     }
 
@@ -303,7 +303,7 @@ impl Into<ffi::Vector3> for &Vector3 {
 
 impl Vector3 {
     /// Returns a new `Vector3` with specified components.
-    pub fn new(x: f32, y: f32, z: f32) -> Vector3 {
+    pub const fn new(x: f32, y: f32, z: f32) -> Vector3 {
         Vector3 { x, y, z }
     }
 
@@ -726,7 +726,7 @@ impl Into<ffi::Vector4> for &Vector4 {
 
 impl Quaternion {
     /// Returns a new `Quaternion` with specified components.
-    pub fn new(x: f32, y: f32, z: f32, w: f32) -> Quaternion {
+    pub const fn new(x: f32, y: f32, z: f32, w: f32) -> Quaternion {
         Quaternion { x, y, z, w }
     }
 

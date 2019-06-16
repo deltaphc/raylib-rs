@@ -1403,7 +1403,7 @@ impl RaylibHandle {
         data: &[u8],
         width: i32,
         height: i32,
-        format: PixelFormat,
+        format: ffi::PixelFormat,
     ) -> Image {
         let expected_len = self.get_pixel_data_size(width, height, format) as usize;
         if data.len() != expected_len {
@@ -1511,7 +1511,7 @@ impl RaylibHandle {
 
     /// Gets pixel data size in bytes (image or texture).
     #[inline]
-    pub fn get_pixel_data_size(&self, width: i32, height: i32, format: PixelFormat) -> i32 {
+    pub fn get_pixel_data_size(&self, width: i32, height: i32, format: ffi::PixelFormat) -> i32 {
         unsafe { ffi::GetPixelDataSize(width, height, format as i32) }
     }
 
@@ -1559,7 +1559,7 @@ impl RaylibHandle {
 
     /// Converts `image` data to desired pixel format.
     #[inline]
-    pub fn image_format(&self, image: &mut Image, new_format: PixelFormat) {
+    pub fn image_format(&self, image: &mut Image, new_format: ffi::PixelFormat) {
         unsafe {
             ffi::ImageFormat(&mut image.0, new_format as i32);
         }

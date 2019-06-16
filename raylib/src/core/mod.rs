@@ -37,6 +37,7 @@ static IS_INITIALIZED: AtomicBool = AtomicBool::new(false);
 /// This token is used to ensure certain functions are only running on the same
 /// thread raylib was initialized from. This is useful for architectures like macos
 /// where cocoa can only be called from one thread.
+#[derive(Clone, Debug)]
 pub struct RaylibThread(());
 impl !Send for RaylibThread {}
 impl !Sync for RaylibThread {}
@@ -48,6 +49,7 @@ impl !Sync for RaylibThread {}
 /// [`init_window`]: fn.init_window.html
 /// [`RaylibBuilder`]: struct.RaylibBuilder.html
 /// [`init`]: fn.init.html
+#[derive(Debug)]
 pub struct RaylibHandle(()); // inner field is private, preventing manual construction
 
 impl Drop for RaylibHandle {

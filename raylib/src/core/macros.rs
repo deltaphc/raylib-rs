@@ -1,5 +1,6 @@
 macro_rules! make_thin_wrapper {
     ($name:ident, $t:ty, $dropfunc:expr) => {
+        #[repr(transparent)]
         #[derive(Debug)]
         pub struct $name(pub(crate) $t);
 
@@ -15,18 +16,6 @@ macro_rules! impl_wrapper {
                 unsafe {
                     ($dropfunc)(self.$rawfield);
                 }
-            }
-        }
-
-        impl std::convert::AsRef<$t> for $name {
-            fn as_ref(&self) -> &$t {
-                &self.$rawfield
-            }
-        }
-
-        impl std::convert::AsMut<$t> for $name {
-            fn as_mut(&mut self) -> &mut $t {
-                &mut self.$rawfield
             }
         }
 

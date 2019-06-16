@@ -26,6 +26,10 @@ pub fn open_url(url: &str) {
 }
 
 impl RaylibHandle {
+    pub fn get_screen_data(&mut self, _: &RaylibThread) -> Image {
+        unsafe { Image(ffi::GetScreenData()) }
+    }
+
     /// Takes a screenshot of current screen (saved a .png)
     pub fn take_screenshot(&mut self, _: &RaylibThread, filename: &str) {
         let c_filename = CString::new(filename).unwrap();
@@ -39,16 +43,19 @@ impl RaylibHandle {
 mod core_test {
     use crate::core::*;
     use crate::tests::*;
-    // ray_test!(test_screenshot);
+    ray_test!(test_screenshot);
     fn test_screenshot(t: &RaylibThread) {
         let mut handle = TEST_HANDLE.write().unwrap();
         let rl = handle.as_mut().unwrap();
-        let filename = std::env::temp_dir()
-            .join("screenshot.png")
-            .to_str()
-            .expect("no tempdir available")
-            .to_owned();
-        rl.take_screenshot(t, &filename);
-        assert!(std::path::Path::new(&filename).exists());
+        rl.take_screenshot(t, "test_out/screenshot.png");
+        assert!(std::path::Path::new("test_out/screenshot.png").exists());
+    }
+
+    ray_test!(test_screendata);
+    fn test_screendata(t: &RaylibThread) {
+        let mut handle = TEST_HANDLE.write().unwrap();
+        let rl = handle.as_mut().unwrap();
+        // make sure it doesn't seg fault
+        let i = rl.get_screen_data(t);
     }
 }
