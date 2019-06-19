@@ -9,8 +9,10 @@ mod input;
 mod logging;
 mod math;
 mod misc;
+mod models;
 mod shapes;
 mod storage;
+mod text;
 mod texture;
 mod window;
 
@@ -22,8 +24,10 @@ pub use self::input::*;
 pub use self::logging::*;
 pub use self::math::*;
 pub use self::misc::*;
+pub use self::models::*;
 pub use self::shapes::*;
 pub use self::storage::*;
+pub use self::text::*;
 pub use self::texture::*;
 pub use self::window::*;
 
@@ -188,10 +192,8 @@ impl RaylibBuilder {
         unsafe {
             ffi::SetConfigFlags(flags as u8);
         }
-        (
-            init_window(self.width, self.height, &self.title),
-            RaylibThread(()),
-        )
+        let rl = init_window(self.width, self.height, &self.title);
+        (rl, RaylibThread(()))
     }
 }
 

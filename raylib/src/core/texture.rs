@@ -1,7 +1,42 @@
 use crate::core::*;
 use crate::ffi;
 use std::ffi::CString;
-use std::ptr;
+
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct NPatchInfo {
+    pub source_rec: Rectangle,
+    pub left: i32,
+    pub top: i32,
+    pub right: i32,
+    pub bottom: i32,
+    pub type_: crate::consts::NPatchType,
+}
+
+impl From<ffi::NPatchInfo> for NPatchInfo {
+    fn from(v: ffi::NPatchInfo) -> NPatchInfo {
+        unsafe { std::mem::transmute(v) }
+    }
+}
+
+impl Into<ffi::NPatchInfo> for NPatchInfo {
+    fn into(self) -> ffi::NPatchInfo {
+        unsafe { std::mem::transmute(self) }
+    }
+}
+
+impl Into<ffi::NPatchInfo> for &NPatchInfo {
+    fn into(self) -> ffi::NPatchInfo {
+        ffi::NPatchInfo {
+            sourceRec: self.source_rec.into(),
+            left: self.left,
+            top: self.top,
+            right: self.right,
+            bottom: self.bottom,
+            type_: (self.type_ as u32) as i32,
+        }
+    }
+}
 
 make_thin_wrapper!(Image, ffi::Image, ffi::UnloadImage);
 make_thin_wrapper!(Texture2D, ffi::Texture2D, ffi::UnloadTexture);
@@ -534,7 +569,28 @@ impl Image {
             "Image data is null. Either the file doesnt exist or the image type is unsupported."
         ));
         }
-        unsafe { Ok(Image(i)) }
+        Ok(Image(i))
+    }
+
+    /// Creates an image from `text` (custom font).
+    #[inline]
+    pub fn image_text_ex(
+        font: impl std::convert::AsRef<ffi::Font>,
+        text: &str,
+        font_size: f32,
+        spacing: f32,
+        tint: impl Into<Color>,
+    ) -> Image {
+        let c_text = CString::new(text).unwrap();
+        unsafe {
+            Image(ffi::ImageTextEx(
+                *font.as_ref(),
+                c_text.as_ptr(),
+                font_size,
+                spacing,
+                tint.into().into(),
+            ))
+        }
     }
 }
 
@@ -592,7 +648,7 @@ impl Texture2D {
 
     /// Sets `texture` scaling filter mode.
     #[inline]
-    pub fn set_texture_filter(&mut self, filter_mode: TextureFilter) {
+    pub fn set_texture_filter(&mut self, filter_mode: TextureFilterMode) {
         unsafe {
             ffi::SetTextureFilter(self.0, filter_mode as i32);
         }
@@ -600,7 +656,7 @@ impl Texture2D {
 
     /// Sets texture wrapping mode.
     #[inline]
-    pub fn set_texture_wrap(&mut self, wrap_mode: TextureWrap) {
+    pub fn set_texture_wrap(&mut self, wrap_mode: crate::consts::TextureWrapMode) {
         unsafe {
             ffi::SetTextureWrap(self.0, wrap_mode as i32);
         }
@@ -662,8 +718,8 @@ mod texture_test {
     #[test]
     fn test_image_load_ex() {
         let mut col = Vec::new();
-        for _ in (0..32) {
-            for _ in (0..32) {
+        for _ in 0..32 {
+            for _ in 0..32 {
                 col.push(Color::RED);
             }
         }
@@ -692,7 +748,7 @@ mod texture_test {
         let t = rl
             .load_texture_from_image(thread, &i)
             .expect("could not load texture from image");
-        let export = t
+        let _ = t
             .get_texture_data()
             .expect("can't get an image from a texture created from an image...");
         i.export_image("test_out/billboard_texture.png");
@@ -702,7 +758,8 @@ mod texture_test {
     fn test_render_texture(t: &RaylibThread) {
         let mut handle = TEST_HANDLE.write().unwrap();
         let rl = handle.as_mut().unwrap();
-        rl.load_render_texture(t, 256, 256);
+        rl.load_render_texture(t, 256, 256)
+            .expect("render texture created");
     }
 
     #[test]
@@ -711,8 +768,8 @@ mod texture_test {
         let mut col = Vec::new();
         let mut alpha = Vec::new();
         let mut blank = Vec::new();
-        for i in (0..32) {
-            for j in (0..32) {
+        for i in 0..32 {
+            for j in 0..32 {
                 col.push(Color::RED);
                 blank.push(Color::new(0, 0, 0, 0));
                 if (i / 8) % 2 == (j / 8) % 2 {

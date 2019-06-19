@@ -1,5 +1,4 @@
 extern crate raylib;
-use raylib::core::RaylibDraw;
 use raylib::ffi::*;
 use std::ffi::CString;
 
@@ -22,7 +21,7 @@ fn main() {
                           //--------------------------------------------------------------------------------------
 
         // Main game loop
-        while (!WindowShouldClose()) {
+        while !WindowShouldClose() {
             // Detect window close button or ESC key
 
             BeginDrawing();

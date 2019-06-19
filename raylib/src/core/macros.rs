@@ -19,6 +19,12 @@ macro_rules! impl_wrapper {
             }
         }
 
+        impl std::convert::AsRef<$t> for $name {
+            fn as_ref(&self) -> &$t {
+                &self.$rawfield
+            }
+        }
+
         impl std::ops::Deref for $name {
             type Target = $t;
             #[inline]

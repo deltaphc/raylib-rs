@@ -1,7 +1,7 @@
 //! Contains code related to drawing. Types that can be set as a surface to draw will implement the RaylibDraw trait
 use crate::core::*;
 use crate::ffi;
-use std::ops::{Deref, DerefMut};
+use std::convert::AsRef;
 
 /// Seems like all draw commands must be issued from the main thread
 impl RaylibHandle {
@@ -42,27 +42,11 @@ impl RaylibDrawHandle {
         unsafe {
             ffi::BeginMode2D(camera.into());
         }
-        RaylibMode2D { inner: self }
+        RaylibMode2D(self)
     }
 }
 
-impl Deref for RaylibDrawHandle {
-    type Target = RaylibHandle;
-
-    fn deref(&self) -> &RaylibHandle {
-        &self.inner
-    }
-}
-
-impl DerefMut for RaylibDrawHandle {
-    fn deref_mut(&mut self) -> &mut RaylibHandle {
-        &mut self.inner
-    }
-}
-
-pub struct RaylibMode2D<'a, T> {
-    inner: &'a mut T,
-}
+pub struct RaylibMode2D<'a, T>(&'a mut T);
 
 impl<'a, T> Drop for RaylibMode2D<'a, T> {
     fn drop(&mut self) {
@@ -72,7 +56,19 @@ impl<'a, T> Drop for RaylibMode2D<'a, T> {
     }
 }
 
+pub struct RaylibMode3D<'a, T>(&'a mut T);
+
+impl<'a, T> Drop for RaylibMode3D<'a, T> {
+    fn drop(&mut self) {
+        unsafe {
+            ffi::EndMode3D();
+        }
+    }
+}
+
 impl<'a, T> RaylibDraw for RaylibMode2D<'a, T> {}
+impl<'a, T> RaylibDraw for RaylibMode3D<'a, T> {}
+impl<'a, T> RaylibDraw3D for RaylibMode3D<'a, T> {}
 impl RaylibDraw for RaylibDrawHandle {}
 
 /// TODO figure out if you can draw 2D things in 3D mode and vice versa
@@ -542,12 +538,445 @@ pub trait RaylibDraw {
     //     }
     // }
 
+    /// Draws a `texture` using specified position and `tint` color.
+    #[inline]
+    fn draw_texture(
+        texture: impl AsRef<ffi::Texture2D>,
+        x: i32,
+        y: i32,
+        tint: impl Into<ffi::Color>,
+    ) {
+        unsafe {
+            ffi::DrawTexture(*texture.as_ref(), x, y, tint.into());
+        }
+    }
+
+    /// Draws a `texture` using specified `position` vector and `tint` color.
+    #[inline]
+    fn draw_texture_v(
+        texture: impl AsRef<ffi::Texture2D>,
+        position: impl Into<ffi::Vector2>,
+        tint: impl Into<ffi::Color>,
+    ) {
+        unsafe {
+            ffi::DrawTextureV(*texture.as_ref(), position.into(), tint.into());
+        }
+    }
+
+    /// Draws a `texture` with extended parameters.
+    #[inline]
+    fn draw_texture_ex(
+        texture: impl AsRef<ffi::Texture2D>,
+        position: impl Into<ffi::Vector2>,
+        rotation: f32,
+        scale: f32,
+        tint: impl Into<ffi::Color>,
+    ) {
+        unsafe {
+            ffi::DrawTextureEx(
+                *texture.as_ref(),
+                position.into(),
+                rotation,
+                scale,
+                tint.into(),
+            );
+        }
+    }
+
+    /// Draws from a region of `texture` defined by the `source_rec` rectangle.
+    #[inline]
+    fn draw_texture_rec(
+        texture: impl AsRef<ffi::Texture2D>,
+        source_rec: impl Into<ffi::Rectangle>,
+        position: impl Into<ffi::Vector2>,
+        tint: impl Into<ffi::Color>,
+    ) {
+        unsafe {
+            ffi::DrawTextureRec(
+                *texture.as_ref(),
+                source_rec.into(),
+                position.into(),
+                tint.into(),
+            );
+        }
+    }
+
+    /// Draw texture quad with tiling and offset parameters
+    #[inline]
+    fn draw_texture_quad(
+        texture: impl AsRef<ffi::Texture2D>,
+        tiling: impl Into<ffi::Vector2>,
+        offset: impl Into<ffi::Vector2>,
+        quad: impl Into<ffi::Rectangle>,
+        tint: impl Into<ffi::Color>,
+    ) {
+        unsafe {
+            ffi::DrawTextureQuad(
+                *texture.as_ref(),
+                tiling.into(),
+                offset.into(),
+                quad.into(),
+                tint.into(),
+            );
+        }
+    }
+
+    /// Draw from a region of `texture` defined by the `source_rec` rectangle with pro parameters.
+    #[inline]
+    fn draw_texture_pro(
+        &self,
+        texture: impl AsRef<ffi::Texture2D>,
+        source_rec: impl Into<ffi::Rectangle>,
+        dest_rec: impl Into<ffi::Rectangle>,
+        origin: impl Into<ffi::Vector2>,
+        rotation: f32,
+        tint: impl Into<ffi::Color>,
+    ) {
+        unsafe {
+            ffi::DrawTexturePro(
+                *texture.as_ref(),
+                source_rec.into(),
+                dest_rec.into(),
+                origin.into(),
+                rotation,
+                tint.into(),
+            );
+        }
+    }
+
+    ///Draws a texture (or part of it) that stretches or shrinks nicely
+    #[inline]
+    fn draw_texture_n_patch(
+        &self,
+        texture: impl AsRef<ffi::Texture2D>,
+        n_patch_info: impl Into<ffi::NPatchInfo>,
+        dest_rec: impl Into<ffi::Rectangle>,
+        origin: impl Into<ffi::Vector2>,
+        rotation: f32,
+        tint: impl Into<ffi::Color>,
+    ) {
+        unsafe {
+            ffi::DrawTextureNPatch(
+                *texture.as_ref(),
+                n_patch_info.into(),
+                dest_rec.into(),
+                origin.into(),
+                rotation,
+                tint.into(),
+            );
+        }
+    }
+
+    /// Shows current FPS.
+    #[inline]
+    fn draw_fps(&self, x: i32, y: i32) {
+        unsafe {
+            ffi::DrawFPS(x, y);
+        }
+    }
+
     /// Draws text (using default font).
     #[inline]
     fn draw_text(&self, text: &str, x: i32, y: i32, font_size: i32, color: impl Into<Color>) {
         let c_text = CString::new(text).unwrap();
         unsafe {
             ffi::DrawText(c_text.as_ptr(), x, y, font_size, color.into().into());
+        }
+    }
+
+    /// Draws text using `font` and additional parameters.
+    #[inline]
+    fn draw_text_ex(
+        &self,
+        font: impl AsRef<ffi::Font>,
+        text: &str,
+        position: impl Into<Vector2>,
+        font_size: f32,
+        spacing: f32,
+        tint: impl Into<Color>,
+    ) {
+        let c_text = CString::new(text).unwrap();
+        unsafe {
+            ffi::DrawTextEx(
+                *font.as_ref(),
+                c_text.as_ptr(),
+                position.into().into(),
+                font_size,
+                spacing,
+                tint.into().into(),
+            );
+        }
+    }
+
+    /// Draws text using `font` and additional parameters.
+    #[inline]
+    fn draw_text_rec(
+        &self,
+        font: impl AsRef<ffi::Font>,
+        text: &str,
+        rec: impl Into<ffi::Rectangle>,
+        font_size: f32,
+        spacing: f32,
+        word_wrap: bool,
+        tint: impl Into<ffi::Color>,
+    ) {
+        let c_text = CString::new(text).unwrap();
+        unsafe {
+            ffi::DrawTextRec(
+                *font.as_ref(),
+                c_text.as_ptr(),
+                rec.into(),
+                font_size,
+                spacing,
+                word_wrap,
+                tint.into(),
+            );
+        }
+    }
+
+    /// Draws text using `font` and additional parameters.
+    #[inline]
+    fn draw_text_rec_ex(
+        &self,
+        font: impl AsRef<ffi::Font>,
+        text: &str,
+        rec: impl Into<ffi::Rectangle>,
+        font_size: f32,
+        spacing: f32,
+        word_wrap: bool,
+        tint: impl Into<ffi::Color>,
+        select_start: i32,
+        select_length: i32,
+        select_text: impl Into<ffi::Color>,
+        select_back: impl Into<ffi::Color>,
+    ) {
+        let c_text = CString::new(text).unwrap();
+        unsafe {
+            ffi::DrawTextRecEx(
+                *font.as_ref(),
+                c_text.as_ptr(),
+                rec.into(),
+                font_size,
+                spacing,
+                word_wrap,
+                tint.into(),
+                select_start,
+                select_length,
+                select_text.into(),
+                select_back.into(),
+            );
+        }
+    }
+}
+
+pub trait RaylibDraw3D {
+    /// Draws a line in 3D world space.
+    #[inline]
+    fn draw_line_3d(
+        start_pos: impl Into<ffi::Vector3>,
+        end_pos: impl Into<ffi::Vector3>,
+        color: impl Into<ffi::Color>,
+    ) {
+        unsafe {
+            ffi::DrawLine3D(start_pos.into(), end_pos.into(), color.into());
+        }
+    }
+
+    /// Draws a circle in 3D world space.
+    #[inline]
+    fn draw_circle_3d(
+        center: impl Into<ffi::Vector3>,
+        radius: f32,
+        rotation_axis: impl Into<ffi::Vector3>,
+        rotation_angle: f32,
+        color: impl Into<ffi::Color>,
+    ) {
+        unsafe {
+            ffi::DrawCircle3D(
+                center.into(),
+                radius,
+                rotation_axis.into(),
+                rotation_angle,
+                color.into(),
+            );
+        }
+    }
+
+    /// Draws a cube.
+    #[inline]
+    fn draw_cube(
+        position: impl Into<ffi::Vector3>,
+        width: f32,
+        height: f32,
+        length: f32,
+        color: impl Into<ffi::Color>,
+    ) {
+        unsafe {
+            ffi::DrawCube(position.into(), width, height, length, color.into());
+        }
+    }
+
+    /// Draws a cube (Vector version).
+    #[inline]
+    fn draw_cube_v(
+        position: impl Into<ffi::Vector3>,
+        size: impl Into<ffi::Vector3>,
+        color: impl Into<ffi::Color>,
+    ) {
+        unsafe {
+            ffi::DrawCubeV(position.into(), size.into(), color.into());
+        }
+    }
+
+    /// Draws a cube in wireframe.
+    #[inline]
+    fn draw_cube_wires(
+        position: impl Into<ffi::Vector3>,
+        width: f32,
+        height: f32,
+        length: f32,
+        color: impl Into<ffi::Color>,
+    ) {
+        unsafe {
+            ffi::DrawCubeWires(position.into(), width, height, length, color.into());
+        }
+    }
+
+    /// Draws a textured cube.
+    #[inline]
+    fn draw_cube_texture(
+        texture: &Texture2D,
+        position: impl Into<ffi::Vector3>,
+        width: f32,
+        height: f32,
+        length: f32,
+        color: impl Into<ffi::Color>,
+    ) {
+        unsafe {
+            ffi::DrawCubeTexture(
+                texture.0,
+                position.into(),
+                width,
+                height,
+                length,
+                color.into(),
+            );
+        }
+    }
+
+    /// Draws a sphere.
+    #[inline]
+    fn draw_sphere(center_pos: impl Into<ffi::Vector3>, radius: f32, color: impl Into<ffi::Color>) {
+        unsafe {
+            ffi::DrawSphere(center_pos.into(), radius, color.into());
+        }
+    }
+
+    /// Draws a sphere with extended parameters.
+    #[inline]
+    fn draw_sphere_ex(
+        center_pos: impl Into<ffi::Vector3>,
+        radius: f32,
+        rings: i32,
+        slices: i32,
+        color: impl Into<ffi::Color>,
+    ) {
+        unsafe {
+            ffi::DrawSphereEx(center_pos.into(), radius, rings, slices, color.into());
+        }
+    }
+
+    /// Draws a sphere in wireframe.
+    #[inline]
+    fn draw_sphere_wires(
+        center_pos: impl Into<ffi::Vector3>,
+        radius: f32,
+        rings: i32,
+        slices: i32,
+        color: impl Into<ffi::Color>,
+    ) {
+        unsafe {
+            ffi::DrawSphereWires(center_pos.into(), radius, rings, slices, color.into());
+        }
+    }
+
+    /// Draws a cylinder.
+    #[inline]
+    fn draw_cylinder(
+        position: impl Into<ffi::Vector3>,
+        radius_top: f32,
+        radius_bottom: f32,
+        height: f32,
+        slices: i32,
+        color: impl Into<ffi::Color>,
+    ) {
+        unsafe {
+            ffi::DrawCylinder(
+                position.into(),
+                radius_top,
+                radius_bottom,
+                height,
+                slices,
+                color.into(),
+            );
+        }
+    }
+
+    /// Draws a cylinder in wireframe.
+    #[inline]
+    fn draw_cylinder_wires(
+        position: impl Into<ffi::Vector3>,
+        radius_top: f32,
+        radius_bottom: f32,
+        height: f32,
+        slices: i32,
+        color: impl Into<ffi::Color>,
+    ) {
+        unsafe {
+            ffi::DrawCylinderWires(
+                position.into(),
+                radius_top,
+                radius_bottom,
+                height,
+                slices,
+                color.into(),
+            );
+        }
+    }
+
+    /// Draws an X/Z plane.
+    #[inline]
+    fn draw_plane(
+        center_pos: impl Into<ffi::Vector3>,
+        size: impl Into<ffi::Vector2>,
+        color: impl Into<ffi::Color>,
+    ) {
+        unsafe {
+            ffi::DrawPlane(center_pos.into(), size.into(), color.into());
+        }
+    }
+
+    /// Draws a ray line.
+    #[inline]
+    fn draw_ray(ray: Ray, color: impl Into<ffi::Color>) {
+        unsafe {
+            ffi::DrawRay(ray.into(), color.into());
+        }
+    }
+
+    /// Draws a grid (centered at (0, 0, 0)).
+    #[inline]
+    fn draw_grid(slices: i32, spacing: f32) {
+        unsafe {
+            ffi::DrawGrid(slices, spacing);
+        }
+    }
+
+    /// Draws a simple gizmo.
+    #[inline]
+    fn draw_gizmo(position: impl Into<ffi::Vector3>) {
+        unsafe {
+            ffi::DrawGizmo(position.into());
         }
     }
 }
@@ -557,13 +986,13 @@ mod draw_test {
     use crate::core::*;
     use crate::tests::*;
     ray_draw_test!(test_pixel);
-    fn test_pixel(d: &mut RaylibDrawHandle) {
+    fn test_pixel(d: &mut RaylibDrawHandle, _: &TestAssets) {
         d.clear_background(Color::WHITE);
         d.draw_pixel(10, 10, Color::RED);
         d.draw_pixel_v(Vector2::new(20.0, 20.0), Color::RED);
     }
     ray_draw_test!(test_line);
-    fn test_line(d: &mut RaylibDrawHandle) {
+    fn test_line(d: &mut RaylibDrawHandle, _: &TestAssets) {
         d.clear_background(Color::WHITE);
         d.draw_line(0, 5, 100, 5, Color::RED);
         d.draw_line_v(
@@ -585,7 +1014,7 @@ mod draw_test {
         );
     }
     ray_draw_test!(test_circle);
-    fn test_circle(d: &mut RaylibDrawHandle) {
+    fn test_circle(d: &mut RaylibDrawHandle, _: &TestAssets) {
         d.clear_background(Color::WHITE);
         d.draw_circle(20, 20, 10.0, Color::RED);
         d.draw_circle_v(Vector2::new(40.0, 20.0), 10.0, Color::RED);
@@ -598,7 +1027,7 @@ mod draw_test {
     }
 
     ray_draw_test!(test_rectangle);
-    fn test_rectangle(d: &mut RaylibDrawHandle) {
+    fn test_rectangle(d: &mut RaylibDrawHandle, _: &TestAssets) {
         d.clear_background(Color::WHITE);
         d.draw_rectangle(10, 10, 10, 10, Color::RED);
         d.draw_rectangle_v(
@@ -640,7 +1069,7 @@ mod draw_test {
     }
 
     ray_draw_test!(test_triangle);
-    fn test_triangle(d: &mut RaylibDrawHandle) {
+    fn test_triangle(d: &mut RaylibDrawHandle, _: &TestAssets) {
         d.clear_background(Color::WHITE);
         d.draw_triangle(
             Vector2::new(0.0, 30.0),
@@ -657,25 +1086,8 @@ mod draw_test {
     }
 
     ray_draw_test!(test_poly);
-    fn test_poly(d: &mut RaylibDrawHandle) {
-        // let pentagon = vec![
-        //     Vector2::new(20.0, 0.0),
-        //     Vector2::new(30.0, 10.0),
-        //     Vector2::new(30.0, 20.0),
-        //     Vector2::new(0.0, 20.0),
-        //     Vector2::new(0.0, 10.0)
-        // ];
-
-        // let pentagon2 = vec![
-        //     Vector2::new(20.0, 100.0),
-        //     Vector2::new(30.0, 110.0),
-        //     Vector2::new(30.0, 120.0),
-        //     Vector2::new(0.0, 120.0),
-        //     Vector2::new(0.0, 110.0)
-        // ];
+    fn test_poly(d: &mut RaylibDrawHandle, _: &TestAssets) {
         d.clear_background(Color::WHITE);
         d.draw_poly(Vector2::new(100.0, 100.0), 12, 20.0, 45.0, Color::RED);
-        // d.draw_poly_ex(&pentagon, pentagon.len(), Color::GREEN);
-        // d.draw_poly_ex_lines(&pentagon2, pentagon.len(), Color::GREEN);
     }
 }

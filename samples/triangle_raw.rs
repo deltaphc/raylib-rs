@@ -1,18 +1,17 @@
 extern crate raylib;
-use raylib::core::RaylibDraw;
 use raylib::ffi::*;
 use std::ffi::CString;
 
 fn main() {
     let w = 800;
     let h = 450;
-    let rust_orange = raylib::Color::new(222, 165, 132, 255);
+    // let rust_orange = raylib::Color::new(222, 165, 132, 255);
     let ray_white = raylib::Color::new(255, 255, 255, 255);
 
     unsafe {
         InitWindow(
-            800,
-            450,
+            w,
+            h,
             CString::new("raylib [core] example - basic window")
                 .unwrap()
                 .as_ptr(),
@@ -22,7 +21,7 @@ fn main() {
                           //--------------------------------------------------------------------------------------
 
         // Main game loop
-        while (!WindowShouldClose()) {
+        while !WindowShouldClose() {
             // Detect window close button or ESC key
 
             BeginDrawing();

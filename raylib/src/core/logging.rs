@@ -28,7 +28,6 @@ pub fn trace_log(msg_type: TraceLogType, text: &str) {
 #[cfg(test)]
 mod test_logging {
     use crate::core::*;
-    use crate::tests::*;
     #[test]
     fn test_logs() {
         use crate::consts::TraceLogType::*;

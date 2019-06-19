@@ -10,6 +10,11 @@ lazy_static! {
     pub static ref TEST_HANDLE: RwLock<Option<RaylibHandle>> = RwLock::new(None);
 }
 
+/// Bunch of iniialized assets for used in drawing
+pub struct TestAssets {
+    pub font: Font,
+}
+
 /// We need to build our own slice of test descriptors to pass to `test::test_main`. We cannot
 /// clone `TestFn`, so we do it via matching on variants. Not sure how to handle `Dynamic*` variants,
 /// but we seem not to get them here anyway?.
@@ -22,19 +27,22 @@ fn clone_testfn(testfn: &TestFn) -> TestFn {
 }
 
 pub fn test_runner(tests: &[&Testable]) {
-    let local = {
-        // I know this is necessary but I don't know why it is necessary. Maybe the few nanoseconds it takes to lock this mutex help?
+    let thread = {
         let mut handle = TEST_HANDLE.write().unwrap();
-        let (rl, local) = crate::core::init()
+        let (rl, thread) = crate::core::init()
             .size(TEST_WIDTH, TEST_HEIGHT)
             .title("Hello, World")
             .build();
         *handle = Some(rl);
-        local
+        thread
+    };
+
+    let assets = TestAssets {
+        font: Font::load_font(&thread, "resources/alagard.png").expect("couldn't load font"),
     };
 
     let args = std::env::args().collect::<Vec<_>>();
-    let mut opts = match test::parse_opts(&args) {
+    let opts = match test::parse_opts(&args) {
         Some(Ok(o)) => o,
         Some(Err(msg)) => panic!("{:?}", msg),
         None => return,
@@ -71,7 +79,7 @@ pub fn test_runner(tests: &[&Testable]) {
         if opts.nocapture {
             println!("running {}", t.name);
         }
-        (t.test)(&local);
+        (t.test)(&thread);
     }
 
     let mut handle = TEST_HANDLE.write().unwrap();
@@ -79,22 +87,22 @@ pub fn test_runner(tests: &[&Testable]) {
 
     rl.set_target_fps(120);
     rl.unhide_window();
-    let sleep_time = std::time::Duration::from_millis(1000); // about 60 fps
-    rl.with_draw(&local, |d| {
+    // let sleep_time = std::time::Duration::from_millis(1000); // about 60 fps
+    rl.with_draw(&thread, |d| {
         d.clear_background(Color::WHITE);
     });
     for t in &draw_test {
         if opts.nocapture {
             println!("running draw test: {}", t.name);
         }
-        rl.with_draw(&local, |mut d| {
-            (t.test)(&mut d);
+        rl.with_draw(&thread, |mut d| {
+            (t.test)(&mut d, &assets);
         });
-        rl.with_draw(&local, |d| {
+        rl.with_draw(&thread, |d| {
             d.clear_background(Color::WHITE);
         });
         // take_screenshot takes the last frames screenshot
-        rl.take_screenshot(&local, &format!("test_out/{}.png", t.name));
+        rl.take_screenshot(&thread, &format!("test_out/{}.png", t.name));
     }
 }
 
@@ -113,12 +121,13 @@ pub struct RayTest {
 
 pub struct RayDrawTest {
     pub name: &'static str,
-    pub test: fn(&mut RaylibDrawHandle),
+    pub test: fn(&mut RaylibDrawHandle, &TestAssets),
 }
 
 macro_rules! ray_test {
     ($name:ident) => {
         #[test_case]
+        #[allow(non_upper_case_globals)]
         static $name: RayTest = RayTest {
             name: stringify!($name),
             test: $name,
@@ -129,6 +138,7 @@ macro_rules! ray_test {
 macro_rules! ray_draw_test {
     ($name:ident) => {
         #[test_case]
+        #[allow(non_upper_case_globals)]
         static $name: RayDrawTest = RayDrawTest {
             name: stringify!($name),
             test: $name,
