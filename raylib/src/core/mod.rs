@@ -1,6 +1,7 @@
 #[macro_use]
 mod macros;
 
+mod audio;
 mod camera;
 mod collision;
 mod color;
@@ -19,6 +20,7 @@ mod texture;
 mod vr;
 mod window;
 
+pub use self::audio::*;
 pub use self::camera::*;
 pub use self::color::*;
 pub use self::drawing::*;

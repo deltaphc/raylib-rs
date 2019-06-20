@@ -10,6 +10,15 @@ macro_rules! make_thin_wrapper {
 
 macro_rules! impl_wrapper {
     ($name:ident, $t:ty, $dropfunc:expr, $rawfield:tt) => {
+        impl $name {
+            /// Take the raw ffi type. Must manually free memory by calling the proper unload function
+            pub unsafe fn unwrap(self) -> $t {
+                let inner = self.$rawfield;
+                std::mem::forget(self);
+                inner
+            }
+        }
+
         impl Drop for $name {
             #[allow(unused_unsafe)]
             fn drop(&mut self) {
