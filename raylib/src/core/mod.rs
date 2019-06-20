@@ -2,6 +2,7 @@
 mod macros;
 
 mod camera;
+mod collision;
 mod color;
 mod drawing;
 mod file;

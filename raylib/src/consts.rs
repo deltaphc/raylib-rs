@@ -9,6 +9,7 @@ pub use ffi::GestureType;
 pub use ffi::GestureType::*;
 pub use ffi::KeyboardKey;
 pub use ffi::KeyboardKey::*;
+pub use ffi::MaterialMapType;
 pub use ffi::MouseButton;
 pub use ffi::MouseButton::*;
 pub use ffi::NPatchType;

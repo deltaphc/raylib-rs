@@ -1678,76 +1678,66 @@ impl Rectangle {
             height,
         }
     }
+}
 
-    /// Check collision between two rectangles
-    #[inline]
-    pub fn check_collision_recs(&self, other: &Rectangle) -> bool {
-        unsafe { ffi::CheckCollisionRecs(self.into(), other.into()) }
+#[repr(C)]
+#[derive(Debug, Copy, Clone, PartialEq)]
+pub struct BoundingBox {
+    pub min: Vector3,
+    pub max: Vector3,
+}
+
+impl From<ffi::BoundingBox> for BoundingBox {
+    fn from(r: ffi::BoundingBox) -> BoundingBox {
+        unsafe { std::mem::transmute(r) }
     }
+}
 
-    /// Checks collision between circle and rectangle.
-    #[inline]
-    pub fn check_collision_circle_rec(&self, center: impl Into<ffi::Vector2>, radius: f32) -> bool {
-        unsafe { ffi::CheckCollisionCircleRec(center.into().into(), radius, self.into()) }
+impl Into<ffi::BoundingBox> for BoundingBox {
+    fn into(self) -> ffi::BoundingBox {
+        unsafe { std::mem::transmute(self) }
     }
+}
 
-    /// Gets the overlap between two colliding rectangles.
-    /// ```rust
-    /// use raylib::core::*;
-    /// use raylib::*;
-    /// fn main() {
-    ///    let r1 = Rectangle::new(0.0, 0.0, 10.0, 10.0);
-    ///    let r2 = Rectangle::new(20.0, 20.0, 10.0, 10.0);
-    ///    assert_eq!(None, r1.get_collision_rec(&r2));
-    ///    assert_eq!(Some(r1), r1.get_collision_rec(&r1));
-    /// }
-    /// ```
-    #[inline]
-    pub fn get_collision_rec(&self, other: &Rectangle) -> Option<Rectangle> {
-        if self.check_collision_recs(other) {
-            return Some(unsafe { ffi::GetCollisionRec(self.into(), other.into()).into() });
+impl Into<ffi::BoundingBox> for &BoundingBox {
+    fn into(self) -> ffi::BoundingBox {
+        ffi::BoundingBox {
+            min: self.min.into(),
+            max: self.max.into(),
         }
-        return None;
-    }
-
-    /// Checks if point is inside rectangle.
-    #[inline]
-    pub fn check_collision_point_rec(&self, point: impl Into<ffi::Vector2>) -> bool {
-        unsafe { ffi::CheckCollisionPointRec(point.into(), self.into()) }
     }
 }
 
-// Collision Handling
-/// Checks collision between two circles.
-#[inline]
-pub fn check_collision_circles(
-    center1: impl Into<ffi::Vector2>,
-    radius1: f32,
-    center2: impl Into<ffi::Vector2>,
-    radius2: f32,
-) -> bool {
-    unsafe { ffi::CheckCollisionCircles(center1.into(), radius1, center2.into(), radius2) }
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct RayHitInfo {
+    pub hit: bool,
+    pub distance: f32,
+    pub position: Vector3,
+    pub normal: Vector3,
 }
 
-/// Checks if point is inside circle.
-#[inline]
-pub fn check_collision_point_circle(
-    point: impl Into<ffi::Vector2>,
-    center: impl Into<ffi::Vector2>,
-    radius: f32,
-) -> bool {
-    unsafe { ffi::CheckCollisionPointCircle(point.into(), center.into(), radius) }
+impl From<ffi::RayHitInfo> for RayHitInfo {
+    fn from(r: ffi::RayHitInfo) -> RayHitInfo {
+        unsafe { std::mem::transmute(r) }
+    }
 }
 
-/// Checks if point is inside a triangle.
-#[inline]
-pub fn check_collision_point_triangle(
-    point: impl Into<ffi::Vector2>,
-    p1: impl Into<ffi::Vector2>,
-    p2: impl Into<ffi::Vector2>,
-    p3: impl Into<ffi::Vector2>,
-) -> bool {
-    unsafe { ffi::CheckCollisionPointTriangle(point.into(), p1.into(), p2.into(), p3.into()) }
+impl Into<ffi::RayHitInfo> for RayHitInfo {
+    fn into(self) -> ffi::RayHitInfo {
+        unsafe { std::mem::transmute(self) }
+    }
+}
+
+impl Into<ffi::RayHitInfo> for &RayHitInfo {
+    fn into(self) -> ffi::RayHitInfo {
+        ffi::RayHitInfo {
+            hit: self.hit,
+            distance: self.distance,
+            position: self.position.into(),
+            normal: self.normal.into(),
+        }
+    }
 }
 
 #[cfg(test)]

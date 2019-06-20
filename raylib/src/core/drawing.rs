@@ -75,9 +75,9 @@ impl RaylibDraw for RaylibDrawHandle {}
 pub trait RaylibDraw {
     /// Sets background color (framebuffer clear color).
     #[inline]
-    fn clear_background(&mut self, color: impl Into<Color>) {
+    fn clear_background(&mut self, color: impl Into<ffi::Color>) {
         unsafe {
-            ffi::ClearBackground(color.into().into());
+            ffi::ClearBackground(color.into());
         }
     }
 
@@ -92,7 +92,7 @@ pub trait RaylibDraw {
 
     /// Draws a pixel (Vector version).
     #[inline]
-    fn draw_pixel_v(&self, position: impl Into<ffi::Vector2>, color: impl Into<ffi::Color>) {
+    fn draw_pixel_v(&mut self, position: impl Into<ffi::Vector2>, color: impl Into<ffi::Color>) {
         unsafe {
             ffi::DrawPixelV(position.into(), color.into());
         }
@@ -101,7 +101,7 @@ pub trait RaylibDraw {
     /// Draws a line.
     #[inline]
     fn draw_line(
-        &self,
+        &mut self,
         start_pos_x: i32,
         start_pos_y: i32,
         end_pos_x: i32,
@@ -116,7 +116,7 @@ pub trait RaylibDraw {
     /// Draws a line (Vector version).
     #[inline]
     fn draw_line_v(
-        &self,
+        &mut self,
         start_pos: impl Into<ffi::Vector2>,
         end_pos: impl Into<ffi::Vector2>,
         color: impl Into<ffi::Color>,
@@ -129,7 +129,7 @@ pub trait RaylibDraw {
     /// Draws a line with thickness.
     #[inline]
     fn draw_line_ex(
-        &self,
+        &mut self,
         start_pos: impl Into<ffi::Vector2>,
         end_pos: impl Into<ffi::Vector2>,
         thick: f32,
@@ -143,7 +143,7 @@ pub trait RaylibDraw {
     /// Draws a line using cubic-bezier curves in-out.
     #[inline]
     fn draw_line_bezier(
-        &self,
+        &mut self,
         start_pos: impl Into<ffi::Vector2>,
         end_pos: impl Into<ffi::Vector2>,
         thick: f32,
@@ -156,7 +156,13 @@ pub trait RaylibDraw {
 
     /// Draws a color-filled circle.
     #[inline]
-    fn draw_circle(&self, center_x: i32, center_y: i32, radius: f32, color: impl Into<ffi::Color>) {
+    fn draw_circle(
+        &mut self,
+        center_x: i32,
+        center_y: i32,
+        radius: f32,
+        color: impl Into<ffi::Color>,
+    ) {
         unsafe {
             ffi::DrawCircle(center_x, center_y, radius, color.into());
         }
@@ -164,7 +170,7 @@ pub trait RaylibDraw {
     /// Draw a piece of a circle
     #[inline]
     fn draw_circle_sector(
-        &self,
+        &mut self,
         center: impl Into<ffi::Vector2>,
         radius: f32,
         start_angle: i32,
@@ -187,7 +193,7 @@ pub trait RaylibDraw {
     /// Draw circle sector outline
     #[inline]
     fn draw_circle_sector_lines(
-        &self,
+        &mut self,
         center: impl Into<ffi::Vector2>,
         radius: f32,
         start_angle: i32,
@@ -210,7 +216,7 @@ pub trait RaylibDraw {
     /// Draws a gradient-filled circle.
     #[inline]
     fn draw_circle_gradient(
-        &self,
+        &mut self,
         center_x: i32,
         center_y: i32,
         radius: f32,
@@ -225,7 +231,7 @@ pub trait RaylibDraw {
     /// Draws a color-filled circle (Vector version).
     #[inline]
     fn draw_circle_v(
-        &self,
+        &mut self,
         center: impl Into<ffi::Vector2>,
         radius: f32,
         color: impl Into<ffi::Color>,
@@ -238,7 +244,7 @@ pub trait RaylibDraw {
     /// Draws circle outline.
     #[inline]
     fn draw_circle_lines(
-        &self,
+        &mut self,
         center_x: i32,
         center_y: i32,
         radius: f32,
@@ -252,7 +258,7 @@ pub trait RaylibDraw {
     /// Draw ring
     #[inline]
     fn draw_ring(
-        &self,
+        &mut self,
         center: impl Into<ffi::Vector2>,
         inner_radius: f32,
         outer_radius: f32,
@@ -277,7 +283,7 @@ pub trait RaylibDraw {
     /// Draw ring lines
     #[inline]
     fn draw_ring_lines(
-        &self,
+        &mut self,
         center: impl Into<ffi::Vector2>,
         inner_radius: f32,
         outer_radius: f32,
@@ -302,7 +308,7 @@ pub trait RaylibDraw {
     /// Draws a color-filled rectangle.
     #[inline]
     fn draw_rectangle(
-        &self,
+        &mut self,
         x: i32,
         y: i32,
         width: i32,
@@ -317,7 +323,7 @@ pub trait RaylibDraw {
     /// Draws a color-filled rectangle (Vector version).
     #[inline]
     fn draw_rectangle_v(
-        &self,
+        &mut self,
         position: impl Into<ffi::Vector2>,
         size: impl Into<ffi::Vector2>,
         color: impl Into<ffi::Color>,
@@ -329,7 +335,7 @@ pub trait RaylibDraw {
 
     /// Draws a color-filled rectangle from `rec`.
     #[inline]
-    fn draw_rectangle_rec(&self, rec: impl Into<ffi::Rectangle>, color: impl Into<ffi::Color>) {
+    fn draw_rectangle_rec(&mut self, rec: impl Into<ffi::Rectangle>, color: impl Into<ffi::Color>) {
         unsafe {
             ffi::DrawRectangleRec(rec.into(), color.into());
         }
@@ -338,7 +344,7 @@ pub trait RaylibDraw {
     /// Draws a color-filled rectangle with pro parameters.
     #[inline]
     fn draw_rectangle_pro(
-        &self,
+        &mut self,
         rec: impl Into<ffi::Rectangle>,
         origin: impl Into<ffi::Vector2>,
         rotation: f32,
@@ -354,7 +360,7 @@ pub trait RaylibDraw {
     /// **NOTE**: Gradient goes from bottom (`color1`) to top (`color2`).
     #[inline]
     fn draw_rectangle_gradient_v(
-        &self,
+        &mut self,
         x: i32,
         y: i32,
         width: i32,
@@ -372,7 +378,7 @@ pub trait RaylibDraw {
     /// **NOTE**: Gradient goes from bottom (`color1`) to top (`color2`).
     #[inline]
     fn draw_rectangle_gradient_h(
-        &self,
+        &mut self,
         x: i32,
         y: i32,
         width: i32,
@@ -390,7 +396,7 @@ pub trait RaylibDraw {
     /// **NOTE**: Colors refer to corners, starting at top-left corner and going counter-clockwise.
     #[inline]
     fn draw_rectangle_gradient_ex(
-        &self,
+        &mut self,
         rec: impl Into<ffi::Rectangle>,
         col1: impl Into<ffi::Color>,
         col2: impl Into<ffi::Color>,
@@ -411,7 +417,7 @@ pub trait RaylibDraw {
     /// Draws rectangle outline.
     #[inline]
     fn draw_rectangle_lines(
-        &self,
+        &mut self,
         x: i32,
         y: i32,
         width: i32,
@@ -426,7 +432,7 @@ pub trait RaylibDraw {
     /// Draws rectangle outline with extended parameters.
     #[inline]
     fn draw_rectangle_lines_ex(
-        &self,
+        &mut self,
         rec: impl Into<ffi::Rectangle>,
         line_thick: i32,
         color: impl Into<ffi::Color>,
@@ -438,7 +444,7 @@ pub trait RaylibDraw {
     /// Draws rectangle outline with extended parameters.
     #[inline]
     fn draw_rectangle_rounded(
-        &self,
+        &mut self,
         rec: impl Into<ffi::Rectangle>,
         roundness: f32,
         segments: i32,
@@ -452,7 +458,7 @@ pub trait RaylibDraw {
     /// Draws rectangle outline with extended parameters.
     #[inline]
     fn draw_rectangle_rounded_lines(
-        &self,
+        &mut self,
         rec: impl Into<ffi::Rectangle>,
         roundness: f32,
         segments: i32,
@@ -473,7 +479,7 @@ pub trait RaylibDraw {
     /// Draws a triangle.
     #[inline]
     fn draw_triangle(
-        &self,
+        &mut self,
         v1: impl Into<ffi::Vector2>,
         v2: impl Into<ffi::Vector2>,
         v3: impl Into<ffi::Vector2>,
@@ -487,7 +493,7 @@ pub trait RaylibDraw {
     /// Draws a triangle using lines.
     #[inline]
     fn draw_triangle_lines(
-        &self,
+        &mut self,
         v1: impl Into<ffi::Vector2>,
         v2: impl Into<ffi::Vector2>,
         v3: impl Into<ffi::Vector2>,
@@ -501,7 +507,7 @@ pub trait RaylibDraw {
     /// Draws a regular polygon of n sides (Vector version).
     #[inline]
     fn draw_poly(
-        &self,
+        &mut self,
         center: impl Into<ffi::Vector2>,
         sides: i32,
         radius: f32,
@@ -517,7 +523,7 @@ pub trait RaylibDraw {
     // /// Draw a closed polygon defined by points
     // #[inline]
     // fn draw_poly_ex(
-    //     &self,
+    //     &mut self,
     //     points: impl AsRef<[ffi::Vector2]>,
     //     color: impl Into<ffi::Color>,
     // ) {
@@ -529,7 +535,7 @@ pub trait RaylibDraw {
     // /// Draw polygon lines
     // #[inline]
     // fn draw_poly_ex_lines(
-    //     &self,
+    //     &mut self,
     //     points: impl AsRef<[ffi::Vector2]>,
     //     color: impl Into<ffi::Color>,
     // ) {
@@ -624,7 +630,7 @@ pub trait RaylibDraw {
     /// Draw from a region of `texture` defined by the `source_rec` rectangle with pro parameters.
     #[inline]
     fn draw_texture_pro(
-        &self,
+        &mut self,
         texture: impl AsRef<ffi::Texture2D>,
         source_rec: impl Into<ffi::Rectangle>,
         dest_rec: impl Into<ffi::Rectangle>,
@@ -647,7 +653,7 @@ pub trait RaylibDraw {
     ///Draws a texture (or part of it) that stretches or shrinks nicely
     #[inline]
     fn draw_texture_n_patch(
-        &self,
+        &mut self,
         texture: impl AsRef<ffi::Texture2D>,
         n_patch_info: impl Into<ffi::NPatchInfo>,
         dest_rec: impl Into<ffi::Rectangle>,
@@ -669,7 +675,7 @@ pub trait RaylibDraw {
 
     /// Shows current FPS.
     #[inline]
-    fn draw_fps(&self, x: i32, y: i32) {
+    fn draw_fps(&mut self, x: i32, y: i32) {
         unsafe {
             ffi::DrawFPS(x, y);
         }
@@ -677,33 +683,40 @@ pub trait RaylibDraw {
 
     /// Draws text (using default font).
     #[inline]
-    fn draw_text(&self, text: &str, x: i32, y: i32, font_size: i32, color: impl Into<Color>) {
+    fn draw_text(
+        &mut self,
+        text: &str,
+        x: i32,
+        y: i32,
+        font_size: i32,
+        color: impl Into<ffi::Color>,
+    ) {
         let c_text = CString::new(text).unwrap();
         unsafe {
-            ffi::DrawText(c_text.as_ptr(), x, y, font_size, color.into().into());
+            ffi::DrawText(c_text.as_ptr(), x, y, font_size, color.into());
         }
     }
 
     /// Draws text using `font` and additional parameters.
     #[inline]
     fn draw_text_ex(
-        &self,
+        &mut self,
         font: impl AsRef<ffi::Font>,
         text: &str,
-        position: impl Into<Vector2>,
+        position: impl Into<ffi::Vector2>,
         font_size: f32,
         spacing: f32,
-        tint: impl Into<Color>,
+        tint: impl Into<ffi::Color>,
     ) {
         let c_text = CString::new(text).unwrap();
         unsafe {
             ffi::DrawTextEx(
                 *font.as_ref(),
                 c_text.as_ptr(),
-                position.into().into(),
+                position.into(),
                 font_size,
                 spacing,
-                tint.into().into(),
+                tint.into(),
             );
         }
     }
@@ -711,7 +724,7 @@ pub trait RaylibDraw {
     /// Draws text using `font` and additional parameters.
     #[inline]
     fn draw_text_rec(
-        &self,
+        &mut self,
         font: impl AsRef<ffi::Font>,
         text: &str,
         rec: impl Into<ffi::Rectangle>,
@@ -737,7 +750,7 @@ pub trait RaylibDraw {
     /// Draws text using `font` and additional parameters.
     #[inline]
     fn draw_text_rec_ex(
-        &self,
+        &mut self,
         font: impl AsRef<ffi::Font>,
         text: &str,
         rec: impl Into<ffi::Rectangle>,
@@ -773,6 +786,7 @@ pub trait RaylibDraw3D {
     /// Draws a line in 3D world space.
     #[inline]
     fn draw_line_3d(
+        &mut self,
         start_pos: impl Into<ffi::Vector3>,
         end_pos: impl Into<ffi::Vector3>,
         color: impl Into<ffi::Color>,
@@ -785,6 +799,7 @@ pub trait RaylibDraw3D {
     /// Draws a circle in 3D world space.
     #[inline]
     fn draw_circle_3d(
+        &mut self,
         center: impl Into<ffi::Vector3>,
         radius: f32,
         rotation_axis: impl Into<ffi::Vector3>,
@@ -805,6 +820,7 @@ pub trait RaylibDraw3D {
     /// Draws a cube.
     #[inline]
     fn draw_cube(
+        &mut self,
         position: impl Into<ffi::Vector3>,
         width: f32,
         height: f32,
@@ -819,6 +835,7 @@ pub trait RaylibDraw3D {
     /// Draws a cube (Vector version).
     #[inline]
     fn draw_cube_v(
+        &mut self,
         position: impl Into<ffi::Vector3>,
         size: impl Into<ffi::Vector3>,
         color: impl Into<ffi::Color>,
@@ -831,6 +848,7 @@ pub trait RaylibDraw3D {
     /// Draws a cube in wireframe.
     #[inline]
     fn draw_cube_wires(
+        &mut self,
         position: impl Into<ffi::Vector3>,
         width: f32,
         height: f32,
@@ -845,6 +863,7 @@ pub trait RaylibDraw3D {
     /// Draws a textured cube.
     #[inline]
     fn draw_cube_texture(
+        &mut self,
         texture: &Texture2D,
         position: impl Into<ffi::Vector3>,
         width: f32,
@@ -866,7 +885,12 @@ pub trait RaylibDraw3D {
 
     /// Draws a sphere.
     #[inline]
-    fn draw_sphere(center_pos: impl Into<ffi::Vector3>, radius: f32, color: impl Into<ffi::Color>) {
+    fn draw_sphere(
+        &mut self,
+        center_pos: impl Into<ffi::Vector3>,
+        radius: f32,
+        color: impl Into<ffi::Color>,
+    ) {
         unsafe {
             ffi::DrawSphere(center_pos.into(), radius, color.into());
         }
@@ -875,6 +899,7 @@ pub trait RaylibDraw3D {
     /// Draws a sphere with extended parameters.
     #[inline]
     fn draw_sphere_ex(
+        &mut self,
         center_pos: impl Into<ffi::Vector3>,
         radius: f32,
         rings: i32,
@@ -889,6 +914,7 @@ pub trait RaylibDraw3D {
     /// Draws a sphere in wireframe.
     #[inline]
     fn draw_sphere_wires(
+        &mut self,
         center_pos: impl Into<ffi::Vector3>,
         radius: f32,
         rings: i32,
@@ -903,6 +929,7 @@ pub trait RaylibDraw3D {
     /// Draws a cylinder.
     #[inline]
     fn draw_cylinder(
+        &mut self,
         position: impl Into<ffi::Vector3>,
         radius_top: f32,
         radius_bottom: f32,
@@ -925,6 +952,7 @@ pub trait RaylibDraw3D {
     /// Draws a cylinder in wireframe.
     #[inline]
     fn draw_cylinder_wires(
+        &mut self,
         position: impl Into<ffi::Vector3>,
         radius_top: f32,
         radius_bottom: f32,
@@ -947,6 +975,7 @@ pub trait RaylibDraw3D {
     /// Draws an X/Z plane.
     #[inline]
     fn draw_plane(
+        &mut self,
         center_pos: impl Into<ffi::Vector3>,
         size: impl Into<ffi::Vector2>,
         color: impl Into<ffi::Color>,
@@ -958,7 +987,7 @@ pub trait RaylibDraw3D {
 
     /// Draws a ray line.
     #[inline]
-    fn draw_ray(ray: Ray, color: impl Into<ffi::Color>) {
+    fn draw_ray(&mut self, ray: Ray, color: impl Into<ffi::Color>) {
         unsafe {
             ffi::DrawRay(ray.into(), color.into());
         }
@@ -966,7 +995,7 @@ pub trait RaylibDraw3D {
 
     /// Draws a grid (centered at (0, 0, 0)).
     #[inline]
-    fn draw_grid(slices: i32, spacing: f32) {
+    fn draw_grid(&mut self, slices: i32, spacing: f32) {
         unsafe {
             ffi::DrawGrid(slices, spacing);
         }
@@ -974,9 +1003,129 @@ pub trait RaylibDraw3D {
 
     /// Draws a simple gizmo.
     #[inline]
-    fn draw_gizmo(position: impl Into<ffi::Vector3>) {
+    fn draw_gizmo(&mut self, position: impl Into<ffi::Vector3>) {
         unsafe {
             ffi::DrawGizmo(position.into());
+        }
+    }
+
+    /// Draws a model (with texture if set).
+    #[inline]
+    fn draw_model(
+        &mut self,
+        model: &Model,
+        position: impl Into<ffi::Vector3>,
+        scale: f32,
+        tint: impl Into<ffi::Color>,
+    ) {
+        unsafe {
+            ffi::DrawModel(model.0, position.into(), scale, tint.into());
+        }
+    }
+
+    /// Draws a model with extended parameters.
+    #[inline]
+    fn draw_model_ex(
+        &mut self,
+        model: &Model,
+        position: impl Into<ffi::Vector3>,
+        rotation_axis: impl Into<ffi::Vector3>,
+        rotation_angle: f32,
+        scale: impl Into<ffi::Vector3>,
+        tint: impl Into<ffi::Color>,
+    ) {
+        unsafe {
+            ffi::DrawModelEx(
+                model.0,
+                position.into(),
+                rotation_axis.into(),
+                rotation_angle,
+                scale.into(),
+                tint.into(),
+            );
+        }
+    }
+
+    /// Draws a model with wires (with texture if set).
+    #[inline]
+    fn draw_model_wires(
+        &mut self,
+        model: &Model,
+        position: impl Into<ffi::Vector3>,
+        scale: f32,
+        tint: impl Into<ffi::Color>,
+    ) {
+        unsafe {
+            ffi::DrawModelWires(model.0, position.into(), scale, tint.into());
+        }
+    }
+
+    /// Draws a model with wires.
+    #[inline]
+    fn draw_model_wires_ex(
+        &mut self,
+        model: &Model,
+        position: impl Into<ffi::Vector3>,
+        rotation_axis: impl Into<ffi::Vector3>,
+        rotation_angle: f32,
+        scale: impl Into<ffi::Vector3>,
+        tint: impl Into<ffi::Color>,
+    ) {
+        unsafe {
+            ffi::DrawModelWiresEx(
+                model.0,
+                position.into(),
+                rotation_axis.into(),
+                rotation_angle,
+                scale.into(),
+                tint.into(),
+            );
+        }
+    }
+
+    /// Draws a bounding box (wires).
+    #[inline]
+    fn draw_bounding_box(&mut self, bbox: BoundingBox, color: impl Into<ffi::Color>) {
+        unsafe {
+            ffi::DrawBoundingBox(bbox.into(), color.into());
+        }
+    }
+
+    /// Draws a billboard texture.
+    #[inline]
+    fn draw_billboard(
+        &mut self,
+        camera: Camera3D,
+        texture: &Texture2D,
+        center: impl Into<ffi::Vector3>,
+        size: f32,
+        tint: impl Into<ffi::Color>,
+    ) {
+        unsafe {
+            ffi::DrawBillboard(camera.into(), texture.0, center.into(), size, tint.into());
+        }
+    }
+
+    /// Draws a billboard texture defined by `source_rec`.
+    #[inline]
+    fn draw_billboard_rec(
+        &mut self,
+        camera: Camera3D,
+        texture: &Texture2D,
+        source_rec: impl Into<ffi::Rectangle>,
+        center: impl Into<ffi::Vector3>,
+        size: f32,
+        tint: impl Into<ffi::Color>,
+    ) {
+        unsafe {
+            ffi::DrawBillboardRec(
+                camera.into(),
+                texture.0,
+                source_rec.into(),
+                center.into(),
+                size,
+                tint.into(),
+            );
         }
     }
 }
