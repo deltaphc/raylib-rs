@@ -11,10 +11,12 @@ mod logging;
 mod math;
 mod misc;
 mod models;
+mod shaders;
 mod shapes;
 mod storage;
 mod text;
 mod texture;
+mod vr;
 mod window;
 
 pub use self::camera::*;
@@ -26,10 +28,12 @@ pub use self::logging::*;
 pub use self::math::*;
 pub use self::misc::*;
 pub use self::models::*;
+pub use self::shaders::*;
 pub use self::shapes::*;
 pub use self::storage::*;
 pub use self::text::*;
 pub use self::texture::*;
+pub use self::vr::*;
 pub use self::window::*;
 
 use crate::consts::*;

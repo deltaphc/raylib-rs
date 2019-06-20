@@ -28,12 +28,27 @@ pub struct RaylibDrawHandle {
 }
 
 impl RaylibDrawHandle {
-    pub fn end_drawing(self) -> RaylibHandle {
-        unsafe {
-            ffi::EndDrawing();
-        }
-        self.inner
+    fn begin_shader_mode(&mut self, shader: impl AsRef<ffi::Shader>) -> RaylibShaderMode<Self> {
+        unsafe { ffi::BeginShaderMode(*shader.as_ref()) }
+        RaylibShaderMode { inner: self }
     }
+
+    fn begin_blend_mode(&mut self, blend_mode: crate::consts::BlendMode) -> RaylibBlendMode<Self> {
+        unsafe { ffi::BeginBlendMode((blend_mode as u32) as i32) }
+        RaylibBlendMode(self)
+    }
+
+    fn begin_scissor_mode(
+        &mut self,
+        x: i32,
+        y: i32,
+        width: i32,
+        height: i32,
+    ) -> RaylibScissorMode<Self> {
+        unsafe { ffi::BeginScissorMode(x, y, width, height) }
+        RaylibScissorMode(self)
+    }
+
     #[allow(non_snake_case)]
     fn begin_mode_2D(
         &mut self,
@@ -44,9 +59,68 @@ impl RaylibDrawHandle {
         }
         RaylibMode2D(self)
     }
+
+    #[allow(non_snake_case)]
+    fn begin_mode_3D(
+        &mut self,
+        camera: impl Into<ffi::Camera3D>,
+    ) -> RaylibMode3D<RaylibDrawHandle> {
+        unsafe {
+            ffi::BeginMode3D(camera.into());
+        }
+        RaylibMode3D(self)
+    }
+
+    pub fn begin_vr_drawing(&mut self, _vr: &RaylibVR) -> RaylibVRDraw {
+        unsafe { ffi::BeginVrDrawing() };
+        RaylibVRDraw(self)
+    }
+
+    /// End drawing and return the RaylibHandle
+    pub fn end_drawing(self) -> RaylibHandle {
+        unsafe {
+            ffi::EndDrawing();
+        }
+        self.inner
+    }
+}
+
+pub struct RaylibVRDraw<'a>(&'a mut RaylibDrawHandle);
+
+impl<'a> RaylibVRDraw<'a> {
+    #[allow(non_snake_case)]
+    fn begin_mode_3D(
+        &mut self,
+        camera: impl Into<ffi::Camera3D>,
+    ) -> RaylibMode3D<RaylibVRDraw<'a>> {
+        unsafe {
+            ffi::BeginMode3D(camera.into());
+        }
+        RaylibMode3D(self)
+    }
+}
+
+impl<'a> Drop for RaylibVRDraw<'a> {
+    fn drop(&mut self) {
+        unsafe {
+            ffi::EndVrDrawing();
+        }
+    }
 }
 
 pub struct RaylibMode2D<'a, T>(&'a mut T);
+
+impl<'a, T> RaylibMode2D<'a, T> {
+    fn begin_shader_mode(&mut self, shader: impl AsRef<ffi::Shader>) -> RaylibShaderMode<Self> {
+        unsafe { ffi::BeginShaderMode(*shader.as_ref()) }
+        RaylibShaderMode { inner: self }
+    }
+
+    fn begin_blend_mode(&mut self, blend_mode: crate::consts::BlendMode) -> RaylibBlendMode<Self> {
+        unsafe { ffi::BeginBlendMode((blend_mode as u32) as i32) }
+        RaylibBlendMode(self)
+    }
+}
 
 impl<'a, T> Drop for RaylibMode2D<'a, T> {
     fn drop(&mut self) {
@@ -58,6 +132,18 @@ impl<'a, T> Drop for RaylibMode2D<'a, T> {
 
 pub struct RaylibMode3D<'a, T>(&'a mut T);
 
+impl<'a, T> RaylibMode3D<'a, T> {
+    fn begin_shader_mode(&mut self, shader: impl AsRef<ffi::Shader>) -> RaylibShaderMode<Self> {
+        unsafe { ffi::BeginShaderMode(*shader.as_ref()) }
+        RaylibShaderMode { inner: self }
+    }
+
+    fn begin_blend_mode(&mut self, blend_mode: crate::consts::BlendMode) -> RaylibBlendMode<Self> {
+        unsafe { ffi::BeginBlendMode((blend_mode as u32) as i32) }
+        RaylibBlendMode(self)
+    }
+}
+
 impl<'a, T> Drop for RaylibMode3D<'a, T> {
     fn drop(&mut self) {
         unsafe {
@@ -66,11 +152,57 @@ impl<'a, T> Drop for RaylibMode3D<'a, T> {
     }
 }
 
+pub struct RaylibShaderMode<'a, T: RaylibDraw> {
+    inner: &'a mut T,
+}
+
+impl<'a, T> Drop for RaylibShaderMode<'a, T>
+where
+    T: RaylibDraw,
+{
+    fn drop(&mut self) {
+        unsafe {
+            ffi::EndShaderMode();
+        }
+    }
+}
+
+pub struct RaylibBlendMode<'a, T: RaylibDraw>(&'a mut T);
+
+impl<'a, T> Drop for RaylibBlendMode<'a, T>
+where
+    T: RaylibDraw,
+{
+    fn drop(&mut self) {
+        unsafe {
+            ffi::EndBlendMode();
+        }
+    }
+}
+
+pub struct RaylibScissorMode<'a, T: RaylibDraw>(&'a mut T);
+
+impl<'a, T> Drop for RaylibScissorMode<'a, T>
+where
+    T: RaylibDraw,
+{
+    fn drop(&mut self) {
+        unsafe {
+            ffi::EndScissorMode();
+        }
+    }
+}
+
+impl<'a, T> RaylibDraw for RaylibShaderMode<'a, T> where T: RaylibDraw {}
+impl<'a, T> RaylibDraw for RaylibBlendMode<'a, T> where T: RaylibDraw {}
+impl<'a, T> RaylibDraw for RaylibScissorMode<'a, T> where T: RaylibDraw {}
 impl<'a, T> RaylibDraw for RaylibMode2D<'a, T> {}
 impl<'a, T> RaylibDraw for RaylibMode3D<'a, T> {}
-impl<'a, T> RaylibDraw3D for RaylibMode3D<'a, T> {}
 impl RaylibDraw for RaylibDrawHandle {}
-
+impl<'a, T> RaylibDraw3D for RaylibMode3D<'a, T> {}
+impl<'a, T> RaylibDraw3D for RaylibShaderMode<'a, T> where T: RaylibDraw + RaylibDraw3D {}
+impl<'a, T> RaylibDraw3D for RaylibBlendMode<'a, T> where T: RaylibDraw + RaylibDraw3D {}
+impl<'a, T> RaylibDraw3D for RaylibScissorMode<'a, T> where T: RaylibDraw + RaylibDraw3D {}
 /// TODO figure out if you can draw 2D things in 3D mode and vice versa
 pub trait RaylibDraw {
     /// Sets background color (framebuffer clear color).

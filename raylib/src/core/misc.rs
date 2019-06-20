@@ -1,5 +1,5 @@
 use crate::core::*;
-use std::ffi::CString;
+use std::ffi::{CStr, CString};
 
 /// Returns a random value between min and max (both included)
 /// ```rust
@@ -36,6 +36,18 @@ impl RaylibHandle {
         unsafe {
             ffi::TakeScreenshot(c_filename.as_ptr());
         }
+    }
+}
+
+/// Loads a text file and returns its contents in a string.
+#[inline]
+pub fn load_text(filename: &str) -> String {
+    let c_filename = CString::new(filename).unwrap();
+    unsafe {
+        let text = ffi::LoadText(c_filename.as_ptr());
+        let safe_text = CStr::from_ptr(text).to_str().unwrap().to_owned();
+        libc::free(text as *mut libc::c_void);
+        safe_text
     }
 }
 

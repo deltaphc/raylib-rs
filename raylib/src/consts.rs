@@ -1,5 +1,6 @@
 pub use crate::ffi;
 
+pub use ffi::BlendMode;
 pub use ffi::CameraMode;
 pub use ffi::ConfigFlag::*;
 pub use ffi::GamepadButton;

@@ -8,6 +8,7 @@ make_thin_wrapper!(Mesh, ffi::Mesh, |mut mesh| ffi::UnloadMesh(&mut mesh));
 make_thin_wrapper!(Material, ffi::Material, ffi::UnloadMaterial);
 /// WeakMaterial can be sent between threads, but will be leak memory if
 /// unload_material is not called on it.
+/// has nothing to prevent dataraces when cloned
 make_thin_wrapper!(WeakMaterial, ffi::Material, no_drop);
 make_thin_wrapper!(
     ModelAnimation,

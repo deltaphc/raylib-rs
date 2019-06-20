@@ -2994,9 +2994,9 @@ impl RaylibHandle {
 
     /// Begins blending mode (alpha, additive, multiplied).
     #[inline]
-    pub fn begin_blend_mode(&self, mode: BlendMode) {
+    pub fn begin_blend_mode(&self, mode: crate::ffi::BlendMode) {
         unsafe {
-            ffi::BeginBlendMode(mode as i32);
+            ffi::BeginBlendMode((mode as u32) as i32);
         }
     }
 
