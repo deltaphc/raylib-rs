@@ -1742,7 +1742,7 @@ impl Into<ffi::RayHitInfo> for &RayHitInfo {
 
 #[cfg(test)]
 mod math_test {
-    use crate::core::*;
+    use super::{Ray, Vector2, Vector3, Vector4};
     use crate::ffi;
 
     #[test]

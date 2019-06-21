@@ -1,4 +1,6 @@
-use crate::core::*;
+use crate::core::math::*;
+use crate::core::models::Model;
+use crate::ffi;
 
 impl Rectangle {
     /// Check collision between two rectangles
@@ -15,8 +17,7 @@ impl Rectangle {
 
     /// Gets the overlap between two colliding rectangles.
     /// ```rust
-    /// use raylib::core::*;
-    /// use raylib::*;
+    /// use raylib::prelude::*;
     /// fn main() {
     ///    let r1 = Rectangle::new(0.0, 0.0, 10.0, 10.0);
     ///    let r2 = Rectangle::new(20.0, 20.0, 10.0, 10.0);

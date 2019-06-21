@@ -1,4 +1,4 @@
-use crate::core::*;
+use crate::core::RaylibThread;
 use crate::ffi;
 use std::ffi::CString;
 
@@ -404,7 +404,7 @@ impl AudioStream {
 
 #[cfg(test)]
 mod audio_test {
-    use crate::core::*;
+    use super::*;
     use crate::tests::*;
     #[test]
     fn test_init_audio() {
@@ -418,7 +418,7 @@ mod audio_test {
     }
 
     ray_test!(test_load_music);
-    fn test_load_music(thread: &RaylibThread) {
+    fn test_load_music(_thread: &RaylibThread) {
         // TODO uncomment when music is fixed
         // {
         //     let _ = Music::load_music_stream(thread, "resources/audio/chiptun1.mod")

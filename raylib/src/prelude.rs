@@ -25,4 +25,13 @@ Permission is granted to anyone to use this software for any purpose, including 
 //! ```
 
 pub use crate::consts::*;
+pub use crate::core::camera::*;
+pub use crate::core::color::*;
+pub use crate::core::drawing::*;
+pub use crate::core::file::*;
+pub use crate::core::logging::*;
+pub use crate::core::math::*;
+pub use crate::core::misc::*;
+pub use crate::core::window::*;
+pub use crate::core::*;
 pub use crate::*;

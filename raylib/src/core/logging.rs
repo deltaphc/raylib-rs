@@ -1,4 +1,6 @@
-use crate::core::*;
+use crate::consts::TraceLogType;
+use crate::ffi;
+use std::ffi::CString;
 
 /// Set the current threshold (minimum) log level
 #[inline]
@@ -27,6 +29,7 @@ pub fn trace_log(msg_type: TraceLogType, text: &str) {
 
 #[cfg(test)]
 mod test_logging {
+    use super::*;
     use crate::core::*;
     #[test]
     fn test_logs() {

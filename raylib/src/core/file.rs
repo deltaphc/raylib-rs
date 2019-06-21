@@ -5,7 +5,7 @@ use std::path::Path;
 
 /// Check if file exists
 /// ```rust
-/// use raylib::core::*;
+/// use raylib::prelude::*;
 /// fn main() {
 ///     let check = file_exists("resources/just_exists.txt");
 ///     assert!(check, "file doesn't exist");
@@ -21,7 +21,7 @@ pub fn file_exists(file_name: impl AsRef<Path>) -> bool {
 
 // Check file extension
 /// ```rust
-/// use raylib::core::*;
+/// use raylib::prelude::*;
 /// fn main() {
 ///     let check = is_file_extension("resources/just_exists.txt", ".txt");
 ///     assert!(check, "extension mismatch");
@@ -34,7 +34,7 @@ pub fn is_file_extension(filename: &str, ext: &str) -> bool {
 
 /// Gets the extension for a `filename` string.
 /// ```rust
-/// use raylib::core::*;
+/// use raylib::prelude::*;
 /// fn main() {
 ///     let check = get_extension("resources/just_exists.txt");
 ///     assert_eq!(check, "txt", "extension mismatch");
@@ -49,7 +49,7 @@ pub fn get_extension(filename: &str) -> String {
 
 /// Gets the filename for a path string.
 /// ```rust
-/// use raylib::core::*;
+/// use raylib::prelude::*;
 /// fn main() {
 ///     let check = get_file_name("resources/just_exists.txt");
 ///     assert_eq!(check, "just_exists.txt", "extension mismatch");
@@ -64,7 +64,7 @@ pub fn get_file_name(file_path: &str) -> String {
 
 /// Gets full path for a given `filename`.
 /// ```rust
-/// use raylib::core::*;
+/// use raylib::prelude::*;
 /// fn main() {
 ///     let check = get_directory_path("resources/just_exists.txt");
 ///     assert_eq!(check, "resources", "extension mismatch");
@@ -79,7 +79,7 @@ pub fn get_directory_path(filename: &str) -> String {
 
 /// Gets current working directory.
 /// ```rust
-/// use raylib::core::*;
+/// use raylib::prelude::*;
 /// fn main() {
 ///     let check = get_working_directory();
 ///     let current = std::env::current_dir().unwrap().to_str().unwrap().to_owned();

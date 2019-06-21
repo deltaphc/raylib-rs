@@ -17,8 +17,8 @@ fn main() {
 
 /// Checks that shader files are droppable after window is closed
 fn test_shader_dropping(opt: &options::Opt) {
-    let ten_millis = time::Duration::from_millis(10);
-    let v = {
+    let _ten_millis = time::Duration::from_millis(10);
+    let _v = {
         let (mut rl, thread) = opt.open_window("Drop Shader");
     rl.load_shader(&thread, None, Some("drop-static/shader/pbr.fs")).expect("shader didn't load")
     };
@@ -27,7 +27,7 @@ fn test_shader_dropping(opt: &options::Opt) {
 /// Checks that model files are droppable after window is closed
 fn test_model_dropping(opt: &options::Opt) {
     let ten_millis = time::Duration::from_millis(10);
-    let m = {
+    let _m = {
         let (mut rl, thread) = opt.open_window("Drop Model");
         rl.load_model(&thread, "drop-static/pbr/trooper.obj").expect("couldn't load model");
     };
@@ -37,7 +37,7 @@ fn test_model_dropping(opt: &options::Opt) {
     //     let (_rl, thread) = opt.open_window("Drop Mesh");
     //     Mesh::load_meshes(&thread, "drop-static/pbr/trooper.obj").expect("couldn't load mesh");
     // };
-    let anim = {
+    let _anim = {
         let (_rl, _thread) = opt.open_window("Drop Anim");
         ModelAnimation::load_model_animations("drop-static/guy/guy.iqm").expect("couldn't load model");
     };
@@ -48,15 +48,15 @@ fn test_model_dropping(opt: &options::Opt) {
 /// Checks that audio files are droppable after window is closed
 fn test_audio_dropping(opt: &options::Opt) {
     let ten_millis = time::Duration::from_millis(10);
-    let w = {
-        let (_, thread) = raylib::init()
+    let _w = {
+        let (_, _thread) = raylib::init()
             .size(opt.width, opt.height)
             .title("Drop")
             .build();
         Wave::load_wave("drop-static/wave.ogg").expect("couldn't load wave");
     };
     thread::sleep(ten_millis);
-    let s = {
+    let _s = {
         let (_rl, _thread) = opt.open_window("Drop Sound");
         Sound::load_sound("drop-static/wave.ogg").expect("couldn't load wave");
     };

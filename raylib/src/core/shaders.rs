@@ -1,4 +1,6 @@
-use crate::core::*;
+use crate::core::math::*;
+use crate::core::{RaylibHandle, RaylibThread};
+use crate::ffi;
 use std::ffi::CString;
 
 fn no_drop<T>(_thing: T) {}
@@ -21,12 +23,12 @@ impl RaylibHandle {
         fs_filename: Option<&str>,
     ) -> Result<Shader, String> {
         if let Some(f) = vs_filename {
-            if !crate::file_exists(f) {
+            if !crate::core::file::file_exists(f) {
                 return Err(format!("could not load shader file {}", f));
             }
         }
         if let Some(f) = fs_filename {
-            if !crate::file_exists(f) {
+            if !crate::core::file::file_exists(f) {
                 return Err(format!("could not load shader file {}", f));
             }
         }

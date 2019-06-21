@@ -1,5 +1,8 @@
-use crate::core::*;
+use crate::core::math::*;
+use crate::core::texture::Image;
+use crate::core::{RaylibHandle, RaylibThread};
 use crate::ffi;
+use std::ffi::CString;
 
 fn no_drop<T>(_thing: T) {}
 make_thin_wrapper!(Model, ffi::Model, ffi::UnloadModel);
@@ -260,7 +263,7 @@ impl RaylibHandle {
 
 #[cfg(test)]
 mod model_test {
-    use crate::core::*;
+    use super::*;
     use crate::tests::*;
 
     ray_test!(test_load_model);

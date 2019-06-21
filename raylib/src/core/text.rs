@@ -1,3 +1,5 @@
+use crate::core::math::*;
+use crate::core::texture::{Image, Texture2D};
 use crate::core::*;
 use crate::ffi;
 
@@ -242,13 +244,15 @@ pub fn get_glyph_index(font: impl std::convert::AsRef<ffi::Font>, character: i32
 
 #[cfg(test)]
 mod text_test {
-    use crate::core::*;
+    use super::*;
+    use crate::core::color::*;
+    use crate::core::drawing::*;
     use crate::tests::*;
     ray_test!(test_font_load);
     fn test_font_load(thread: &RaylibThread) {
         let mut handle = TEST_HANDLE.write().unwrap();
         let rl = handle.as_mut().unwrap();
-        let f = rl
+        let _f = rl
             .load_font(thread, "resources/alagard.png")
             .expect("couldn't load font");
     }

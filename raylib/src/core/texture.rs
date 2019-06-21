@@ -1,3 +1,5 @@
+use crate::core::color::*;
+use crate::core::math::*;
 use crate::core::*;
 use crate::ffi;
 use std::ffi::CString;
@@ -648,7 +650,7 @@ impl Texture2D {
 
     /// Sets `texture` scaling filter mode.
     #[inline]
-    pub fn set_texture_filter(&mut self, filter_mode: TextureFilterMode) {
+    pub fn set_texture_filter(&mut self, filter_mode: crate::consts::TextureFilterMode) {
         unsafe {
             ffi::SetTextureFilter(self.0, filter_mode as i32);
         }
@@ -704,9 +706,9 @@ impl RaylibHandle {
 
 #[cfg(test)]
 mod texture_test {
-    use crate::core::*;
+    use super::*;
+    use crate::core::color::*;
     use crate::tests::*;
-    use std::ptr;
     #[test]
     fn test_image_loading() {
         let i = Image::load_image("resources/billboard.png").expect("image not found");

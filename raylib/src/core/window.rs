@@ -1,3 +1,4 @@
+use crate::core::math::*;
 use crate::core::*;
 use crate::ffi;
 use std::ffi::{CStr, CString, IntoStringError, NulError};
@@ -19,7 +20,7 @@ pub fn get_monitor_count() -> i32 {
 /// fails if monitor name is not a utf8 string
 /// ```rust
 /// use std::ffi::IntoStringError;
-/// use raylib::core::*;
+/// use raylib::prelude::*;
 /// fn main() -> Result<(), IntoStringError> {
 ///     let count = get_monitor_count();
 ///     for i in (0..count) {
@@ -54,7 +55,7 @@ pub fn get_monitor_info(index: i32) -> Result<MonitorInfo, IntoStringError> {
 
 /// Returns camera transform matrix (view matrix)
 /// ```rust
-/// use raylib::core::*;
+/// use raylib::prelude::*;
 /// fn main() {
 ///     let c = Camera::orthographic(
 ///            Vector3::zero(),
@@ -297,7 +298,8 @@ impl RaylibHandle {
 
 #[cfg(test)]
 mod core_test {
-    use crate::core::*;
+    use super::*;
+    use crate::core::camera::*;
     use crate::tests::*;
     #[test]
     fn test_clipboard() {

@@ -1,4 +1,5 @@
-use crate::core::*;
+use crate::core::math::{Vector2, Vector3};
+use crate::core::RaylibHandle;
 use crate::ffi;
 
 #[repr(C)]

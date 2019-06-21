@@ -1,4 +1,7 @@
+use crate::core::drawing::*;
+use crate::core::text::*;
 use crate::core::*;
+use crate::core::color::*;
 use crate::test::{TestDescAndFn, TestFn};
 use lazy_static::lazy_static;
 use std::sync::RwLock;

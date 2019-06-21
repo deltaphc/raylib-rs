@@ -1,4 +1,4 @@
-use crate::core::*;
+use crate::core::math::*;
 use crate::ffi;
 
 #[repr(C)]

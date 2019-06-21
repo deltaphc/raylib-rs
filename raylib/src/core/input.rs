@@ -1,5 +1,6 @@
 use crate::consts::GestureType;
-use crate::core::*;
+use crate::core::math::*;
+use crate::core::RaylibHandle;
 use crate::ffi;
 
 use std::ffi::{CStr, CString};

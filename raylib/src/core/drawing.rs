@@ -1,7 +1,13 @@
 //! Contains code related to drawing. Types that can be set as a surface to draw will implement the RaylibDraw trait
-use crate::core::*;
+use crate::core::camera::*;
+use crate::core::math::*;
+use crate::core::models::*;
+use crate::core::texture::*;
+use crate::core::vr::*;
+use crate::core::{RaylibHandle, RaylibThread};
 use crate::ffi;
 use std::convert::AsRef;
+use std::ffi::CString;
 
 /// Seems like all draw commands must be issued from the main thread
 impl RaylibHandle {
@@ -1264,7 +1270,8 @@ pub trait RaylibDraw3D {
 
 #[cfg(test)]
 mod draw_test {
-    use crate::core::*;
+    use super::*;
+    use crate::core::color::*;
     use crate::tests::*;
     ray_draw_test!(test_pixel);
     fn test_pixel(d: &mut RaylibDrawHandle<RaylibHandle>, _: &TestAssets) {

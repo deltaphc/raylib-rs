@@ -1,9 +1,11 @@
+use crate::core::texture::Image;
 use crate::core::*;
+use crate::ffi;
 use std::ffi::{CStr, CString};
 
 /// Returns a random value between min and max (both included)
 /// ```rust
-/// use raylib::core::*;
+/// use raylib::prelude::*;
 /// fn main() {
 ///     let r = get_random_value(0, 10);
 ///     println!("random value: {}", r);
@@ -14,7 +16,7 @@ pub fn get_random_value(min: i32, max: i32) -> i32 {
 
 /// Open URL with default system browser (if available)
 /// ```ignore
-/// use raylib::core::*;
+/// use raylib::prelude::*;
 /// fn main() {
 ///     open_url("https://google.com");
 /// }
