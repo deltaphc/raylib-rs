@@ -10,6 +10,7 @@ repository = "https://github.com/deltaphc/raylib-rs"
 
 [dependencies]
 raylib = { version = "0.11", path = "../raylib" }
+structopt = "0.2"
 
 [[bin]]
 name = "logo"
@@ -23,7 +24,10 @@ path = "./logo_raw.rs"
 name = "triangleraw"
 path = "./triangle_raw.rs"
 
-
 [[bin]]
 name = "font"
 path = "./font.rs"
+
+[[bin]]
+name = "drop"
+path = "./drop.rs"

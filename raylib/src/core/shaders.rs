@@ -11,25 +11,45 @@ make_thin_wrapper!(WeakShader, ffi::Shader, no_drop);
 impl !Send for Shader {}
 unsafe impl Sync for Shader {}
 
-impl Shader {
+impl RaylibHandle {
     /// Loads a custom shader and binds default locations.
     #[inline]
-    pub fn load_shader(&self, vs_filename: &str, fs_filename: &str) -> Shader {
-        let c_vs_filename = CString::new(vs_filename).unwrap();
-        let c_fs_filename = CString::new(fs_filename).unwrap();
+    pub fn load_shader(
+        &mut self,
+        _: &RaylibThread,
+        vs_filename: Option<&str>,
+        fs_filename: Option<&str>,
+    ) -> Result<Shader, String> {
+        if let Some(f) = vs_filename {
+            if !crate::file_exists(f) {
+                return Err(format!("could not load shader file {}", f));
+            }
+        }
+        if let Some(f) = fs_filename {
+            if !crate::file_exists(f) {
+                return Err(format!("could not load shader file {}", f));
+            }
+        }
+        let c_vs_filename = CString::new(vs_filename.unwrap_or("")).unwrap();
+        let c_fs_filename = CString::new(fs_filename.unwrap_or("")).unwrap();
         unsafe {
-            Shader(ffi::LoadShader(
+            Ok(Shader(ffi::LoadShader(
                 c_vs_filename.as_ptr(),
                 c_fs_filename.as_ptr(),
-            ))
+            )))
         }
     }
 
     /// Loads shader from code strings and binds default locations.
     #[inline]
-    pub fn load_shader_code(&self, vs_code: &str, fs_code: &str) -> Shader {
-        let c_vs_code = CString::new(vs_code).unwrap();
-        let c_fs_code = CString::new(fs_code).unwrap();
+    pub fn load_shader_code(
+        &mut self,
+        _: &RaylibThread,
+        vs_code: Option<&str>,
+        fs_code: Option<&str>,
+    ) -> Shader {
+        let c_vs_code = CString::new(vs_code.unwrap_or("")).unwrap();
+        let c_fs_code = CString::new(fs_code.unwrap_or("")).unwrap();
         unsafe {
             Shader(ffi::LoadShaderCode(
                 c_vs_code.as_ptr() as *mut i8,

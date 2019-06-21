@@ -27,18 +27,21 @@ fn clone_testfn(testfn: &TestFn) -> TestFn {
 }
 
 pub fn test_runner(tests: &[&Testable]) {
-    let thread = {
+    let (thread, assets) = {
         let mut handle = TEST_HANDLE.write().unwrap();
         let (rl, thread) = crate::core::init()
             .size(TEST_WIDTH, TEST_HEIGHT)
             .title("Hello, World")
             .build();
         *handle = Some(rl);
-        thread
-    };
-
-    let assets = TestAssets {
-        font: Font::load_font(&thread, "resources/alagard.png").expect("couldn't load font"),
+        let asset = TestAssets {
+            font: handle
+                .as_mut()
+                .unwrap()
+                .load_font(&thread, "resources/alagard.png")
+                .expect("couldn't load font"),
+        };
+        (thread, asset)
     };
 
     let args = std::env::args().collect::<Vec<_>>();

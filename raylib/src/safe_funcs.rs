@@ -14,7 +14,6 @@ Permission is granted to anyone to use this software for any purpose, including 
   3. This notice may not be removed or altered from any source distribution.
 */
 
-use crate::consts::*;
 use crate::ffi;
 use crate::ffi::{CharInfo, Rectangle};
 use crate::raymath::*;
@@ -149,6 +148,7 @@ impl RaylibBuilder {
     ///
     /// Attempting to initialize Raylib more than once will result in a panic.
     pub fn build(&self) -> RaylibHandle {
+        use crate::consts::ConfigFlag::*;
         let mut flags = 0u32;
         if self.show_logo {
             flags |= FLAG_SHOW_LOGO as u32;

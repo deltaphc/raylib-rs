@@ -173,6 +173,7 @@ impl RaylibBuilder {
     ///
     /// Attempting to initialize Raylib more than once will result in a panic.
     pub fn build(&self) -> (RaylibHandle, RaylibThread) {
+        use crate::consts::ConfigFlag::*;
         let mut flags = 0u32;
         if self.show_logo {
             flags |= FLAG_SHOW_LOGO as u32;

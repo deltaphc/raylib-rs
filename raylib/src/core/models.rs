@@ -1,6 +1,5 @@
 use crate::core::*;
 use crate::ffi;
-use std::ptr;
 
 fn no_drop<T>(_thing: T) {}
 make_thin_wrapper!(Model, ffi::Model, ffi::UnloadModel);
@@ -21,18 +20,23 @@ impl !Send for Mesh {}
 unsafe impl Sync for Mesh {}
 impl !Send for Material {}
 unsafe impl Sync for Material {}
-impl !Send for ModelAnimation {}
-unsafe impl Sync for ModelAnimation {}
 
-impl Model {
+impl RaylibHandle {
     /// Loads model from files (mesh and material).
-    #[inline]
-    pub fn load_model(_: &RaylibThread, filename: &str) -> Model {
+    // #[inline]
+    pub fn load_model(&mut self, _: &RaylibThread, filename: &str) -> Result<Model, String> {
         let c_filename = CString::new(filename).unwrap();
         let m = unsafe { ffi::LoadModel(c_filename.as_ptr()) };
+        if m.meshes.is_null() && m.materials.is_null() && m.bones.is_null() && m.bindPose.is_null()
+        {
+            return Err(format!("could not load model {}", filename));
+        }
         // TODO check if null pointer checks are necessary.
-        Model(m)
+        Ok(Model(m))
     }
+}
+
+impl Model {
     /// Check model animation skeleton match
     #[inline]
     pub fn is_model_animation_valid(&self, anim: &ModelAnimation) -> bool {
@@ -40,10 +44,9 @@ impl Model {
     }
 }
 
-impl Mesh {
+impl RaylibHandle {
     /// Load meshes from model file
-    #[inline]
-    pub fn load_meshes(_: &RaylibThread, filename: &str) -> Result<Vec<Mesh>, String> {
+    pub fn load_meshes(&mut self, _: &RaylibThread, filename: &str) -> Result<Vec<Mesh>, String> {
         let c_filename = CString::new(filename).unwrap();
         let mut m_size = 0;
         let m_ptr = unsafe { ffi::LoadMeshes(c_filename.as_ptr(), &mut m_size) };
@@ -61,7 +64,9 @@ impl Mesh {
         }
         Ok(m_vec)
     }
+}
 
+impl Mesh {
     /// Generate polygonal mesh
     #[inline]
     pub fn gen_mesh_poly(_: &RaylibThread, sides: i32, radius: f32) -> Mesh {
@@ -182,7 +187,9 @@ impl Mesh {
 
 impl Material {
     pub fn make_weak(self) -> WeakMaterial {
-        self.into()
+        let m = WeakMaterial(self.0);
+        std::mem::forget(self);
+        m
     }
 
     pub fn load_materials(filename: &str) -> Result<Vec<Material>, String> {
@@ -210,12 +217,6 @@ impl Material {
         texture: impl AsRef<ffi::Texture2D>,
     ) {
         unsafe { ffi::SetMaterialTexture(&mut self.0, (map_type as u32) as i32, *texture.as_ref()) }
-    }
-}
-
-impl From<Material> for WeakMaterial {
-    fn from(mat: Material) -> WeakMaterial {
-        WeakMaterial(mat.0)
     }
 }
 
@@ -264,8 +265,10 @@ mod model_test {
 
     ray_test!(test_load_model);
     fn test_load_model(thread: &RaylibThread) {
-        let _ = Model::load_model(thread, "resources/cube.obj");
-        let _ = Model::load_model(thread, "resources/pbr/trooper.obj");
+        let mut handle = TEST_HANDLE.write().unwrap();
+        let rl = handle.as_mut().unwrap();
+        let _ = rl.load_model(thread, "resources/cube.obj");
+        let _ = rl.load_model(thread, "resources/pbr/trooper.obj");
     }
 
     ray_test!(test_load_meshes);
