@@ -10,7 +10,9 @@ make_thin_wrapper!(Shader, ffi::Shader, ffi::UnloadShader);
 /// has nothing to prevent dataraces when cloned
 make_thin_wrapper!(WeakShader, ffi::Shader, no_drop);
 
+#[cfg(feature = "nightly")]
 impl !Send for Shader {}
+#[cfg(feature = "nightly")]
 unsafe impl Sync for Shader {}
 
 impl RaylibHandle {

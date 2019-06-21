@@ -49,9 +49,13 @@ make_thin_wrapper!(
 );
 
 // Prevent Textures from being sent to other threads
+#[cfg(feature = "nightly")]
 impl !Send for Texture2D {}
+#[cfg(feature = "nightly")]
 impl !Sync for Texture2D {}
+#[cfg(feature = "nightly")]
 impl !Send for RenderTexture2D {}
+#[cfg(feature = "nightly")]
 impl !Sync for RenderTexture2D {}
 
 impl Clone for Image {

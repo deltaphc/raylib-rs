@@ -43,7 +43,7 @@ Permission is granted to anyone to use this software for any purpose, including 
 //!     
 //! }
 //! ```
-#![feature(optin_builtin_traits)]
+#![cfg_attr(feature = "nightly", feature(optin_builtin_traits))]
 #![allow(dead_code)]
 pub mod consts;
 pub mod core;

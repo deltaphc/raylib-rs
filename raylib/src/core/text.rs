@@ -12,9 +12,13 @@ make_thin_wrapper!(Font, ffi::Font, ffi::UnloadFont);
 /// Must called unload on the font
 make_thin_wrapper!(WeakFont, ffi::Font, no_drop);
 
+#[cfg(feature = "nightly")]
 impl !Send for Font {}
+#[cfg(feature = "nightly")]
 unsafe impl Sync for Font {}
+#[cfg(feature = "nightly")]
 impl !Send for WeakFont {}
+#[cfg(feature = "nightly")]
 unsafe impl Sync for WeakFont {}
 
 impl AsRef<ffi::Texture2D> for Font {

@@ -8,7 +8,9 @@ static IS_INITIALIZED: AtomicBool = AtomicBool::new(false);
 /// This token is used to indicate VR is initialized
 #[derive(Debug)]
 pub struct RaylibVR(());
+#[cfg(feature = "nightly")]
 impl !Send for RaylibVR {}
+#[cfg(feature = "nightly")]
 impl !Sync for RaylibVR {}
 
 impl RaylibVR {

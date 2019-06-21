@@ -17,11 +17,17 @@ make_thin_wrapper!(
     ffi::ModelAnimation,
     ffi::UnloadModelAnimation
 );
+#[cfg(feature = "nightly")]
 impl !Send for Model {}
+#[cfg(feature = "nightly")]
 unsafe impl Sync for Model {}
+#[cfg(feature = "nightly")]
 impl !Send for Mesh {}
+#[cfg(feature = "nightly")]
 unsafe impl Sync for Mesh {}
+#[cfg(feature = "nightly")]
 impl !Send for Material {}
+#[cfg(feature = "nightly")]
 unsafe impl Sync for Material {}
 
 impl RaylibHandle {
