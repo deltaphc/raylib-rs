@@ -6,28 +6,25 @@ use std::convert::AsRef;
 /// Seems like all draw commands must be issued from the main thread
 impl RaylibHandle {
     /// Setup canvas (framebuffer) to start drawing
-    pub fn begin_drawing(self, _: &RaylibThread) -> RaylibDrawHandle {
+    pub fn begin_drawing(&mut self, _: &RaylibThread) -> RaylibDrawHandle<Self> {
         unsafe {
             ffi::BeginDrawing();
-        }
-        RaylibDrawHandle { inner: self }
-    }
-    /// Pass a function for drawing
-    pub fn with_draw<F: Fn(&mut RaylibDrawHandle)>(&mut self, thread: &RaylibThread, drawfn: F) {
-        // I'm 99% sure this is safe. If anyone thinks it's not open an issue.
-        let clone = RaylibHandle(());
-        let mut d = clone.begin_drawing(thread);
-        drawfn(&mut d);
-        let clone = d.end_drawing();
-        std::mem::forget(clone);
+        };
+        let d = RaylibDrawHandle(self);
+        d
     }
 }
 
-pub struct RaylibDrawHandle {
-    inner: RaylibHandle,
-}
+pub trait RaylibSurface {}
+impl RaylibSurface for RaylibHandle {}
+impl RaylibSurface for RenderTexture2D {}
 
-impl RaylibDrawHandle {
+pub struct RaylibDrawHandle<'a, T: RaylibSurface>(&'a mut T);
+
+impl<'a, T> RaylibDrawHandle<'a, T>
+where
+    T: RaylibSurface,
+{
     fn begin_shader_mode(&mut self, shader: impl AsRef<ffi::Shader>) -> RaylibShaderMode<Self> {
         unsafe { ffi::BeginShaderMode(*shader.as_ref()) }
         RaylibShaderMode { inner: self }
@@ -53,7 +50,7 @@ impl RaylibDrawHandle {
     fn begin_mode_2D(
         &mut self,
         camera: impl Into<ffi::Camera2D>,
-    ) -> RaylibMode2D<RaylibDrawHandle> {
+    ) -> RaylibMode2D<RaylibDrawHandle<'a, T>> {
         unsafe {
             ffi::BeginMode2D(camera.into());
         }
@@ -64,35 +61,38 @@ impl RaylibDrawHandle {
     fn begin_mode_3D(
         &mut self,
         camera: impl Into<ffi::Camera3D>,
-    ) -> RaylibMode3D<RaylibDrawHandle> {
+    ) -> RaylibMode3D<RaylibDrawHandle<'a, T>> {
         unsafe {
             ffi::BeginMode3D(camera.into());
         }
         RaylibMode3D(self)
     }
 
-    pub fn begin_vr_drawing(&mut self, _vr: &RaylibVR) -> RaylibVRDraw {
+    pub fn begin_vr_drawing(&mut self, _vr: &RaylibVR) -> RaylibVRDraw<RaylibDrawHandle<'a, T>> {
         unsafe { ffi::BeginVrDrawing() };
         RaylibVRDraw(self)
     }
+}
 
-    /// End drawing and return the RaylibHandle
-    pub fn end_drawing(self) -> RaylibHandle {
+impl<'a, T> Drop for RaylibDrawHandle<'a, T>
+where
+    T: RaylibSurface,
+{
+    fn drop(&mut self) {
         unsafe {
             ffi::EndDrawing();
         }
-        self.inner
     }
 }
 
-pub struct RaylibVRDraw<'a>(&'a mut RaylibDrawHandle);
+pub struct RaylibVRDraw<'a, T>(&'a mut T);
 
-impl<'a> RaylibVRDraw<'a> {
+impl<'a, T> RaylibVRDraw<'a, T> {
     #[allow(non_snake_case)]
     fn begin_mode_3D(
         &mut self,
         camera: impl Into<ffi::Camera3D>,
-    ) -> RaylibMode3D<RaylibVRDraw<'a>> {
+    ) -> RaylibMode3D<RaylibVRDraw<'a, T>> {
         unsafe {
             ffi::BeginMode3D(camera.into());
         }
@@ -100,7 +100,7 @@ impl<'a> RaylibVRDraw<'a> {
     }
 }
 
-impl<'a> Drop for RaylibVRDraw<'a> {
+impl<'a, T> Drop for RaylibVRDraw<'a, T> {
     fn drop(&mut self) {
         unsafe {
             ffi::EndVrDrawing();
@@ -198,7 +198,7 @@ impl<'a, T> RaylibDraw for RaylibBlendMode<'a, T> where T: RaylibDraw {}
 impl<'a, T> RaylibDraw for RaylibScissorMode<'a, T> where T: RaylibDraw {}
 impl<'a, T> RaylibDraw for RaylibMode2D<'a, T> {}
 impl<'a, T> RaylibDraw for RaylibMode3D<'a, T> {}
-impl RaylibDraw for RaylibDrawHandle {}
+impl<'a, T> RaylibDraw for RaylibDrawHandle<'a, T> where T: RaylibSurface {}
 impl<'a, T> RaylibDraw3D for RaylibMode3D<'a, T> {}
 impl<'a, T> RaylibDraw3D for RaylibShaderMode<'a, T> where T: RaylibDraw + RaylibDraw3D {}
 impl<'a, T> RaylibDraw3D for RaylibBlendMode<'a, T> where T: RaylibDraw + RaylibDraw3D {}
@@ -1267,13 +1267,13 @@ mod draw_test {
     use crate::core::*;
     use crate::tests::*;
     ray_draw_test!(test_pixel);
-    fn test_pixel(d: &mut RaylibDrawHandle, _: &TestAssets) {
+    fn test_pixel(d: &mut RaylibDrawHandle<RaylibHandle>, _: &TestAssets) {
         d.clear_background(Color::WHITE);
         d.draw_pixel(10, 10, Color::RED);
         d.draw_pixel_v(Vector2::new(20.0, 20.0), Color::RED);
     }
     ray_draw_test!(test_line);
-    fn test_line(d: &mut RaylibDrawHandle, _: &TestAssets) {
+    fn test_line(d: &mut RaylibDrawHandle<RaylibHandle>, _: &TestAssets) {
         d.clear_background(Color::WHITE);
         d.draw_line(0, 5, 100, 5, Color::RED);
         d.draw_line_v(
@@ -1295,7 +1295,7 @@ mod draw_test {
         );
     }
     ray_draw_test!(test_circle);
-    fn test_circle(d: &mut RaylibDrawHandle, _: &TestAssets) {
+    fn test_circle(d: &mut RaylibDrawHandle<RaylibHandle>, _: &TestAssets) {
         d.clear_background(Color::WHITE);
         d.draw_circle(20, 20, 10.0, Color::RED);
         d.draw_circle_v(Vector2::new(40.0, 20.0), 10.0, Color::RED);
@@ -1308,7 +1308,7 @@ mod draw_test {
     }
 
     ray_draw_test!(test_rectangle);
-    fn test_rectangle(d: &mut RaylibDrawHandle, _: &TestAssets) {
+    fn test_rectangle(d: &mut RaylibDrawHandle<RaylibHandle>, _: &TestAssets) {
         d.clear_background(Color::WHITE);
         d.draw_rectangle(10, 10, 10, 10, Color::RED);
         d.draw_rectangle_v(
@@ -1350,7 +1350,7 @@ mod draw_test {
     }
 
     ray_draw_test!(test_triangle);
-    fn test_triangle(d: &mut RaylibDrawHandle, _: &TestAssets) {
+    fn test_triangle(d: &mut RaylibDrawHandle<RaylibHandle>, _: &TestAssets) {
         d.clear_background(Color::WHITE);
         d.draw_triangle(
             Vector2::new(0.0, 30.0),
@@ -1367,7 +1367,7 @@ mod draw_test {
     }
 
     ray_draw_test!(test_poly);
-    fn test_poly(d: &mut RaylibDrawHandle, _: &TestAssets) {
+    fn test_poly(d: &mut RaylibDrawHandle<RaylibHandle>, _: &TestAssets) {
         d.clear_background(Color::WHITE);
         d.draw_poly(Vector2::new(100.0, 100.0), 12, 20.0, 45.0, Color::RED);
     }

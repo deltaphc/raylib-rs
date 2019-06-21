@@ -91,19 +91,22 @@ pub fn test_runner(tests: &[&Testable]) {
     rl.set_target_fps(120);
     rl.unhide_window();
     // let sleep_time = std::time::Duration::from_millis(1000); // about 60 fps
-    rl.with_draw(&thread, |d| {
+    {
+        let mut d = rl.begin_drawing(&thread);
         d.clear_background(Color::WHITE);
-    });
+    }
     for t in &draw_test {
         if opts.nocapture {
             println!("running draw test: {}", t.name);
         }
-        rl.with_draw(&thread, |mut d| {
+        {
+            let mut d = rl.begin_drawing(&thread);
             (t.test)(&mut d, &assets);
-        });
-        rl.with_draw(&thread, |d| {
+        }
+        {
+            let mut d = rl.begin_drawing(&thread);
             d.clear_background(Color::WHITE);
-        });
+        }
         // take_screenshot takes the last frames screenshot
         rl.take_screenshot(&thread, &format!("test_out/{}.png", t.name));
     }
@@ -124,7 +127,7 @@ pub struct RayTest {
 
 pub struct RayDrawTest {
     pub name: &'static str,
-    pub test: fn(&mut RaylibDrawHandle, &TestAssets),
+    pub test: fn(&mut RaylibDrawHandle<RaylibHandle>, &TestAssets),
 }
 
 macro_rules! ray_test {
