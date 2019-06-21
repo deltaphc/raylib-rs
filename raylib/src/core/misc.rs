@@ -1,5 +1,5 @@
 use crate::core::texture::Image;
-use crate::core::*;
+use crate::core::{RaylibHandle, RaylibThread};
 use crate::ffi;
 use std::ffi::{CStr, CString};
 
@@ -50,26 +50,5 @@ pub fn load_text(filename: &str) -> String {
         let safe_text = CStr::from_ptr(text).to_str().unwrap().to_owned();
         libc::free(text as *mut libc::c_void);
         safe_text
-    }
-}
-
-#[cfg(test)]
-mod core_test {
-    use crate::core::*;
-    use crate::tests::*;
-    ray_test!(test_screenshot);
-    fn test_screenshot(t: &RaylibThread) {
-        let mut handle = TEST_HANDLE.write().unwrap();
-        let rl = handle.as_mut().unwrap();
-        rl.take_screenshot(t, "test_out/screenshot.png");
-        assert!(std::path::Path::new("test_out/screenshot.png").exists());
-    }
-
-    ray_test!(test_screendata);
-    fn test_screendata(t: &RaylibThread) {
-        let mut handle = TEST_HANDLE.write().unwrap();
-        let rl = handle.as_mut().unwrap();
-        // make sure it doesn't seg fault
-        let _ = rl.get_screen_data(t);
     }
 }

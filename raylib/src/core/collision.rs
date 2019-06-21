@@ -1,4 +1,4 @@
-use crate::core::math::*;
+use crate::core::math::{BoundingBox, Ray, RayHitInfo, Rectangle, Vector3};
 use crate::core::models::Model;
 use crate::ffi;
 

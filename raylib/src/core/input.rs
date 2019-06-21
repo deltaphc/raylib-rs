@@ -1,5 +1,5 @@
 use crate::consts::GestureType;
-use crate::core::math::*;
+use crate::core::math::Vector2;
 use crate::core::RaylibHandle;
 use crate::ffi;
 

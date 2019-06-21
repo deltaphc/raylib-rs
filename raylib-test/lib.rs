@@ -1,5 +1,5 @@
 /* raylib-rs
-   ease.rs - Easings/interpolation helpers
+   lib.rs - Main library code (the safe layer)
 
 Copyright (c) 2018-2019 Paul Clement (@deltaphc)
 
@@ -14,25 +14,30 @@ Permission is granted to anyone to use this software for any purpose, including 
   3. This notice may not be removed or altered from any source distribution.
 */
 
-//! The raylib-rs prelude.
+//! # raylib-test
 //!
-//! This prelude module is for bringing many commonly-used types, functions, and constants into scope all at once.
-//!
-//! # Example
-//!
+//! Test crate for raylib functions requires nightly
 //! ```
-//! use raylib::prelude::*;
-//! ```
+#![feature(optin_builtin_traits)]
+#![feature(custom_test_frameworks)]
+#![test_runner(crate::tests::test_runner)]
+#![allow(dead_code)]
+#![doc(
+  html_logo_url = "https://github.com/deltaphc/raylib-rs/raw/master/logo/raylib-rust_256x256.png",
+  html_favicon_url = "https://github.com/deltaphc/raylib-rs/raw/master/logo/raylib-rust.ico"
+)]
+#![feature(test)]
+extern crate test;
 
-pub use crate::consts::*;
-pub use crate::core::camera::*;
-pub use crate::core::color::*;
-pub use crate::core::drawing::*;
-pub use crate::core::file::*;
-pub use crate::core::logging::*;
-pub use crate::core::math::*;
-pub use crate::core::misc::*;
-pub use crate::core::text::*;
-pub use crate::core::window::*;
-pub use crate::core::*;
-pub use crate::*;
+#[cfg(test)]
+#[macro_use]
+mod tests;
+
+mod audio;
+mod drawing;
+mod misc;
+mod models;
+mod storage;
+mod text;
+mod texture;
+mod window;

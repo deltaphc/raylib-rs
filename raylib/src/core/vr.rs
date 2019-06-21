@@ -1,5 +1,5 @@
-use crate::core::camera::*;
-use crate::core::*;
+use crate::core::camera::Camera3D;
+use crate::core::RaylibThread;
 use crate::ffi;
 use std::sync::atomic::{AtomicBool, Ordering};
 

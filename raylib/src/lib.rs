@@ -44,27 +44,11 @@ Permission is granted to anyone to use this software for any purpose, including 
 //! }
 //! ```
 #![feature(optin_builtin_traits)]
-#![feature(custom_test_frameworks)]
-#![test_runner(crate::tests::test_runner)]
 #![allow(dead_code)]
-#![doc(
-  html_logo_url = "https://github.com/deltaphc/raylib-rs/raw/master/logo/raylib-rust_256x256.png",
-  html_favicon_url = "https://github.com/deltaphc/raylib-rs/raw/master/logo/raylib-rust.ico"
-)]
-#![feature(test)]
-extern crate test;
-
-#[cfg(test)]
-#[macro_use]
-mod tests;
-
 pub mod consts;
 pub mod core;
 pub mod ease;
 pub mod prelude;
-mod raymath;
-mod safe_funcs;
-mod safe_types;
 
 /// The raw, unsafe FFI binding, in case you need that escape hatch or the safe layer doesn't provide something you need.
 pub mod ffi {
@@ -72,7 +56,3 @@ pub mod ffi {
 }
 
 pub use crate::core::*;
-
-// pub use crate::raymath::*;
-// pub use crate::safe_funcs::*;
-// pub use crate::safe_types::*;

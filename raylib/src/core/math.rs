@@ -15,7 +15,6 @@ Permission is granted to anyone to use this software for any purpose, including 
 */
 
 use crate::ffi;
-use core::*;
 use std::f32::consts::PI;
 use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssign};
 
