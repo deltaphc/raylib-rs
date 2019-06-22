@@ -31,6 +31,8 @@ fn build_with_cmake(src_path: &str) {
         .define("BUILD_EXAMPLES", "OFF")
         .define("BUILD_GAMES", "OFF")
         .define("CMAKE_BUILD_TYPE", "Release")
+        // turn off until this is fixed
+        .define("SUPPORT_BUSY_WAIT_LOOP", "OFF")
         .define("STATIC", "TRUE");
 
     match platform {

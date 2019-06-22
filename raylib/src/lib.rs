@@ -27,6 +27,7 @@ Permission is granted to anyone to use this software for any purpose, including 
 //! [`init_window`]: fn.init_window.html
 //! [`init`]: fn.init.html
 //! [`RaylibHandle`]: struct.RaylibHandle.html
+//! [`RaylibThread`]: struct.RaylibThread.html
 //! [`RaylibBuilder`]: struct.RaylibBuilder.html
 //! [`RaylibBuilder::build`]: struct.RaylibBuilder.html#method.build
 //! [`consts`]: consts/index.html

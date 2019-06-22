@@ -16,6 +16,14 @@ structopt = "0.2"
 name = "logo"
 path = "./logo.rs"
 
+[[bin]]
+name = "camera2D"
+path = "./camera2D.rs"
+
+[[bin]]
+name = "raymarch"
+path = "./raymarch.rs"
+
 # [[bin]]
 # name = "logoraw"
 # path = "./logo_raw.rs"

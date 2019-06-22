@@ -19,7 +19,7 @@ use std::f32::consts::PI;
 use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssign};
 
 #[repr(C)]
-#[derive(Debug, Copy, Clone, PartialEq)]
+#[derive(Default, Debug, Copy, Clone, PartialEq)]
 pub struct Vector2 {
     pub x: f32,
     pub y: f32,
@@ -271,7 +271,7 @@ impl Neg for Vector2 {
 }
 
 #[repr(C)]
-#[derive(Debug, Copy, Clone, PartialEq)]
+#[derive(Default, Debug, Copy, Clone, PartialEq)]
 pub struct Vector3 {
     pub x: f32,
     pub y: f32,
@@ -691,7 +691,7 @@ impl Neg for Vector3 {
 }
 
 #[repr(C)]
-#[derive(Debug, Copy, Clone, PartialEq)]
+#[derive(Default, Debug, Copy, Clone, PartialEq)]
 pub struct Vector4 {
     pub x: f32,
     pub y: f32,
@@ -1066,7 +1066,7 @@ impl MulAssign for Quaternion {
 }
 
 #[repr(C)]
-#[derive(Debug, Copy, Clone, PartialEq)]
+#[derive(Default, Debug, Copy, Clone, PartialEq)]
 pub struct Matrix {
     pub m0: f32,
     pub m4: f32,
@@ -1608,7 +1608,7 @@ impl MulAssign for Matrix {
 }
 
 #[repr(C)]
-#[derive(Debug, Copy, Clone, PartialEq)]
+#[derive(Default, Debug, Copy, Clone, PartialEq)]
 pub struct Ray {
     pub position: Vector3,
     pub direction: Vector3,
@@ -1636,7 +1636,7 @@ impl Into<ffi::Ray> for &Ray {
 }
 
 #[repr(C)]
-#[derive(Debug, Copy, Clone, PartialEq)]
+#[derive(Default, Debug, Copy, Clone, PartialEq)]
 pub struct Rectangle {
     pub x: f32,
     pub y: f32,
@@ -1680,7 +1680,7 @@ impl Rectangle {
 }
 
 #[repr(C)]
-#[derive(Debug, Copy, Clone, PartialEq)]
+#[derive(Default, Debug, Copy, Clone, PartialEq)]
 pub struct BoundingBox {
     pub min: Vector3,
     pub max: Vector3,
@@ -1708,7 +1708,7 @@ impl Into<ffi::BoundingBox> for &BoundingBox {
 }
 
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Default, Debug, Copy, Clone)]
 pub struct RayHitInfo {
     pub hit: bool,
     pub distance: f32,

@@ -8,8 +8,6 @@ use std::ffi::CString;
 
 fn no_drop<T>(_thing: T) {}
 make_thin_wrapper!(Font, ffi::Font, ffi::UnloadFont);
-/// WeakFont is a font that will leak memory when dropped.
-/// Must called unload on the font
 make_thin_wrapper!(WeakFont, ffi::Font, no_drop);
 
 #[cfg(feature = "nightly")]

@@ -10,13 +10,17 @@ pub struct Opt {
     pub width: i32,
     #[structopt(short = "h", long = "height", default_value = "450")]
     pub height: i32,
+    #[structopt(long = "fps", default_value = "60")]
+    pub fps: u32,
 }
 
 impl Opt {
     pub fn open_window(&self, name: &str) -> (raylib::RaylibHandle, raylib::RaylibThread) {
-        raylib::init()
+        let (mut rl, thread) = raylib::init()
             .size(self.width, self.height)
             .title(name)
-            .build()
+            .build();
+        rl.set_target_fps(self.fps);
+        (rl, thread)
     }
 }

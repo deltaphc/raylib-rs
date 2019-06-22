@@ -8,26 +8,26 @@ use std::ffi::{CStr, CString};
 impl RaylibHandle {
     /// Detect if a key has been pressed once.
     #[inline]
-    pub fn is_key_pressed(&self, key: u32) -> bool {
-        unsafe { ffi::IsKeyPressed(key as i32) }
+    pub fn is_key_pressed(&self, key: crate::consts::KeyboardKey) -> bool {
+        unsafe { ffi::IsKeyPressed((key as u32) as i32) }
     }
 
     /// Detect if a key is being pressed.
     #[inline]
-    pub fn is_key_down(&self, key: u32) -> bool {
-        unsafe { ffi::IsKeyDown(key as i32) }
+    pub fn is_key_down(&self, key: crate::consts::KeyboardKey) -> bool {
+        unsafe { ffi::IsKeyDown((key as u32) as i32) }
     }
 
     /// Detect if a key has been released once.
     #[inline]
-    pub fn is_key_released(&self, key: u32) -> bool {
-        unsafe { ffi::IsKeyReleased(key as i32) }
+    pub fn is_key_released(&self, key: crate::consts::KeyboardKey) -> bool {
+        unsafe { ffi::IsKeyReleased((key as u32) as i32) }
     }
 
     /// Detect if a key is NOT being pressed.
     #[inline]
-    pub fn is_key_up(&self, key: u32) -> bool {
-        unsafe { ffi::IsKeyUp(key as i32) }
+    pub fn is_key_up(&self, key: crate::consts::KeyboardKey) -> bool {
+        unsafe { ffi::IsKeyUp((key as u32) as i32) }
     }
 
     /// Gets latest key pressed.

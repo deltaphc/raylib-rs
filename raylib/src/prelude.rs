@@ -32,6 +32,7 @@ pub use crate::core::file::*;
 pub use crate::core::logging::*;
 pub use crate::core::math::*;
 pub use crate::core::misc::*;
+pub use crate::core::shaders::*;
 pub use crate::core::text::*;
 pub use crate::core::window::*;
 pub use crate::core::*;

@@ -10,9 +10,9 @@ mod options;
 fn main() {
     let opt = options::Opt::from_args();
     test_shader_dropping(&opt);
-    // test_model_dropping(&opt);
-    // test_audio_dropping(&opt);
-    // test_font_dropping(&opt);
+    test_model_dropping(&opt);
+    test_audio_dropping(&opt);
+    test_font_dropping(&opt);
 }
 
 /// Checks that shader files are droppable after window is closed

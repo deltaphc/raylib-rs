@@ -5,9 +5,6 @@ use std::ffi::CString;
 
 fn no_drop<T>(_thing: T) {}
 make_thin_wrapper!(Shader, ffi::Shader, ffi::UnloadShader);
-/// WeakShader can be sent between threads, but will be leak memory if
-/// unload_material is not called on it.
-/// has nothing to prevent dataraces when cloned
 make_thin_wrapper!(WeakShader, ffi::Shader, no_drop);
 
 #[cfg(feature = "nightly")]
@@ -17,7 +14,6 @@ unsafe impl Sync for Shader {}
 
 impl RaylibHandle {
     /// Loads a custom shader and binds default locations.
-    #[inline]
     pub fn load_shader(
         &mut self,
         _: &RaylibThread,
@@ -34,18 +30,23 @@ impl RaylibHandle {
                 return Err(format!("could not load shader file {}", f));
             }
         }
-        let c_vs_filename = CString::new(vs_filename.unwrap_or("")).unwrap();
-        let c_fs_filename = CString::new(fs_filename.unwrap_or("")).unwrap();
+        let c_vs_filename = vs_filename.map(|f| CString::new(f).unwrap());
+        let c_fs_filename = fs_filename.map(|f| CString::new(f).unwrap());
+        // println!("shader ({:?}, {:?})", c_vs_filename, c_fs_filename);
         unsafe {
             Ok(Shader(ffi::LoadShader(
-                c_vs_filename.as_ptr(),
-                c_fs_filename.as_ptr(),
+                // 0 as *const i8,
+                c_vs_filename
+                    .map(|c| c.as_ptr())
+                    .unwrap_or(std::ptr::null()),
+                c_fs_filename
+                    .map(|c| c.as_ptr())
+                    .unwrap_or(std::ptr::null()),
             )))
         }
     }
 
     /// Loads shader from code strings and binds default locations.
-    #[inline]
     pub fn load_shader_code(
         &mut self,
         _: &RaylibThread,
@@ -66,7 +67,7 @@ impl RaylibHandle {
 impl Shader {
     /// Sets shader uniform value (`f32`).
     #[inline]
-    fn set_shader_value(&mut self, uniform_loc: i32, value: &[f32]) {
+    pub fn set_shader_value(&mut self, uniform_loc: i32, value: &[f32]) {
         unsafe {
             ffi::SetShaderValue(
                 self.0,
@@ -79,7 +80,7 @@ impl Shader {
 
     /// Sets shader uniform value (matrix 4x4).
     #[inline]
-    fn set_shader_value_matrix(&mut self, uniform_loc: i32, mat: Matrix) {
+    pub fn set_shader_value_matrix(&mut self, uniform_loc: i32, mat: Matrix) {
         unsafe {
             ffi::SetShaderValueMatrix(self.0, uniform_loc, mat.into());
         }
@@ -89,7 +90,7 @@ impl Shader {
 impl RaylibShader for WeakShader {}
 impl RaylibShader for Shader {}
 
-trait RaylibShader: AsRef<ffi::Shader> {
+pub trait RaylibShader: AsRef<ffi::Shader> {
     /// Gets shader uniform location by name.
     #[inline]
     fn get_shader_location(&self, uniform_name: &str) -> i32 {

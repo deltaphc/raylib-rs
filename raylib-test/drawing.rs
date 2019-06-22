@@ -90,9 +90,9 @@ mod draw_test {
     fn test_triangle(d: &mut RaylibDrawHandle<RaylibHandle>, _: &TestAssets) {
         d.clear_background(Color::WHITE);
         d.draw_triangle(
+            Vector2::new(30.0, 30.0),
             Vector2::new(0.0, 30.0),
             Vector2::new(15.0, 0.0),
-            Vector2::new(30.0, 30.0),
             Color::RED,
         );
         d.draw_triangle_lines(

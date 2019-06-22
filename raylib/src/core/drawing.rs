@@ -31,17 +31,20 @@ impl<'a, T> RaylibDrawHandle<'a, T>
 where
     T: RaylibSurface,
 {
-    fn begin_shader_mode(&mut self, shader: impl AsRef<ffi::Shader>) -> RaylibShaderMode<Self> {
+    pub fn begin_shader_mode(&mut self, shader: impl AsRef<ffi::Shader>) -> RaylibShaderMode<Self> {
         unsafe { ffi::BeginShaderMode(*shader.as_ref()) }
         RaylibShaderMode { inner: self }
     }
 
-    fn begin_blend_mode(&mut self, blend_mode: crate::consts::BlendMode) -> RaylibBlendMode<Self> {
+    pub fn begin_blend_mode(
+        &mut self,
+        blend_mode: crate::consts::BlendMode,
+    ) -> RaylibBlendMode<Self> {
         unsafe { ffi::BeginBlendMode((blend_mode as u32) as i32) }
         RaylibBlendMode(self)
     }
 
-    fn begin_scissor_mode(
+    pub fn begin_scissor_mode(
         &mut self,
         x: i32,
         y: i32,
@@ -53,7 +56,7 @@ where
     }
 
     #[allow(non_snake_case)]
-    fn begin_mode_2D(
+    pub fn begin_mode_2D(
         &mut self,
         camera: impl Into<ffi::Camera2D>,
     ) -> RaylibMode2D<RaylibDrawHandle<'a, T>> {
@@ -64,7 +67,7 @@ where
     }
 
     #[allow(non_snake_case)]
-    fn begin_mode_3D(
+    pub fn begin_mode_3D(
         &mut self,
         camera: impl Into<ffi::Camera3D>,
     ) -> RaylibMode3D<RaylibDrawHandle<'a, T>> {
@@ -95,7 +98,7 @@ pub struct RaylibVRDraw<'a, T>(&'a mut T);
 
 impl<'a, T> RaylibVRDraw<'a, T> {
     #[allow(non_snake_case)]
-    fn begin_mode_3D(
+    pub fn begin_mode_3D(
         &mut self,
         camera: impl Into<ffi::Camera3D>,
     ) -> RaylibMode3D<RaylibVRDraw<'a, T>> {
@@ -117,12 +120,15 @@ impl<'a, T> Drop for RaylibVRDraw<'a, T> {
 pub struct RaylibMode2D<'a, T>(&'a mut T);
 
 impl<'a, T> RaylibMode2D<'a, T> {
-    fn begin_shader_mode(&mut self, shader: impl AsRef<ffi::Shader>) -> RaylibShaderMode<Self> {
+    pub fn begin_shader_mode(&mut self, shader: impl AsRef<ffi::Shader>) -> RaylibShaderMode<Self> {
         unsafe { ffi::BeginShaderMode(*shader.as_ref()) }
         RaylibShaderMode { inner: self }
     }
 
-    fn begin_blend_mode(&mut self, blend_mode: crate::consts::BlendMode) -> RaylibBlendMode<Self> {
+    pub fn begin_blend_mode(
+        &mut self,
+        blend_mode: crate::consts::BlendMode,
+    ) -> RaylibBlendMode<Self> {
         unsafe { ffi::BeginBlendMode((blend_mode as u32) as i32) }
         RaylibBlendMode(self)
     }
@@ -139,12 +145,15 @@ impl<'a, T> Drop for RaylibMode2D<'a, T> {
 pub struct RaylibMode3D<'a, T>(&'a mut T);
 
 impl<'a, T> RaylibMode3D<'a, T> {
-    fn begin_shader_mode(&mut self, shader: impl AsRef<ffi::Shader>) -> RaylibShaderMode<Self> {
+    pub fn begin_shader_mode(&mut self, shader: impl AsRef<ffi::Shader>) -> RaylibShaderMode<Self> {
         unsafe { ffi::BeginShaderMode(*shader.as_ref()) }
         RaylibShaderMode { inner: self }
     }
 
-    fn begin_blend_mode(&mut self, blend_mode: crate::consts::BlendMode) -> RaylibBlendMode<Self> {
+    pub fn begin_blend_mode(
+        &mut self,
+        blend_mode: crate::consts::BlendMode,
+    ) -> RaylibBlendMode<Self> {
         unsafe { ffi::BeginBlendMode((blend_mode as u32) as i32) }
         RaylibBlendMode(self)
     }

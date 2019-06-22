@@ -1,12 +1,16 @@
 extern crate raylib;
 use raylib::prelude::*;
+use structopt::StructOpt;
+
+mod options;
 
 fn main() {
-    let w = 800;
-    let h = 450;
+    let opt = options::Opt::from_args();
+    let (mut rl, thread) = opt.open_window("Logo");
+    let (w, h) = (opt.width, opt.height);
     let rust_orange = Color::new(222, 165, 132, 255);
     let ray_white = Color::new(255, 255, 255, 255);
-    let (mut rl, thread) = raylib::init().size(w, h).title("Logo").build();
+
     rl.set_target_fps(60);
     while !rl.window_should_close() {
         // Detect window close button or ESC key
