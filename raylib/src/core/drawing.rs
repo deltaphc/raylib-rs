@@ -94,6 +94,14 @@ where
     }
 }
 
+impl<'a> std::ops::Deref for RaylibDrawHandle<'a, RaylibHandle> {
+    type Target = RaylibHandle;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
 pub struct RaylibVRDraw<'a, T>(&'a mut T);
 
 impl<'a, T> RaylibVRDraw<'a, T> {

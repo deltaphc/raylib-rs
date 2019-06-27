@@ -12,6 +12,11 @@ repository = "https://github.com/deltaphc/raylib-rs"
 raylib = { version = "0.11", path = "../raylib" }
 structopt = "0.2"
 
+
+[[bin]]
+name = "arkanoid"
+path = "./arkanoid.rs"
+
 [[bin]]
 name = "logo"
 path = "./logo.rs"
