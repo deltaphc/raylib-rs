@@ -6,7 +6,7 @@ mod options;
 pub fn main() {
     let opt = options::Opt::new();
     let (mut rl, thread) = opt.open_window("Camera 2D");
-    let (w, h) = (opt.width, opt.height);
+    let (_w, _h) = (opt.width, opt.height);
 
     let wb = raylib::rgui::WindowBox {
         bounds: Rectangle::new(0.0, 0.0, 100.0, 100.0),

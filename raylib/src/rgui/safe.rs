@@ -88,7 +88,7 @@ impl From<bool> for DrawResult {
 }
 
 impl From<()> for DrawResult {
-    fn from(empty: ()) -> DrawResult {
+    fn from(_empty: ()) -> DrawResult {
         DrawResult::Empty
     }
 }
@@ -309,7 +309,7 @@ gui_draw! {
         edit_mode: bool,
     },
 {
-                    let mut update = text.clone();
+                    let update = text.clone();
                     let b = GuiTextBox(
                         bounds.into(),
                         update.as_ptr() as *mut i8,
@@ -328,7 +328,7 @@ gui_draw! {
         edit_mode: bool,
     },
 {
-                    let mut update = text.clone();
+                    let update = text.clone();
                     let b = GuiTextBoxMulti(
                         bounds.into(),
                         update.as_ptr() as *mut i8,
@@ -481,12 +481,12 @@ gui_draw! {
 {
                     let mut current_text = text.clone();
                     let current_text_ptr = current_text.as_ptr() as *mut i8;
-                    let mut next_text = current_text_ptr;
+                    let next_text = current_text_ptr;
                     let mut enabled = if *enabled { 1 } else { 0 };
                     let mut active = if *active { 1 } else { 0 };
                     let mut focus = if *focus { 1 } else { 0 };
                     let mut scroll_index = *scroll_index;
-                    let b = GuiListViewEx(
+                    let _b = GuiListViewEx(
                         bounds.into(),
                         &mut (next_text as *const i8),
                         *count,
