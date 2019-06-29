@@ -30,6 +30,10 @@ name = "logo"
 path = "./logo.rs"
 
 [[bin]]
+name = "rgui"
+path = "./rgui.rs"
+
+[[bin]]
 name = "file"
 path = "./file.rs"
 

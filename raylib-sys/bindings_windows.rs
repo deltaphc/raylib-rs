@@ -4257,3 +4257,638 @@ extern "C" {
     pub fn SetAudioStreamPitch(stream: AudioStream, pitch: f32);
 }
 pub type __builtin_va_list = *mut ::std::os::raw::c_char;
+
+#[repr(u32)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+pub enum GuiControlState {
+    GUI_STATE_NORMAL = 0,
+    GUI_STATE_FOCUSED = 1,
+    GUI_STATE_PRESSED = 2,
+    GUI_STATE_DISABLED = 3,
+}
+#[repr(u32)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+pub enum GuiTextAlignment {
+    GUI_TEXT_ALIGN_LEFT = 0,
+    GUI_TEXT_ALIGN_CENTER = 1,
+    GUI_TEXT_ALIGN_RIGHT = 2,
+}
+#[repr(u32)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+pub enum GuiControl {
+    DEFAULT = 0,
+    LABEL = 1,
+    BUTTON = 2,
+    TOGGLE = 3,
+    SLIDER = 4,
+    PROGRESSBAR = 5,
+    CHECKBOX = 6,
+    COMBOBOX = 7,
+    DROPDOWNBOX = 8,
+    TEXTBOX = 9,
+    VALUEBOX = 10,
+    SPINNER = 11,
+    LISTVIEW = 12,
+    COLORPICKER = 13,
+    SCROLLBAR = 14,
+    RESERVED = 15,
+}
+#[repr(u32)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+pub enum GuiControlProperty {
+    BORDER_COLOR_NORMAL = 0,
+    BASE_COLOR_NORMAL = 1,
+    TEXT_COLOR_NORMAL = 2,
+    BORDER_COLOR_FOCUSED = 3,
+    BASE_COLOR_FOCUSED = 4,
+    TEXT_COLOR_FOCUSED = 5,
+    BORDER_COLOR_PRESSED = 6,
+    BASE_COLOR_PRESSED = 7,
+    TEXT_COLOR_PRESSED = 8,
+    BORDER_COLOR_DISABLED = 9,
+    BASE_COLOR_DISABLED = 10,
+    TEXT_COLOR_DISABLED = 11,
+    BORDER_WIDTH = 12,
+    INNER_PADDING = 13,
+    TEXT_ALIGNMENT = 14,
+    RESERVED02 = 15,
+}
+#[repr(u32)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+pub enum GuiDefaultProperty {
+    TEXT_SIZE = 16,
+    TEXT_SPACING = 17,
+    LINE_COLOR = 18,
+    BACKGROUND_COLOR = 19,
+}
+#[repr(u32)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+pub enum GuiToggleProperty {
+    GROUP_PADDING = 16,
+}
+#[repr(u32)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+pub enum GuiSliderProperty {
+    SLIDER_WIDTH = 16,
+    TEXT_PADDING = 17,
+}
+#[repr(u32)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+pub enum GuiCheckBoxProperty {
+    CHECK_TEXT_PADDING = 16,
+}
+#[repr(u32)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+pub enum GuiComboBoxProperty {
+    SELECTOR_WIDTH = 16,
+    SELECTOR_PADDING = 17,
+}
+#[repr(u32)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+pub enum GuiDropdownBoxProperty {
+    ARROW_RIGHT_PADDING = 16,
+}
+#[repr(u32)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+pub enum GuiTextBoxProperty {
+    MULTILINE_PADDING = 16,
+    COLOR_SELECTED_FG = 17,
+    COLOR_SELECTED_BG = 18,
+}
+#[repr(u32)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+pub enum GuiSpinnerProperty {
+    SELECT_BUTTON_WIDTH = 16,
+    SELECT_BUTTON_PADDING = 17,
+    SELECT_BUTTON_BORDER_WIDTH = 18,
+}
+#[repr(u32)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+pub enum GuiScrollBarProperty {
+    ARROWS_SIZE = 16,
+    SLIDER_PADDING = 17,
+    SLIDER_SIZE = 18,
+    SCROLL_SPEED = 19,
+    SHOW_SPINNER_BUTTONS = 20,
+}
+#[repr(u32)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+pub enum GuiScrollBarSide {
+    SCROLLBAR_LEFT_SIDE = 0,
+    SCROLLBAR_RIGHT_SIDE = 1,
+}
+#[repr(u32)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+pub enum GuiListViewProperty {
+    ELEMENTS_HEIGHT = 16,
+    ELEMENTS_PADDING = 17,
+    SCROLLBAR_WIDTH = 18,
+    SCROLLBAR_SIDE = 19,
+}
+#[repr(u32)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+pub enum GuiColorPickerProperty {
+    COLOR_SELECTOR_SIZE = 16,
+    BAR_WIDTH = 17,
+    BAR_PADDING = 18,
+    BAR_SELECTOR_HEIGHT = 19,
+    BAR_SELECTOR_PADDING = 20,
+}
+extern "C" {
+    pub fn GuiEnable();
+}
+extern "C" {
+    pub fn GuiDisable();
+}
+extern "C" {
+    pub fn GuiLock();
+}
+extern "C" {
+    pub fn GuiUnlock();
+}
+extern "C" {
+    pub fn GuiState(state: ::std::os::raw::c_int);
+}
+extern "C" {
+    pub fn GuiFont(font: Font);
+}
+extern "C" {
+    pub fn GuiFade(alpha: f32);
+}
+extern "C" {
+    pub fn GuiSetStyle(
+        control: ::std::os::raw::c_int,
+        property: ::std::os::raw::c_int,
+        value: ::std::os::raw::c_int,
+    );
+}
+extern "C" {
+    pub fn GuiGetStyle(
+        control: ::std::os::raw::c_int,
+        property: ::std::os::raw::c_int,
+    ) -> ::std::os::raw::c_int;
+}
+extern "C" {
+    pub fn GuiWindowBox(bounds: Rectangle, text: *const ::std::os::raw::c_char) -> bool;
+}
+extern "C" {
+    pub fn GuiGroupBox(bounds: Rectangle, text: *const ::std::os::raw::c_char);
+}
+extern "C" {
+    pub fn GuiLine(bounds: Rectangle, text: *const ::std::os::raw::c_char);
+}
+extern "C" {
+    pub fn GuiPanel(bounds: Rectangle);
+}
+extern "C" {
+    pub fn GuiScrollPanel(bounds: Rectangle, content: Rectangle, scroll: *mut Vector2)
+        -> Rectangle;
+}
+extern "C" {
+    pub fn GuiLabel(bounds: Rectangle, text: *const ::std::os::raw::c_char);
+}
+extern "C" {
+    pub fn GuiButton(bounds: Rectangle, text: *const ::std::os::raw::c_char) -> bool;
+}
+extern "C" {
+    pub fn GuiLabelButton(bounds: Rectangle, text: *const ::std::os::raw::c_char) -> bool;
+}
+extern "C" {
+    pub fn GuiImageButton(bounds: Rectangle, texture: Texture2D) -> bool;
+}
+extern "C" {
+    pub fn GuiImageButtonEx(
+        bounds: Rectangle,
+        texture: Texture2D,
+        texSource: Rectangle,
+        text: *const ::std::os::raw::c_char,
+    ) -> bool;
+}
+extern "C" {
+    pub fn GuiToggle(bounds: Rectangle, text: *const ::std::os::raw::c_char, active: bool) -> bool;
+}
+extern "C" {
+    pub fn GuiToggleGroup(
+        bounds: Rectangle,
+        text: *const ::std::os::raw::c_char,
+        active: ::std::os::raw::c_int,
+    ) -> ::std::os::raw::c_int;
+}
+extern "C" {
+    pub fn GuiCheckBox(
+        bounds: Rectangle,
+        text: *const ::std::os::raw::c_char,
+        checked: bool,
+    ) -> bool;
+}
+extern "C" {
+    pub fn GuiComboBox(
+        bounds: Rectangle,
+        text: *const ::std::os::raw::c_char,
+        active: ::std::os::raw::c_int,
+    ) -> ::std::os::raw::c_int;
+}
+extern "C" {
+    pub fn GuiDropdownBox(
+        bounds: Rectangle,
+        text: *const ::std::os::raw::c_char,
+        active: *mut ::std::os::raw::c_int,
+        editMode: bool,
+    ) -> bool;
+}
+extern "C" {
+    pub fn GuiSpinner(
+        bounds: Rectangle,
+        value: *mut ::std::os::raw::c_int,
+        minValue: ::std::os::raw::c_int,
+        maxValue: ::std::os::raw::c_int,
+        editMode: bool,
+    ) -> bool;
+}
+extern "C" {
+    pub fn GuiValueBox(
+        bounds: Rectangle,
+        value: *mut ::std::os::raw::c_int,
+        minValue: ::std::os::raw::c_int,
+        maxValue: ::std::os::raw::c_int,
+        editMode: bool,
+    ) -> bool;
+}
+extern "C" {
+    pub fn GuiTextBox(
+        bounds: Rectangle,
+        text: *mut ::std::os::raw::c_char,
+        textSize: ::std::os::raw::c_int,
+        editMode: bool,
+    ) -> bool;
+}
+extern "C" {
+    pub fn GuiTextBoxMulti(
+        bounds: Rectangle,
+        text: *mut ::std::os::raw::c_char,
+        textSize: ::std::os::raw::c_int,
+        editMode: bool,
+    ) -> bool;
+}
+extern "C" {
+    pub fn GuiSlider(
+        bounds: Rectangle,
+        text: *const ::std::os::raw::c_char,
+        value: f32,
+        minValue: f32,
+        maxValue: f32,
+        showValue: bool,
+    ) -> f32;
+}
+extern "C" {
+    pub fn GuiSliderBar(
+        bounds: Rectangle,
+        text: *const ::std::os::raw::c_char,
+        value: f32,
+        minValue: f32,
+        maxValue: f32,
+        showValue: bool,
+    ) -> f32;
+}
+extern "C" {
+    pub fn GuiProgressBar(
+        bounds: Rectangle,
+        text: *const ::std::os::raw::c_char,
+        value: f32,
+        minValue: f32,
+        maxValue: f32,
+        showValue: bool,
+    ) -> f32;
+}
+extern "C" {
+    pub fn GuiStatusBar(bounds: Rectangle, text: *const ::std::os::raw::c_char);
+}
+extern "C" {
+    pub fn GuiDummyRec(bounds: Rectangle, text: *const ::std::os::raw::c_char);
+}
+extern "C" {
+    pub fn GuiScrollBar(
+        bounds: Rectangle,
+        value: ::std::os::raw::c_int,
+        minValue: ::std::os::raw::c_int,
+        maxValue: ::std::os::raw::c_int,
+    ) -> ::std::os::raw::c_int;
+}
+extern "C" {
+    pub fn GuiGrid(bounds: Rectangle, spacing: f32, subdivs: ::std::os::raw::c_int) -> Vector2;
+}
+extern "C" {
+    pub fn GuiListView(
+        bounds: Rectangle,
+        text: *const ::std::os::raw::c_char,
+        active: *mut ::std::os::raw::c_int,
+        scrollIndex: *mut ::std::os::raw::c_int,
+        editMode: bool,
+    ) -> bool;
+}
+extern "C" {
+    pub fn GuiListViewEx(
+        bounds: Rectangle,
+        text: *mut *const ::std::os::raw::c_char,
+        count: ::std::os::raw::c_int,
+        enabled: *mut ::std::os::raw::c_int,
+        active: *mut ::std::os::raw::c_int,
+        focus: *mut ::std::os::raw::c_int,
+        scrollIndex: *mut ::std::os::raw::c_int,
+        editMode: bool,
+    ) -> bool;
+}
+extern "C" {
+    pub fn GuiMessageBox(
+        bounds: Rectangle,
+        windowTitle: *const ::std::os::raw::c_char,
+        message: *const ::std::os::raw::c_char,
+        buttons: *const ::std::os::raw::c_char,
+    ) -> ::std::os::raw::c_int;
+}
+extern "C" {
+    pub fn GuiTextInputBox(
+        bounds: Rectangle,
+        windowTitle: *const ::std::os::raw::c_char,
+        message: *const ::std::os::raw::c_char,
+        text: *mut ::std::os::raw::c_char,
+        buttons: *const ::std::os::raw::c_char,
+    ) -> ::std::os::raw::c_int;
+}
+extern "C" {
+    pub fn GuiColorPicker(bounds: Rectangle, color: Color) -> Color;
+}
+extern "C" {
+    pub fn GuiLoadStyle(fileName: *const ::std::os::raw::c_char);
+}
+extern "C" {
+    pub fn GuiLoadStyleProps(props: *const ::std::os::raw::c_int, count: ::std::os::raw::c_int);
+}
+extern "C" {
+    pub fn GuiLoadStyleDefault();
+}
+extern "C" {
+    pub fn GuiUpdateStyleComplete();
+}
+extern "C" {
+    pub fn GuiIconText(
+        iconId: ::std::os::raw::c_int,
+        text: *const ::std::os::raw::c_char,
+    ) -> *const ::std::os::raw::c_char;
+}
+#[repr(u32)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+pub enum rIconDescription {
+    RICON_NONE = 0,
+    RICON_FOLDER_FILE_OPEN = 1,
+    RICON_FILE_SAVE_CLASSIC = 2,
+    RICON_FOLDER_OPEN = 3,
+    RICON_FOLDER_SAVE = 4,
+    RICON_FILE_OPEN = 5,
+    RICON_FILE_SAVE = 6,
+    RICON_FILE_EXPORT = 7,
+    RICON_FILE_NEW = 8,
+    RICON_FILE_DELETE = 9,
+    RICON_FILETYPE_TEXT = 10,
+    RICON_FILETYPE_AUDIO = 11,
+    RICON_FILETYPE_IMAGE = 12,
+    RICON_FILETYPE_PLAY = 13,
+    RICON_FILETYPE_VIDEO = 14,
+    RICON_FILETYPE_INFO = 15,
+    RICON_FILE_COPY = 16,
+    RICON_FILE_CUT = 17,
+    RICON_FILE_PASTE = 18,
+    RICON_CURSOR_HAND = 19,
+    RICON_CURSOR_POINTER = 20,
+    RICON_CURSOR_CLASSIC = 21,
+    RICON_PENCIL = 22,
+    RICON_PENCIL_BIG = 23,
+    RICON_BRUSH_CLASSIC = 24,
+    RICON_BRUSH_PAINTER = 25,
+    RICON_WATER_DROP = 26,
+    RICON_COLOR_PICKER = 27,
+    RICON_RUBBER = 28,
+    RICON_COLOR_BUCKET = 29,
+    RICON_TEXT_T = 30,
+    RICON_TEXT_A = 31,
+    RICON_SCALE = 32,
+    RICON_RESIZE = 33,
+    RICON_FILTER_POINT = 34,
+    RICON_FILTER_BILINEAR = 35,
+    RICON_CROP = 36,
+    RICON_CROP_ALPHA = 37,
+    RICON_SQUARE_TOGGLE = 38,
+    RICON_SIMMETRY = 39,
+    RICON_SIMMETRY_HORIZONTAL = 40,
+    RICON_SIMMETRY_VERTICAL = 41,
+    RICON_LENS = 42,
+    RICON_LENS_BIG = 43,
+    RICON_EYE_ON = 44,
+    RICON_EYE_OFF = 45,
+    RICON_FILTER_TOP = 46,
+    RICON_FILTER = 47,
+    RICON_TARGET_POINT = 48,
+    RICON_TARGET_SMALL = 49,
+    RICON_TARGET_BIG = 50,
+    RICON_TARGET_MOVE = 51,
+    RICON_CURSOR_MOVE = 52,
+    RICON_CURSOR_SCALE = 53,
+    RICON_CURSOR_SCALE_RIGHT = 54,
+    RICON_CURSOR_SCALE_LEFT = 55,
+    RICON_UNDO = 56,
+    RICON_REDO = 57,
+    RICON_REREDO = 58,
+    RICON_MUTATE = 59,
+    RICON_ROTATE = 60,
+    RICON_REPEAT = 61,
+    RICON_SHUFFLE = 62,
+    RICON_EMPTYBOX = 63,
+    RICON_TARGET = 64,
+    RICON_TARGET_SMALL_FILL = 65,
+    RICON_TARGET_BIG_FILL = 66,
+    RICON_TARGET_MOVE_FILL = 67,
+    RICON_CURSOR_MOVE_FILL = 68,
+    RICON_CURSOR_SCALE_FILL = 69,
+    RICON_CURSOR_SCALE_RIGHT_FILL = 70,
+    RICON_CURSOR_SCALE_LEFT_FILL = 71,
+    RICON_UNDO_FILL = 72,
+    RICON_REDO_FILL = 73,
+    RICON_REREDO_FILL = 74,
+    RICON_MUTATE_FILL = 75,
+    RICON_ROTATE_FILL = 76,
+    RICON_REPEAT_FILL = 77,
+    RICON_SHUFFLE_FILL = 78,
+    RICON_EMPTYBOX_SMALL = 79,
+    RICON_BOX = 80,
+    RICON_BOX_TOP = 81,
+    RICON_BOX_TOP_RIGHT = 82,
+    RICON_BOX_RIGHT = 83,
+    RICON_BOX_BOTTOM_RIGHT = 84,
+    RICON_BOX_BOTTOM = 85,
+    RICON_BOX_BOTTOM_LEFT = 86,
+    RICON_BOX_LEFT = 87,
+    RICON_BOX_TOP_LEFT = 88,
+    RICON_BOX_CENTER = 89,
+    RICON_BOX_CIRCLE_MASK = 90,
+    RICON_POT = 91,
+    RICON_ALPHA_MULTIPLY = 92,
+    RICON_ALPHA_CLEAR = 93,
+    RICON_DITHERING = 94,
+    RICON_MIPMAPS = 95,
+    RICON_BOX_GRID = 96,
+    RICON_GRID = 97,
+    RICON_BOX_CORNERS_SMALL = 98,
+    RICON_BOX_CORNERS_BIG = 99,
+    RICON_FOUR_BOXES = 100,
+    RICON_GRID_FILL = 101,
+    RICON_BOX_MULTISIZE = 102,
+    RICON_ZOOM_SMALL = 103,
+    RICON_ZOOM_MEDIUM = 104,
+    RICON_ZOOM_BIG = 105,
+    RICON_ZOOM_ALL = 106,
+    RICON_ZOOM_CENTER = 107,
+    RICON_BOX_DOTS_SMALL = 108,
+    RICON_BOX_DOTS_BIG = 109,
+    RICON_BOX_CONCENTRIC = 110,
+    RICON_BOX_GRID_BIG = 111,
+    RICON_OK_TICK = 112,
+    RICON_CROSS = 113,
+    RICON_ARROW_LEFT = 114,
+    RICON_ARROW_RIGHT = 115,
+    RICON_ARROW_BOTTOM = 116,
+    RICON_ARROW_TOP = 117,
+    RICON_ARROW_LEFT_FILL = 118,
+    RICON_ARROW_RIGHT_FILL = 119,
+    RICON_ARROW_BOTTOM_FILL = 120,
+    RICON_ARROW_TOP_FILL = 121,
+    RICON_AUDIO = 122,
+    RICON_FX = 123,
+    RICON_WAVE = 124,
+    RICON_WAVE_SINUS = 125,
+    RICON_WAVE_SQUARE = 126,
+    RICON_WAVE_TRIANGULAR = 127,
+    RICON_CROSS_SMALL = 128,
+    RICON_PLAYER_PREVIOUS = 129,
+    RICON_PLAYER_PLAY_BACK = 130,
+    RICON_PLAYER_PLAY = 131,
+    RICON_PLAYER_PAUSE = 132,
+    RICON_PLAYER_STOP = 133,
+    RICON_PLAYER_NEXT = 134,
+    RICON_PLAYER_RECORD = 135,
+    RICON_MAGNET = 136,
+    RICON_LOCK_CLOSE = 137,
+    RICON_LOCK_OPEN = 138,
+    RICON_CLOCK = 139,
+    RICON_TOOLS = 140,
+    RICON_GEAR = 141,
+    RICON_GEAR_BIG = 142,
+    RICON_BIN = 143,
+    RICON_HAND_POINTER = 144,
+    RICON_LASER = 145,
+    RICON_COIN = 146,
+    RICON_EXPLOSION = 147,
+    RICON_1UP = 148,
+    RICON_PLAYER = 149,
+    RICON_PLAYER_JUMP = 150,
+    RICON_KEY = 151,
+    RICON_DEMON = 152,
+    RICON_TEXT_POPUP = 153,
+    RICON_GEAR_EX = 154,
+    RICON_CRACK = 155,
+    RICON_CRACK_POINTS = 156,
+    RICON_STAR = 157,
+    RICON_DOOR = 158,
+    RICON_EXIT = 159,
+    RICON_MODE_2D = 160,
+    RICON_MODE_3D = 161,
+    RICON_CUBE = 162,
+    RICON_CUBE_FACE_TOP = 163,
+    RICON_CUBE_FACE_LEFT = 164,
+    RICON_CUBE_FACE_FRONT = 165,
+    RICON_CUBE_FACE_BOTTOM = 166,
+    RICON_CUBE_FACE_RIGHT = 167,
+    RICON_CUBE_FACE_BACK = 168,
+    RICON_CAMERA = 169,
+    RICON_SPECIAL = 170,
+    RICON_LINK_NET = 171,
+    RICON_LINK_BOXES = 172,
+    RICON_LINK_MULTI = 173,
+    RICON_LINK = 174,
+    RICON_LINK_BROKE = 175,
+    RICON_TEXT_NOTES = 176,
+    RICON_NOTEBOOK = 177,
+    RICON_SUITCASE = 178,
+    RICON_SUITCASE_ZIP = 179,
+    RICON_MAILBOX = 180,
+    RICON_MONITOR = 181,
+    RICON_PRINTER = 182,
+    RICON_PHOTO_CAMERA = 183,
+    RICON_PHOTO_CAMERA_FLASH = 184,
+    RICON_HOUSE = 185,
+    RICON_HEART = 186,
+    RICON_CORNER = 187,
+    RICON_VERTICAL_BARS = 188,
+    RICON_VERTICAL_BARS_FILL = 189,
+    RICON_LIFE_BARS = 190,
+    RICON_INFO = 191,
+    RICON_CROSSLINE = 192,
+    RICON_HELP = 193,
+    RICON_FILETYPE_ALPHA = 194,
+    RICON_FILETYPE_HOME = 195,
+    RICON_LAYERS_VISIBLE = 196,
+    RICON_LAYERS = 197,
+    RICON_WINDOW = 198,
+}
+extern "C" {
+    pub fn DrawIcon(
+        iconId: ::std::os::raw::c_int,
+        position: Vector2,
+        pixelSize: ::std::os::raw::c_int,
+        color: Color,
+    );
+}
+extern "C" {
+    pub static mut RICONS: [::std::os::raw::c_uint; 1592usize];
+}
+
+
+#[repr(u32)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+pub enum GuiPropertyElement {
+    BORDER = 0,
+    BASE = 1,
+    TEXT = 2,
+    OTHER = 3,
+}
+extern "C" {
+    pub static mut guiState: GuiControlState;
+}
+extern "C" {
+    pub static mut guiFont: Font;
+}
+pub const guiLocked: bool = false;
+pub const guiAlpha: f32 = 1.0;
+extern "C" {
+    pub static mut guiStyle: [::std::os::raw::c_uint; 384usize];
+}
+pub const guiStyleLoaded: bool = false;
+extern "C" {
+    pub fn GuiSliderPro(
+        bounds: Rectangle,
+        text: *const ::std::os::raw::c_char,
+        value: f32,
+        minValue: f32,
+        maxValue: f32,
+        sliderWidth: ::std::os::raw::c_int,
+        showValue: bool,
+    ) -> f32;
+}
+extern "C" {
+    pub fn GuiColorPanel(bounds: Rectangle, color: Color) -> Color;
+}
+extern "C" {
+    pub fn GuiColorBarAlpha(bounds: Rectangle, alpha: f32) -> f32;
+}
+extern "C" {
+    pub fn GuiColorBarHue(bounds: Rectangle, hue: f32) -> f32;
+}

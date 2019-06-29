@@ -1,6 +1,7 @@
 //! Various constant enums to use with raylib
 pub use crate::ffi;
 
+pub use ffi::rIconDescription;
 pub use ffi::BlendMode;
 pub use ffi::CameraMode;
 pub use ffi::CameraType;

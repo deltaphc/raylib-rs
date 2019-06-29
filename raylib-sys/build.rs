@@ -51,7 +51,7 @@ fn build_with_cmake(src_path: &str) {
         std::fs::copy(c.join("lib/libraylib.bc"), c.join("lib/libraylib.a"))
             .expect("filed to create wasm library");
     }
-    println!("cmake build {}", c.display());
+    // println!("cmake build {}", c.display());
     println!("cargo:rustc-link-search=native={}", c.join("lib").display());
 }
 
@@ -91,17 +91,25 @@ fn gen_bindings() {
     }
 }
 
+fn gen_rgui() {
+    // Compile the code and link with cc crate
+    cc::Build::new()
+        .file("rgui_wrapper.c")
+        .include(".")
+        .warnings(false)
+        .extra_warnings(false)
+        .compile("rgui");
+}
+
 fn main() {
     let target = env::var("TARGET").expect("Cargo build scripts always have TARGET");
     let (platform, platform_os) = platform_from_target(&target);
 
     // Donwload raylib source
     let src = download_raylib();
-    println!("src path {}", src.display());
     build_with_cmake(src.to_str().expect("failed to download raylib"));
 
     gen_bindings();
-    println!("platform, platform_os {:?}, {:?}", platform, platform_os);
 
     match platform_os {
         PlatformOS::Windows => {
@@ -128,25 +136,10 @@ fn main() {
         println!("cargo:rustc-link-lib=glfw");
     }
 
-    // if cfg!(target_os = "windows") {
-    //     println!("cargo:rustc-link-lib=dylib=gdi32");
-    //     println!("cargo:rustc-link-lib=dylib=user32");
-    //     println!("cargo:rustc-link-lib=dylib=shell32");
-    // }
-    // if cfg!(target_os = "linux") {
-    //     println!("cargo:rustc-link-search=/usr/local/lib");
-    //     println!("cargo:rustc-link-lib=X11");
-    // }
-    // if cfg!(target_os = "macos") {
-    //     println!("cargo:rustc-link-search=native=/usr/local/lib");
-    //     println!("cargo:rustc-link-lib=framework=OpenGL");
-    //     println!("cargo:rustc-link-lib=framework=Cocoa");
-    //     println!("cargo:rustc-link-lib=framework=IOKit");
-    //     println!("cargo:rustc-link-lib=framework=CoreFoundation");
-    //     println!("cargo:rustc-link-lib=framework=CoreVideo");
-    // }
-
     println!("cargo:rustc-link-lib=static=raylib");
+
+    gen_rgui();
+
 }
 
 /// download_raylib downloads raylib
