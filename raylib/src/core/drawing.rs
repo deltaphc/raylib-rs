@@ -1,6 +1,7 @@
-//! Contains code related to drawing. Types that can be set as a surface to draw will implement the RaylibDraw trait
+//! Contains code related to drawing. Types that can be set as a surface to draw will implement the [`RaylibDraw`] trait
 use crate::core::camera::Camera3D;
-use crate::core::math::{BoundingBox, Ray};
+use crate::core::math::Ray;
+use crate::core::math::Vector2;
 use crate::core::models::Model;
 use crate::core::texture::{RenderTexture2D, Texture2D};
 use crate::core::vr::RaylibVR;
@@ -236,6 +237,15 @@ pub trait RaylibDraw {
         }
     }
 
+    /// Define default texture used to draw shapes
+    fn set_shapes_texture(
+        &mut self,
+        texture: impl AsRef<ffi::Texture2D>,
+        source: impl Into<ffi::Rectangle>,
+    ) {
+        unsafe { ffi::SetShapesTexture(*texture.as_ref(), source.into()) }
+    }
+
     // SHAPES
     /// Draws a pixel.
     #[inline]
@@ -306,6 +316,18 @@ pub trait RaylibDraw {
     ) {
         unsafe {
             ffi::DrawLineBezier(start_pos.into(), end_pos.into(), thick, color.into());
+        }
+    }
+
+    /// Draw lines sequence
+    #[inline]
+    fn draw_line_strip(&mut self, points: &[Vector2], color: impl Into<ffi::Color>) {
+        unsafe {
+            ffi::DrawLineStrip(
+                points.as_ptr() as *mut ffi::Vector2,
+                points.len() as i32,
+                color.into(),
+            );
         }
     }
 
@@ -656,6 +678,18 @@ pub trait RaylibDraw {
     ) {
         unsafe {
             ffi::DrawTriangleLines(v1.into(), v2.into(), v3.into(), color.into());
+        }
+    }
+
+    /// Draw a triangle fan defined by points.
+    #[inline]
+    fn draw_triangle_fan(&mut self, points: &[Vector2], color: impl Into<ffi::Color>) {
+        unsafe {
+            ffi::DrawTriangleFan(
+                points.as_ptr() as *mut ffi::Vector2,
+                points.len() as i32,
+                color.into(),
+            );
         }
     }
 
@@ -1240,7 +1274,11 @@ pub trait RaylibDraw3D {
 
     /// Draws a bounding box (wires).
     #[inline]
-    fn draw_bounding_box(&mut self, bbox: BoundingBox, color: impl Into<ffi::Color>) {
+    fn draw_bounding_box(
+        &mut self,
+        bbox: impl Into<ffi::BoundingBox>,
+        color: impl Into<ffi::Color>,
+    ) {
         unsafe {
             ffi::DrawBoundingBox(bbox.into(), color.into());
         }

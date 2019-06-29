@@ -1,3 +1,4 @@
+//! 3D Model, Mesh, and Animation
 use crate::core::math::{BoundingBox, Vector3};
 use crate::core::texture::Image;
 use crate::core::{RaylibHandle, RaylibThread};
@@ -9,23 +10,24 @@ make_thin_wrapper!(Model, ffi::Model, ffi::UnloadModel);
 make_thin_wrapper!(Mesh, ffi::Mesh, |mut mesh| ffi::UnloadMesh(&mut mesh));
 make_thin_wrapper!(Material, ffi::Material, ffi::UnloadMaterial);
 make_thin_wrapper!(WeakMaterial, ffi::Material, no_drop);
+make_thin_wrapper!(BoneInfo, ffi::BoneInfo, no_drop);
 make_thin_wrapper!(
     ModelAnimation,
     ffi::ModelAnimation,
     ffi::UnloadModelAnimation
 );
-#[cfg(feature = "nightly")]
-impl !Send for Model {}
-#[cfg(feature = "nightly")]
-unsafe impl Sync for Model {}
-#[cfg(feature = "nightly")]
-impl !Send for Mesh {}
-#[cfg(feature = "nightly")]
-unsafe impl Sync for Mesh {}
-#[cfg(feature = "nightly")]
-impl !Send for Material {}
-#[cfg(feature = "nightly")]
-unsafe impl Sync for Material {}
+// #[cfg(feature = "nightly")]
+// impl !Send for Model {}
+// #[cfg(feature = "nightly")]
+// unsafe impl Sync for Model {}
+// #[cfg(feature = "nightly")]
+// impl !Send for Mesh {}
+// #[cfg(feature = "nightly")]
+// unsafe impl Sync for Mesh {}
+// #[cfg(feature = "nightly")]
+// impl !Send for Material {}
+// #[cfg(feature = "nightly")]
+// unsafe impl Sync for Material {}
 
 impl RaylibHandle {
     /// Loads model from files (mesh and material).
@@ -43,6 +45,50 @@ impl RaylibHandle {
 }
 
 impl Model {
+    pub fn transform(&self) -> &crate::math::Matrix {
+        unsafe { std::mem::transmute(&self.0.transform) }
+    }
+    pub fn meshes(&self) -> &[Mesh] {
+        unsafe {
+            std::slice::from_raw_parts(self.0.meshes as *const Mesh, self.0.meshCount as usize)
+        }
+    }
+    pub fn meshes_mut(&mut self) -> &mut [Mesh] {
+        unsafe {
+            std::slice::from_raw_parts_mut(self.0.meshes as *mut Mesh, self.0.meshCount as usize)
+        }
+    }
+    pub fn materials(&self) -> &[Material] {
+        unsafe {
+            std::slice::from_raw_parts(
+                self.0.materials as *const Material,
+                self.0.materialCount as usize,
+            )
+        }
+    }
+    pub fn materials_mut(&mut self) -> &[Material] {
+        unsafe {
+            std::slice::from_raw_parts_mut(
+                self.0.materials as *mut Material,
+                self.0.materialCount as usize,
+            )
+        }
+    }
+
+    pub fn bones(&self) -> &[BoneInfo] {
+        unsafe {
+            std::slice::from_raw_parts(self.0.bones as *const BoneInfo, self.0.boneCount as usize)
+        }
+    }
+    pub fn bones_mut(&mut self) -> &[BoneInfo] {
+        unsafe {
+            std::slice::from_raw_parts_mut(self.0.bones as *mut BoneInfo, self.0.boneCount as usize)
+        }
+    }
+    pub fn bind_pose(&self) -> &crate::math::Transform {
+        unsafe { std::mem::transmute(self.0.bindPose) }
+    }
+
     /// Check model animation skeleton match
     #[inline]
     pub fn is_model_animation_valid(&self, anim: &ModelAnimation) -> bool {
@@ -73,6 +119,81 @@ impl RaylibHandle {
 }
 
 impl Mesh {
+    pub fn vertices(&self) -> &[Vector3] {
+        unsafe {
+            std::slice::from_raw_parts(
+                self.0.vertices as *const Vector3,
+                self.0.vertexCount as usize,
+            )
+        }
+    }
+    pub fn vertices_mut(&mut self) -> &mut [Vector3] {
+        unsafe {
+            std::slice::from_raw_parts_mut(
+                self.0.vertices as *mut Vector3,
+                self.0.vertexCount as usize,
+            )
+        }
+    }
+    pub fn normals(&self) -> &[Vector3] {
+        unsafe {
+            std::slice::from_raw_parts(
+                self.0.normals as *const Vector3,
+                self.0.vertexCount as usize,
+            )
+        }
+    }
+    pub fn normals_mut(&mut self) -> &mut [Vector3] {
+        unsafe {
+            std::slice::from_raw_parts_mut(
+                self.0.normals as *mut Vector3,
+                self.0.vertexCount as usize,
+            )
+        }
+    }
+    pub fn tangents(&self) -> &[Vector3] {
+        unsafe {
+            std::slice::from_raw_parts(
+                self.0.tangents as *const Vector3,
+                self.0.vertexCount as usize,
+            )
+        }
+    }
+    pub fn tangents_mut(&mut self) -> &mut [Vector3] {
+        unsafe {
+            std::slice::from_raw_parts_mut(
+                self.0.tangents as *mut Vector3,
+                self.0.vertexCount as usize,
+            )
+        }
+    }
+    pub fn colors(&self) -> &[crate::color::Color] {
+        unsafe {
+            std::slice::from_raw_parts(
+                self.0.colors as *const crate::color::Color,
+                self.0.vertexCount as usize,
+            )
+        }
+    }
+    pub fn colors_mut(&mut self) -> &mut [crate::color::Color] {
+        unsafe {
+            std::slice::from_raw_parts_mut(
+                self.0.colors as *mut crate::color::Color,
+                self.0.vertexCount as usize,
+            )
+        }
+    }
+    pub fn indicies(&self) -> &[u16] {
+        unsafe {
+            std::slice::from_raw_parts(self.0.indices as *const u16, self.0.vertexCount as usize)
+        }
+    }
+    pub fn indicies_mut(&mut self) -> &mut [u16] {
+        unsafe {
+            std::slice::from_raw_parts_mut(self.0.indices as *mut u16, self.0.vertexCount as usize)
+        }
+    }
+
     /// Generate polygonal mesh
     #[inline]
     pub fn gen_mesh_poly(_: &RaylibThread, sides: i32, radius: f32) -> Mesh {
@@ -144,9 +265,9 @@ impl Mesh {
     pub fn gen_mesh_heightmap(
         _: &RaylibThread,
         heightmap: &Image,
-        size: impl Into<Vector3>,
+        size: impl Into<ffi::Vector3>,
     ) -> Mesh {
-        unsafe { Mesh(ffi::GenMeshHeightmap(heightmap.0, size.into().into())) }
+        unsafe { Mesh(ffi::GenMeshHeightmap(heightmap.0, size.into())) }
     }
 
     /// Generates cubes-based map mesh from image data.
@@ -154,9 +275,9 @@ impl Mesh {
     pub fn gen_mesh_cubicmap(
         _: &RaylibThread,
         cubicmap: &Image,
-        cube_size: impl Into<Vector3>,
+        cube_size: impl Into<ffi::Vector3>,
     ) -> Mesh {
-        unsafe { Mesh(ffi::GenMeshCubicmap(cubicmap.0, cube_size.into().into())) }
+        unsafe { Mesh(ffi::GenMeshCubicmap(cubicmap.0, cube_size.into())) }
     }
 
     /// Computes mesh bounding box limits.
@@ -192,7 +313,7 @@ impl Mesh {
 }
 
 impl Material {
-    pub fn make_weak(self) -> WeakMaterial {
+    pub unsafe fn make_weak(self) -> WeakMaterial {
         let m = WeakMaterial(self.0);
         std::mem::forget(self);
         m
@@ -229,9 +350,51 @@ impl Material {
 impl RaylibMaterial for WeakMaterial {}
 impl RaylibMaterial for Material {}
 
-trait RaylibMaterial: AsRef<ffi::Material> {}
+trait RaylibMaterial: AsRef<ffi::Material> + AsMut<ffi::Material> {
+    fn shader(&self) -> &crate::shaders::Shader {
+        unsafe { std::mem::transmute(&self.as_ref().shader) }
+    }
+
+    fn maps(&self) -> &[ffi::MaterialMap] {
+        &self.as_ref().maps
+    }
+
+    fn maps_mut(&mut self) -> &mut [ffi::MaterialMap] {
+        &mut self.as_mut().maps
+    }
+}
 
 impl ModelAnimation {
+    pub fn bones(&self) -> &[BoneInfo] {
+        unsafe {
+            std::slice::from_raw_parts(self.0.bones as *const BoneInfo, self.0.boneCount as usize)
+        }
+    }
+
+    pub fn bones_mut(&mut self) -> &mut [BoneInfo] {
+        unsafe {
+            std::slice::from_raw_parts_mut(self.0.bones as *mut BoneInfo, self.0.boneCount as usize)
+        }
+    }
+
+    pub fn frame_poses(&self) -> &[&crate::math::Transform] {
+        unsafe {
+            std::slice::from_raw_parts(
+                self.0.framePoses as *const &crate::math::Transform,
+                self.0.frameCount as usize,
+            )
+        }
+    }
+
+    pub fn frame_poses_mut(&mut self) -> &mut [&mut crate::math::Transform] {
+        unsafe {
+            std::slice::from_raw_parts_mut(
+                self.0.framePoses as *mut &mut crate::math::Transform,
+                self.0.frameCount as usize,
+            )
+        }
+    }
+
     pub fn load_model_animations(filename: &str) -> Result<Vec<ModelAnimation>, String> {
         let c_filename = CString::new(filename).unwrap();
         let mut m_size = 0;

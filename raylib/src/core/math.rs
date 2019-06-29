@@ -1739,6 +1739,36 @@ impl Into<ffi::RayHitInfo> for &RayHitInfo {
     }
 }
 
+#[repr(C)]
+#[derive(Default, Debug, Copy, Clone)]
+pub struct Transform {
+    pub translation: Vector3,
+    pub rotation: Quaternion,
+    pub scale: Vector3,
+}
+
+impl From<ffi::Transform> for Transform {
+    fn from(r: ffi::Transform) -> Transform {
+        unsafe { std::mem::transmute(r) }
+    }
+}
+
+impl Into<ffi::Transform> for Transform {
+    fn into(self) -> ffi::Transform {
+        unsafe { std::mem::transmute(self) }
+    }
+}
+
+impl Into<ffi::Transform> for &Transform {
+    fn into(self) -> ffi::Transform {
+        ffi::Transform {
+            translation: self.translation.into(),
+            rotation: self.rotation.into(),
+            scale: self.scale.into(),
+        }
+    }
+}
+
 #[cfg(test)]
 mod math_test {
     use super::{Ray, Vector2, Vector3, Vector4};

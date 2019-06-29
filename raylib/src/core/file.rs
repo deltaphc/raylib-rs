@@ -1,3 +1,4 @@
+//! File manipulation functions. Should be parity with std::fs except on emscripten
 use crate::ffi;
 
 use std::ffi::{CStr, CString};
@@ -77,6 +78,28 @@ pub fn get_directory_path(filename: &str) -> String {
     }
 }
 
+/// Gets all the files in a Directory
+pub fn get_directory_files(dir: &str) -> Vec<String> {
+    let c_dir = CString::new(dir).unwrap();
+    let mut count = 0;
+    let files = unsafe { ffi::GetDirectoryFiles(c_dir.as_ptr(), &mut count) };
+    let mut f_vec = Vec::with_capacity(count as usize);
+    for i in 0..count {
+        unsafe {
+            f_vec.push(
+                CString::from_raw(*files.offset(i as isize))
+                    .to_str()
+                    .unwrap()
+                    .to_owned(),
+            );
+        }
+    }
+    unsafe {
+        libc::free(files as *mut libc::c_void);
+    }
+    f_vec
+}
+
 /// Gets current working directory.
 /// ```rust
 /// use raylib::prelude::*;
@@ -104,7 +127,6 @@ pub fn is_file_dropped() -> bool {
 }
 
 /// Gets dropped filenames.
-#[inline]
 pub fn get_dropped_files() -> Vec<String> {
     let mut v = Vec::new();
     unsafe {

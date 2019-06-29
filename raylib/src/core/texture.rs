@@ -1,3 +1,4 @@
+//! Image and texture related functions
 use crate::core::color::Color;
 use crate::core::math::{Rectangle, Vector4};
 use crate::core::{RaylibHandle, RaylibThread};
@@ -49,14 +50,42 @@ make_thin_wrapper!(
 );
 
 // Prevent Textures from being sent to other threads
-#[cfg(feature = "nightly")]
-impl !Send for Texture2D {}
-#[cfg(feature = "nightly")]
-impl !Sync for Texture2D {}
-#[cfg(feature = "nightly")]
-impl !Send for RenderTexture2D {}
-#[cfg(feature = "nightly")]
-impl !Sync for RenderTexture2D {}
+// #[cfg(feature = "nightly")]
+// impl !Send for Texture2D {}
+// #[cfg(feature = "nightly")]
+// impl !Sync for Texture2D {}
+// #[cfg(feature = "nightly")]
+// impl !Send for RenderTexture2D {}
+// #[cfg(feature = "nightly")]
+// impl !Sync for RenderTexture2D {}
+
+impl RenderTexture2D {
+    pub fn id(&self) -> u32 {
+        self.0.id
+    }
+
+    pub fn texture(&self) -> &Texture2D {
+        unsafe { std::mem::transmute(&self.0.texture) }
+    }
+
+    pub fn texture_mut(&mut self) -> &mut Texture2D {
+        unsafe { std::mem::transmute(&mut self.0.texture) }
+    }
+
+    pub fn depth(&self) -> Option<&Texture2D> {
+        if self.0.depthTexture {
+            return unsafe { Some(std::mem::transmute(&self.0.depth)) };
+        }
+        None
+    }
+
+    pub fn depth_mut(&mut self) -> Option<&mut Texture2D> {
+        if self.0.depthTexture {
+            return unsafe { Some(std::mem::transmute(&mut self.0.depth)) };
+        }
+        None
+    }
+}
 
 impl Clone for Image {
     fn clone(&self) -> Image {
@@ -65,6 +94,18 @@ impl Clone for Image {
 }
 
 impl Image {
+    pub fn width(&self) -> i32 {
+        self.0.width
+    }
+    pub fn height(&self) -> i32 {
+        self.0.width
+    }
+    pub fn mipmaps(&self) -> i32 {
+        self.0.width
+    }
+    pub unsafe fn data(&self) -> *mut ::std::os::raw::c_void {
+        self.0.data
+    }
     #[inline]
     pub fn format(&self) -> crate::consts::PixelFormat {
         let i: u32 = self.format as u32;
@@ -147,7 +188,7 @@ impl Image {
     #[inline]
     pub fn image_to_pot(&mut self, fill_color: impl Into<ffi::Color>) {
         unsafe {
-            ffi::ImageToPOT(&mut self.0, fill_color.into().into());
+            ffi::ImageToPOT(&mut self.0, fill_color.into());
         }
     }
 
@@ -173,7 +214,7 @@ impl Image {
     #[inline]
     pub fn image_alpha_clear(&mut self, color: impl Into<ffi::Color>, threshold: f32) {
         unsafe {
-            ffi::ImageAlphaClear(&mut self.0, color.into().into(), threshold);
+            ffi::ImageAlphaClear(&mut self.0, color.into(), threshold);
         }
     }
 
@@ -234,7 +275,7 @@ impl Image {
                 new_height,
                 offset_x,
                 offset_y,
-                color.into().into(),
+                color.into(),
             );
         }
     }
@@ -297,10 +338,35 @@ impl Image {
         unsafe {
             ffi::ImageDrawText(
                 &mut self.0,
-                position.into().into(),
+                position.into(),
                 c_text.as_ptr(),
                 font_size,
-                color.into().into(),
+                color.into(),
+            );
+        }
+    }
+
+    /// Draws text (default font) within an image (destination).
+    #[inline]
+    pub fn image_draw_text_ex(
+        &mut self,
+        position: impl Into<ffi::Vector2>,
+        font: impl AsRef<ffi::Font>,
+        text: &str,
+        font_size: f32,
+        spacing: f32,
+        color: impl Into<ffi::Color>,
+    ) {
+        let c_text = CString::new(text).unwrap();
+        unsafe {
+            ffi::ImageDrawTextEx(
+                &mut self.0,
+                position.into(),
+                *font.as_ref(),
+                c_text.as_ptr(),
+                font_size,
+                spacing,
+                color.into(),
             );
         }
     }
@@ -341,7 +407,7 @@ impl Image {
     #[inline]
     pub fn image_color_tint(&mut self, color: impl Into<ffi::Color>) {
         unsafe {
-            ffi::ImageColorTint(&mut self.0, color.into().into());
+            ffi::ImageColorTint(&mut self.0, color.into());
         }
     }
 
@@ -385,14 +451,14 @@ impl Image {
         replace: impl Into<ffi::Color>,
     ) {
         unsafe {
-            ffi::ImageColorReplace(&mut self.0, color.into().into(), replace.into().into());
+            ffi::ImageColorReplace(&mut self.0, color.into(), replace.into());
         }
     }
 
     /// Generates a plain `color` Image.
     #[inline]
     pub fn gen_image_color(width: i32, height: i32, color: impl Into<ffi::Color>) -> Image {
-        unsafe { Image(ffi::GenImageColor(width, height, color.into().into())) }
+        unsafe { Image(ffi::GenImageColor(width, height, color.into())) }
     }
 
     /// Generates an Image containing a vertical gradient.
@@ -407,8 +473,8 @@ impl Image {
             Image(ffi::GenImageGradientV(
                 width,
                 height,
-                top.into().into(),
-                bottom.into().into(),
+                top.into(),
+                bottom.into(),
             ))
         }
     }
@@ -425,8 +491,8 @@ impl Image {
             Image(ffi::GenImageGradientH(
                 width,
                 height,
-                left.into().into(),
-                right.into().into(),
+                left.into(),
+                right.into(),
             ))
         }
     }
@@ -445,8 +511,8 @@ impl Image {
                 width,
                 height,
                 density,
-                inner.into().into(),
-                outer.into().into(),
+                inner.into(),
+                outer.into(),
             ))
         }
     }
@@ -467,8 +533,8 @@ impl Image {
                 height,
                 checks_x,
                 checks_y,
-                col1.into().into(),
-                col2.into().into(),
+                col1.into(),
+                col2.into(),
             ))
         }
     }
@@ -580,12 +646,19 @@ impl Image {
 
     /// Creates an image from `text` (custom font).
     #[inline]
+    pub fn image_text(text: &str, font_size: i32, color: impl Into<ffi::Color>) -> Image {
+        let c_text = CString::new(text).unwrap();
+        unsafe { Image(ffi::ImageText(c_text.as_ptr(), font_size, color.into())) }
+    }
+
+    /// Creates an image from `text` (custom font).
+    #[inline]
     pub fn image_text_ex(
         font: impl std::convert::AsRef<ffi::Font>,
         text: &str,
         font_size: f32,
         spacing: f32,
-        tint: impl Into<Color>,
+        tint: impl Into<ffi::Color>,
     ) -> Image {
         let c_text = CString::new(text).unwrap();
         unsafe {
@@ -594,13 +667,29 @@ impl Image {
                 c_text.as_ptr(),
                 font_size,
                 spacing,
-                tint.into().into(),
+                tint.into(),
             ))
         }
     }
 }
 
 impl Texture2D {
+    pub fn width(&self) -> i32 {
+        self.0.width
+    }
+
+    pub fn height(&self) -> i32 {
+        self.0.width
+    }
+
+    pub fn mipmaps(&self) -> i32 {
+        self.0.width
+    }
+
+    pub fn format(&self) -> i32 {
+        self.0.format
+    }
+
     /// Updates GPU texture with new data.
     #[inline]
     pub fn update_texture(&self, pixels: &[u8]) {
@@ -693,6 +782,7 @@ impl RaylibHandle {
         }
         Ok(Texture2D(t))
     }
+
     /// Loads texture for rendering (framebuffer).
     pub fn load_render_texture(
         &mut self,

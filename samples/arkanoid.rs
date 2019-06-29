@@ -8,13 +8,6 @@ const PLAYER_MAX_LIFE: i32 = 5;
 const LINES_OF_BRICKS: usize = 5;
 const BRICKS_PER_LINE: usize = 20;
 
-enum GameScreen {
-    LOGO,
-    TITLE,
-    GAMEPLAY,
-    ENDING,
-}
-
 #[derive(Default)]
 struct Player {
     pub position: Vector2,
@@ -37,21 +30,21 @@ struct Brick {
 }
 
 struct Game {
-    gameOver: bool,
+    game_over: bool,
     pause: bool,
     player: Player,
     ball: Ball,
     bricks: Vec<Vec<Brick>>,
-    brickSize: Vector2,
+    brick_size: Vector2,
 }
 
 impl Default for Game {
     fn default() -> Game {
-        let mut gameOver = false;
-        let mut pause = false;
+        let game_over = false;
+        let pause = false;
 
-        let mut player = Player::default();
-        let mut ball = Ball::default();
+        let player = Player::default();
+        let ball = Ball::default();
         let mut bricks = Vec::new();
         for _ in 0..LINES_OF_BRICKS {
             let mut v = Vec::new();
@@ -60,26 +53,25 @@ impl Default for Game {
             }
             bricks.push(v);
         }
-        let mut brickSize = Vector2::default();
+        let brick_size = Vector2::default();
         Game {
-            gameOver,
+            game_over,
             pause,
             player,
             ball,
-            brickSize,
+            brick_size,
             bricks,
         }
     }
 }
 
 fn main() {
-    use GameScreen::*;
     let opt = options::Opt::from_args();
     let (mut rl, thread) = opt.open_window("Arkanoid");
-    let (w, h) = (opt.width, opt.height);
+    let (_w, _h) = (opt.width, opt.height);
 
-    let mut gameOver = false;
-    let mut pause = false;
+    let _game_over = false;
+    let _pause = false;
 
     let mut game = Game::default();
 
@@ -93,7 +85,7 @@ fn main() {
 
 fn init_game(game: &mut Game, rl: &RaylibHandle) {
     let (w, h) = (rl.get_screen_width() as f32, rl.get_screen_height() as f32);
-    game.brickSize = Vector2::new(rl.get_screen_width() as f32 / BRICKS_PER_LINE as f32, 40.0);
+    game.brick_size = Vector2::new(rl.get_screen_width() as f32 / BRICKS_PER_LINE as f32, 40.0);
 
     // Initialize player
     game.player.position = Vector2::new(
@@ -110,13 +102,13 @@ fn init_game(game: &mut Game, rl: &RaylibHandle) {
     game.ball.active = false;
 
     // Initialize bricks
-    let initialDownPosition = 50.0;
+    let initial_down_position = 50.0;
 
     for i in 0..LINES_OF_BRICKS {
         for j in 0..BRICKS_PER_LINE {
             game.bricks[i][j].position = Vector2::new(
-                j as f32 * game.brickSize.x + game.brickSize.x / 2.0,
-                i as f32 * game.brickSize.y + initialDownPosition,
+                j as f32 * game.brick_size.x + game.brick_size.x / 2.0,
+                i as f32 * game.brick_size.y + initial_down_position,
             );
             game.bricks[i][j].active = true;
         }
@@ -127,7 +119,7 @@ fn update_game(game: &mut Game, rl: &RaylibHandle) {
     use raylib::consts::KeyboardKey::*;
     let (w, h) = (rl.get_screen_width() as f32, rl.get_screen_height() as f32);
 
-    if !game.gameOver {
+    if !game.game_over {
         if rl.is_key_pressed(KEY_P) {
             game.pause = !game.pause;
         }
@@ -199,13 +191,13 @@ fn update_game(game: &mut Game, rl: &RaylibHandle) {
                     if game.bricks[i][j].active {
                         // Hit below
                         if (game.ball.position.y - game.ball.radius as f32
-                            <= game.bricks[i][j].position.y + game.brickSize.y / 2.0)
+                            <= game.bricks[i][j].position.y + game.brick_size.y / 2.0)
                             && (game.ball.position.y - game.ball.radius as f32
                                 > game.bricks[i][j].position.y
-                                    + game.brickSize.y / 2.0
+                                    + game.brick_size.y / 2.0
                                     + game.ball.speed.y)
                             && ((game.ball.position.x - game.bricks[i][j].position.x).abs()
-                                < game.brickSize.x / 2.0 + game.ball.radius as f32 * 2.0 / 3.0)
+                                < game.brick_size.x / 2.0 + game.ball.radius as f32 * 2.0 / 3.0)
                             && game.ball.speed.y < 0.0
                         {
                             game.bricks[i][j].active = false;
@@ -213,16 +205,16 @@ fn update_game(game: &mut Game, rl: &RaylibHandle) {
                         }
                         // Hit above
                         else if game.ball.position.y + game.ball.radius as f32
-                            >= game.bricks[i][j].position.y - game.brickSize.y / 2.0
+                            >= game.bricks[i][j].position.y - game.brick_size.y / 2.0
                             && (game.ball.position.y + game.ball.radius as f32)
                                 .partial_cmp(
-                                    &(game.bricks[i][j].position.y - game.brickSize.y / 2.0
+                                    &(game.bricks[i][j].position.y - game.brick_size.y / 2.0
                                         + game.ball.speed.y),
                                 )
                                 .unwrap()
                                 == std::cmp::Ordering::Less
                             && (game.ball.position.x - game.bricks[i][j].position.x).abs()
-                                < game.brickSize.x / 2.0 + game.ball.radius as f32 * 2.0 / 3.0
+                                < game.brick_size.x / 2.0 + game.ball.radius as f32 * 2.0 / 3.0
                             && game.ball.speed.y > 0.0
                         {
                             game.bricks[i][j].active = false;
@@ -230,12 +222,12 @@ fn update_game(game: &mut Game, rl: &RaylibHandle) {
                         }
                         // Hit Left
                         else if ((game.ball.position.x + game.ball.radius as f32)
-                            >= (game.bricks[i][j].position.x - game.brickSize.x / 2.0))
+                            >= (game.bricks[i][j].position.x - game.brick_size.x / 2.0))
                             && ((game.ball.position.x + game.ball.radius as f32)
-                                < (game.bricks[i][j].position.x - game.brickSize.x / 2.0
+                                < (game.bricks[i][j].position.x - game.brick_size.x / 2.0
                                     + game.ball.speed.x))
                             && (((game.ball.position.y - game.bricks[i][j].position.y).abs())
-                                < (game.brickSize.y / 2.0 + game.ball.radius as f32 * 2.0 / 3.0))
+                                < (game.brick_size.y / 2.0 + game.ball.radius as f32 * 2.0 / 3.0))
                             && (game.ball.speed.x > 0.0)
                         {
                             game.bricks[i][j].active = false;
@@ -243,13 +235,13 @@ fn update_game(game: &mut Game, rl: &RaylibHandle) {
                         }
                         // Hit right
                         else if ((game.ball.position.x - game.ball.radius as f32)
-                            <= (game.bricks[i][j].position.x + game.brickSize.x / 2.0))
+                            <= (game.bricks[i][j].position.x + game.brick_size.x / 2.0))
                             && ((game.ball.position.x - game.ball.radius as f32)
                                 > (game.bricks[i][j].position.x
-                                    + game.brickSize.x / 2.0
+                                    + game.brick_size.x / 2.0
                                     + game.ball.speed.x))
                             && (((game.ball.position.y - game.bricks[i][j].position.y).abs())
-                                < (game.brickSize.y / 2.0 + game.ball.radius as f32 * 2.0 / 3.0))
+                                < (game.brick_size.y / 2.0 + game.ball.radius as f32 * 2.0 / 3.0))
                             && (game.ball.speed.x < 0.0)
                         {
                             game.bricks[i][j].active = false;
@@ -261,13 +253,13 @@ fn update_game(game: &mut Game, rl: &RaylibHandle) {
 
             // Game over life
             if game.player.life <= 0 {
-                game.gameOver = true;
+                game.game_over = true;
             } else {
-                game.gameOver = true;
+                game.game_over = true;
                 for i in 0..LINES_OF_BRICKS {
                     for j in 0..BRICKS_PER_LINE {
                         if game.bricks[i][j].active {
-                            game.gameOver = false;
+                            game.game_over = false;
                         }
                     }
                 }
@@ -276,7 +268,7 @@ fn update_game(game: &mut Game, rl: &RaylibHandle) {
     } else {
         if rl.is_key_pressed(KEY_ENTER) {
             init_game(game, rl);
-            game.gameOver = false;
+            game.game_over = false;
         }
     }
 }
@@ -285,7 +277,7 @@ fn draw_game(game: &Game, rl: &mut RaylibHandle, thread: &RaylibThread) {
     let (w, h) = (rl.get_screen_width() as f32, rl.get_screen_height() as f32);
     let mut d = rl.begin_drawing(thread);
     d.clear_background(Color::RAYWHITE);
-    if !game.gameOver {
+    if !game.game_over {
         // Draw player bar
         d.draw_rectangle(
             (game.player.position.x - game.player.size.x / 2.0) as i32,
@@ -309,18 +301,18 @@ fn draw_game(game: &Game, rl: &mut RaylibHandle, thread: &RaylibThread) {
                 if game.bricks[i][j].active {
                     if (i + j) % 2 == 0 {
                         d.draw_rectangle(
-                            (game.bricks[i][j].position.x - game.brickSize.x / 2.0) as i32,
-                            (game.bricks[i][j].position.y - game.brickSize.y / 2.0) as i32,
-                            game.brickSize.x as i32,
-                            game.brickSize.y as i32,
+                            (game.bricks[i][j].position.x - game.brick_size.x / 2.0) as i32,
+                            (game.bricks[i][j].position.y - game.brick_size.y / 2.0) as i32,
+                            game.brick_size.x as i32,
+                            game.brick_size.y as i32,
                             Color::GRAY,
                         );
                     } else {
                         d.draw_rectangle(
-                            (game.bricks[i][j].position.x - game.brickSize.x / 2.0) as i32,
-                            (game.bricks[i][j].position.y - game.brickSize.y / 2.0) as i32,
-                            game.brickSize.x as i32,
-                            game.brickSize.y as i32,
+                            (game.bricks[i][j].position.x - game.brick_size.x / 2.0) as i32,
+                            (game.bricks[i][j].position.y - game.brick_size.y / 2.0) as i32,
+                            game.brick_size.x as i32,
+                            game.brick_size.y as i32,
                             Color::DARKGRAY,
                         );
                     }

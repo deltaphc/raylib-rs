@@ -1,3 +1,4 @@
+//! Functions to change the behavior of raylib logging.
 use crate::consts::TraceLogType;
 use crate::ffi;
 use std::ffi::CString;

@@ -4,8 +4,9 @@ use structopt::StructOpt;
 
 mod options;
 
+const SHADER: &str = include_str!("static/raymarching.fs");
+
 pub fn main() {
-    use raylib::consts;
     let opt = options::Opt::from_args();
     let (mut rl, thread) = opt.open_window("Camera 2D");
     let (w, h) = (opt.width, opt.height);
@@ -18,9 +19,7 @@ pub fn main() {
     );
 
     rl.set_camera_mode(&camera, CameraMode::CAMERA_FREE);
-    let mut shader = rl
-        .load_shader(&thread, None, Some("raymarch-static/raymarching.fs"))
-        .expect("couldn't load shader");
+    let mut shader = rl.load_shader_code(&thread, None, Some(SHADER));
     // let s = std::fs::read_to_string("raymarch-static/raymarching.fs").expect("couldn't read");
     // println!("{}", s);
 
@@ -31,8 +30,8 @@ pub fn main() {
     let runTimeLoc = shader.get_shader_location("runTime");
     let resolutionLoc = shader.get_shader_location("resolution");
 
-    let resolution = vec![w as f32, h as f32];
-    shader.set_shader_value(resolutionLoc, &resolution);
+    let resolution: [f32; 2] = [w as f32, h as f32];
+    shader.set_shader_value(resolutionLoc, resolution);
 
     let mut runTime = 0.0;
 
@@ -41,19 +40,19 @@ pub fn main() {
         //----------------------------------------------------------------------------------
         rl.update_camera(&mut camera); // Update camera
 
-        let cameraPos = vec![camera.position.x, camera.position.y, camera.position.z];
-        let cameraTarget = vec![camera.target.x, camera.target.y, camera.target.z];
-        let cameraUp = vec![camera.up.x, camera.up.y, camera.up.z];
+        let cameraPos = Vector3::new(camera.position.x, camera.position.y, camera.position.z);
+        let cameraTarget = Vector3::new(camera.target.x, camera.target.y, camera.target.z);
+        let cameraUp = Vector3::new(camera.up.x, camera.up.y, camera.up.z);
 
         let deltaTime = rl.get_frame_time();
         runTime += deltaTime;
 
         // Set shader required uniform values
-        shader.set_shader_value(viewEyeLoc, &cameraPos);
-        shader.set_shader_value(viewCenterLoc, &cameraTarget);
-        shader.set_shader_value(viewUpLoc, &cameraUp);
-        shader.set_shader_value(deltaTimeLoc, &vec![deltaTime]);
-        shader.set_shader_value(runTimeLoc, &vec![runTime]);
+        shader.set_shader_value(viewEyeLoc, cameraPos);
+        shader.set_shader_value(viewCenterLoc, cameraTarget);
+        shader.set_shader_value(viewUpLoc, cameraUp);
+        shader.set_shader_value(deltaTimeLoc, deltaTime);
+        shader.set_shader_value(runTimeLoc, runTime);
         //----------------------------------------------------------------------------------
 
         // Draw

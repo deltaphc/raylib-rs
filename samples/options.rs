@@ -1,7 +1,7 @@
 // #[macro_use]
 // extern crate structopt;
 
-use structopt::StructOpt;
+pub use structopt::StructOpt;
 
 #[derive(Debug, StructOpt)]
 #[structopt(name = "example", about = "An example of StructOpt usage.")]
@@ -15,6 +15,9 @@ pub struct Opt {
 }
 
 impl Opt {
+    pub fn new() -> Self {
+        Opt::from_args()
+    }
     pub fn open_window(&self, name: &str) -> (raylib::RaylibHandle, raylib::RaylibThread) {
         let (mut rl, thread) = raylib::init()
             .size(self.width, self.height)

@@ -1,8 +1,10 @@
+//! Window manipulation functions
 use crate::core::math::{Matrix, Ray, Vector2};
 use crate::core::{RaylibHandle, RaylibThread};
 use crate::ffi;
 use std::ffi::{CStr, CString, IntoStringError, NulError};
 
+// MonitorInfo grabs the sizes (virtual and physical) of your monitor
 #[derive(Clone, Debug)]
 pub struct MonitorInfo {
     width: i32,
@@ -293,5 +295,11 @@ impl RaylibHandle {
         unsafe {
             ffi::DisableCursor();
         }
+    }
+
+    /// Get the raw window Handle
+    #[inline]
+    pub unsafe fn get_window_handle(&mut self) -> *mut ::std::os::raw::c_void {
+        ffi::GetWindowHandle()
     }
 }

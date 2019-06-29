@@ -1,3 +1,4 @@
+//! Code for saving raw data to permanent (file based) storage
 use crate::core::RaylibHandle;
 use crate::ffi;
 

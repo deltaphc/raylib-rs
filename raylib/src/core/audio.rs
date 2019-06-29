@@ -1,3 +1,5 @@
+//! Contains code related to audio. [`RaylibAudio`] plays sounds and music.
+
 use crate::core::RaylibThread;
 use crate::ffi;
 use std::ffi::CString;
@@ -239,6 +241,23 @@ impl Drop for RaylibAudio {
 }
 
 impl Wave {
+    pub fn sample_count(&self) -> u32 {
+        self.0.sampleCount
+    }
+    pub fn smaple_rate(&self) -> u32 {
+        self.0.sampleRate
+    }
+    pub fn sample_size(&self) -> u32 {
+        self.0.sampleSize
+    }
+    pub fn channels(&self) -> u32 {
+        self.0.channels
+    }
+    pub unsafe fn inner(self) -> ffi::Wave {
+        let inner = self.0;
+        std::mem::forget(self);
+        inner
+    }
     /// Loads wave data from file into RAM.
     #[inline]
     pub fn load_wave(filename: &str) -> Result<Wave, String> {
@@ -326,6 +345,20 @@ impl Wave {
 }
 
 impl Sound {
+    pub fn source(&self) -> u32 {
+        self.0.source
+    }
+    pub fn buffer(&self) -> u32 {
+        self.0.buffer
+    }
+    pub fn format(&self) -> i32 {
+        self.0.format
+    }
+    pub unsafe fn inner(self) -> ffi::Sound {
+        let inner = self.0;
+        std::mem::forget(self);
+        inner
+    }
     /// Loads sound from file.
     pub fn load_sound(filename: &str) -> Result<Sound, String> {
         let c_filename = CString::new(filename).unwrap();
@@ -372,6 +405,26 @@ impl Music {
 }
 
 impl AudioStream {
+    pub fn sample_rate(&self) -> u32 {
+        self.0.sampleRate
+    }
+    pub fn sample_size(&self) -> u32 {
+        self.0.sampleSize
+    }
+    pub fn channels(&self) -> u32 {
+        self.0.channels
+    }
+    pub fn format(&self) -> i32 {
+        self.0.format
+    }
+    pub fn source(&self) -> u32 {
+        self.0.source
+    }
+    pub unsafe fn inner(self) -> ffi::AudioStream {
+        let inner = self.0;
+        std::mem::forget(self);
+        inner
+    }
     /// Initializes audio stream (to stream raw PCM data).
     #[inline]
     pub fn init_audio_stream(

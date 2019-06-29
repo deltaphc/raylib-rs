@@ -11,7 +11,15 @@ repository = "https://github.com/deltaphc/raylib-rs"
 [dependencies]
 raylib = { version = "0.11", path = "../raylib" }
 structopt = "0.2"
+specs-derive = "0.4"
 
+[dependencies.specs]
+version = "0.14"
+default-features = false
+
+[[bin]]
+name = "specs"
+path = "./specs.rs"
 
 [[bin]]
 name = "arkanoid"
@@ -22,6 +30,10 @@ name = "logo"
 path = "./logo.rs"
 
 [[bin]]
+name = "file"
+path = "./file.rs"
+
+[[bin]]
 name = "camera2D"
 path = "./camera2D.rs"
 
@@ -29,18 +41,10 @@ path = "./camera2D.rs"
 name = "raymarch"
 path = "./raymarch.rs"
 
-# [[bin]]
-# name = "logoraw"
-# path = "./logo_raw.rs"
+[[bin]]
+name = "font"
+path = "./font.rs"
 
-# [[bin]]
-# name = "triangleraw"
-# path = "./triangle_raw.rs"
-
-# [[bin]]
-# name = "font"
-# path = "./font.rs"
-
-# [[bin]]
-# name = "drop"
-# path = "./drop.rs"
+[[bin]]
+name = "drop"
+path = "./drop.rs"

@@ -1,23 +1,26 @@
+//! Text and Font related functions
+//! Text manipulation functions are super unsafe so use rust String functions
 use crate::core::math::Vector2;
 use crate::core::texture::{Image, Texture2D};
 use crate::core::{RaylibHandle, RaylibThread};
 use crate::ffi;
 
-use std::convert::AsRef;
+use std::convert::{AsMut, AsRef};
 use std::ffi::CString;
 
 fn no_drop<T>(_thing: T) {}
 make_thin_wrapper!(Font, ffi::Font, ffi::UnloadFont);
 make_thin_wrapper!(WeakFont, ffi::Font, no_drop);
+make_thin_wrapper!(CharInfo, ffi::CharInfo, no_drop);
 
-#[cfg(feature = "nightly")]
-impl !Send for Font {}
-#[cfg(feature = "nightly")]
-unsafe impl Sync for Font {}
-#[cfg(feature = "nightly")]
-impl !Send for WeakFont {}
-#[cfg(feature = "nightly")]
-unsafe impl Sync for WeakFont {}
+// #[cfg(feature = "nightly")]
+// impl !Send for Font {}
+// #[cfg(feature = "nightly")]
+// unsafe impl Sync for Font {}
+// #[cfg(feature = "nightly")]
+// impl !Send for WeakFont {}
+// #[cfg(feature = "nightly")]
+// unsafe impl Sync for WeakFont {}
 
 impl AsRef<ffi::Texture2D> for Font {
     fn as_ref(&self) -> &ffi::Texture2D {
@@ -135,6 +138,34 @@ impl RaylibHandle {
             }
             libc::free(ci_arr_ptr as *mut libc::c_void);
             ci_vec
+        }
+    }
+}
+
+impl RaylibFont for WeakFont {}
+impl RaylibFont for Font {}
+
+pub trait RaylibFont: AsRef<ffi::Font> + AsMut<ffi::Font> {
+    fn base_size(&self) -> i32 {
+        self.as_ref().baseSize
+    }
+    fn texture(&self) -> &Texture2D {
+        unsafe { std::mem::transmute(&self.as_ref().texture) }
+    }
+    fn chars(&self) -> &[CharInfo] {
+        unsafe {
+            std::slice::from_raw_parts(
+                self.as_ref().chars as *const CharInfo,
+                self.as_ref().charsCount as usize,
+            )
+        }
+    }
+    fn chars_mut(&mut self) -> &mut [CharInfo] {
+        unsafe {
+            std::slice::from_raw_parts_mut(
+                self.as_mut().chars as *mut CharInfo,
+                self.as_ref().charsCount as usize,
+            )
         }
     }
 }

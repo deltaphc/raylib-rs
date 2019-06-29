@@ -1,3 +1,4 @@
+//! Vr related functions
 use crate::core::camera::Camera3D;
 use crate::core::RaylibThread;
 use crate::ffi;
@@ -8,10 +9,10 @@ static IS_INITIALIZED: AtomicBool = AtomicBool::new(false);
 /// This token is used to indicate VR is initialized
 #[derive(Debug)]
 pub struct RaylibVR(());
-#[cfg(feature = "nightly")]
-impl !Send for RaylibVR {}
-#[cfg(feature = "nightly")]
-impl !Sync for RaylibVR {}
+// #[cfg(feature = "nightly")]
+// impl !Send for RaylibVR {}
+// #[cfg(feature = "nightly")]
+// impl !Sync for RaylibVR {}
 
 impl RaylibVR {
     pub fn init_vr_simulator(_: &RaylibThread) -> RaylibVR {

@@ -13,7 +13,6 @@ pub mod math;
 pub mod misc;
 pub mod models;
 pub mod shaders;
-pub mod shapes;
 pub mod storage;
 pub mod text;
 pub mod texture;
@@ -31,10 +30,10 @@ static IS_INITIALIZED: AtomicBool = AtomicBool::new(false);
 /// where cocoa can only be called from one thread.
 #[derive(Clone, Debug)]
 pub struct RaylibThread(());
-#[cfg(feature = "nightly")]
-impl !Send for RaylibThread {}
-#[cfg(feature = "nightly")]
-impl !Sync for RaylibThread {}
+// #[cfg(feature = "nightly")]
+// impl !Send for RaylibThread {}
+// #[cfg(feature = "nightly")]
+// impl !Sync for RaylibThread {}
 
 /// The main interface into the Raylib API.
 ///

@@ -1,3 +1,4 @@
+//! [`Color`] manipulation helpers
 use crate::core::math::{Vector3, Vector4};
 use crate::ffi;
 
@@ -30,6 +31,12 @@ impl Into<ffi::Color> for &Color {
             b: self.b,
             a: self.a,
         }
+    }
+}
+
+impl From<(u8, u8, u8, u8)> for Color {
+    fn from(col: (u8, u8, u8, u8)) -> Color {
+        Color::new(col.0, col.1, col.2, col.3)
     }
 }
 

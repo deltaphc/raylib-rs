@@ -1,3 +1,4 @@
+//! Keyboard, Controller, and Mouse related functions
 use crate::consts::GestureType;
 use crate::core::math::Vector2;
 use crate::core::RaylibHandle;
@@ -41,10 +42,13 @@ impl RaylibHandle {
     }
 
     /// Sets a custom key to exit program (default is ESC).
-    #[inline]
-    pub fn set_exit_key(&mut self, key: crate::consts::KeyboardKey) {
+    // #[inline]
+    pub fn set_exit_key(&mut self, key: Option<crate::consts::KeyboardKey>) {
         unsafe {
-            ffi::SetExitKey((key as u32) as i32);
+            match key {
+                Some(k) => ffi::SetExitKey((k as u32) as i32),
+                None => ffi::SetExitKey(0),
+            }
         }
     }
 

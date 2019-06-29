@@ -34,6 +34,12 @@ macro_rules! impl_wrapper {
             }
         }
 
+        impl std::convert::AsMut<$t> for $name {
+            fn as_mut(&mut self) -> &mut $t {
+                &mut self.$rawfield
+            }
+        }
+
         impl std::ops::Deref for $name {
             type Target = $t;
             #[inline]

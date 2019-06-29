@@ -18,7 +18,7 @@ Permission is granted to anyone to use this software for any purpose, including 
 //!
 //! `raylib` is a safe Rust binding to [Raylib](https://www.raylib.com/), a C library for enjoying games programming.
 //!
-//! To get started, take a look at the [`init_window`] function. This initializes Raylib and shows a window, and returns a [`RaylibHandle`]. This handle is very important, because it is the way in which one accesses the vast majority of Raylib's functionality. This means that it must not go out of scope until the game is ready to exit.
+//! To get started, take a look at the [`init_window`] function. This initializes Raylib and shows a window, and returns a [`RaylibHandle`]. This handle is very important, because it is the way in which one accesses the vast majority of Raylib's functionality. This means that it must not go out of scope until the game is ready to exit. You will also recieve a !Send or !Sync [`RaylibThread`] required for thread local functions.
 //!
 //! For more control over the game window, the [`init`] function will return a [`RaylibBuilder`] which allows for tweaking various settings such as VSync, anti-aliasing, fullscreen, and so on. Calling [`RaylibBuilder::build`] will then provide a [`RaylibHandle`].
 //!
@@ -56,4 +56,7 @@ pub mod ffi {
   pub use raylib_sys::*;
 }
 
+pub use crate::core::file::*;
+pub use crate::core::misc::{get_random_value, open_url};
 pub use crate::core::*;
+pub use crate::core::logging::*;

@@ -1,3 +1,4 @@
+//! Utility code for using Raylib [`Camera3D`] and [`Camera2D`]
 use crate::core::math::{Vector2, Vector3};
 use crate::core::RaylibHandle;
 use crate::ffi;
@@ -70,6 +71,9 @@ impl Into<ffi::Camera2D> for &Camera2D {
 }
 
 impl Camera3D {
+    pub fn camera_type(&self) -> crate::consts::CameraType {
+        unsafe { std::mem::transmute(self.type_.clone()) }
+    }
     pub fn perspective(position: Vector3, target: Vector3, up: Vector3, fovy: f32) -> Camera3D {
         Camera3D {
             position,

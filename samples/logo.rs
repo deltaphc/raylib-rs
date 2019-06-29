@@ -20,6 +20,5 @@ fn main() {
         d.draw_rectangle(w / 2 - 112, h / 2 - 112, 224, 224, ray_white);
         d.draw_text("rust", w / 2 - 69, h / 2 + 18, 50, rust_orange);
         d.draw_text("raylib", w / 2 - 44, h / 2 + 48, 50, rust_orange);
-        // rl.take_screenshot(&thread, "logo.png");
     }
 }
