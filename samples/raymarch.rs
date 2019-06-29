@@ -23,36 +23,36 @@ pub fn main() {
     // let s = std::fs::read_to_string("raymarch-static/raymarching.fs").expect("couldn't read");
     // println!("{}", s);
 
-    let viewEyeLoc = shader.get_shader_location("viewEye");
-    let viewCenterLoc = shader.get_shader_location("viewCenter");
-    let viewUpLoc = shader.get_shader_location("viewUp");
-    let deltaTimeLoc = shader.get_shader_location("deltaTime");
-    let runTimeLoc = shader.get_shader_location("runTime");
-    let resolutionLoc = shader.get_shader_location("resolution");
+    let view_eye_loc = shader.get_shader_location("viewEye");
+    let view_center_loc = shader.get_shader_location("viewCenter");
+    let view_up_loc = shader.get_shader_location("viewUp");
+    let delta_time_loc = shader.get_shader_location("deltaTime");
+    let runtime_loc = shader.get_shader_location("runTime");
+    let resolution_loc = shader.get_shader_location("resolution");
 
     let resolution: [f32; 2] = [w as f32, h as f32];
-    shader.set_shader_value(resolutionLoc, resolution);
+    shader.set_shader_value(resolution_loc, resolution);
 
-    let mut runTime = 0.0;
+    let mut run_time = 0.0;
 
     while !rl.window_should_close() {
         // Update
         //----------------------------------------------------------------------------------
         rl.update_camera(&mut camera); // Update camera
 
-        let cameraPos = Vector3::new(camera.position.x, camera.position.y, camera.position.z);
-        let cameraTarget = Vector3::new(camera.target.x, camera.target.y, camera.target.z);
-        let cameraUp = Vector3::new(camera.up.x, camera.up.y, camera.up.z);
+        let camera_pos = Vector3::new(camera.position.x, camera.position.y, camera.position.z);
+        let camera_target = Vector3::new(camera.target.x, camera.target.y, camera.target.z);
+        let camera_up = Vector3::new(camera.up.x, camera.up.y, camera.up.z);
 
-        let deltaTime = rl.get_frame_time();
-        runTime += deltaTime;
+        let delta_time = rl.get_frame_time();
+        run_time += delta_time;
 
         // Set shader required uniform values
-        shader.set_shader_value(viewEyeLoc, cameraPos);
-        shader.set_shader_value(viewCenterLoc, cameraTarget);
-        shader.set_shader_value(viewUpLoc, cameraUp);
-        shader.set_shader_value(deltaTimeLoc, deltaTime);
-        shader.set_shader_value(runTimeLoc, runTime);
+        shader.set_shader_value(view_eye_loc, camera_pos);
+        shader.set_shader_value(view_center_loc, camera_target);
+        shader.set_shader_value(view_up_loc, camera_up);
+        shader.set_shader_value(delta_time_loc, delta_time);
+        shader.set_shader_value(runtime_loc, run_time);
         //----------------------------------------------------------------------------------
 
         // Draw

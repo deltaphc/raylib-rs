@@ -147,7 +147,7 @@ impl<'a> System<'a> for DrawSys {
 
 fn main() {
     let opt = options::Opt::from_args();
-    let (mut rl, thread) = opt.open_window("Specs Example");
+    let (rl, thread) = opt.open_window("Specs Example");
     let (_w, _h) = (opt.width, opt.height);
 
     let mut world = World::new();
@@ -189,7 +189,7 @@ fn register_components(world: &mut World) {
 
 fn init_world(rl: &RaylibHandle, world: &mut World) -> EntityMap {
     let (_, sh) = (rl.get_screen_width(), rl.get_screen_height());
-    let tw = sh / TILE_COUNT;
+    let _tw = sh / TILE_COUNT;
 
     let mut placed_player = false;
     let mut emap = EntityMap::new();

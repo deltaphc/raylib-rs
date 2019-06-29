@@ -1,11 +1,9 @@
-use raylib::prelude::*;
-
 mod options;
 
 fn main() {
     let opt = options::Opt::new();
-    let (mut rl, thread) = opt.open_window("File");
-    let (w, h) = (opt.width, opt.height);
+    let (_rl, _thread) = opt.open_window("File");
+    let (_w, _h) = (opt.width, opt.height);
 
     println!(
         "Working Dir {:?}",
