@@ -4,7 +4,7 @@ extern crate specs_derive;
 use raylib::prelude::*;
 use specs::prelude::*;
 use std::collections::HashMap;
-use std::sync::{Arc, Mutex};
+
 use structopt::StructOpt;
 
 mod options;
