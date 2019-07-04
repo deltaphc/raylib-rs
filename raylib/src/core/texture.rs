@@ -98,10 +98,10 @@ impl Image {
         self.0.width
     }
     pub fn height(&self) -> i32 {
-        self.0.width
+        self.0.height
     }
     pub fn mipmaps(&self) -> i32 {
-        self.0.width
+        self.0.mipmaps
     }
     pub unsafe fn data(&self) -> *mut ::std::os::raw::c_void {
         self.0.data
