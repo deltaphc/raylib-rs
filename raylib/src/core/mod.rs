@@ -21,6 +21,7 @@ pub mod window;
 
 use crate::ffi;
 use std::ffi::CString;
+use std::marker::PhantomData;
 use std::sync::atomic::{AtomicBool, Ordering};
 
 static IS_INITIALIZED: AtomicBool = AtomicBool::new(false);
@@ -29,11 +30,7 @@ static IS_INITIALIZED: AtomicBool = AtomicBool::new(false);
 /// thread raylib was initialized from. This is useful for architectures like macos
 /// where cocoa can only be called from one thread.
 #[derive(Clone, Debug)]
-pub struct RaylibThread(());
-// #[cfg(feature = "nightly")]
-// impl !Send for RaylibThread {}
-// #[cfg(feature = "nightly")]
-// impl !Sync for RaylibThread {}
+pub struct RaylibThread(PhantomData<*const ()>);
 
 /// The main interface into the Raylib API.
 ///
@@ -183,7 +180,7 @@ impl RaylibBuilder {
             ffi::SetConfigFlags(flags as u8);
         }
         let rl = init_window(self.width, self.height, &self.title);
-        (rl, RaylibThread(()))
+        (rl, RaylibThread(PhantomData))
     }
 }
 

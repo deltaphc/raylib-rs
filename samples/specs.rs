@@ -4,6 +4,7 @@ extern crate specs_derive;
 use raylib::prelude::*;
 use specs::prelude::*;
 use std::collections::HashMap;
+use std::sync::{Arc, Mutex};
 use structopt::StructOpt;
 
 mod options;
@@ -105,18 +106,20 @@ impl<'a> System<'a> for PlayerSys {
     }
 }
 
-struct DrawSys;
+// System is not thread safe
+struct DrawSys {
+    thread: RaylibThread,
+}
 impl<'a> System<'a> for DrawSys {
     type SystemData = (
         WriteExpect<'a, RaylibHandle>,
-        ReadExpect<'a, RaylibThread>,
         ReadStorage<'a, Player>,
         ReadStorage<'a, Tile>,
         ReadStorage<'a, Pos>,
         ReadStorage<'a, Fire>,
     );
 
-    fn run(&mut self, (mut rl, thread, player, tiles, pos, fire): Self::SystemData) {
+    fn run(&mut self, (mut rl, player, tiles, pos, fire): Self::SystemData) {
         use specs::Join;
         let (_, sh) = (rl.get_screen_width(), rl.get_screen_height());
         let tw = sh / TILE_COUNT - 2 * MARGIN;
@@ -125,7 +128,7 @@ impl<'a> System<'a> for DrawSys {
         let size = Vector2::new(tw as f32, tw as f32) + margin;
         let tile_size = Vector2::new(tw as f32, tw as f32);
 
-        let mut d = rl.begin_drawing(&thread);
+        let mut d = rl.begin_drawing(&self.thread);
         d.clear_background(Color::BLACK);
         // draw the tiles
         for (pos, _) in (&pos, &tiles).join() {
@@ -155,14 +158,16 @@ fn main() {
     let emap = init_world(&rl, &mut world);
 
     world.add_resource(rl);
-    world.add_resource(thread);
+    // Raylib Thread is not safe to send between threads, but we can force it with an ARC
+    // It's up to the user to ensure the only systems that use it are
+    // thread local otherwise you will segfault
     world.add_resource(emap);
     world.add_resource(GameState::PLAYING);
     let mut dispatcher = DispatcherBuilder::new()
         .with(DeathSys, "death_sys", &[])
         .with(PlayerSys, "player_sys", &[])
         // Drawing must be done on the same thread
-        .with_thread_local(DrawSys)
+        .with_thread_local(DrawSys { thread: thread })
         .build();
     dispatcher.setup(&mut world.res);
     while !window_should_close(&world) && !player_lost(&world) {
