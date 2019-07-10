@@ -759,6 +759,7 @@ pub trait RaylibDraw {
     /// Draws a `texture` using specified position and `tint` color.
     #[inline]
     fn draw_texture(
+        &mut self,
         texture: impl AsRef<ffi::Texture2D>,
         x: i32,
         y: i32,
@@ -772,6 +773,7 @@ pub trait RaylibDraw {
     /// Draws a `texture` using specified `position` vector and `tint` color.
     #[inline]
     fn draw_texture_v(
+        &mut self,
         texture: impl AsRef<ffi::Texture2D>,
         position: impl Into<ffi::Vector2>,
         tint: impl Into<ffi::Color>,
@@ -784,6 +786,7 @@ pub trait RaylibDraw {
     /// Draws a `texture` with extended parameters.
     #[inline]
     fn draw_texture_ex(
+        &mut self,
         texture: impl AsRef<ffi::Texture2D>,
         position: impl Into<ffi::Vector2>,
         rotation: f32,
@@ -804,6 +807,7 @@ pub trait RaylibDraw {
     /// Draws from a region of `texture` defined by the `source_rec` rectangle.
     #[inline]
     fn draw_texture_rec(
+        &mut self,
         texture: impl AsRef<ffi::Texture2D>,
         source_rec: impl Into<ffi::Rectangle>,
         position: impl Into<ffi::Vector2>,
@@ -822,6 +826,7 @@ pub trait RaylibDraw {
     /// Draw texture quad with tiling and offset parameters
     #[inline]
     fn draw_texture_quad(
+        &mut self,
         texture: impl AsRef<ffi::Texture2D>,
         tiling: impl Into<ffi::Vector2>,
         offset: impl Into<ffi::Vector2>,
