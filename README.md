@@ -40,7 +40,7 @@ raylib = "0.9"
 4. Start coding!
 
 ```rust
-use raylib::prelude::*;
+use raylib::*;
 
 fn main() {
     let rl = raylib::init()
