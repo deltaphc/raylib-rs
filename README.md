@@ -28,7 +28,7 @@ Workes in Windows, Mac, Linux, and (Emscripten). Requires glfw. Tips on making t
 
 ```toml
 [dependencies]
-raylib = { git = "https://github.com/deltaphc/raylib-rs", branch = "0.11" }
+raylib = { git = "https://github.com/deltaphc/raylib-rs", branch = "master" }
 ```
 2. Start coding!
 
