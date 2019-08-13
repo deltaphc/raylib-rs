@@ -52,3 +52,7 @@ path = "./font.rs"
 [[bin]]
 name = "drop"
 path = "./drop.rs"
+
+[[bin]]
+name = "texture"
+path = "./texture.rs"

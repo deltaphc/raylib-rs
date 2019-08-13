@@ -22,7 +22,8 @@ Though this binding tries to stay close to the simple C API, it makes some chang
 
 # Installation
 
-Workes in Windows, Mac, Linux, and (Emscripten). Requires glfw. Tips on making things work smoothly on all platforms is appreciated.
+Workes in Windows, Mac, Linux, and (Emscripten). Requires glfw, cmake, and curl. Tips on making things work smoothly on all platforms is appreciated.
+Follow instructions for building raylib for your platform [here](https://github.com/raysan5/raylib/wiki)
 
 1. Add the dependency to your `Cargo.toml`:
 
