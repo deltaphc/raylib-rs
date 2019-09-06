@@ -34,6 +34,10 @@ name = "rgui"
 path = "./rgui.rs"
 
 [[bin]]
+name = "rgui-button"
+path = "./rgui_button.rs"
+
+[[bin]]
 name = "file"
 path = "./file.rs"
 
