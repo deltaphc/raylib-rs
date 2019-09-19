@@ -66,7 +66,7 @@ impl Model {
             )
         }
     }
-    pub fn materials_mut(&mut self) -> &[Material] {
+    pub fn materials_mut(&mut self) -> &mut [Material] {
         unsafe {
             std::slice::from_raw_parts_mut(
                 self.0.materials as *mut Material,
@@ -80,7 +80,7 @@ impl Model {
             std::slice::from_raw_parts(self.0.bones as *const BoneInfo, self.0.boneCount as usize)
         }
     }
-    pub fn bones_mut(&mut self) -> &[BoneInfo] {
+    pub fn bones_mut(&mut self) -> &mut [BoneInfo] {
         unsafe {
             std::slice::from_raw_parts_mut(self.0.bones as *mut BoneInfo, self.0.boneCount as usize)
         }
