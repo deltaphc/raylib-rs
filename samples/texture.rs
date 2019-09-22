@@ -7,7 +7,7 @@ mod options;
 fn main() {
     let opt = options::Opt::from_args();
     let (mut rl, thread) = opt.open_window("Texture");
-    let (w, h) = (opt.width, opt.height);
+    let (_w, _h) = (opt.width, opt.height);
     let i =
             Image::load_image("static/billboard.png").expect("could not load image billboard");
         let _ = rl
