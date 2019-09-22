@@ -1144,6 +1144,28 @@ impl Matrix {
         }
     }
 
+    /// Returns the zero matriz.
+    pub fn zero() -> Matrix {
+        Matrix {
+            m0: 0.0,
+            m4: 0.0,
+            m8: 0.0,
+            m12: 0.0,
+            m1: 0.0,
+            m5: 0.0,
+            m9: 0.0,
+            m13: 0.0,
+            m2: 0.0,
+            m6: 0.0,
+            m10: 0.0,
+            m14: 0.0,
+            m3: 0.0,
+            m7: 0.0,
+            m11: 0.0,
+            m15: 0.0,
+        }
+    }
+
     /// Returns a translation matrix.
     pub fn translate(x: f32, y: f32, z: f32) -> Matrix {
         Matrix {
@@ -1246,6 +1268,32 @@ impl Matrix {
         result.m1 = -sinres;
         result.m4 = sinres;
         result.m5 = cosres;
+        result
+    }
+
+    /// Returns xyz-rotation matrix (angles in radians)
+    pub fn rotate_xyz(ang: Vector3) -> Self {
+        let mut result = Self::identity();
+
+        let cosz = -ang.z.cos();
+        let sinz = -ang.z.sin();
+        let cosy = -ang.y.cos();
+        let siny = -ang.y.sin();
+        let cosx = -ang.x.cos();
+        let sinx = -ang.x.sin();
+
+        result.m0 = cosz * cosy;
+        result.m4 = (cosz * siny * sinx) - (sinz * cosx);
+        result.m8 = (cosz * siny * cosx) + (sinz * sinx);
+
+        result.m1 = sinz * cosy;
+        result.m5 = (sinz * siny * sinx) + (cosz * cosx);
+        result.m9 = (sinz * siny * cosx) - (cosz * sinx);
+
+        result.m2 = -siny;
+        result.m6 = cosy * sinx;
+        result.m10 = cosy * cosx;
+
         result
     }
 

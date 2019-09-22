@@ -48,6 +48,11 @@ impl Model {
     pub fn transform(&self) -> &crate::math::Matrix {
         unsafe { std::mem::transmute(&self.0.transform) }
     }
+
+    pub fn set_transform(&mut self, mat: &crate::math::Matrix) {
+        self.transform = mat.into();
+    }
+
     pub fn meshes(&self) -> &[Mesh] {
         unsafe {
             std::slice::from_raw_parts(self.0.meshes as *const Mesh, self.0.meshCount as usize)
@@ -350,7 +355,7 @@ impl Material {
 impl RaylibMaterial for WeakMaterial {}
 impl RaylibMaterial for Material {}
 
-trait RaylibMaterial: AsRef<ffi::Material> + AsMut<ffi::Material> {
+pub trait RaylibMaterial: AsRef<ffi::Material> + AsMut<ffi::Material> {
     fn shader(&self) -> &crate::shaders::Shader {
         unsafe { std::mem::transmute(&self.as_ref().shader) }
     }

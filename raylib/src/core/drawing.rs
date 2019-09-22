@@ -24,7 +24,6 @@ impl RaylibHandle {
 
 pub trait RaylibSurface {}
 impl RaylibSurface for RaylibHandle {}
-impl RaylibSurface for RenderTexture2D {}
 
 pub struct RaylibDrawHandle<'a, T: RaylibSurface>(&'a mut T);
 
@@ -32,6 +31,13 @@ impl<'a, T> RaylibDrawHandle<'a, T>
 where
     T: RaylibSurface,
 {
+
+    pub fn begin_texture_mode<F>(&mut self, mut framebuffer: impl AsMut<ffi::RenderTexture2D>, draw_fn: F) where F: Fn(&mut Self) {
+        unsafe { ffi::BeginTextureMode(*framebuffer.as_mut())}
+        draw_fn(self);
+        unsafe { ffi::EndTextureMode()}
+    }
+
     pub fn begin_shader_mode(&mut self, shader: impl AsRef<ffi::Shader>) -> RaylibShaderMode<Self> {
         unsafe { ffi::BeginShaderMode(*shader.as_ref()) }
         RaylibShaderMode { inner: self }

@@ -60,3 +60,8 @@ path = "./drop.rs"
 [[bin]]
 name = "texture"
 path = "./texture.rs"
+
+
+[[bin]]
+name = "yaw_pitch_roll"
+path = "yaw_pitch_roll.rs"

@@ -34,7 +34,7 @@ pub use crate::core::math::*;
 pub use crate::core::models::*;
 pub use crate::core::shaders::*;
 pub use crate::core::text::*;
-pub use crate::core::window::*;
 pub use crate::core::texture::*;
+pub use crate::core::window::*;
 pub use crate::core::*;
 pub use crate::*;
