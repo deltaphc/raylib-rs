@@ -23,6 +23,20 @@ const LATEST_RAYLIB_VERSION: &str = "2.5.0";
 const LATEST_RAYLIB_API_VERSION: &str = "2";
 
 fn build_with_cmake(src_path: &str) {
+    // CMake uses different lib directories on different systems.
+    // I do not know how CMake determines what directory to use,
+    // so we will check a few possibilities and use whichever is present.
+    fn join_cmake_lib_directory(path: PathBuf) -> PathBuf {
+        let possible_cmake_lib_directories = ["lib", "lib64", "lib32"];
+        for lib_directory in &possible_cmake_lib_directories {
+            let lib_path = path.join(lib_directory);
+            if lib_path.exists() {
+                return lib_path;
+            }
+        }
+        path
+    }
+
     let target = env::var("TARGET").expect("Cargo build scripts always have TARGET");
     let (platform, platform_os) = platform_from_target(&target);
 
@@ -41,18 +55,22 @@ fn build_with_cmake(src_path: &str) {
         Platform::RPI => conf.define("PLATFORM", "Raspberry Pi"),
     };
 
-    let c = conf.build();
+    let dst = conf.build();
+    let dst_lib = join_cmake_lib_directory(dst);
     // on windows copy the static library to the proper file name
     if platform_os == PlatformOS::Windows {
-        std::fs::copy(c.join("lib/raylib_static.lib"), c.join("lib/raylib.lib"))
-            .expect("filed to create windows library");
+        std::fs::copy(
+            dst_lib.join("raylib_static.lib"),
+            dst_lib.join("raylib.lib"),
+        )
+        .expect("filed to create windows library");
     } // on web copy libraylib.bc to libraylib.a
     if platform == Platform::Web {
-        std::fs::copy(c.join("lib/libraylib.bc"), c.join("lib/libraylib.a"))
+        std::fs::copy(dst_lib.join("libraylib.bc"), dst_lib.join("libraylib.a"))
             .expect("filed to create wasm library");
     }
     // println!("cmake build {}", c.display());
-    println!("cargo:rustc-link-search=native={}", c.join("lib").display());
+    println!("cargo:rustc-link-search=native={}", dst_lib.display());
 }
 
 fn gen_bindings() {
