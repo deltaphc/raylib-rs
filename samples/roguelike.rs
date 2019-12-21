@@ -289,7 +289,7 @@ impl Object {
 
     /// heal by the given amount, without going over the maximum
     pub fn heal(&mut self, amount: i32, game: &Game) {
-        let max_hp = self.max_hp(game);
+        let _max_hp = self.max_hp(game);
         if let Some(ref mut fighter) = self.fighter {
             fighter.hp += amount;
             if fighter.hp > fighter.base_max_hp {
@@ -752,7 +752,7 @@ fn place_objects(room: Rectangle, map: &Map, objects: &mut Vec<Object>, level: u
             item: Item::Shield,
         },
     ];
-    let item_choice = WeightedChoice::new(item_chances);
+    let _item_choice = WeightedChoice::new(item_chances);
 
     // choose random number of items
     let num_items = rand::thread_rng().gen_range(0, max_items + 1);
@@ -914,7 +914,7 @@ fn play_game(
     objects: &mut Vec<Object>,
 ) {
     // force FOV "recompute" through the game loop
-    let mut previous_player_positon = (-1, -1);
+    let previous_player_positon = (-1, -1);
 
     while !rl.window_should_close() {
         // logic
@@ -941,7 +941,7 @@ fn play_game(
         // drawing
         let mut d = rl.begin_drawing(&thread);
         d.clear_background(Color::GRAY);
-        let mut player = &objects[PLAYER];
+        let player = &objects[PLAYER];
         let fov_recompute = previous_player_positon != (player.x, player.y);
         render_all(tcod, &mut d, game, objects, fov_recompute);
     }
@@ -952,7 +952,7 @@ fn main() {
     opt.width = 800;
     opt.height = 640;
     let (mut rl, thread) = opt.open_window("Roguelike");
-    let (w, h) = (opt.width, opt.height);
+    let (_w, _h) = (opt.width, opt.height);
     rl.set_target_fps(20);
 
     // build FOV map
@@ -1021,7 +1021,7 @@ fn handle_keys(
                 if exit {
                     break;
                 }
-                if let Some(key) = rl.get_key_pressed_number() {
+                if let Some(_key) = rl.get_key_pressed_number() {
                     exit = true;
                 }
             }
@@ -1045,7 +1045,7 @@ fn handle_keys(
                 if exit {
                     break;
                 }
-                if let Some(key) = rl.get_key_pressed_number() {
+                if let Some(_key) = rl.get_key_pressed_number() {
                     exit = true;
                 }
             }
@@ -1085,7 +1085,7 @@ Defense: {}",
                         render_all(tcod, &mut d, game, objects, false);
                         msgbox(&msg, CHARACTER_SCREEN_WIDTH, &mut d);
                     }
-                    if let Some(key) = rl.get_key_pressed_number() {
+                    if let Some(_key) = rl.get_key_pressed_number() {
                         break;
                     }
                 }
@@ -1173,8 +1173,8 @@ fn use_item(
 }
 
 fn cast_heal(
-    rl: &mut RaylibHandle,
-    thread: &RaylibThread,
+    _rl: &mut RaylibHandle,
+    _thread: &RaylibThread,
     _inventory_id: usize,
     _tcod: &mut Tcod,
     game: &mut Game,
@@ -1196,8 +1196,8 @@ fn cast_heal(
 }
 
 fn cast_lightning(
-    rl: &mut RaylibHandle,
-    thread: &RaylibThread,
+    _rl: &mut RaylibHandle,
+    _thread: &RaylibThread,
     _inventory_id: usize,
     tcod: &mut Tcod,
     game: &mut Game,
@@ -1312,12 +1312,12 @@ fn cast_fireball(
 }
 
 fn toggle_equipment(
-    rl: &mut RaylibHandle,
-    thread: &RaylibThread,
+    _rl: &mut RaylibHandle,
+    _thread: &RaylibThread,
     inventory_id: usize,
-    tcod: &mut Tcod,
+    _tcod: &mut Tcod,
     game: &mut Game,
-    objects: &mut [Object],
+    _objects: &mut [Object],
 ) -> UseResult {
     let equipment = match game.inventory[inventory_id].equipment {
         Some(equipment) => equipment,

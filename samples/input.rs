@@ -7,9 +7,9 @@ mod options;
 fn main() {
     let opt = options::Opt::from_args();
     let (mut rl, thread) = opt.open_window("Input");
-    let (w, h) = (opt.width, opt.height);
-    let rust_orange = Color::new(222, 165, 132, 255);
-    let ray_white = Color::new(255, 255, 255, 255);
+    let (_w, _h) = (opt.width, opt.height);
+    let _rust_orange = Color::new(222, 165, 132, 255);
+    let _ray_white = Color::new(255, 255, 255, 255);
 
     rl.set_target_fps(60);
     while !rl.window_should_close() {
