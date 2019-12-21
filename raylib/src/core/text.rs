@@ -243,18 +243,18 @@ pub fn gen_image_font_atlas(
 }
 
 impl RaylibHandle {
-    /// Measures string width in pixels for default font.
-    #[inline]
-    pub fn measure_text(&self, text: &str, font_size: i32) -> i32 {
-        let c_text = CString::new(text).unwrap();
-        unsafe { ffi::MeasureText(c_text.as_ptr(), font_size) }
-    }
-
     /// Gets the default font.
     #[inline]
     pub fn get_font_default(&self) -> WeakFont {
         WeakFont(unsafe { ffi::GetFontDefault() })
     }
+}
+
+/// Measures string width in pixels for default font.
+#[inline]
+pub fn measure_text(text: &str, font_size: i32) -> i32 {
+    let c_text = CString::new(text).unwrap();
+    unsafe { ffi::MeasureText(c_text.as_ptr(), font_size) }
 }
 
 /// Measures string width in pixels for `font`.

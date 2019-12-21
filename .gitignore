@@ -5,3 +5,4 @@ Cargo.lock
 /.idea
 raylib/test_out/*
 !raylib/test_out/.gitkeep
+samples/savegame

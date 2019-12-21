@@ -117,7 +117,8 @@ fn main() {
         let center_y = (framebuffer.texture().height() / 2) as f32;
         let scale_factor = 0.5;
         {
-            d.begin_texture_mode(&mut framebuffer, |d| {
+            let mut d = d.begin_texture_mode(&mut framebuffer);
+            {
                 let mut d = d.begin_blend_mode(raylib::consts::BlendMode::BLEND_ALPHA);
                 d.draw_texture_pro(
                     &tex_background,
@@ -186,7 +187,7 @@ fn main() {
                     0.0,
                     Color::WHITE,
                 );
-            })
+            }
         }
         // Draw 3D model (recomended to draw 3D always before 2D)
         {
@@ -261,7 +262,7 @@ fn main() {
 
 // Draw angle gauge controls
 fn draw_angle_gauge(
-    d: &mut RaylibDrawHandle<RaylibHandle>,
+    d: &mut RaylibDrawHandle,
     angle_gauge: &Texture2D,
     x: i32,
     y: i32,
@@ -291,14 +292,14 @@ fn draw_angle_gauge(
 
     d.draw_text(
         &format!("{:5.1}", angle),
-        x - d.measure_text(&format!("{:5.1}", angle), text_size) / 2,
+        x - measure_text(&format!("{:5.1}", angle), text_size) / 2,
         y + 10,
         text_size,
         Color::DARKGRAY,
     );
     d.draw_text(
         title,
-        x - d.measure_text(title, text_size) / 2,
+        x - measure_text(title, text_size) / 2,
         y + 60,
         text_size,
         Color::DARKGRAY,
