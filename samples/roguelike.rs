@@ -16,8 +16,10 @@ use tcod::map::{FovAlgorithm, Map as FovMap};
 
 mod options;
 
+/// Keep the player at index zero
 const PLAYER: usize = 0;
 
+// Window size
 const W: i32 = 800;
 const H: i32 = 640;
 const SCREEN_WIDTH: i32 = 80;
@@ -25,38 +27,49 @@ const SCREEN_HEIGHT: i32 = 50;
 const TILE_WIDTH: i32 = W / SCREEN_WIDTH;
 const TILE_HEIGHT: i32 = H / SCREEN_HEIGHT;
 
+// Size for health bars
 const BAR_WIDTH: i32 = 20;
 const PANEL_HEIGHT: i32 = 7;
 const PANEL_Y: i32 = SCREEN_HEIGHT - PANEL_HEIGHT;
 
+// Size for messages
 const MSG_X: i32 = BAR_WIDTH + 2;
 const MSG_WIDTH: i32 = SCREEN_WIDTH - BAR_WIDTH - 2;
 const MSG_HEIGHT: usize = PANEL_HEIGHT as usize - 1;
 
+// Size of the map
 const MAP_WIDTH: i32 = 80;
 const MAP_HEIGHT: i32 = 43;
 
+// Size of the room
 const ROOM_MAX_SIZE: i32 = 10;
 const ROOM_MIN_SIZE: i32 = 6;
 const MAX_ROOMS: i32 = 30;
 
+// Color of the world
 const COLOR_DARK_WALL: Color = Color::new(0, 0, 100, 255);
 const COLOR_DARK_GROUND: Color = Color::new(50, 50, 150, 255);
 
+// FOV
 const FOV_ALGO: FovAlgorithm = FovAlgorithm::Basic;
 const FOV_LIGHT_WALLS: bool = true;
 const TORCH_RADIUS: i32 = 10;
 
+// What the inventory menu width looks like
 const INVENTORY_WIDTH: i32 = 50;
 
+// How much an item heals
 const HEAL_AMOUNT: i32 = 4;
 
+// How much damage a lightning spell does
 const LIGHTNING_DAMAGE: i32 = 40;
 const LIGHTNING_RANGE: i32 = 5;
 
+// Confusion spell config
 const CONFUSE_RANGE: i32 = 8;
 const CONFUSE_NUM_TURNS: i32 = 10;
 
+// Fireball spell config
 const FIREBALL_RADIUS: i32 = 3;
 const FIREBALL_DAMAGE: i32 = 12;
 
@@ -77,13 +90,18 @@ pub trait RectExt: std::ops::Deref<Target = Rectangle> {
     }
 }
 
+// Boom, rectangles now have a center() method
 impl RectExt for &Rectangle {}
 
+/// Tcod contains the fov map. Unlike the tutorial we won't put framebuffers and other drawing
+/// things here
 struct Tcod {
     fov: FovMap,
     mouse: Vector2,
 }
 
+/// This enum tells us if the player has taken an action. This is significant
+/// as monsters will not take a turn unless we mark a player action
 #[derive(Clone, Copy, Debug, PartialEq, Serialize, Deserialize)]
 enum PlayerAction {
     TookTurn,
@@ -91,6 +109,8 @@ enum PlayerAction {
     Exit,
 }
 
+/// Instead of attaching the closure to a component we mark it with
+/// an enum so we can make it serializable
 #[derive(Clone, Copy, Debug, PartialEq, Serialize, Deserialize)]
 enum DeathCallback {
     Player,
@@ -98,6 +118,7 @@ enum DeathCallback {
 }
 
 impl DeathCallback {
+    /// Simple fn dispatch
     fn callback(self, object: &mut Object, game: &mut Game) {
         use DeathCallback::*;
         let callback: fn(&mut Object, &mut Game) = match self {
@@ -118,6 +139,7 @@ struct Equipment {
     max_hp_bonus: i32,
 }
 
+/// Player can hold three items
 #[derive(Clone, Copy, Debug, PartialEq, Serialize, Deserialize)]
 enum Slot {
     LeftHand,
@@ -135,6 +157,7 @@ impl std::fmt::Display for Slot {
     }
 }
 
+/// Anything that can attack or do damage
 #[derive(Clone, Copy, Debug, PartialEq, Serialize, Deserialize)]
 struct Fighter {
     base_max_hp: i32,
@@ -145,6 +168,7 @@ struct Fighter {
     on_death: DeathCallback,
 }
 
+/// Monsters have to move somehow
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 enum Ai {
     Basic,
@@ -154,6 +178,7 @@ enum Ai {
     },
 }
 
+/// Pickups in the world
 #[derive(Clone, Copy, Debug, PartialEq, Serialize, Deserialize)]
 enum Item {
     Heal,
@@ -164,12 +189,15 @@ enum Item {
     Shield,
 }
 
+/// What to do with an item after using it
 enum UseResult {
     UsedUp,
     UsedAndKept,
     Cancelled,
 }
 
+/// We need to Serialize Colors. Unfortunately we can't use the trait extension
+/// method we did before
 #[derive(Clone, Copy, Debug, Serialize, Deserialize)]
 struct Col(u8, u8, u8, u8);
 
@@ -185,6 +213,8 @@ impl From<Color> for Col {
     }
 }
 
+/// Objects in the game. Items, monsters and the player. Items go in inventory.
+/// insead of the objects vector
 #[derive(Clone, Debug, Serialize, Deserialize)]
 struct Object {
     x: i32,
