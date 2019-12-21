@@ -1,6 +1,6 @@
 [package]
 name = "raylib-test"
-version = "0.11.0"
+version = "1.0.0"
 authors = ["David Ayeke"]
 edition = "2018"
 license = "Zlib"
@@ -9,5 +9,5 @@ repository = "https://github.com/deltaphc/raylib-rs"
 
 
 [dependencies]
-raylib = { version = "0.11", path = "../raylib" }
+raylib = { version = "1.0", path = "../raylib" }
 lazy_static = "1.2.0"
