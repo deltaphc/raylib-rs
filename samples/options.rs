@@ -15,6 +15,7 @@ pub struct Opt {
 }
 
 impl Opt {
+    #[allow(dead_code)]
     pub fn new() -> Self {
         Opt::from_args()
     }

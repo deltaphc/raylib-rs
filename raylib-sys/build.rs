@@ -198,11 +198,6 @@ fn download_to(url: &str, dest: &str) {
     use std::io::Read;
 
     let resp = ureq::get(url).call();
-    assert!(resp.has("Content-Length"));
-    let len = resp
-        .header("Content-Length")
-        .and_then(|s| s.parse::<usize>().ok())
-        .unwrap();
 
     let mut reader = resp.into_reader();
     let mut bytes = vec![];
@@ -210,7 +205,6 @@ fn download_to(url: &str, dest: &str) {
         .read_to_end(&mut bytes)
         .expect("Couldn't download raylib zip.");
 
-    assert_eq!(bytes.len(), len);
     fs::write(dest, bytes).expect("Unable to write raylib to disk.");
     // run_command("curl", &[url, "-o", dest]);
 }

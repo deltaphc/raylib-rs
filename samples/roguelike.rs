@@ -1307,6 +1307,7 @@ fn cast_fireball(
             }
         }
     }
+    objects[PLAYER].fighter.as_mut().unwrap().xp += xp_to_gain;
 
     UseResult::UsedUp
 }
