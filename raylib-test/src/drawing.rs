@@ -1,16 +1,15 @@
-
 #[cfg(test)]
 mod draw_test {
-    use raylib::prelude::*;
     use crate::tests::*;
+    use raylib::prelude::*;
     ray_draw_test!(test_pixel);
-    fn test_pixel(d: &mut RaylibDrawHandle<RaylibHandle>, _: &TestAssets) {
+    fn test_pixel(d: &mut RaylibDrawHandle, _: &TestAssets) {
         d.clear_background(Color::WHITE);
         d.draw_pixel(10, 10, Color::RED);
         d.draw_pixel_v(Vector2::new(20.0, 20.0), Color::RED);
     }
     ray_draw_test!(test_line);
-    fn test_line(d: &mut RaylibDrawHandle<RaylibHandle>, _: &TestAssets) {
+    fn test_line(d: &mut RaylibDrawHandle, _: &TestAssets) {
         d.clear_background(Color::WHITE);
         d.draw_line(0, 5, 100, 5, Color::RED);
         d.draw_line_v(
@@ -32,7 +31,7 @@ mod draw_test {
         );
     }
     ray_draw_test!(test_circle);
-    fn test_circle(d: &mut RaylibDrawHandle<RaylibHandle>, _: &TestAssets) {
+    fn test_circle(d: &mut RaylibDrawHandle, _: &TestAssets) {
         d.clear_background(Color::WHITE);
         d.draw_circle(20, 20, 10.0, Color::RED);
         d.draw_circle_v(Vector2::new(40.0, 20.0), 10.0, Color::RED);
@@ -45,7 +44,7 @@ mod draw_test {
     }
 
     ray_draw_test!(test_rectangle);
-    fn test_rectangle(d: &mut RaylibDrawHandle<RaylibHandle>, _: &TestAssets) {
+    fn test_rectangle(d: &mut RaylibDrawHandle, _: &TestAssets) {
         d.clear_background(Color::WHITE);
         d.draw_rectangle(10, 10, 10, 10, Color::RED);
         d.draw_rectangle_v(
@@ -87,7 +86,7 @@ mod draw_test {
     }
 
     ray_draw_test!(test_triangle);
-    fn test_triangle(d: &mut RaylibDrawHandle<RaylibHandle>, _: &TestAssets) {
+    fn test_triangle(d: &mut RaylibDrawHandle, _: &TestAssets) {
         d.clear_background(Color::WHITE);
         d.draw_triangle(
             Vector2::new(30.0, 30.0),
@@ -104,7 +103,7 @@ mod draw_test {
     }
 
     ray_draw_test!(test_poly);
-    fn test_poly(d: &mut RaylibDrawHandle<RaylibHandle>, _: &TestAssets) {
+    fn test_poly(d: &mut RaylibDrawHandle, _: &TestAssets) {
         d.clear_background(Color::WHITE);
         d.draw_poly(Vector2::new(100.0, 100.0), 12, 20.0, 45.0, Color::RED);
     }

@@ -1,8 +1,7 @@
-
 #[cfg(test)]
 mod text_test {
-    use raylib::prelude::*;
     use crate::tests::*;
+    use raylib::prelude::*;
     ray_test!(test_font_load);
     fn test_font_load(thread: &RaylibThread) {
         let mut handle = TEST_HANDLE.write().unwrap();
@@ -13,14 +12,14 @@ mod text_test {
     }
 
     ray_draw_test!(test_default_font);
-    fn test_default_font(d: &mut RaylibDrawHandle<RaylibHandle>, _: &TestAssets) {
+    fn test_default_font(d: &mut RaylibDrawHandle, _: &TestAssets) {
         d.clear_background(Color::WHITE);
         d.draw_fps(0, 0);
         d.draw_text("Hello World", 100, 100, 32, Color::RED);
     }
 
     ray_draw_test!(test_custom_font);
-    fn test_custom_font(d: &mut RaylibDrawHandle<RaylibHandle>, assets: &TestAssets) {
+    fn test_custom_font(d: &mut RaylibDrawHandle, assets: &TestAssets) {
         d.clear_background(Color::WHITE);
         d.draw_fps(0, 0);
         d.draw_text_ex(

@@ -1,9 +1,10 @@
-
 #[cfg(test)]
 mod core_test {
     use super::*;
-    use crate::core::camera::*;
     use crate::tests::*;
+    use raylib::camera::*;
+    use raylib::math::*;
+    use raylib::RaylibThread;
     #[test]
     fn test_clipboard() {
         let mut handle = TEST_HANDLE.write().unwrap();
@@ -40,6 +41,7 @@ mod core_test {
     }
 
     #[test]
+    #[cfg(not(target_os = "windows"))]
     fn test_window_ops() {
         // Call twice to make sure multiple calls won't panic
         let mut handle = TEST_HANDLE.write().unwrap();
