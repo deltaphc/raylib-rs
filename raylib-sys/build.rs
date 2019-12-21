@@ -171,7 +171,13 @@ fn main() {
     gen_rgui();
 }
 
+#[cfg(feature = "nobuild")]
+fn download_raylib() -> PathBuf {
+    env::var("OUT_DIR").unwrap().into()
+}
+
 /// download_raylib downloads raylib
+#[cfg(not(feature = "nobuild"))]
 fn download_raylib() -> PathBuf {
     let out_dir = env::var("OUT_DIR").unwrap();
 
