@@ -15,8 +15,3 @@ default-target = "wasm32-unknown-emscripten"
 # Asserts the minimum required version of `cargo-web` necessary
 # to compile this crate; supported since 0.6.0.
 minimum-version = "0.6.0"
-
-[target.emscripten]
-# This will enable Emscripten's SDL2 port. Consult Emscripten's documentation
-# for more details.
-link-args = ["-s", "USE_GLFW=3", "-s", "ASSERTIONS=1", "-s",  "ASYNCIFY=1", "--profiling"]
