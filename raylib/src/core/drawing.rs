@@ -3,7 +3,7 @@ use crate::core::camera::Camera3D;
 use crate::core::math::Ray;
 use crate::core::math::Vector2;
 use crate::core::models::Model;
-use crate::core::texture::{Texture2D};
+use crate::core::texture::Texture2D;
 use crate::core::vr::RaylibVR;
 use crate::core::{RaylibHandle, RaylibThread};
 use crate::ffi;
@@ -13,7 +13,7 @@ use std::ffi::CString;
 /// Seems like all draw commands must be issued from the main thread
 impl RaylibHandle {
     /// Setup canvas (framebuffer) to start drawing
-    pub fn begin_drawing(&mut self, _: &RaylibThread) -> RaylibDrawHandle<Self> {
+    pub fn begin_drawing(&mut self, _: &RaylibThread) -> RaylibDrawHandle {
         unsafe {
             ffi::BeginDrawing();
         };
@@ -22,36 +22,235 @@ impl RaylibHandle {
     }
 }
 
-pub trait RaylibSurface {}
-impl RaylibSurface for RaylibHandle {}
+pub struct RaylibDrawHandle<'a>(&'a mut RaylibHandle);
 
-pub struct RaylibDrawHandle<'a, T: RaylibSurface>(&'a mut T);
+impl<'a> Drop for RaylibDrawHandle<'a> {
+    fn drop(&mut self) {
+        unsafe {
+            ffi::EndDrawing();
+        }
+    }
+}
 
-impl<'a, T> RaylibDrawHandle<'a, T>
+impl<'a> std::ops::Deref for RaylibDrawHandle<'a> {
+    type Target = RaylibHandle;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+impl<'a> RaylibDraw for RaylibDrawHandle<'a> {}
+
+// Texture2D Stuff
+
+pub struct RaylibTextureMode<'a, T>(&'a T, &'a mut ffi::RenderTexture2D);
+impl<'a, T> Drop for RaylibTextureMode<'a, T> {
+    fn drop(&mut self) {
+        unsafe { ffi::EndTextureMode() }
+    }
+}
+impl<'a, T> std::ops::Deref for RaylibTextureMode<'a, T> {
+    type Target = T;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+pub trait RaylibTextureModeExt
 where
-    T: RaylibSurface,
+    Self: Sized,
 {
-
-    pub fn begin_texture_mode<F>(&mut self, mut framebuffer: impl AsMut<ffi::RenderTexture2D>, draw_fn: F) where F: Fn(&mut Self) {
-        unsafe { ffi::BeginTextureMode(*framebuffer.as_mut())}
-        draw_fn(self);
-        unsafe { ffi::EndTextureMode()}
+    fn begin_texture_mode<'a>(
+        &'a mut self,
+        framebuffer: &'a mut ffi::RenderTexture2D,
+    ) -> RaylibTextureMode<Self> {
+        unsafe { ffi::BeginTextureMode(*framebuffer) }
+        RaylibTextureMode(self, framebuffer)
     }
+}
 
-    pub fn begin_shader_mode(&mut self, shader: impl AsRef<ffi::Shader>) -> RaylibShaderMode<Self> {
-        unsafe { ffi::BeginShaderMode(*shader.as_ref()) }
-        RaylibShaderMode { inner: self }
+// Only the DrawHandle can start a texture
+impl<'a> RaylibTextureModeExt for RaylibDrawHandle<'a> {}
+impl<'a, T> RaylibDraw for RaylibTextureMode<'a, T> {}
+
+// VR Stuff
+
+pub struct RaylibVRMode<'a, T>(&'a T, &'a RaylibVR);
+impl<'a, T> Drop for RaylibVRMode<'a, T> {
+    fn drop(&mut self) {
+        unsafe { ffi::EndVrDrawing() }
     }
+}
+impl<'a, T> std::ops::Deref for RaylibVRMode<'a, T> {
+    type Target = T;
 
-    pub fn begin_blend_mode(
-        &mut self,
-        blend_mode: crate::consts::BlendMode,
-    ) -> RaylibBlendMode<Self> {
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+pub trait RaylibVRModeExt
+where
+    Self: Sized,
+{
+    fn begin_vr_mode<'a>(&'a mut self, vr: &'a RaylibVR) -> RaylibVRMode<Self> {
+        unsafe { ffi::BeginVrDrawing() }
+        RaylibVRMode(self, vr)
+    }
+}
+
+// Only the DrawHandle can start a texture
+impl<'a> RaylibVRModeExt for RaylibDrawHandle<'a> {}
+impl<'a, T> RaylibDraw for RaylibVRMode<'a, T> {}
+
+// 2D Mode
+
+pub struct RaylibMode2D<'a, T>(&'a mut T);
+impl<'a, T> Drop for RaylibMode2D<'a, T> {
+    fn drop(&mut self) {
+        unsafe { ffi::EndMode2D() }
+    }
+}
+impl<'a, T> std::ops::Deref for RaylibMode2D<'a, T> {
+    type Target = T;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+pub trait RaylibMode2DExt
+where
+    Self: Sized,
+{
+    #[allow(non_snake_case)]
+    fn begin_mode_2D(&mut self, camera: impl Into<ffi::Camera2D>) -> RaylibMode2D<Self> {
+        unsafe {
+            ffi::BeginMode2D(camera.into());
+        }
+        RaylibMode2D(self)
+    }
+}
+
+impl<D: RaylibDraw> RaylibMode2DExt for D {}
+impl<'a, T> RaylibDraw for RaylibMode2D<'a, T> {}
+
+// 3D Mode
+
+pub struct RaylibMode3D<'a, T>(&'a mut T);
+impl<'a, T> Drop for RaylibMode3D<'a, T> {
+    fn drop(&mut self) {
+        unsafe { ffi::EndMode3D() }
+    }
+}
+impl<'a, T> std::ops::Deref for RaylibMode3D<'a, T> {
+    type Target = T;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+pub trait RaylibMode3DExt
+where
+    Self: Sized,
+{
+    #[allow(non_snake_case)]
+    fn begin_mode_3D(&mut self, camera: impl Into<ffi::Camera3D>) -> RaylibMode3D<Self> {
+        unsafe {
+            ffi::BeginMode3D(camera.into());
+        }
+        RaylibMode3D(self)
+    }
+}
+
+impl<D: RaylibDraw> RaylibMode3DExt for D {}
+impl<'a, T> RaylibDraw for RaylibMode3D<'a, T> {}
+impl<'a, T> RaylibDraw3D for RaylibMode3D<'a, T> {}
+
+// shader Mode
+
+pub struct RaylibShaderMode<'a, T>(&'a mut T, &'a ffi::Shader);
+impl<'a, T> Drop for RaylibShaderMode<'a, T> {
+    fn drop(&mut self) {
+        unsafe { ffi::EndShaderMode() }
+    }
+}
+impl<'a, T> std::ops::Deref for RaylibShaderMode<'a, T> {
+    type Target = T;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+pub trait RaylibShaderModeExt
+where
+    Self: Sized,
+{
+    fn begin_shader_mode<'a>(&'a mut self, shader: &'a ffi::Shader) -> RaylibShaderMode<Self> {
+        unsafe { ffi::BeginShaderMode(*shader) }
+        RaylibShaderMode(self, shader)
+    }
+}
+
+impl<D: RaylibDraw> RaylibShaderModeExt for D {}
+impl<'a, T> RaylibDraw for RaylibShaderMode<'a, T> {}
+impl<'a, T> RaylibDraw3D for RaylibShaderMode<'a, T> {}
+
+// Blend Mode
+
+pub struct RaylibBlendMode<'a, T>(&'a mut T);
+impl<'a, T> Drop for RaylibBlendMode<'a, T> {
+    fn drop(&mut self) {
+        unsafe { ffi::EndBlendMode() }
+    }
+}
+impl<'a, T> std::ops::Deref for RaylibBlendMode<'a, T> {
+    type Target = T;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+pub trait RaylibBlendModeExt
+where
+    Self: Sized,
+{
+    fn begin_blend_mode(&mut self, blend_mode: crate::consts::BlendMode) -> RaylibBlendMode<Self> {
         unsafe { ffi::BeginBlendMode((blend_mode as u32) as i32) }
         RaylibBlendMode(self)
     }
+}
 
-    pub fn begin_scissor_mode(
+impl<D: RaylibDraw> RaylibBlendModeExt for D {}
+impl<'a, T> RaylibDraw for RaylibBlendMode<'a, T> {}
+impl<'a, T> RaylibDraw3D for RaylibBlendMode<'a, T> {}
+
+// Scissor Mode stuff
+
+pub struct RaylibScissorMode<'a, T>(&'a mut T);
+impl<'a, T> Drop for RaylibScissorMode<'a, T> {
+    fn drop(&mut self) {
+        unsafe { ffi::EndScissorMode() }
+    }
+}
+impl<'a, T> std::ops::Deref for RaylibScissorMode<'a, T> {
+    type Target = T;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+pub trait RaylibScissorModeExt
+where
+    Self: Sized,
+{
+    fn begin_scissor_mode(
         &mut self,
         x: i32,
         y: i32,
@@ -61,179 +260,14 @@ where
         unsafe { ffi::BeginScissorMode(x, y, width, height) }
         RaylibScissorMode(self)
     }
-
-    #[allow(non_snake_case)]
-    pub fn begin_mode_2D(
-        &mut self,
-        camera: impl Into<ffi::Camera2D>,
-    ) -> RaylibMode2D<RaylibDrawHandle<'a, T>> {
-        unsafe {
-            ffi::BeginMode2D(camera.into());
-        }
-        RaylibMode2D(self)
-    }
-
-    #[allow(non_snake_case)]
-    pub fn begin_mode_3D(
-        &mut self,
-        camera: impl Into<ffi::Camera3D>,
-    ) -> RaylibMode3D<RaylibDrawHandle<'a, T>> {
-        unsafe {
-            ffi::BeginMode3D(camera.into());
-        }
-        RaylibMode3D(self)
-    }
-
-    pub fn begin_vr_drawing(&mut self, _vr: &RaylibVR) -> RaylibVRDraw<RaylibDrawHandle<'a, T>> {
-        unsafe { ffi::BeginVrDrawing() };
-        RaylibVRDraw(self)
-    }
 }
 
-impl<'a, T> Drop for RaylibDrawHandle<'a, T>
-where
-    T: RaylibSurface,
-{
-    fn drop(&mut self) {
-        unsafe {
-            ffi::EndDrawing();
-        }
-    }
-}
+impl<D: RaylibDraw> RaylibScissorModeExt for D {}
+impl<'a, T> RaylibDraw for RaylibScissorMode<'a, T> {}
+impl<'a, T: RaylibDraw3D> RaylibDraw3D for RaylibScissorMode<'a, T> {}
 
-impl<'a> std::ops::Deref for RaylibDrawHandle<'a, RaylibHandle> {
-    type Target = RaylibHandle;
+// Actual drawing functions
 
-    fn deref(&self) -> &Self::Target {
-        &self.0
-    }
-}
-
-pub struct RaylibVRDraw<'a, T>(&'a mut T);
-
-impl<'a, T> RaylibVRDraw<'a, T> {
-    #[allow(non_snake_case)]
-    pub fn begin_mode_3D(
-        &mut self,
-        camera: impl Into<ffi::Camera3D>,
-    ) -> RaylibMode3D<RaylibVRDraw<'a, T>> {
-        unsafe {
-            ffi::BeginMode3D(camera.into());
-        }
-        RaylibMode3D(self)
-    }
-}
-
-impl<'a, T> Drop for RaylibVRDraw<'a, T> {
-    fn drop(&mut self) {
-        unsafe {
-            ffi::EndVrDrawing();
-        }
-    }
-}
-
-pub struct RaylibMode2D<'a, T>(&'a mut T);
-
-impl<'a, T> RaylibMode2D<'a, T> {
-    pub fn begin_shader_mode(&mut self, shader: impl AsRef<ffi::Shader>) -> RaylibShaderMode<Self> {
-        unsafe { ffi::BeginShaderMode(*shader.as_ref()) }
-        RaylibShaderMode { inner: self }
-    }
-
-    pub fn begin_blend_mode(
-        &mut self,
-        blend_mode: crate::consts::BlendMode,
-    ) -> RaylibBlendMode<Self> {
-        unsafe { ffi::BeginBlendMode((blend_mode as u32) as i32) }
-        RaylibBlendMode(self)
-    }
-}
-
-impl<'a, T> Drop for RaylibMode2D<'a, T> {
-    fn drop(&mut self) {
-        unsafe {
-            ffi::EndMode2D();
-        }
-    }
-}
-
-pub struct RaylibMode3D<'a, T>(&'a mut T);
-
-impl<'a, T> RaylibMode3D<'a, T> {
-    pub fn begin_shader_mode(&mut self, shader: impl AsRef<ffi::Shader>) -> RaylibShaderMode<Self> {
-        unsafe { ffi::BeginShaderMode(*shader.as_ref()) }
-        RaylibShaderMode { inner: self }
-    }
-
-    pub fn begin_blend_mode(
-        &mut self,
-        blend_mode: crate::consts::BlendMode,
-    ) -> RaylibBlendMode<Self> {
-        unsafe { ffi::BeginBlendMode((blend_mode as u32) as i32) }
-        RaylibBlendMode(self)
-    }
-}
-
-impl<'a, T> Drop for RaylibMode3D<'a, T> {
-    fn drop(&mut self) {
-        unsafe {
-            ffi::EndMode3D();
-        }
-    }
-}
-
-pub struct RaylibShaderMode<'a, T: RaylibDraw> {
-    inner: &'a mut T,
-}
-
-impl<'a, T> Drop for RaylibShaderMode<'a, T>
-where
-    T: RaylibDraw,
-{
-    fn drop(&mut self) {
-        unsafe {
-            ffi::EndShaderMode();
-        }
-    }
-}
-
-pub struct RaylibBlendMode<'a, T: RaylibDraw>(&'a mut T);
-
-impl<'a, T> Drop for RaylibBlendMode<'a, T>
-where
-    T: RaylibDraw,
-{
-    fn drop(&mut self) {
-        unsafe {
-            ffi::EndBlendMode();
-        }
-    }
-}
-
-pub struct RaylibScissorMode<'a, T: RaylibDraw>(&'a mut T);
-
-impl<'a, T> Drop for RaylibScissorMode<'a, T>
-where
-    T: RaylibDraw,
-{
-    fn drop(&mut self) {
-        unsafe {
-            ffi::EndScissorMode();
-        }
-    }
-}
-
-impl<'a, T> RaylibDraw for RaylibShaderMode<'a, T> where T: RaylibDraw {}
-impl<'a, T> RaylibDraw for RaylibBlendMode<'a, T> where T: RaylibDraw {}
-impl<'a, T> RaylibDraw for RaylibScissorMode<'a, T> where T: RaylibDraw {}
-impl<'a, T> RaylibDraw for RaylibMode2D<'a, T> {}
-impl<'a, T> RaylibDraw for RaylibMode3D<'a, T> {}
-impl<'a, T> RaylibDraw for RaylibDrawHandle<'a, T> where T: RaylibSurface {}
-impl<'a, T> RaylibDraw3D for RaylibMode3D<'a, T> {}
-impl<'a, T> RaylibDraw3D for RaylibShaderMode<'a, T> where T: RaylibDraw + RaylibDraw3D {}
-impl<'a, T> RaylibDraw3D for RaylibBlendMode<'a, T> where T: RaylibDraw + RaylibDraw3D {}
-impl<'a, T> RaylibDraw3D for RaylibScissorMode<'a, T> where T: RaylibDraw + RaylibDraw3D {}
-/// TODO figure out if you can draw 2D things in 3D mode and vice versa
 pub trait RaylibDraw {
     /// Sets background color (framebuffer clear color).
     #[inline]

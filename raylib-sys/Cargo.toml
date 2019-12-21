@@ -1,6 +1,6 @@
 [package]
 name = "raylib-sys"
-version = "0.11.0"
+version = "1.0.0"
 authors = ["DeltaPHC <phclem@protonmail.com>"]
 license = "Zlib"
 description = "Raw FFI bindings for Raylib"
@@ -15,3 +15,9 @@ tar = "0.4"
 flate2 = "0.2"
 cmake = "0.1.35"
 cc = "1.0"
+ureq = "0.11"
+
+[features]
+default = []
+# Build Raylib headless for docs. Up to you to link
+nobuild = []

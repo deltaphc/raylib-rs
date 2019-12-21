@@ -2,6 +2,7 @@ use crate::test::{TestDescAndFn, TestFn};
 use lazy_static::lazy_static;
 use raylib::prelude::*;
 use std::sync::RwLock;
+use test::test::parse_opts;
 
 pub const TEST_WIDTH: i32 = 640;
 pub const TEST_HEIGHT: i32 = 480;
@@ -29,7 +30,7 @@ fn clone_testfn(testfn: &TestFn) -> TestFn {
 pub fn test_runner(tests: &[&Testable]) {
     let (thread, assets) = {
         let mut handle = TEST_HANDLE.write().unwrap();
-        let (rl, thread) = crate::core::init()
+        let (rl, thread) = raylib::init()
             .size(TEST_WIDTH, TEST_HEIGHT)
             .title("Hello, World")
             .build();
@@ -45,7 +46,7 @@ pub fn test_runner(tests: &[&Testable]) {
     };
 
     let args = std::env::args().collect::<Vec<_>>();
-    let opts = match test::parse_opts(&args) {
+    let opts = match parse_opts(&args) {
         Some(Ok(o)) => o,
         Some(Err(msg)) => panic!("{:?}", msg),
         None => return,
@@ -127,7 +128,7 @@ pub struct RayTest {
 
 pub struct RayDrawTest {
     pub name: &'static str,
-    pub test: fn(&mut RaylibDrawHandle<RaylibHandle>, &TestAssets),
+    pub test: fn(&mut RaylibDrawHandle, &TestAssets),
 }
 
 macro_rules! ray_test {

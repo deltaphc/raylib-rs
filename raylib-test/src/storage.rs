@@ -1,7 +1,9 @@
-
 #[cfg(test)]
 mod core_test {
+    use super::*;
+    use crate::tests::*;
     use raylib::prelude::*;
+
     #[test]
     fn test_storage() {
         let mut handle = TEST_HANDLE.write().unwrap();

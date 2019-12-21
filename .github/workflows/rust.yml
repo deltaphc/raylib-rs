@@ -10,6 +10,6 @@ jobs:
     steps:
     - uses: actions/checkout@v1
     - name: Build
-      run: cargo build --verbose
-    - name: Run tests
-      run: cargo test --verbose
+      run: cd raylib && cargo build --verbose --features nobuild
+    # - name: Run tests [Requires window system]
+      # run: cargo test -p raylib-test --verbose

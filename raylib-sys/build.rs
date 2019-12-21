@@ -22,6 +22,10 @@ use std::{env, fs};
 const LATEST_RAYLIB_VERSION: &str = "2.5.0";
 const LATEST_RAYLIB_API_VERSION: &str = "2";
 
+#[cfg(feature = "nobuild")]
+fn build_with_cmake(_src_path: &str) {}
+
+#[cfg(not(feature = "nobuild"))]
 fn build_with_cmake(src_path: &str) {
     // CMake uses different lib directories on different systems.
     // I do not know how CMake determines what directory to use,
@@ -119,16 +123,11 @@ fn gen_rgui() {
         .compile("rgui");
 }
 
-fn main() {
-    let target = env::var("TARGET").expect("Cargo build scripts always have TARGET");
-    let (platform, platform_os) = platform_from_target(&target);
+#[cfg(feature = "nobuild")]
+fn link(_platform: Platform, _platform_os: PlatformOS) {}
 
-    // Donwload raylib source
-    let src = download_raylib();
-    build_with_cmake(src.to_str().expect("failed to download raylib"));
-
-    gen_bindings();
-
+#[cfg(not(feature = "nobuild"))]
+fn link(platform: Platform, platform_os: PlatformOS) {
     match platform_os {
         PlatformOS::Windows => {
             println!("cargo:rustc-link-lib=dylib=winmm");
@@ -155,12 +154,30 @@ fn main() {
     }
 
     println!("cargo:rustc-link-lib=static=raylib");
+}
+
+fn main() {
+    let target = env::var("TARGET").expect("Cargo build scripts always have TARGET");
+    let (platform, platform_os) = platform_from_target(&target);
+
+    // Donwload raylib source
+    let src = download_raylib();
+    build_with_cmake(src.to_str().expect("failed to download raylib"));
+
+    gen_bindings();
+
+    link(platform, platform_os);
 
     gen_rgui();
+}
 
+#[cfg(feature = "nobuild")]
+fn download_raylib() -> PathBuf {
+    env::var("OUT_DIR").unwrap().into()
 }
 
 /// download_raylib downloads raylib
+#[cfg(not(feature = "nobuild"))]
 fn download_raylib() -> PathBuf {
     let out_dir = env::var("OUT_DIR").unwrap();
 
@@ -196,7 +213,18 @@ fn download_raylib() -> PathBuf {
 
 /// download_to uses powershell or curl to download raylib to the output directory.
 fn download_to(url: &str, dest: &str) {
-    run_command("curl", &[url, "-o", dest]);
+    use std::io::Read;
+
+    let resp = ureq::get(url).call();
+
+    let mut reader = resp.into_reader();
+    let mut bytes = vec![];
+    reader
+        .read_to_end(&mut bytes)
+        .expect("Couldn't download raylib zip.");
+
+    fs::write(dest, bytes).expect("Unable to write raylib to disk.");
+    // run_command("curl", &[url, "-o", dest]);
 }
 
 // run_command runs a command to completion or panics. Used for running curl and powershell.
@@ -274,14 +302,14 @@ fn uname() -> String {
     .to_owned()
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq)]
 enum Platform {
     Web,
     Desktop,
     RPI, // raspberry pi
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq)]
 enum PlatformOS {
     Windows,
     Linux,

@@ -55,7 +55,6 @@ impl<'a> System<'a> for DeathSys {
     );
 
     fn run(&mut self, (mut gs, players, fire): Self::SystemData) {
-        use specs::Join;
         // Touch fire then die
         if let Some(_) = (&players, &fire).join().nth(0) {
             *gs = GameState::LOST;
@@ -77,7 +76,6 @@ impl<'a> System<'a> for PlayerSys {
 
     fn run(&mut self, (ents, rl, emap, mut players, pos): Self::SystemData) {
         use raylib::consts::KeyboardKey::*;
-        use specs::Join;
 
         let player = (&*ents, &pos, &players).join().nth(0).unwrap();
 
@@ -120,7 +118,6 @@ impl<'a> System<'a> for DrawSys {
     );
 
     fn run(&mut self, (mut rl, player, tiles, pos, fire): Self::SystemData) {
-        use specs::Join;
         let (_, sh) = (rl.get_screen_width(), rl.get_screen_height());
         let tw = sh / TILE_COUNT - 2 * MARGIN;
 

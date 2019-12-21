@@ -1,6 +1,6 @@
 [package]
 name = "raylib"
-version = "0.11.2"
+version = "1.0.0"
 authors = ["DeltaPHC <phclem@protonmail.com>"]
 license = "Zlib"
 readme = "../README.md"
@@ -12,9 +12,13 @@ categories = ["api-bindings", "game-engines", "graphics"]
 edition = "2018"
 
 [dependencies]
-raylib-sys = { version = "0.11", path = "../raylib-sys" }
+raylib-sys = { version = "1.0", path = "../raylib-sys" }
 libc = "0.2.45"
 lazy_static = "1.2.0"
 
 [features]
 nightly = []
+nobuild = ["raylib-sys/nobuild"]
+
+[package.metadata.docs.rs]
+features = [ "nobuild" ]
