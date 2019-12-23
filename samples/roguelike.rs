@@ -4,7 +4,8 @@
 /// IMHO Don't write code like this. Use ECS and other methods to have game objects and components.
 /// Only do this as an exercise.
 extern crate raylib;
-use rand::distributions::{IndependentSample, Weighted, WeightedChoice};
+use rand::distributions::{ WeightedIndex };
+use rand::prelude::*;
 use rand::Rng;
 use raylib::prelude::*;
 use serde::{Deserialize, Serialize};
@@ -670,19 +671,12 @@ fn place_objects(room: Rectangle, map: &Map, objects: &mut Vec<Object>, level: u
             level,
         );
 
-        let monster_chances = &mut [
-            Weighted {
-                weight: 80,
-                item: "orc",
-            },
-            Weighted {
-                weight: troll_chance,
-                item: "troll",
-            },
-        ];
-        let monster_choice = WeightedChoice::new(monster_chances);
+        let monsters = ["orc", "troll"];
+        let monster_weights = [80, troll_chance];
+        let moster_distribution = WeightedIndex::new(&monster_weights).unwrap();
+        let mut rng = thread_rng();
 
-        let mut monster = match monster_choice.ind_sample(&mut rand::thread_rng()) {
+        let mut monster = match monsters[moster_distribution.sample(&mut rng)] {
             "orc" => {
                 // create an orc
                 let mut orc = Object::new(x, y, 'o', "orc", Color::GREEN.fade(0.8), true);
@@ -731,58 +725,46 @@ fn place_objects(room: Rectangle, map: &Map, objects: &mut Vec<Object>, level: u
     );
 
     // item random table
-    let item_chances = &mut [
-        // healing potion always shows up, even if all other items have 0 chance
-        Weighted {
-            weight: 35,
-            item: Item::Heal,
-        },
-        Weighted {
-            weight: from_dungeon_level(
-                &[Transition {
-                    level: 4,
-                    value: 25,
-                }],
-                level,
-            ),
-            item: Item::Lightning,
-        },
-        Weighted {
-            weight: from_dungeon_level(
-                &[Transition {
-                    level: 6,
-                    value: 25,
-                }],
-                level,
-            ),
-            item: Item::Fireball,
-        },
-        Weighted {
-            weight: from_dungeon_level(
-                &[Transition {
-                    level: 2,
-                    value: 10,
-                }],
-                level,
-            ),
-            item: Item::Confuse,
-        },
-        Weighted {
-            weight: from_dungeon_level(&[Transition { level: 4, value: 5 }], level),
-            item: Item::Sword,
-        },
-        Weighted {
-            weight: from_dungeon_level(
-                &[Transition {
-                    level: 8,
-                    value: 15,
-                }],
-                level,
-            ),
-            item: Item::Shield,
-        },
+    let items = [
+        Item::Heal,
+        Item::Lightning,
+        Item::Fireball,
+        Item::Confuse,
+        Item::Sword,
+        Item::Shield
     ];
-    let _item_choice = WeightedChoice::new(item_chances);
+    let item_weights = [
+        32,
+        from_dungeon_level(
+            &[Transition {
+                level: 4,
+                value: 25,
+            }],
+            level,
+        ),
+        from_dungeon_level(
+            &[Transition {
+                level: 6,
+                value: 25,
+            }],
+            level,
+        ),
+        from_dungeon_level(
+            &[Transition {
+                level: 2,
+                value: 10,
+            }],
+            level,
+        ),
+        from_dungeon_level(&[Transition { level: 4, value: 5 }], level),
+        from_dungeon_level(
+            &[Transition {
+                level: 8,
+                value: 15,
+            }],
+            level,
+        ),
+    ];
 
     // choose random number of items
     let num_items = rand::thread_rng().gen_range(0, max_items + 1);
@@ -793,8 +775,8 @@ fn place_objects(room: Rectangle, map: &Map, objects: &mut Vec<Object>, level: u
 
         // only place it if the tile is not blocked
         if !is_blocked(x, y, map, objects) {
-            let item_choice = WeightedChoice::new(item_chances);
-            let mut item = match item_choice.ind_sample(&mut rand::thread_rng()) {
+            let item_distribution = WeightedIndex::new(&item_weights).unwrap();
+            let mut item = match items[item_distribution.sample(&mut thread_rng())] {
                 Item::Heal => {
                     // create a healing potion
                     let mut object =
