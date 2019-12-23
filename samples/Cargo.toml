@@ -12,6 +12,7 @@ repository = "https://github.com/deltaphc/raylib-rs"
 raylib = { version = "1.0", path = "../raylib" }
 structopt = "0.2"
 specs-derive = "0.4"
+legion = "0.2.1"
 rand = "0.3.9"
 tcod = "0.15"
 serde = { version = "1.0", features = ["derive"] }
@@ -65,7 +66,6 @@ path = "./drop.rs"
 name = "texture"
 path = "./texture.rs"
 
-
 [[bin]]
 name = "yaw_pitch_roll"
 path = "yaw_pitch_roll.rs"
@@ -77,3 +77,7 @@ path = "roguelike.rs"
 [[bin]]
 name = "input"
 path = "input.rs"
+
+[[bin]]
+name = "platformer"
+path = "platformer.rs"
