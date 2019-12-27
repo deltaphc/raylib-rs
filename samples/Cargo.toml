@@ -82,3 +82,7 @@ path = "input.rs"
 [[bin]]
 name = "3d_camera_first_person"
 path = "3d_camera_first_person.rs"
+
+[[bin]]
+name = "model_shader"
+path = "model_shader.rs"
