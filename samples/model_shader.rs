@@ -13,14 +13,13 @@ fn main() {
         Vector3::new(4.0, 4.0, 4.0),  // Position
         Vector3::new(0.0, 1.0, -1.0), // Target
         Vector3::new(0.0, 1.0, 0.0),  // Up vector
-        45.0                     // FOV
+        45.0                          // FOV
     );
 
     rl.set_camera_mode(&camera, CameraMode::CAMERA_FREE);
     rl.set_target_fps(60);
 
     // Load shader
-    // const SHADER_FS: &str = include_str!("static/model_shader/grayscale.fs");
     let shader = rl.load_shader(&thread, None, Some("static/model_shader/grayscale.fs")).unwrap();
 
     // Load model
