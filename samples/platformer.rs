@@ -9,14 +9,17 @@ mod options;
 const PPU: i32 = 16;
 const fPPU: f32 = PPU as f32;
 // Control all physics to make game less floaty https://www.youtube.com/watch?v=hG9SzQxaCm8
-const JUMP_HEIGHT: f32 = 4.0 * fPPU;
-const TIME_TO_PEAK: f32 = 1.0;
+const JUMP_HEIGHT: f32 = 2.0 * fPPU;
+const TIME_TO_PEAK: f32 = 0.5;
+const MAX_SPEED: f32 = 3.0 * fPPU;
+const TIME_TO_MAX_SPEED: f32 = 1.0;
 // Derived physics
 // const GRAVITY: f32 = fPPU * 9.8;
 const GRAVITY: f32 = 2.0 * JUMP_HEIGHT / (TIME_TO_PEAK * TIME_TO_PEAK);
 const JUMP_VELOCITY: f32 = 2.0 * JUMP_HEIGHT / TIME_TO_PEAK;
 const DOWN: Vector2 = Vector2::new(0.0, 1.0);
 const UP: Vector2 = Vector2::new(0.0, -1.0);
+
 const TILE_COLLIDER: Rectangle = Rectangle::new(-fPPU / 2.0, -fPPU / 2.0, fPPU, fPPU);
 
 // Add helper methods to rectangle
@@ -46,12 +49,14 @@ struct Collider(Rectangle);
 #[derive(Clone, Debug)]
 struct Player {
     color: Color,
+    jumping: bool,
 }
 
 impl Default for Player {
     fn default() -> Player {
         Player {
             color: Color::WHITE,
+            jumping: false,
         }
     }
 }
@@ -101,7 +106,7 @@ fn main() {
             Player::default(),
             Physics {
                 status: PhysStatus::Kinematic,
-                fall_mult: Some(2.5),
+                fall_mult: Some(2.0),
                 ..Default::default()
             },
             Collider(TILE_COLLIDER),
@@ -117,19 +122,32 @@ fn main() {
         let player = <(Write<Velocity>, Write<Physics>, Write<Player>)>::query();
         for (mut vel, mut phys, mut player) in player.iter(&mut world) {
             if let Some(ref collision) = phys.collision {
+                player.jumping = false;
                 if rl.is_key_pressed(KEY_SPACE) {
                     vel.0.y -= JUMP_VELOCITY;
+                    player.jumping = true;
 
-                    // let c: i32 = rand::thread_rng().gen_range(0, 16777216);
-                    // player.color = unsafe { std::mem::transmute(c) };
-                    dbg!("jumping", vel, player);
+                    player.color = Color {
+                        r: rand::thread_rng().gen(),
+                        g: rand::thread_rng().gen(),
+                        b: rand::thread_rng().gen(),
+                        a: 255,
+                    };
                 }
             }
             // If we aren't holding down space increase gravity
             if !rl.is_key_down(KEY_SPACE) {
                 phys.jump_mult = Some(2.0);
-            } else {
+            } else if player.jumping {
                 phys.jump_mult = None;
+            }
+            // Left and right
+            if rl.is_key_down(KEY_A) {
+                vel.0.x = lerp(vel.0.x, -MAX_SPEED, 0.1);
+            } else if rl.is_key_down(KEY_D) {
+                vel.0.x = lerp(vel.0.x, MAX_SPEED, 0.1);
+            } else {
+                vel.0.x = lerp(vel.0.x, 0.0, 0.5);
             }
         }
 
@@ -204,7 +222,7 @@ fn main() {
                     obj.height,
                 );
                 phy.collision = Some(collision);
-                v = Vector2::zero();
+                v.y = 0.0;
                 let hw = obj.width / 2.0;
                 let hh = obj.height / 2.0;
                 p.x = p.x.max(bounds.x + hw).min(bounds.x + bounds.width - hw);
@@ -239,4 +257,8 @@ fn main() {
             }
         }
     }
+}
+
+fn lerp(start: f32, end: f32, t: f32) -> f32 {
+    return start * (1.0 - t) + end * t;
 }
