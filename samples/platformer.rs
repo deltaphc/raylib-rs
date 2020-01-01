@@ -8,13 +8,34 @@ mod options;
 
 const PPU: i32 = 16;
 const fPPU: f32 = PPU as f32;
+
+// const MAX_RUN: f32 = 90.0;
+// const RUN_ACCEL: f32 = 1000.0;
+// const RUN_REDUCE: f32 = 400.0;
+// const AIR_MULT: f32 = 0.65;
+
+// const HOLDING_MAX_RUN: f32 = 70.0;
+// const HOLD_MIN_TIME: f32 = 0.35;
+
+// const JUMP_GRACE_TIME: f32 = 0.1;
+// const JUMP_SPEED: f32 = -105.0;
+// const JUMP_HBOOST: f32 = 40.0;
+// const VAR_JUMP_TIME: f32 = 0.2;
+
+// const WALL_JUMP_CHECK_DIST: f32 = 3.0;
+// const WALL_JUMP_FORCE_TIME: f32 = 0.16;
+// const WALL_JUMP_H_SPEED: f32 = MAX_RUN + JUMP_SPEED;
+
 // Control all physics to make game less floaty https://www.youtube.com/watch?v=hG9SzQxaCm8
-const JUMP_HEIGHT: f32 = 2.0 * fPPU;
+const JUMP_HEIGHT: f32 = 3.0 * fPPU;
 const TIME_TO_PEAK: f32 = 0.5;
-const MAX_SPEED: f32 = 3.0 * fPPU;
-const TIME_TO_MAX_SPEED: f32 = 1.0;
+const MAX_SPEED: f32 = 2.0 * fPPU;
+const TIME_TO_MAX_SPEED: f32 = 0.2;
+const TIME_TO_SLOW_DOWN: f32 = 0.1;
 // Derived physics
 // const GRAVITY: f32 = fPPU * 9.8;
+const X_ACC: f32 = MAX_SPEED / TIME_TO_MAX_SPEED;
+const X_FRIC: f32 = MAX_SPEED / TIME_TO_SLOW_DOWN;
 const GRAVITY: f32 = 2.0 * JUMP_HEIGHT / (TIME_TO_PEAK * TIME_TO_PEAK);
 const JUMP_VELOCITY: f32 = 2.0 * JUMP_HEIGHT / TIME_TO_PEAK;
 const DOWN: Vector2 = Vector2::new(0.0, 1.0);
@@ -50,6 +71,7 @@ struct Collider(Rectangle);
 struct Player {
     color: Color,
     jumping: bool,
+    stop_timer: (f32, f32),
 }
 
 impl Default for Player {
@@ -57,6 +79,7 @@ impl Default for Player {
         Player {
             color: Color::WHITE,
             jumping: false,
+            stop_timer: (0.0, 0.0),
         }
     }
 }
@@ -142,12 +165,18 @@ fn main() {
                 phys.jump_mult = None;
             }
             // Left and right
-            if rl.is_key_down(KEY_A) {
-                vel.0.x = lerp(vel.0.x, -MAX_SPEED, 0.1);
-            } else if rl.is_key_down(KEY_D) {
-                vel.0.x = lerp(vel.0.x, MAX_SPEED, 0.1);
-            } else {
-                vel.0.x = lerp(vel.0.x, 0.0, 0.5);
+            if !player.jumping {
+                if rl.is_key_down(KEY_A) {
+                    vel.0.x = (vel.0.x - X_ACC * dt).min(-MAX_SPEED);
+                    player.stop_timer = (vel.0.x, 0.0);
+                } else if rl.is_key_down(KEY_D) {
+                    vel.0.x = (vel.0.x + X_ACC * dt).max(MAX_SPEED);
+                    player.stop_timer = (vel.0.x, 0.0);
+                } else {
+                    player.stop_timer.1 = (player.stop_timer.1 + dt).min(TIME_TO_MAX_SPEED);
+                    let (sv, t) = player.stop_timer;
+                    vel.0.x = sv + (-sv / TIME_TO_MAX_SPEED) * t;
+                }
             }
         }
 

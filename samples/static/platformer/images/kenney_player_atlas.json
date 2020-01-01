@@ -1,0 +1,112 @@
+{
+    "frames": [
+        {
+            "filename": "robo_player_0",
+            "frame": {
+                "x": 0,
+                "y": 0,
+                "w": 96,
+                "h": 96
+            },
+            "anchor": {
+                "x": 0.5,
+                "y": 0.5
+            }
+        },
+        {
+            "filename": "robo_player_1",
+            "frame": {
+                "x": 96,
+                "y": 0,
+                "w": 96,
+                "h": 96
+            },
+            "anchor": {
+                "x": 0.5,
+                "y": 0.5
+            }
+        },
+        {
+            "filename": "robo_player_2",
+            "frame": {
+                "x": 192,
+                "y": 0,
+                "w": 96,
+                "h": 96
+            },
+            "anchor": {
+                "x": 0.5,
+                "y": 0.5
+            }
+        },
+        {
+            "filename": "robo_player_3",
+            "frame": {
+                "x": 288,
+                "y": 0,
+                "w": 96,
+                "h": 96
+            },
+            "anchor": {
+                "x": 0.5,
+                "y": 0.5
+            }
+        },
+        {
+            "filename": "robo_player_4",
+            "frame": {
+                "x": 0,
+                "y": 96,
+                "w": 96,
+                "h": 96
+            },
+            "anchor": {
+                "x": 0.5,
+                "y": 0.5
+            }
+        },
+        {
+            "filename": "robo_player_5",
+            "frame": {
+                "x": 96,
+                "y": 96,
+                "w": 96,
+                "h": 96
+            },
+            "anchor": {
+                "x": 0.5,
+                "y": 0.5
+            }
+        },
+        {
+            "filename": "robo_player_6",
+            "frame": {
+                "x": 192,
+                "y": 96,
+                "w": 96,
+                "h": 96
+            },
+            "anchor": {
+                "x": 0.5,
+                "y": 0.5
+            }
+        },
+        {
+            "filename": "robo_player_7",
+            "frame": {
+                "x": 288,
+                "y": 96,
+                "w": 96,
+                "h": 96
+            },
+            "anchor": {
+                "x": 0.5,
+                "y": 0.5
+            }
+        }
+    ],
+    "meta": {
+        "description": "Atlas generado con Atlas Packer Phaser3",
+        "web": "https://gammafp.github.io/atlas-packer-phaser/"
+    }
+}
