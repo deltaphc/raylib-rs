@@ -7,7 +7,7 @@
 
 # raylib-rs
 
-raylib-rs is a Rust binding for [raylib](http://www.raylib.com/) 2.0. It currently targets the _stable_ Rust toolchain, version 1.31 or higher.
+raylib-rs is a Rust binding for [raylib](http://www.raylib.com/) 2.5. It currently targets the _stable_ Rust toolchain, version 1.31 or higher.
 
 Though this binding tries to stay close to the simple C API, it makes some changes to be more idiomatic for Rust.
 
@@ -64,6 +64,10 @@ fn main() {
 
 - In addition to the base library, there is also a convenient `ease` module which contains various interpolation/easing functions ported from raylib's `easings.h`, as well as a `Tween` struct to assist in using these functions.
 - Equivalent math and vector operations, ported from `raymath.h`, are `impl`ed on the various Vector and Matrix types. Operator overloading is used for more intuitive design.
+
+# Testing
+
+The raylib-test crate tests the bindings by opening a window, and checking the results of various functions. It requires nightly to use.
 
 # Future Goals
 

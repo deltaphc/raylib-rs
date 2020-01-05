@@ -1,33 +1,38 @@
 use raylib::prelude::*;
+use structopt::StructOpt;
 
-const WINDOW_WIDTH: i32 = 1280;
-const WINDOW_HEIGHT: i32 = 720;
+mod options;
 
 fn main() {
-    let (mut rl, thread) = raylib::init()
-        .size(WINDOW_WIDTH, WINDOW_HEIGHT)
-        .title("Model shader example")
-        .build();
+    let opt = options::Opt::from_args();
+    let (mut rl, thread) = opt.open_window("Model shader example");
+    let (w, h) = (opt.width, opt.height);
 
     let mut camera = Camera3D::perspective(
         Vector3::new(4.0, 4.0, 4.0),  // Position
         Vector3::new(0.0, 1.0, -1.0), // Target
         Vector3::new(0.0, 1.0, 0.0),  // Up vector
-        45.0                          // FOV
+        45.0,                         // FOV
     );
 
     rl.set_camera_mode(&camera, CameraMode::CAMERA_FREE);
     rl.set_target_fps(60);
 
     // Load shader
-    let shader = rl.load_shader(&thread, None, Some("static/model_shader/grayscale.fs")).unwrap();
+    let shader = rl
+        .load_shader(&thread, None, Some("static/model_shader/grayscale.fs"))
+        .unwrap();
 
     // Load model
-    let mut model = rl.load_model(&thread, "static/model_shader/watermill.obj").unwrap();
+    let mut model = rl
+        .load_model(&thread, "static/model_shader/watermill.obj")
+        .unwrap();
 
     // Load texture and generate mipmaps
     let texture = unsafe {
-        let mut t = rl.load_texture(&thread, "static/model_shader/watermill_diffuse.png").unwrap();
+        let mut t = rl
+            .load_texture(&thread, "static/model_shader/watermill_diffuse.png")
+            .unwrap();
         t.gen_texture_mipmaps();
         t.unwrap()
     };
@@ -56,7 +61,13 @@ fn main() {
             mode_3d.draw_grid(10, 1.0);
         }
 
-        drawing.draw_text("(c) Watermill 3D model by Alberto Cano", WINDOW_WIDTH - 210, WINDOW_HEIGHT - 20, 10, Color::GRAY);
+        drawing.draw_text(
+            "(c) Watermill 3D model by Alberto Cano",
+            w - 210,
+            h - 20,
+            10,
+            Color::GRAY,
+        );
         drawing.draw_fps(10, 10)
     }
 }
