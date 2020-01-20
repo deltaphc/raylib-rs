@@ -679,7 +679,7 @@ impl Texture2D {
     }
 
     pub fn height(&self) -> i32 {
-        self.0.width
+        self.0.height
     }
 
     pub fn mipmaps(&self) -> i32 {
