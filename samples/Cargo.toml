@@ -17,6 +17,7 @@ rand = "0.3.9"
 tcod = "0.15"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
+tiled = "0.8"
 
 [dependencies.specs]
 version = "0.14"
