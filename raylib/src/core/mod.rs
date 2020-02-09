@@ -189,7 +189,7 @@ impl RaylibBuilder {
 /// # Panics
 ///
 /// Attempting to initialize Raylib more than once will result in a panic.
-pub fn init_window(width: i32, height: i32, title: &str) -> RaylibHandle {
+fn init_window(width: i32, height: i32, title: &str) -> RaylibHandle {
     if IS_INITIALIZED.load(Ordering::Relaxed) {
         panic!("Attempted to initialize raylib-rs more than once");
     } else {

@@ -62,6 +62,7 @@ pub trait RaylibTextureModeExt
 where
     Self: Sized,
 {
+    #[must_use]
     fn begin_texture_mode<'a>(
         &'a mut self,
         framebuffer: &'a mut ffi::RenderTexture2D,
@@ -95,6 +96,7 @@ pub trait RaylibVRModeExt
 where
     Self: Sized,
 {
+    #[must_use]
     fn begin_vr_mode<'a>(&'a mut self, vr: &'a RaylibVR) -> RaylibVRMode<Self> {
         unsafe { ffi::BeginVrDrawing() }
         RaylibVRMode(self, vr)
@@ -126,6 +128,7 @@ where
     Self: Sized,
 {
     #[allow(non_snake_case)]
+    #[must_use]
     fn begin_mode_2D(&mut self, camera: impl Into<ffi::Camera2D>) -> RaylibMode2D<Self> {
         unsafe {
             ffi::BeginMode2D(camera.into());
@@ -158,6 +161,7 @@ where
     Self: Sized,
 {
     #[allow(non_snake_case)]
+    #[must_use]
     fn begin_mode_3D(&mut self, camera: impl Into<ffi::Camera3D>) -> RaylibMode3D<Self> {
         unsafe {
             ffi::BeginMode3D(camera.into());
@@ -190,6 +194,7 @@ pub trait RaylibShaderModeExt
 where
     Self: Sized,
 {
+    #[must_use]
     fn begin_shader_mode<'a>(&'a mut self, shader: &'a ffi::Shader) -> RaylibShaderMode<Self> {
         unsafe { ffi::BeginShaderMode(*shader) }
         RaylibShaderMode(self, shader)
@@ -220,6 +225,7 @@ pub trait RaylibBlendModeExt
 where
     Self: Sized,
 {
+    #[must_use]
     fn begin_blend_mode(&mut self, blend_mode: crate::consts::BlendMode) -> RaylibBlendMode<Self> {
         unsafe { ffi::BeginBlendMode((blend_mode as u32) as i32) }
         RaylibBlendMode(self)
@@ -250,6 +256,7 @@ pub trait RaylibScissorModeExt
 where
     Self: Sized,
 {
+    #[must_use]
     fn begin_scissor_mode(
         &mut self,
         x: i32,

@@ -194,14 +194,13 @@ impl RaylibHandle {
         }
     }
 
-    /// TODO uncomment this when imaging is up
-    // /// Sets icon for window (only on desktop platforms).
-    // #[inline]
-    // pub fn set_window_icon(&self, image: &Image) {
-    //     unsafe {
-    //         ffi::SetWindowIcon(image.0);
-    //     }
-    // }
+    /// Sets icon for window (only on desktop platforms).
+    #[inline]
+    pub fn set_window_icon(&mut self, image: impl AsRef<ffi::Image>) {
+        unsafe {
+            ffi::SetWindowIcon(*image.as_ref());
+        }
+    }
 
     /// Sets title for window (only on desktop platforms).
     #[inline]

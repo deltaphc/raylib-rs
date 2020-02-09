@@ -24,6 +24,8 @@ impl Opt {
             .size(self.width, self.height)
             .title(name)
             .build();
+        let logo = raylib::prelude::Image::load_image("static/logo.png").unwrap();
+        rl.set_window_icon(&logo);
         rl.set_target_fps(self.fps);
         (rl, thread)
     }

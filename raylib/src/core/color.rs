@@ -40,7 +40,7 @@ impl From<(u8, u8, u8, u8)> for Color {
     }
 }
 
-impl From<&str> for Color {
+impl Color {
     /// Get color from HEX RGB string
     /// # Arguments
     /// * `color_hex_str` - A string slice, 6 characters long
@@ -48,22 +48,20 @@ impl From<&str> for Color {
     /// ```
     /// let color = Color::from("FAFB09");
     /// ```
-    fn from(color_hex_str: &str) -> Color {
-        let color = i32::from_str_radix(color_hex_str, 16).unwrap();
+    pub fn from_hex(color_hex_str: &str) -> Result<Color, std::num::ParseIntError> {
+        let color = i32::from_str_radix(color_hex_str, 16)?;
         let b = color % 0x100;
         let g = (color - b) / 0x100 % 0x100;
         let r = (color - g) / 0x10000;
 
-        Color {
+        Ok(Color {
             r: r as u8,
             g: g as u8,
-            b: b as  u8,
-            a: 255
-        }
+            b: b as u8,
+            a: 255,
+        })
     }
-}
 
-impl Color {
     pub const LIGHTGRAY: Color = Color {
         r: 200,
         g: 200,
@@ -258,9 +256,9 @@ impl Color {
 }
 
 #[test]
-fn test_color_macro () {
-    let color_white = Color::from("FFFFFF");
-    let color_black = Color::from("000000");
+fn test_color_macro() {
+    let color_white = Color::from_hex("FFFFFF").unwrap();
+    let color_black = Color::from_hex("000000").unwrap();
 
     assert_eq!(color_black, Color::BLACK);
     assert_eq!(color_white, Color::WHITE);
