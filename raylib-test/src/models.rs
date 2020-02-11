@@ -1,8 +1,7 @@
-
 #[cfg(test)]
 mod model_test {
-    use raylib::prelude::*;
     use crate::tests::*;
+    use raylib::prelude::*;
 
     ray_test!(test_load_model);
     fn test_load_model(thread: &RaylibThread) {

@@ -1,8 +1,7 @@
-
 #[cfg(test)]
 mod audio_test {
-    use raylib::prelude::*;
     use crate::tests::*;
+    use raylib::prelude::*;
     #[test]
     fn test_init_audio() {
         let _ = RaylibAudio::init_audio_device();

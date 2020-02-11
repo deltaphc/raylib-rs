@@ -1,7 +1,7 @@
 #[cfg(test)]
 mod core_test {
-    use raylib::prelude::*;
     use crate::tests::*;
+    use raylib::prelude::*;
     ray_test!(test_screenshot);
     fn test_screenshot(t: &RaylibThread) {
         let mut handle = TEST_HANDLE.write().unwrap();

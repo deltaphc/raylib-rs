@@ -4,7 +4,7 @@
 /// IMHO Don't write code like this. Use ECS and other methods to have game objects and components.
 /// Only do this as an exercise.
 extern crate raylib;
-use rand::distributions::{ WeightedIndex };
+use rand::distributions::WeightedIndex;
 use rand::prelude::*;
 use rand::Rng;
 use raylib::prelude::*;
@@ -731,7 +731,7 @@ fn place_objects(room: Rectangle, map: &Map, objects: &mut Vec<Object>, level: u
         Item::Fireball,
         Item::Confuse,
         Item::Sword,
-        Item::Shield
+        Item::Shield,
     ];
     let item_weights = [
         32,
