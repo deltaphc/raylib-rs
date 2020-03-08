@@ -421,8 +421,8 @@ impl Vector3 {
 
         Vector3 {
             x: self.x * ilength,
-            y: self.x * ilength,
-            z: self.x * ilength,
+            y: self.y * ilength,
+            z: self.z * ilength,
         }
     }
 
