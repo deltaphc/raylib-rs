@@ -10,17 +10,21 @@ repository = "https://github.com/deltaphc/raylib-rs"
 
 [dependencies]
 raylib = { version = "1.0", path = "../raylib" }
-structopt = "0.2"
+structopt = "0.2.1"
 specs-derive = "0.4"
 rand = "0.7"
 tcod = "0.15"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 arr_macro = "0.1.3"
+legion = "0.2"
 
 [dependencies.specs]
 version = "0.14"
 default-features = false
+
+[profile.dev]
+opt-level = 3
 
 [[bin]]
 name = "specs"
@@ -86,3 +90,7 @@ path = "3d_camera_first_person.rs"
 [[bin]]
 name = "model_shader"
 path = "model_shader.rs"
+
+[[bin]]
+name = "space_eaters"
+path = "space_eaters.rs"
