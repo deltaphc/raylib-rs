@@ -96,6 +96,8 @@ struct Animation {
 struct Player {
     speed: f32,
     bullet_speed: f32,
+    bullet_time: f64,
+    reload_speed: f64,
 }
 
 impl Default for Player {
@@ -103,6 +105,8 @@ impl Default for Player {
         Player {
             speed: ARENA_WIDTH as f32 / 2.0,
             bullet_speed: ARENA_HEIGHT as f32 / 1.0,
+            bullet_time: 0.0,
+            reload_speed: 0.5,
         }
     }
 }
@@ -115,6 +119,7 @@ enum EnemyType {
 #[derive(Clone, Copy, Debug, PartialEq)]
 struct Enemy {
     kind: EnemyType,
+    health: i32,
     speed: f32,
     bullet_speed: f32,
 }
@@ -123,6 +128,7 @@ impl Enemy {
     fn green() -> Self {
         Self {
             kind: EnemyType::Green,
+            health: 1,
             speed: ARENA_HEIGHT as f32 / 10.0,
             bullet_speed: ARENA_HEIGHT as f32 / 5.0,
         }
@@ -242,6 +248,7 @@ fn main() {
 
     while !rl.window_should_close() {
         let dt = rl.get_frame_time();
+        let time = rl.get_time();
         spawner.timer += dt;
 
         // Spawning Logic
@@ -272,7 +279,7 @@ fn main() {
             Write<Player>,
         )>::query();
         let mut player_shoot = None;
-        for (pos, mut vel, mut anim, player) in query.iter(&mut world) {
+        for (pos, mut vel, mut anim, mut player) in query.iter(&mut world) {
             use raylib::consts::KeyboardKey::*;
             // Move stuff
             let right = rl.is_key_down(KEY_D);
@@ -301,7 +308,8 @@ fn main() {
             vel.0 = vec2(x, y) * player.speed;
 
             // Bullet logic
-            if rl.is_key_pressed(KEY_SPACE) {
+            if rl.is_key_down(KEY_SPACE) && player.bullet_time < time {
+                player.bullet_time += player.reload_speed;
                 player_shoot = Some((
                     Position(pos.0),
                     Velocity(vec2(0.0, -player.bullet_speed)),
@@ -344,9 +352,8 @@ fn main() {
 
         // Destroy stuff out of bounds
 
-        let query =
-            <(Write<Position>, Read<Collider>)>::query().filter(tag_value(&Bounds::Destroy));
-        for (ent, (mut pos, col)) in query.iter_entities(&mut world) {
+        let query = <(Read<Position>, Read<Collider>)>::query().filter(tag_value(&Bounds::Destroy));
+        for (ent, (pos, col)) in query.iter_entities(&mut world) {
             let at = col.aabb.move_to(pos.x, pos.y);
             if !world_ex.check_collision_recs(&at) {
                 destroy.push(ent);
