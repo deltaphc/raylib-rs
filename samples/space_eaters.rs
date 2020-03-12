@@ -87,8 +87,8 @@ struct SpriteIndices {
 struct Animation {
     frames: Vec<usize>,
     current: usize,
-    speed: f32,
-    prog: f32,
+    speed: f64,
+    next_frame: f64,
 }
 
 #[derive(Clone, Copy, Debug, Default, PartialEq)]
@@ -188,7 +188,7 @@ impl Default for Spawner {
     fn default() -> Self {
         Self {
             timer: 0.0,
-            next_spawn: 5.0,
+            next_spawn: 0.1,
         }
     }
 }
@@ -277,14 +277,14 @@ fn sprite_extents() -> (Vec<Rectangle>, SpriteIndices) {
             frames: vec![1, 0, 2],
             current: 0,
             speed: 0.0,
-            prog: 0.0,
+            next_frame: 0.0,
         },
         player_bullet_1: 32,
         green_enemy_anim: Animation {
             frames: vec![3, 3 + 16],
-            current: 3,
-            speed: 5.0,
-            prog: 0.0,
+            current: 0,
+            speed: 1.0,
+            next_frame: 0.0,
         },
     };
     (extents, indices)
@@ -350,7 +350,11 @@ fn main() {
                 (Bounds::Destroy,),
                 (0..1).map(|_| {
                     (
-                        Position(vec2(ARENA_WIDTH as f32 / 2.0, ARENA_HEIGHT as f32 / 4.0)),
+                        Position(vec2(
+                            (ARENA_WIDTH as f64 / 2.0 * time.cos() + ARENA_WIDTH as f64 / 2.0)
+                                as f32,
+                            1.0,
+                        )),
                         Velocity(vec2(0.0, 1.0) * enemy.speed),
                         enemy.anim(&s_indices),
                         enemy,
@@ -368,10 +372,9 @@ fn main() {
             Write<Velocity>,
             Write<Animation>,
             Write<Player>,
-            Read<Collider>,
         )>::query();
         let mut player_shoot = None;
-        for (pos, mut vel, mut anim, mut player, col) in query.iter(&mut world) {
+        for (pos, mut vel, mut anim, mut player) in query.iter(&mut world) {
             use raylib::consts::KeyboardKey::*;
             // Move stuff
             let right = rl.is_key_down(KEY_D);
@@ -390,11 +393,11 @@ fn main() {
             };
 
             if left {
-                anim.current = anim.frames[0];
+                anim.current = 0;
             } else if right {
-                anim.current = anim.frames[2];
+                anim.current = 2;
             } else {
-                anim.current = anim.frames[1];
+                anim.current = 1;
             }
 
             vel.0 = vec2(x, y) * player.speed;
@@ -470,7 +473,7 @@ fn main() {
                     if health.inv_time < time && *dmg != 0 {
                         health.health -= dmg;
                         health.inv_time = time + health.inv_dur;
-                        println!("took damage, {}, {:?}", dmg, health);
+                        // println!("took damage, {}, {:?}", dmg, health);
                     }
                 }
             }
@@ -504,9 +507,18 @@ fn main() {
             }
         }
 
+        // Animate stuff
+        let query = <(Write<Animation>)>::query();
+        for mut anim in query.iter(&mut world) {
+            if anim.next_frame < time {
+                anim.current = (anim.current + 1) % anim.frames.len();
+                anim.next_frame = time + 1.0 / anim.speed;
+            }
+        }
+
         // Draw Stuff
         let mut d = rl.begin_drawing(&thread);
-        d.clear_background(Color::ORANGE);
+        d.clear_background(Color::BLACK);
         let query = <(Read<Position>, Read<Sprite>)>::query();
         for (pos, sprite) in query.iter(&mut world) {
             d.draw_texture_pro(
@@ -523,8 +535,10 @@ fn main() {
             let tint = tint.map(|t| t.color_at(time)).unwrap_or(Color::WHITE);
             d.draw_texture_pro(
                 &s_sheet,
-                s_extents[anim.current],
-                s_extents[anim.current].move_to(pos.x, pos.y).project(PS),
+                s_extents[anim.frames[anim.current]],
+                s_extents[anim.frames[anim.current]]
+                    .move_to(pos.x, pos.y)
+                    .project(PS),
                 vec2(0.0, 0.0),
                 0.0,
                 tint,
@@ -534,15 +548,11 @@ fn main() {
         // Draw explosion
 
         // Cleanup
-        for ent in destroy_buf.drain(..) {
-            world.delete(ent);
-        }
-
         for (ent, tint) in add_tint_buf.drain(..) {
             world.add_component(ent, tint);
         }
 
-        let query = <(Read<Tint>)>::query();
+        let query = <Read<Tint>>::query();
         for (ent, tint) in query.iter_entities(&mut world) {
             if tint.kill_at < time {
                 remove_tint_buf.push(ent);
@@ -551,6 +561,11 @@ fn main() {
 
         for ent in remove_tint_buf.drain(..) {
             world.remove_component::<Tint>(ent);
+        }
+
+        // Make sure to call this last
+        for ent in destroy_buf.drain(..) {
+            world.delete(ent);
         }
 
         // for ext in &s_extents {
