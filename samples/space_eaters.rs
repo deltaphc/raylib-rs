@@ -1,7 +1,6 @@
 extern crate raylib;
 use legion::prelude::*;
 use raylib::prelude::*;
-use structopt::StructOpt;
 
 const ARENA_WIDTH: i32 = 128;
 const ARENA_HEIGHT: i32 = 128;
@@ -36,19 +35,19 @@ trait RectangleEx: std::borrow::Borrow<Rectangle> {
     }
 
     fn tl(&self) -> Vector2 {
-        let mut r = self.borrow();
+        let r = self.borrow();
         vec2(r.x, r.y)
     }
     fn tr(&self) -> Vector2 {
-        let mut r = self.borrow();
+        let r = self.borrow();
         vec2(r.x + r.width, r.y)
     }
     fn bl(&self) -> Vector2 {
-        let mut r = self.borrow();
+        let r = self.borrow();
         vec2(r.x, r.y + r.height)
     }
     fn br(&self) -> Vector2 {
-        let mut r = self.borrow();
+        let r = self.borrow();
         vec2(r.x + r.width, r.y + r.height)
     }
 }
@@ -92,6 +91,18 @@ struct Animation {
     prog: f32,
 }
 
+#[derive(Clone, Copy, Debug, Default, PartialEq)]
+struct Health {
+    health: i32,
+    inv_time: f64,
+    inv_dur: f64,
+}
+
+#[derive(Clone, Copy, Debug, Default, PartialEq)]
+struct Damage {
+    amount: i32,
+}
+
 #[derive(Clone, Copy, Debug, PartialEq)]
 struct Player {
     speed: f32,
@@ -111,6 +122,19 @@ impl Default for Player {
     }
 }
 
+impl Player {
+    fn health() -> Health {
+        Health {
+            health: 3,
+            inv_time: 0.0,
+            inv_dur: 3.0,
+        }
+    }
+    fn damage() -> Damage {
+        Damage { amount: 0 }
+    }
+}
+
 #[derive(Clone, Copy, Debug, PartialEq)]
 enum EnemyType {
     Green,
@@ -119,7 +143,6 @@ enum EnemyType {
 #[derive(Clone, Copy, Debug, PartialEq)]
 struct Enemy {
     kind: EnemyType,
-    health: i32,
     speed: f32,
     bullet_speed: f32,
 }
@@ -128,7 +151,6 @@ impl Enemy {
     fn green() -> Self {
         Self {
             kind: EnemyType::Green,
-            health: 1,
             speed: ARENA_HEIGHT as f32 / 10.0,
             bullet_speed: ARENA_HEIGHT as f32 / 5.0,
         }
@@ -140,18 +162,33 @@ impl Enemy {
             Green => sprite_indices.green_enemy_anim.clone(),
         }
     }
+
+    fn health(&self) -> Health {
+        match self.kind {
+            Green => Health {
+                health: 1,
+                ..Default::default()
+            },
+        }
+    }
+
+    fn damage(&self) -> Damage {
+        match self.kind {
+            Green => Damage { amount: 1 },
+        }
+    }
 }
 
 struct Spawner {
-    timer: f32,
-    next_spawn: f32,
+    timer: f64,
+    next_spawn: f64,
 }
 
 impl Default for Spawner {
     fn default() -> Self {
         Self {
             timer: 0.0,
-            next_spawn: 1.0,
+            next_spawn: 5.0,
         }
     }
 }
@@ -159,14 +196,64 @@ impl Default for Spawner {
 #[derive(Clone, Copy, Debug, PartialEq)]
 struct Bullet;
 
+impl Bullet {
+    fn health() -> Health {
+        Health {
+            health: 1,
+            ..Default::default()
+        }
+    }
+}
+
+const L_PLAYER: u32 = 1;
+const L_ENEMY: u32 = 1 << 2;
+const L_ENEMY_BULLET: u32 = 1 << 3;
+const L_PLAYER_BULLET: u32 = 1 << 4;
+
 #[derive(Clone, Copy, Debug, PartialEq)]
 struct Collider {
     aabb: Rectangle,
+    layer: u32,
+    mask: u32,
 }
 
 impl Collider {
-    fn new(rec: &Rectangle) -> Self {
-        Self { aabb: rec.clone() }
+    fn new(rec: &Rectangle, layer: u32, mask: u32) -> Self {
+        Self {
+            aabb: rec.clone(),
+            layer,
+            mask,
+        }
+    }
+}
+
+#[derive(Clone, Copy, Debug, PartialEq)]
+struct Tint {
+    start: Color,
+    end: Color,
+    frequency: f64,
+    kill_at: f64,
+}
+
+impl Tint {
+    fn color_at(&self, time: f64) -> Color {
+        let channel = |a, b, f: f64, t: f64| (b as f64 - a as f64) * (f * t).sin() + a as f64;
+
+        Color {
+            r: channel(self.start.r, self.end.r, self.frequency, time) as u8,
+            g: channel(self.start.g, self.end.g, self.frequency, time) as u8,
+            b: channel(self.start.b, self.end.b, self.frequency, time) as u8,
+            a: channel(self.start.a, self.end.a, self.frequency, time) as u8,
+        }
+    }
+
+    fn invincibility(time: f64) -> Tint {
+        Tint {
+            start: Color::WHITE,
+            end: Color::BLACK,
+            frequency: 25.0,
+            kill_at: time,
+        }
     }
 }
 
@@ -226,7 +313,9 @@ fn main() {
     let mut world = universe.create_world();
 
     let mut spawner = Spawner::default();
-    let mut destroy = Vec::new();
+    let mut destroy_buf = Vec::new();
+    let mut add_tint_buf = Vec::new();
+    let mut remove_tint_buf = Vec::new();
 
     let (s_extents, s_indices) = sprite_extents();
     let s_sheet = load_sprite_sheet(&mut rl, &thread);
@@ -241,7 +330,9 @@ fn main() {
                 Velocity(Vector2::zero()),
                 s_indices.player_anim.clone(),
                 Player::default(),
-                Collider::new(&SQUARE),
+                Player::health(),
+                Player::damage(),
+                Collider::new(&SQUARE, L_PLAYER, L_ENEMY | L_ENEMY_BULLET),
             )
         }),
     );
@@ -249,12 +340,10 @@ fn main() {
     while !rl.window_should_close() {
         let dt = rl.get_frame_time();
         let time = rl.get_time();
-        spawner.timer += dt;
 
         // Spawning Logic
-        if spawner.timer > spawner.next_spawn {
-            spawner.timer = 0.0;
-            spawner.next_spawn = std::f32::INFINITY;
+        if spawner.timer < time {
+            spawner.timer = time + spawner.next_spawn;
 
             let enemy = Enemy::green();
             world.insert(
@@ -265,7 +354,9 @@ fn main() {
                         Velocity(vec2(0.0, 1.0) * enemy.speed),
                         enemy.anim(&s_indices),
                         enemy,
-                        Collider::new(&SQUARE),
+                        enemy.health(),
+                        enemy.damage(),
+                        Collider::new(&SQUARE, L_ENEMY, L_PLAYER | L_PLAYER_BULLET),
                     )
                 }),
             );
@@ -277,9 +368,10 @@ fn main() {
             Write<Velocity>,
             Write<Animation>,
             Write<Player>,
+            Read<Collider>,
         )>::query();
         let mut player_shoot = None;
-        for (pos, mut vel, mut anim, mut player) in query.iter(&mut world) {
+        for (pos, mut vel, mut anim, mut player, col) in query.iter(&mut world) {
             use raylib::consts::KeyboardKey::*;
             // Move stuff
             let right = rl.is_key_down(KEY_D);
@@ -309,16 +401,19 @@ fn main() {
 
             // Bullet logic
             if rl.is_key_down(KEY_SPACE) && player.bullet_time < time {
-                player.bullet_time += player.reload_speed;
+                player.bullet_time = time + player.reload_speed;
                 player_shoot = Some((
                     Position(pos.0),
                     Velocity(vec2(0.0, -player.bullet_speed)),
                     Sprite(s_indices.player_bullet_1),
                     Bullet,
-                    Collider::new(&SQUARE),
+                    Bullet::health(),
+                    Damage { amount: 1 },
+                    Collider::new(&SQUARE, L_PLAYER_BULLET, L_ENEMY),
                 ));
             }
         }
+        // Do the shooting
         if let Some(player_shoot) = player_shoot {
             world.insert((Bounds::Destroy,), (0..1).map(|_| player_shoot));
         }
@@ -326,7 +421,6 @@ fn main() {
         // Things that move
         let query = <(Write<Position>, Read<Velocity>)>::query();
         for (mut pos, vel) in query.iter(&mut world) {
-            let old_pos = pos.0;
             pos.0 += vel.0 * dt;
         }
 
@@ -350,13 +444,63 @@ fn main() {
             }
         }
 
+        // Collision checking
+        {
+            // Damage checking
+            let mut entities: Vec<_> =
+                <(Read<Position>, Read<Collider>, Read<Damage>, Write<Health>)>::query()
+                    .iter(&mut world)
+                    .collect();
+            let mut damage_done = vec![None; entities.len()];
+            for i in 0..entities.len() {
+                let (a_pos, a_col, a_dmg, ..) = &entities[i];
+                let a_rec = a_col.aabb.move_to(a_pos.x, a_pos.y);
+                for j in (i + 1)..entities.len() {
+                    let (b_pos, b_col, b_dmg, ..) = &entities[j];
+                    let b_rec = b_col.aabb.move_to(b_pos.x, b_pos.y);
+                    if a_rec.check_collision_recs(&b_rec) && (a_col.mask & b_col.layer) > 0 {
+                        damage_done[i] = Some(b_dmg.amount);
+                        damage_done[j] = Some(a_dmg.amount);
+                    }
+                }
+            }
+            for (i, dmg) in damage_done.iter().enumerate() {
+                if let Some(dmg) = dmg {
+                    let health = &mut entities[i].3;
+                    if health.inv_time < time && *dmg != 0 {
+                        health.health -= dmg;
+                        health.inv_time = time + health.inv_dur;
+                        println!("took damage, {}, {:?}", dmg, health);
+                    }
+                }
+            }
+        }
+
         // Destroy stuff out of bounds
 
         let query = <(Read<Position>, Read<Collider>)>::query().filter(tag_value(&Bounds::Destroy));
         for (ent, (pos, col)) in query.iter_entities(&mut world) {
             let at = col.aabb.move_to(pos.x, pos.y);
             if !world_ex.check_collision_recs(&at) {
-                destroy.push(ent);
+                destroy_buf.push(ent);
+            }
+        }
+
+        // Destroy stuff if out of health or give it an invincibility tint
+        let query = <(Read<Health>, TryWrite<Tint>)>::query();
+        for (ent, (h, tint)) in query.iter_entities(&mut world) {
+            if h.health <= 0 {
+                destroy_buf.push(ent);
+            }
+            if h.inv_time != 0.0 && h.inv_time > time {
+                if let Some(mut tint) = tint {
+                    if tint.kill_at != h.inv_time {
+                        // Pretty sure they are different tints in this case.
+                        *tint = Tint::invincibility(h.inv_time);
+                    }
+                } else {
+                    add_tint_buf.push((ent, Tint::invincibility(h.inv_time)))
+                }
             }
         }
 
@@ -374,21 +518,39 @@ fn main() {
                 Color::WHITE,
             );
         }
-        let query = <(Read<Position>, Read<Animation>)>::query();
-        for (pos, anim) in query.iter(&mut world) {
+        let query = <(Read<Position>, Read<Animation>, TryRead<Tint>)>::query();
+        for (pos, anim, tint) in query.iter(&mut world) {
+            let tint = tint.map(|t| t.color_at(time)).unwrap_or(Color::WHITE);
             d.draw_texture_pro(
                 &s_sheet,
                 s_extents[anim.current],
                 s_extents[anim.current].move_to(pos.x, pos.y).project(PS),
                 vec2(0.0, 0.0),
                 0.0,
-                Color::WHITE,
+                tint,
             );
         }
 
+        // Draw explosion
+
         // Cleanup
-        for ent in destroy.drain(..) {
+        for ent in destroy_buf.drain(..) {
             world.delete(ent);
+        }
+
+        for (ent, tint) in add_tint_buf.drain(..) {
+            world.add_component(ent, tint);
+        }
+
+        let query = <(Read<Tint>)>::query();
+        for (ent, tint) in query.iter_entities(&mut world) {
+            if tint.kill_at < time {
+                remove_tint_buf.push(ent);
+            }
+        }
+
+        for ent in remove_tint_buf.drain(..) {
+            world.remove_component::<Tint>(ent);
         }
 
         // for ext in &s_extents {
