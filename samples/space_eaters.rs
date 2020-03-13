@@ -98,6 +98,12 @@ struct Health {
     inv_dur: f64,
 }
 
+impl Health {
+    fn is_inv(&self, time: f64) -> bool {
+        self.inv_time != 0.0 && self.inv_time > time
+    }
+}
+
 #[derive(Clone, Copy, Debug, Default, PartialEq)]
 struct Damage {
     amount: i32,
@@ -131,7 +137,7 @@ impl Player {
         }
     }
     fn damage() -> Damage {
-        Damage { amount: 0 }
+        Damage { amount: 1 }
     }
 }
 
@@ -227,40 +233,283 @@ impl Collider {
     }
 }
 
-#[derive(Clone, Copy, Debug, PartialEq)]
-struct Tint {
-    start: Color,
-    end: Color,
-    frequency: f64,
-    kill_at: f64,
+trait Lerp: Clone + Copy + std::fmt::Debug + Send + Sync + 'static {
+    fn lerp(start: Self, end: Self, f: f64, t: f64) -> Self;
 }
 
-impl Tint {
-    fn color_at(&self, time: f64) -> Color {
+#[derive(Clone, Copy, Debug)]
+struct TimedLerp<T: Lerp> {
+    start: T,
+    end: T,
+    now: f64,
+    clamp: Option<f64>,
+    frequency: f64,
+    kill_at: Option<f64>,
+}
+
+impl<T: Lerp> TimedLerp<T> {
+    fn val(val: T, now: f64) -> Self {
+        Self {
+            start: val,
+            end: val,
+            now,
+            clamp: None,
+            frequency: 0.0,
+            kill_at: None,
+        }
+    }
+
+    fn val_at(&self, time: f64) -> T {
+        T::lerp(
+            self.start,
+            self.end,
+            self.frequency,
+            self.clamp
+                .unwrap_or(std::f64::INFINITY)
+                .min(time - self.now),
+        )
+    }
+
+    fn is_dead(&self, time: f64) -> bool {
+        if let Some(kill_at) = self.kill_at {
+            return kill_at < time;
+        }
+        return false;
+    }
+}
+
+impl<T: Lerp + Default> TimedLerp<T> {
+    fn dur(dur: f64, now: f64) -> Self {
+        Self {
+            start: T::default(),
+            end: T::default(),
+            now,
+            clamp: None,
+            frequency: 0.0,
+            kill_at: Some(now + dur),
+        }
+    }
+}
+
+struct TimedLerpTracker<T: Lerp> {
+    add_buf: Vec<(Entity, TimedLerp<T>)>,
+    remove_buf: Vec<Entity>,
+}
+
+impl<T: Lerp> TimedLerpTracker<T> {
+    fn new() -> Self {
+        Self {
+            add_buf: Vec::new(),
+            remove_buf: Vec::new(),
+        }
+    }
+
+    fn add(&mut self, ent: (Entity, TimedLerp<T>)) {
+        self.add_buf.push(ent);
+    }
+
+    fn update(&mut self, world: &mut World, time: f64) -> Vec<Entity> {
+        for (ent, comp) in self.add_buf.drain(..) {
+            world.add_component(ent, comp);
+        }
+
+        let query = <Read<TimedLerp<T>>>::query();
+        for (ent, comp) in query.iter_entities(world) {
+            if comp.is_dead(time) {
+                self.remove_buf.push(ent);
+            }
+        }
+
+        let things: Vec<_> = self.remove_buf.drain(..).collect();
+
+        for ent in &things {
+            world.remove_component::<TimedLerp<T>>(*ent);
+        }
+        things
+    }
+}
+
+impl Lerp for Color {
+    fn lerp(start: Self, end: Self, frequency: f64, time: f64) -> Self {
         let channel = |a, b, f: f64, t: f64| (b as f64 - a as f64) * (f * t).sin() + a as f64;
 
         Color {
-            r: channel(self.start.r, self.end.r, self.frequency, time) as u8,
-            g: channel(self.start.g, self.end.g, self.frequency, time) as u8,
-            b: channel(self.start.b, self.end.b, self.frequency, time) as u8,
-            a: channel(self.start.a, self.end.a, self.frequency, time) as u8,
-        }
-    }
-
-    fn invincibility(time: f64) -> Tint {
-        Tint {
-            start: Color::WHITE,
-            end: Color::BLACK,
-            frequency: 25.0,
-            kill_at: time,
+            r: channel(start.r, end.r, frequency, time) as u8,
+            g: channel(start.g, end.g, frequency, time) as u8,
+            b: channel(start.b, end.b, frequency, time) as u8,
+            a: channel(start.a, end.a, frequency, time) as u8,
         }
     }
 }
+
+type Tint = TimedLerp<Color>;
+
+impl Tint {
+    fn color(color: Color, now: f64) -> Tint {
+        Tint::val(color, now)
+    }
+
+    fn color_over(start: Color, end: Color, over: f64, now: f64, kill_at: Option<f64>) -> Tint {
+        Tint {
+            start,
+            end,
+            now,
+            clamp: Some(std::f64::consts::PI / 2.0),
+            frequency: 1.0,
+            kill_at,
+        }
+    }
+
+    fn color_at(&self, time: f64) -> Color {
+        self.val_at(time)
+    }
+
+    fn invincibility(time: f64, now: f64) -> Tint {
+        Tint {
+            start: Color::WHITE,
+            end: Color::BLACK,
+            now,
+            clamp: None,
+            frequency: 25.0,
+            kill_at: Some(time),
+        }
+    }
+}
+
+#[derive(Clone, Copy, Debug, Default)]
+struct Lifetime;
+impl Lerp for Lifetime {
+    fn lerp(start: Self, end: Self, frequency: f64, time: f64) -> Self {
+        Lifetime
+    }
+}
+type ParticleLifetime = TimedLerp<Lifetime>;
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 enum Bounds {
     StayIn,
     Destroy,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq)]
+struct Hidden(bool);
+
+#[derive(Clone, Copy, Debug, PartialEq)]
+enum Shape {
+    Circle(f32),
+}
+
+#[derive(Clone, Copy, Debug, PartialEq)]
+struct Particle;
+
+struct ParticleSystem {
+    sys: Box<dyn PSImpl>,
+}
+
+impl ParticleSystem {
+    fn update(
+        &mut self,
+        rl: &mut RaylibHandle,
+        world: &mut World,
+        ctrl: &mut ParticleControler,
+    ) -> bool {
+        self.sys.update(rl, world, ctrl)
+    }
+}
+
+trait PSImpl: Send + Sync {
+    fn update(
+        &mut self,
+        rl: &mut RaylibHandle,
+        world: &mut World,
+        ctrl: &mut ParticleControler,
+    ) -> bool;
+}
+
+struct PSTraceBox {}
+
+impl PSImpl for PSTraceBox {
+    fn update(
+        &mut self,
+        rl: &mut RaylibHandle,
+        world: &mut World,
+        ctrl: &mut ParticleControler,
+    ) -> bool {
+        use raylib::consts::MouseButton::*;
+        if rl.is_mouse_button_down(MOUSE_LEFT_BUTTON) {
+            let now = rl.get_time();
+            let m_pos = rl.get_mouse_position();
+            // heck if i know what I don't have to divide by PS here
+            // let m_pos = vec2(m_pos.x / PS, m_pos.y / PS);
+            let entity = ctrl.pool.take();
+            {
+                let mut pos = world.get_component_mut::<Position>(entity).unwrap();
+                pos.0 = m_pos;
+            }
+            {
+                let mut shape = world.get_component_mut::<Shape>(entity).unwrap();
+                *shape = Shape::Circle(10.0);
+            }
+            {
+                let mut tint = world.get_component_mut::<Tint>(entity).unwrap();
+                *tint = Tint::color_over(Color::RED, Color::ORANGE, 1.0, now, None);
+            }
+
+            {
+                world.add_component(entity, ParticleLifetime::dur(1.0, now));
+            }
+
+            world.add_tag(entity, Hidden(false));
+        }
+        false
+    }
+}
+
+struct ParticleControler {
+    pool: Pool<Entity>,
+    tracker: TimedLerpTracker<Lifetime>,
+}
+
+impl ParticleControler {
+    fn new(init: &[Entity]) -> Self {
+        Self {
+            pool: Pool::new(init),
+            tracker: TimedLerpTracker::new(),
+        }
+    }
+
+    fn put(&mut self, ents: &[Entity]) {
+        let mut i = 0;
+        for e in ents {
+            for (j, slot) in (&mut self.pool.objects[i..]).iter_mut().enumerate() {
+                if slot.is_none() {
+                    slot.replace(*e);
+                    i = j;
+                }
+            }
+        }
+    }
+}
+
+struct Pool<T: Copy> {
+    objects: Vec<Option<T>>,
+}
+
+impl<T: Copy> Pool<T> {
+    fn new(init: &[T]) -> Pool<T> {
+        let objects = init.into_iter().map(|obj| Some(*obj)).collect();
+        Pool { objects }
+    }
+
+    fn take(&mut self) -> T {
+        let t = self
+            .objects
+            .iter_mut()
+            .filter(|t| t.is_some())
+            .next()
+            .expect("pool out of objects");
+        t.take().unwrap()
+    }
 }
 
 fn sprite_extents() -> (Vec<Rectangle>, SpriteIndices) {
@@ -314,21 +563,39 @@ fn main() {
 
     let mut spawner = Spawner::default();
     let mut destroy_buf = Vec::new();
-    let mut add_tint_buf = Vec::new();
-    let mut remove_tint_buf = Vec::new();
+
+    let mut tint_tracker = TimedLerpTracker::new();
 
     let (s_extents, s_indices) = sprite_extents();
     let s_sheet = load_sprite_sheet(&mut rl, &thread);
 
+    // particle system stuff
+    let particles = world.insert(
+        (Hidden(true),),
+        (0..1000).map(|_| {
+            (
+                Position(Vector2::zero()),
+                Velocity(Vector2::zero()),
+                Shape::Circle(0.0),
+                Tint::color(Color::WHITE, rl.get_time()),
+            )
+        }),
+    );
+    let mut particle_ctrl = ParticleControler::new(particles);
+    let mut particle_systems = vec![ParticleSystem {
+        sys: Box::new(PSTraceBox {}),
+    }];
+
     // I know sprite could be a tag, but legion's documentation is so
     // terrible that I have no idea how to use tags right.
     world.insert(
-        (Bounds::StayIn,),
+        (Bounds::StayIn, Hidden(false)),
         (0..1).map(|_| {
             (
                 Position(vec2(ARENA_WIDTH as f32 / 2.0, ARENA_HEIGHT as f32 / 2.0)),
                 Velocity(Vector2::zero()),
                 s_indices.player_anim.clone(),
+                Sprite(0),
                 Player::default(),
                 Player::health(),
                 Player::damage(),
@@ -347,7 +614,7 @@ fn main() {
 
             let enemy = Enemy::green();
             world.insert(
-                (Bounds::Destroy,),
+                (Bounds::Destroy, Hidden(false)),
                 (0..1).map(|_| {
                     (
                         Position(vec2(
@@ -357,6 +624,7 @@ fn main() {
                         )),
                         Velocity(vec2(0.0, 1.0) * enemy.speed),
                         enemy.anim(&s_indices),
+                        Sprite(0),
                         enemy,
                         enemy.health(),
                         enemy.damage(),
@@ -418,7 +686,10 @@ fn main() {
         }
         // Do the shooting
         if let Some(player_shoot) = player_shoot {
-            world.insert((Bounds::Destroy,), (0..1).map(|_| player_shoot));
+            world.insert(
+                (Bounds::Destroy, Hidden(false)),
+                (0..1).map(|_| player_shoot),
+            );
         }
 
         // Things that move
@@ -456,11 +727,17 @@ fn main() {
                     .collect();
             let mut damage_done = vec![None; entities.len()];
             for i in 0..entities.len() {
-                let (a_pos, a_col, a_dmg, ..) = &entities[i];
+                let (a_pos, a_col, a_dmg, a_health) = &entities[i];
                 let a_rec = a_col.aabb.move_to(a_pos.x, a_pos.y);
+                if a_health.is_inv(time) {
+                    continue;
+                }
                 for j in (i + 1)..entities.len() {
-                    let (b_pos, b_col, b_dmg, ..) = &entities[j];
+                    let (b_pos, b_col, b_dmg, b_health) = &entities[j];
                     let b_rec = b_col.aabb.move_to(b_pos.x, b_pos.y);
+                    if b_health.is_inv(time) {
+                        continue;
+                    }
                     if a_rec.check_collision_recs(&b_rec) && (a_col.mask & b_col.layer) > 0 {
                         damage_done[i] = Some(b_dmg.amount);
                         damage_done[j] = Some(a_dmg.amount);
@@ -477,6 +754,17 @@ fn main() {
                     }
                 }
             }
+        }
+
+        // Do particle system stuff
+        let mut to_remove = Vec::new();
+        for (i, sys) in particle_systems.iter_mut().enumerate() {
+            if sys.update(&mut rl, &mut world, &mut particle_ctrl) {
+                to_remove.push(i)
+            }
+        }
+        for i in to_remove {
+            particle_systems.swap_remove(i);
         }
 
         // Destroy stuff out of bounds
@@ -497,18 +785,18 @@ fn main() {
             }
             if h.inv_time != 0.0 && h.inv_time > time {
                 if let Some(mut tint) = tint {
-                    if tint.kill_at != h.inv_time {
+                    if tint.is_dead(time) {
                         // Pretty sure they are different tints in this case.
-                        *tint = Tint::invincibility(h.inv_time);
+                        *tint = Tint::invincibility(h.inv_time, time);
                     }
                 } else {
-                    add_tint_buf.push((ent, Tint::invincibility(h.inv_time)))
+                    tint_tracker.add((ent, Tint::invincibility(h.inv_time, time)));
                 }
             }
         }
 
         // Animate stuff
-        let query = <(Write<Animation>)>::query();
+        let query = <Write<Animation>>::query();
         for mut anim in query.iter(&mut world) {
             if anim.next_frame < time {
                 anim.current = (anim.current + 1) % anim.frames.len();
@@ -516,51 +804,53 @@ fn main() {
             }
         }
 
-        // Draw Stuff
-        let mut d = rl.begin_drawing(&thread);
-        d.clear_background(Color::BLACK);
-        let query = <(Read<Position>, Read<Sprite>)>::query();
-        for (pos, sprite) in query.iter(&mut world) {
-            d.draw_texture_pro(
-                &s_sheet,
-                s_extents[sprite.0],
-                s_extents[sprite.0].move_to(pos.x, pos.y).project(PS),
-                vec2(0.0, 0.0),
-                0.0,
-                Color::WHITE,
-            );
+        // Set Sprite Animations
+        let query = <(Read<Animation>, Write<Sprite>)>::query();
+        for (anim, mut sprite) in query.iter(&mut world) {
+            sprite.0 = anim.frames[anim.current];
         }
-        let query = <(Read<Position>, Read<Animation>, TryRead<Tint>)>::query();
-        for (pos, anim, tint) in query.iter(&mut world) {
-            let tint = tint.map(|t| t.color_at(time)).unwrap_or(Color::WHITE);
-            d.draw_texture_pro(
-                &s_sheet,
-                s_extents[anim.frames[anim.current]],
-                s_extents[anim.frames[anim.current]]
-                    .move_to(pos.x, pos.y)
-                    .project(PS),
-                vec2(0.0, 0.0),
-                0.0,
-                tint,
-            );
+
+        // Draw Stuff
+        {
+            let mut d = rl.begin_drawing(&thread);
+            d.clear_background(Color::BLACK);
+
+            // Draw sprites
+            let query = <(Read<Position>, Read<Sprite>, TryRead<Tint>)>::query()
+                .filter(tag_value(&Hidden(false)));
+            for (pos, sprite, tint) in query.iter(&mut world) {
+                let tint = tint.map(|t| t.color_at(time)).unwrap_or(Color::WHITE);
+                d.draw_texture_pro(
+                    &s_sheet,
+                    s_extents[sprite.0],
+                    s_extents[sprite.0].move_to(pos.x, pos.y).project(PS),
+                    vec2(0.0, 0.0),
+                    0.0,
+                    tint,
+                );
+            }
+
+            // Draw shapes
+            let query = <(Read<Position>, Read<Shape>, TryRead<Tint>)>::query()
+                .filter(tag_value(&Hidden(false)));
+            for (pos, shape, tint) in query.iter(&mut world) {
+                let tint = tint.map(|t| t.color_at(time)).unwrap_or(Color::WHITE);
+                use Shape::*;
+                match *shape {
+                    Circle(radius) => {
+                        d.draw_circle(pos.x as i32, pos.y as i32, radius, tint);
+                    }
+                }
+            }
         }
 
         // Draw explosion
 
         // Cleanup
-        for (ent, tint) in add_tint_buf.drain(..) {
-            world.add_component(ent, tint);
-        }
-
-        let query = <Read<Tint>>::query();
-        for (ent, tint) in query.iter_entities(&mut world) {
-            if tint.kill_at < time {
-                remove_tint_buf.push(ent);
-            }
-        }
-
-        for ent in remove_tint_buf.drain(..) {
-            world.remove_component::<Tint>(ent);
+        tint_tracker.update(&mut world, time);
+        let dead = particle_ctrl.tracker.update(&mut world, time);
+        if dead.len() > 0 {
+            particle_ctrl.put(&dead);
         }
 
         // Make sure to call this last
@@ -571,5 +861,29 @@ fn main() {
         // for ext in &s_extents {
         //     d.draw_texture_rec(&s_sheet, ext, vec2(ext.x, ext.y), Color::WHITE);
         // }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use legion::prelude::*;
+
+    struct Position;
+    #[test]
+    fn check_legion() {
+        let mut universe = Universe::new();
+        let mut world = universe.create_world();
+
+        let e = world.insert((), (0..1).map(|_| (Position,)))[0];
+
+        for _ in <Read<Position>>::query().iter(&mut world) {
+            assert_eq!(1, 1);
+        }
+
+        world.remove_component::<Position>(e);
+
+        for _ in <Read<Position>>::query().iter(&mut world) {
+            assert_eq!(1, 2);
+        }
     }
 }
