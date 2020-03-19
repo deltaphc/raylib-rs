@@ -154,17 +154,17 @@ fn main() {
     register_components(&mut world);
     let emap = init_world(&rl, &mut world);
 
-    world.add_resource(rl);
+    world.insert(rl);
     // Raylib Thread is not safe to send between threads, but we can force it with an ARC
     // It's up to the user to ensure the only systems that use it are
     // thread local otherwise you will segfault
-    world.add_resource(emap);
-    world.add_resource(GameState::PLAYING);
+    world.insert(emap);
+    world.insert(GameState::PLAYING);
     let mut dispatcher = DispatcherBuilder::new()
         .with(DeathSys, "death_sys", &[])
         .with(PlayerSys, "player_sys", &[])
         // Drawing must be done on the same thread
-        .with_thread_local(DrawSys { thread: thread })
+        .with_thread_local(DrawSys { thread })
         .build();
     dispatcher.setup(&mut world.res);
     while !window_should_close(&world) && !player_lost(&world) {
