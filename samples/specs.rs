@@ -166,9 +166,9 @@ fn main() {
         // Drawing must be done on the same thread
         .with_thread_local(DrawSys { thread })
         .build();
-    dispatcher.setup(&mut world.res);
+    dispatcher.setup(&mut world);
     while !window_should_close(&world) && !player_lost(&world) {
-        dispatcher.dispatch(&mut world.res);
+        dispatcher.dispatch(&mut world);
     }
 }
 
