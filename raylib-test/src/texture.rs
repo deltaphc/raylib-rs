@@ -1,8 +1,7 @@
-
 #[cfg(test)]
 mod texture_test {
-    use raylib::prelude::*;
     use crate::tests::*;
+    use raylib::prelude::*;
     #[test]
     fn test_image_loading() {
         let i = Image::load_image("resources/billboard.png").expect("image not found");

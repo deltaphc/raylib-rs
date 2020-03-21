@@ -23,8 +23,8 @@ Permission is granted to anyone to use this software for any purpose, including 
 #![test_runner(crate::tests::test_runner)]
 #![allow(dead_code)]
 #![doc(
-  html_logo_url = "https://github.com/deltaphc/raylib-rs/raw/master/logo/raylib-rust_256x256.png",
-  html_favicon_url = "https://github.com/deltaphc/raylib-rs/raw/master/logo/raylib-rust.ico"
+    html_logo_url = "https://github.com/deltaphc/raylib-rs/raw/master/logo/raylib-rust_256x256.png",
+    html_favicon_url = "https://github.com/deltaphc/raylib-rs/raw/master/logo/raylib-rust.ico"
 )]
 #![feature(test)]
 extern crate test;
