@@ -22,6 +22,11 @@ arr_macro = "0.1.3"
 version = "0.16.1"
 default-features = false
 
+[dependencies.shipyard]
+version = "0.3.2"
+default-features = false
+features = ["proc", "non_send", "non_sync"]
+
 [[bin]]
 name = "specs"
 path = "./specs.rs"
@@ -86,3 +91,8 @@ path = "3d_camera_first_person.rs"
 [[bin]]
 name = "model_shader"
 path = "model_shader.rs"
+
+[[bin]]
+name = "pong"
+path = "pong.rs"
+
