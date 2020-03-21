@@ -3,8 +3,8 @@ use shipyard::prelude::*;
 use structopt::StructOpt;
 mod options;
 
-const ARENA_WIDTH: f32 = 480.0;
-const ARENA_HEIGHT: f32 = 360.0;
+const ARENA_WIDTH: f32 = 640.0;
+const ARENA_HEIGHT: f32 = 480.0;
 
 pub trait RectExt: std::borrow::BorrowMut<Rectangle> + std::borrow::Borrow<Rectangle> {
     fn center_at(&self, pos: &Vector2) -> Rectangle {
@@ -42,15 +42,22 @@ mod components {
         Circle(f32),
     }
 
-    #[derive(Debug)]
-    pub struct Paddle;
+    #[derive(Copy, Clone, Debug)]
+    pub struct Paddle(pub f32);
 
-    #[derive(Debug)]
-    pub struct Ball;
+    #[derive(Copy, Clone, Debug)]
+    pub struct Ball(pub f32);
 
-    #[derive(Copy, Clone, Debug, PartialEq)]
+    #[derive(Clone, Debug)]
+    pub struct GameConfig {
+        pub lpaddle: Paddle,
+        pub rpaddle: Paddle,
+        pub ball: Ball,
+    }
+
+    #[derive(Clone, Debug)]
     pub enum GameState {
-        Reset,
+        Reset(GameConfig),
         Playing,
         Paused,
     }
@@ -67,9 +74,14 @@ mod components {
     }
 
     #[derive(Debug)]
-    pub struct Window {
-        pub w: u32,
-        pub h: u32,
+    pub struct GameWindow {
+        pub width: f32,
+        pub height: f32,
+    }
+
+    #[derive(Default)]
+    pub struct DrawState {
+        pub game_fb: Option<RenderTexture2D>,
     }
 }
 pub use components::*;
@@ -89,45 +101,46 @@ pub mod systems {
         mut paddle: &mut Paddle,
         mut ball: &mut Ball,
     ) {
-        if *state == GameState::Reset {
-            *state = GameState::Playing;
-
-            // Add Left paddles
-            entities.add_entity(
-                (&mut pos, &mut vel, &mut mcol, &mut shape, &mut paddle),
-                (
-                    Position(vec2(10.0, ARENA_HEIGHT / 2.0)),
-                    Velocity(Vector2::zero()),
-                    MColor(Color::WHITE),
-                    Shape::Rect(Rectangle::new(0.0, 0.0, 10.0, 50.0)),
-                    Paddle,
-                ),
-            );
-
-            // Add Left paddles
-            entities.add_entity(
-                (&mut pos, &mut vel, &mut mcol, &mut shape, &mut paddle),
-                (
-                    Position(vec2(ARENA_WIDTH - 10.0, ARENA_HEIGHT / 2.0)),
-                    Velocity(Vector2::zero()),
-                    MColor(Color::WHITE),
-                    Shape::Rect(Rectangle::new(0.0, 0.0, 10.0, 50.0)),
-                    Paddle,
-                ),
-            );
-
-            // ADD
-            // Add Ball
-            entities.add_entity(
-                (&mut pos, &mut vel, &mut mcol, &mut shape, &mut ball),
-                (
-                    Position(vec2(ARENA_WIDTH / 2.0, ARENA_HEIGHT / 2.0)),
-                    Velocity(vec2(5.0, 0.0)),
-                    MColor(Color::WHITE),
-                    Shape::Circle(5.0),
-                    Ball,
-                ),
-            );
+        match *state {
+            GameState::Reset(ref config) => {
+                // Add Left paddles
+                let offset = ARENA_WIDTH / 6.0;
+                entities.add_entity(
+                    (&mut pos, &mut vel, &mut mcol, &mut shape, &mut paddle),
+                    (
+                        Position(vec2(offset, ARENA_HEIGHT / 2.0)),
+                        Velocity(Vector2::zero()),
+                        MColor(Color::WHITE),
+                        Shape::Rect(Rectangle::new(0.0, 0.0, 10.0, 50.0)),
+                        config.lpaddle,
+                    ),
+                );
+                // Add Left paddles
+                entities.add_entity(
+                    (&mut pos, &mut vel, &mut mcol, &mut shape, &mut paddle),
+                    (
+                        Position(vec2(ARENA_WIDTH - offset, ARENA_HEIGHT / 2.0)),
+                        Velocity(Vector2::zero()),
+                        MColor(Color::WHITE),
+                        Shape::Rect(Rectangle::new(0.0, 0.0, 10.0, 50.0)),
+                        config.rpaddle,
+                    ),
+                );
+                // ADD
+                // Add Ball
+                entities.add_entity(
+                    (&mut pos, &mut vel, &mut mcol, &mut shape, &mut ball),
+                    (
+                        Position(vec2(ARENA_WIDTH / 2.0, ARENA_HEIGHT / 2.0)),
+                        Velocity(vec2(1.0, 0.0) * config.ball.0),
+                        MColor(Color::WHITE),
+                        Shape::Circle(5.0),
+                        config.ball,
+                    ),
+                );
+                *state = GameState::Playing;
+            }
+            _ => {}
         }
     }
 
@@ -145,11 +158,14 @@ pub mod systems {
         state: Unique<&GameState>,
     ) {
         let dt = rl.get_frame_time();
-        if *state != GameState::Paused {
-            time.game_time += dt;
-            time.game_delta_time = dt;
-        } else {
-            time.game_delta_time = 0.0;
+        match *state {
+            GameState::Playing => {
+                time.game_time += dt;
+                time.game_delta_time = dt;
+            }
+            _ => {
+                time.game_delta_time = 0.0;
+            }
         }
         time.real_time += dt;
         time.real_delta_time = dt;
@@ -159,37 +175,64 @@ pub mod systems {
     pub fn run(
         mut rl: Unique<NonSend<&mut RaylibHandle>>,
         thread: Unique<NonSendSync<&RaylibThread>>,
+        window: Unique<&GameWindow>,
+        mut dstate: Unique<&mut DrawState>,
         pos: &Position,
         mcolor: &MColor,
         shape: &Shape,
     ) {
+        let mut frame_buffer = dstate.game_fb.get_or_insert_with(|| {
+            rl.load_render_texture(&thread, ARENA_WIDTH as u32, ARENA_HEIGHT as u32)
+                .unwrap()
+        });
+
         let mut d = rl.begin_drawing(&thread);
-        d.clear_background(Color::BLACK);
-        (&pos, &mcolor, &shape)
-            .iter()
-            .for_each(|(p, c, shape)| match shape {
-                Shape::Circle(rad) => {
-                    d.draw_circle(p.0.x as i32, p.0.y as i32, *rad, c.0);
-                }
-                Shape::Rect(rect) => {
-                    let rect = rect.center_at(&p.0);
-                    d.draw_rectangle(
-                        rect.x as i32,
-                        rect.y as i32,
-                        rect.width as i32,
-                        rect.height as i32,
-                        c.0,
-                    );
-                }
-            });
+        d.clear_background(Color::PURPLE);
+        // Draw game to texture
+        {
+            let mut d = d.begin_texture_mode(frame_buffer);
+            d.clear_background(Color::BLACK);
+            (&pos, &mcolor, &shape)
+                .iter()
+                .for_each(|(p, c, shape)| match shape {
+                    Shape::Circle(rad) => {
+                        d.draw_circle(p.0.x as i32, p.0.y as i32, *rad, c.0);
+                    }
+                    Shape::Rect(rect) => {
+                        let rect = rect.center_at(&p.0);
+                        d.draw_rectangle(
+                            rect.x as i32,
+                            rect.y as i32,
+                            rect.width as i32,
+                            rect.height as i32,
+                            c.0,
+                        );
+                    }
+                });
+        }
+        // Draw texture to full screen.
+        let hscale = window.height / frame_buffer.texture.height as f32;
+        d.draw_texture_pro(
+            frame_buffer.texture(),
+            Rectangle::new(
+                0.0,
+                0.0,
+                frame_buffer.texture.width as f32,
+                -frame_buffer.texture.height as f32,
+            ),
+            Rectangle::new(0.0, 0.0, window.width, window.height),
+            Vector2::zero(),
+            0.0,
+            Color::WHITE,
+        );
     }
 }
 pub use systems::*;
 
 fn main() {
-    let opt = options::Opt::from_args();
-    let (mut rl, thread) = opt.open_window("Pong");
-    let (w, h) = (opt.width, opt.height);
+    let (mut rl, thread) = raylib::init().size(640, 480).title("Pong").build();
+    let logo = raylib::prelude::Image::load_image("static/logo.png").unwrap();
+    rl.set_window_icon(&logo);
     rl.set_target_fps(60);
 
     let world = World::new();
@@ -197,7 +240,16 @@ fn main() {
     world.add_unique_non_send_sync(thread);
 
     world.add_unique(TimeKeeper::default());
-    world.add_unique(GameState::Reset);
+    world.add_unique(GameWindow {
+        width: 640.0,
+        height: 480.0,
+    });
+    world.add_unique(DrawState::default());
+    world.add_unique(GameState::Reset(GameConfig {
+        lpaddle: Paddle(ARENA_HEIGHT / 3.0),
+        rpaddle: Paddle(ARENA_HEIGHT / 2.0),
+        ball: Ball(ARENA_WIDTH / 2.0),
+    }));
 
     while !world
         .borrow::<Unique<NonSend<&RaylibHandle>>>()
