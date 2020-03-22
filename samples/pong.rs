@@ -1,4 +1,4 @@
-use rand::prelude::*;
+
 use raylib::prelude::*;
 use shipyard::prelude::*;
 
@@ -401,8 +401,8 @@ pub mod systems {
     #[system(CollisionResolveSys)]
     pub fn run(
         time: Unique<&TimeKeeper>,
-        ball: &Ball,
-        paddle: &Paddle,
+        _ball: &Ball,
+        _paddle: &Paddle,
         result: &CollisionResult,
         mut pos: &mut Position,
         mut vel: &mut Velocity,
@@ -422,13 +422,13 @@ pub mod systems {
 
             let bcenter = r.bcol.rect.center();
 
-            if (dx.abs() <= w && dy.abs() <= h) {
+            if dx.abs() <= w && dy.abs() <= h {
                 let wy = w * dy;
                 let hx = h * dx;
                 // Undo last velocity
                 p.0 = p.0 - (v.0 * 2.0 * time.game_delta_time);
-                if (wy > hx) {
-                    if (wy > -hx) {
+                if wy > hx {
+                    if wy > -hx {
                         /* collision at the top */
                         p.0.y = bcenter.y + h + 1.0;
                         v.0.y = -v.0.y;
@@ -440,7 +440,7 @@ pub mod systems {
                         }
                     }
                 } else {
-                    if (wy > -hx) {
+                    if wy > -hx {
                         /* on the right */
                         if r.acol.resolver == CollisionResolver::Bounce {
                             p.0.x = bcenter.x + w + 1.0;
@@ -476,7 +476,7 @@ pub mod systems {
             match pad.ctrl {
                 // If ball is behind us, stop all movement
                 Controller::AI => {
-                    let d = (ball_pos.0.y - p.0.y);
+                    let d = ball_pos.0.y - p.0.y;
                     if d.abs() < PADDLE_SIZE.height / 3.0 {
                         v.0 = Vector2::zero();
                         return;
@@ -509,7 +509,7 @@ pub mod systems {
         colliders: &Collider,
         results: &CollisionResult,
     ) {
-        let mut frame_buffer = dstate.game_fb.get_or_insert_with(|| {
+        let frame_buffer = dstate.game_fb.get_or_insert_with(|| {
             rl.load_render_texture(&thread, ARENA_WIDTH as u32, ARENA_HEIGHT as u32)
                 .unwrap()
         });
@@ -548,7 +548,7 @@ pub mod systems {
             })
         }
         // Draw texture to full screen.
-        let hscale = window.height / frame_buffer.texture.height as f32;
+        let _hscale = window.height / frame_buffer.texture.height as f32;
         d.draw_texture_pro(
             frame_buffer.texture(),
             Rectangle::new(
