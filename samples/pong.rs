@@ -411,7 +411,6 @@ pub mod systems {
         // Walls have no velocity so this doesn't trigger for them
         (&result, &mut pos, &mut vel).iter().for_each(|(r, p, v)| {
             if r.bcol.mask == CollisionMask::Goal {
-                println!("scored!");
                 p.0 = vec2(ARENA_WIDTH / 2.0, ARENA_HEIGHT / 2.0);
                 return;
             }
@@ -458,7 +457,14 @@ pub mod systems {
     }
 
     #[system(PaddleControlSys)]
-    pub fn run(ball: &Ball, paddle: &Paddle, pos: &Position, mut vel: &mut Velocity) {
+    pub fn run(
+        rl: Unique<NonSend<&RaylibHandle>>,
+        ball: &Ball,
+        paddle: &Paddle,
+        pos: &Position,
+        mut vel: &mut Velocity,
+    ) {
+        use raylib::consts::KeyboardKey::*;
         let (_, ball_pos) = (&ball, &pos).iter().next().unwrap();
 
         (&paddle, &pos, &mut vel).iter().for_each(|(pad, p, v)| {
@@ -477,7 +483,16 @@ pub mod systems {
                     }
                     v.0 = vec2(0.0, (ball_pos.0.y - p.0.y).signum()) * pad.speed;
                 }
-                _ => {}
+                Controller::Player => {
+                    let dir = if rl.is_key_down(KEY_W) {
+                        -1.0
+                    } else if rl.is_key_down(KEY_S) {
+                        1.0
+                    } else {
+                        0.0
+                    };
+                    v.0 = vec2(0.0, dir) * pad.speed;
+                }
             }
         });
     }
@@ -570,7 +585,7 @@ fn main() {
     world.add_unique(GameState::Reset(GameConfig {
         lpaddle: Paddle {
             speed: ARENA_HEIGHT / 6.0,
-            ctrl: Controller::AI,
+            ctrl: Controller::Player,
         },
         rpaddle: Paddle {
             speed: ARENA_HEIGHT / 5.0,
