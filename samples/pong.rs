@@ -1,13 +1,19 @@
+use rand::prelude::*;
 use raylib::prelude::*;
 use shipyard::prelude::*;
-use structopt::StructOpt;
-mod options;
 
 const ARENA_WIDTH: f32 = 640.0;
 const ARENA_HEIGHT: f32 = 480.0;
+// Bounds where paddles live
+const ARENA_BOUNDS: Rectangle = Rectangle::new(
+    ARENA_WIDTH / 6.0,
+    0.0,
+    ARENA_WIDTH - (2.0 * ARENA_WIDTH / 6.0),
+    ARENA_HEIGHT,
+);
 const PADDLE_SIZE: Rectangle = Rectangle::new(0.0, 0.0, 10.0, 50.0);
-const WALL_SIZE: Rectangle = Rectangle::new(0.0, 0.0, ARENA_WIDTH, 10.0);
-const GOAL_SIZE: Rectangle = Rectangle::new(0.0, 0.0, 10.0, ARENA_HEIGHT);
+const WALL_SIZE: Rectangle = Rectangle::new(0.0, 0.0, ARENA_WIDTH, 50.0);
+const GOAL_SIZE: Rectangle = Rectangle::new(0.0, 0.0, 50.0, ARENA_HEIGHT);
 const BALL_RADIUS: f32 = 5.0;
 
 pub trait RectExt: std::borrow::BorrowMut<Rectangle> + std::borrow::Borrow<Rectangle> {
@@ -52,7 +58,16 @@ mod components {
     }
 
     #[derive(Copy, Clone, Debug)]
-    pub struct Paddle(pub f32);
+    pub enum Controller {
+        Player,
+        AI,
+    }
+
+    #[derive(Copy, Clone, Debug)]
+    pub struct Paddle {
+        pub speed: f32,
+        pub ctrl: Controller,
+    }
 
     #[derive(Copy, Clone, Debug)]
     pub struct Ball(pub f32);
@@ -66,11 +81,19 @@ mod components {
         Goal = 1 << 3,
     }
 
+    #[derive(Copy, Clone, Debug, PartialEq)]
+    pub enum CollisionResolver {
+        Bounce,
+        Stop,
+        Trigger,
+    }
+
     #[derive(Clone, Debug)]
     pub struct Collider {
         pub rect: Rectangle,
         pub mask: CollisionMask,
         pub collide_with: u8,
+        pub resolver: CollisionResolver,
     }
 
     #[derive(Debug)]
@@ -88,6 +111,7 @@ mod components {
                 rect,
                 mask: Ball,
                 collide_with: Paddle as u8 | Wall as u8 | Goal as u8,
+                resolver: CollisionResolver::Bounce,
             }
         }
 
@@ -96,7 +120,8 @@ mod components {
             Collider {
                 rect,
                 mask: Paddle,
-                collide_with: Wall as u8,
+                collide_with: Wall as u8 | Ball as u8,
+                resolver: CollisionResolver::Stop,
             }
         }
 
@@ -106,6 +131,7 @@ mod components {
                 rect,
                 mask: Wall,
                 collide_with: Paddle as u8 | Goal as u8,
+                resolver: CollisionResolver::Trigger,
             }
         }
 
@@ -115,6 +141,7 @@ mod components {
                 rect,
                 mask: Goal,
                 collide_with: Ball as u8,
+                resolver: CollisionResolver::Trigger,
             }
         }
     }
@@ -176,7 +203,7 @@ pub mod systems {
         match *state {
             GameState::Reset(ref config) => {
                 // Add Left paddles
-                let offset = ARENA_WIDTH / 6.0;
+                let offset = ARENA_BOUNDS.x;
                 entities.add_entity(
                     (
                         &mut pos,
@@ -216,6 +243,8 @@ pub mod systems {
                 );
                 // ADD
                 // Add Ball
+                // let angle: f32 = random::<f32>() * 2.0 * std::f32::consts::PI;
+                let angle = (1.0 / 4.0) * std::f32::consts::PI;
                 let ball = entities.add_entity(
                     (
                         &mut pos,
@@ -227,7 +256,7 @@ pub mod systems {
                     ),
                     (
                         Position(vec2(ARENA_WIDTH / 2.0, ARENA_HEIGHT / 2.0)),
-                        Velocity(vec2(1.0, 0.0) * config.ball.0),
+                        Velocity(vec2(angle.cos(), angle.sin()) * config.ball.0),
                         MColor(Color::WHITE),
                         Shape::Circle(BALL_RADIUS),
                         Collider::ball(Rectangle::new(
@@ -239,6 +268,45 @@ pub mod systems {
                         config.ball,
                     ),
                 );
+
+                // ADD Walls
+                entities.add_entity(
+                    (&mut pos, &mut colliders),
+                    (
+                        Position(vec2(ARENA_WIDTH / 2.0, WALL_SIZE.height / 2.0)),
+                        Collider::wall(WALL_SIZE),
+                    ),
+                );
+                // ADD Walls
+                entities.add_entity(
+                    (&mut pos, &mut colliders),
+                    (
+                        Position(vec2(
+                            ARENA_WIDTH / 2.0,
+                            ARENA_HEIGHT - WALL_SIZE.height / 2.0,
+                        )),
+                        Collider::wall(WALL_SIZE),
+                    ),
+                );
+
+                // ADD Goals
+                entities.add_entity(
+                    (&mut pos, &mut colliders),
+                    (
+                        Position(vec2(0.0, ARENA_HEIGHT / 2.0)),
+                        Collider::goal(GOAL_SIZE),
+                    ),
+                );
+
+                // ADD Goals
+                entities.add_entity(
+                    (&mut pos, &mut colliders),
+                    (
+                        Position(vec2(ARENA_WIDTH, ARENA_HEIGHT / 2.0)),
+                        Collider::goal(GOAL_SIZE),
+                    ),
+                );
+
                 println!("Ball: {:?}", ball);
                 *state = GameState::Playing;
             }
@@ -296,12 +364,14 @@ pub mod systems {
             for j in (i + 1)..cols.len() {
                 let (b, bcol) = cols[j];
                 if acol.rect.check_collision_recs(&bcol.rect)
-                //&& ((acol.collide_with & bcol.mask as u8) != 0)
+                    && ((acol.collide_with & bcol.mask as u8) != 0)
                 {
-                    println!(
-                        "collision: {:?}, {:?}, {:?}, {:?}",
-                        a, b, acol.mask, bcol.mask
-                    );
+                    if acol.resolver != CollisionResolver::Trigger {
+                        println!(
+                            "collision: {:?}, {:?}, {:?}, {:?}",
+                            a, b, acol.mask, bcol.mask
+                        );
+                    }
                     entities.add_component(
                         &mut results,
                         CollisionResult {
@@ -337,39 +407,79 @@ pub mod systems {
         mut pos: &mut Position,
         mut vel: &mut Velocity,
     ) {
-        (&ball, &result, &mut pos, &mut vel)
-            .iter()
-            .for_each(|(_, r, p, v)| {
-                // https://gamedev.stackexchange.com/questions/29786/a-simple-2d-rectangle-collision-algorithm-that-also-determines-which-sides-that
-                let w = 0.5 * (r.acol.rect.width + r.bcol.rect.width);
-                let h = 0.5 * (r.acol.rect.height + r.bcol.rect.height);
-                let dx = r.acol.rect.center().x - r.bcol.rect.center().x;
-                let dy = r.acol.rect.center().y - r.bcol.rect.center().y;
-                println!("here");
-                if (dx.abs() <= w && dy.abs() <= h) {
-                    let wy = w * dy;
-                    let hx = h * dx;
-                    // Undo last velocity
-                    p.0 = p.0 - (v.0 * time.game_delta_time);
-                    if (wy > hx) {
-                        if (wy > -hx) {
-                            /* collision at the top */
-                            v.0.y = -v.0.y
-                        } else {
-                            /* on the left */
-                            v.0.x = -v.0.x
-                        }
+        // Bounces and stay in
+        // Walls have no velocity so this doesn't trigger for them
+        (&result, &mut pos, &mut vel).iter().for_each(|(r, p, v)| {
+            if r.bcol.mask == CollisionMask::Goal {
+                println!("scored!");
+                p.0 = vec2(ARENA_WIDTH / 2.0, ARENA_HEIGHT / 2.0);
+                return;
+            }
+            // https://gamedev.stackexchange.com/questions/29786/a-simple-2d-rectangle-collision-algorithm-that-also-determines-which-sides-that
+            let w = 0.5 * (r.acol.rect.width + r.bcol.rect.width);
+            let h = 0.5 * (r.acol.rect.height + r.bcol.rect.height);
+            let dx = r.acol.rect.center().x - r.bcol.rect.center().x;
+            let dy = r.acol.rect.center().y - r.bcol.rect.center().y;
+
+            let bcenter = r.bcol.rect.center();
+
+            if (dx.abs() <= w && dy.abs() <= h) {
+                let wy = w * dy;
+                let hx = h * dx;
+                // Undo last velocity
+                p.0 = p.0 - (v.0 * 2.0 * time.game_delta_time);
+                if (wy > hx) {
+                    if (wy > -hx) {
+                        /* collision at the top */
+                        p.0.y = bcenter.y + h + 1.0;
+                        v.0.y = -v.0.y;
                     } else {
-                        if (wy > -hx) {
-                            /* on the right */
-                            v.0.x = -v.0.x
-                        } else {
-                            /* at the bottom */
-                            v.0.y = -v.0.y
+                        /* on the left */
+                        if r.acol.resolver == CollisionResolver::Bounce {
+                            p.0.x = bcenter.x - w - 1.0;
+                            v.0.x = -v.0.x;
                         }
                     }
+                } else {
+                    if (wy > -hx) {
+                        /* on the right */
+                        if r.acol.resolver == CollisionResolver::Bounce {
+                            p.0.x = bcenter.x + w + 1.0;
+                            v.0.x = -v.0.x;
+                        }
+                    } else {
+                        /* at the bottom */
+                        p.0.y = bcenter.y - h - 1.0;
+                        v.0.y = -v.0.y;
+                    }
                 }
-            });
+            }
+        });
+    }
+
+    #[system(PaddleControlSys)]
+    pub fn run(ball: &Ball, paddle: &Paddle, pos: &Position, mut vel: &mut Velocity) {
+        let (_, ball_pos) = (&ball, &pos).iter().next().unwrap();
+
+        (&paddle, &pos, &mut vel).iter().for_each(|(pad, p, v)| {
+            // If ball is beyond us then don't do anything
+            if !ARENA_BOUNDS.check_collision_point_rec(ball_pos.0) {
+                v.0 = Vector2::zero();
+                return;
+            }
+            match pad.ctrl {
+                // If ball is behind us, stop all movement
+                Controller::AI => {
+                    let d = (ball_pos.0.y - p.0.y);
+                    if d.abs() < PADDLE_SIZE.height / 3.0 {
+                        v.0 = Vector2::zero();
+                        return;
+                    }
+                    v.0 = vec2(0.0, (ball_pos.0.y - p.0.y).signum()) * pad.speed;
+                }
+                _ => {}
+            }
+        });
     }
 
     #[system(DrawSys)]
@@ -458,8 +568,14 @@ fn main() {
     });
     world.add_unique(DrawState::default());
     world.add_unique(GameState::Reset(GameConfig {
-        lpaddle: Paddle(ARENA_HEIGHT / 3.0),
-        rpaddle: Paddle(ARENA_HEIGHT / 2.0),
+        lpaddle: Paddle {
+            speed: ARENA_HEIGHT / 6.0,
+            ctrl: Controller::AI,
+        },
+        rpaddle: Paddle {
+            speed: ARENA_HEIGHT / 5.0,
+            ctrl: Controller::AI,
+        },
         ball: Ball(ARENA_WIDTH / 2.0),
     }));
 
@@ -468,10 +584,12 @@ fn main() {
         .window_should_close()
     {
         world.run_system::<ResetSys>();
+        world.run_system::<PaddleControlSys>();
+
         world.run_system::<TimeKeeperSys>();
-        world.run_system::<MoveSys>();
         world.run_system::<CollisionSys>();
         world.run_system::<CollisionResolveSys>();
+        world.run_system::<MoveSys>();
         world.run_system::<DrawSys>();
     }
 }
