@@ -1,4 +1,4 @@
-
+use rand::prelude::*;
 use raylib::prelude::*;
 use shipyard::prelude::*;
 
@@ -153,6 +153,22 @@ mod components {
         pub ball: Ball,
     }
 
+    impl GameConfig {
+        pub fn random() -> GameConfig {
+            GameConfig {
+                lpaddle: Paddle {
+                    speed: ARENA_HEIGHT / 6.0 + (2.0 * ARENA_HEIGHT / 6.0) * random::<f32>(),
+                    ctrl: Controller::Player,
+                },
+                rpaddle: Paddle {
+                    speed: ARENA_HEIGHT / 6.0 + (2.0 * ARENA_HEIGHT / 6.0) * random::<f32>(),
+                    ctrl: Controller::AI,
+                },
+                ball: Ball(ARENA_WIDTH / 2.0),
+            }
+        }
+    }
+
     #[derive(Clone, Debug)]
     pub enum GameState {
         Reset(GameConfig),
@@ -160,8 +176,30 @@ mod components {
         Paused,
     }
 
-    #[derive(Debug)]
-    pub struct GameCtrl;
+    #[derive(Debug, Default)]
+    pub struct KeyEntities {
+        pub ball: Option<EntityId>,
+        pub lpaddle: Option<EntityId>,
+        pub rpaddle: Option<EntityId>,
+        pub walls: Vec<EntityId>,
+        pub other: Vec<EntityId>,
+    }
+
+    impl KeyEntities {
+        pub fn all<'a>(&'a self) -> impl Iterator<Item = EntityId> + 'a {
+            self.ball
+                .into_iter()
+                .chain(self.lpaddle.into_iter())
+                .chain(self.rpaddle.into_iter())
+                .chain(self.walls.iter().copied())
+                .chain(self.other.iter().copied())
+        }
+    }
+
+    #[derive(Debug, Default)]
+    pub struct Cleanup {
+        pub to_delete: Vec<EntityId>,
+    }
 
     #[derive(Debug, Default)]
     pub struct TimeKeeper {
@@ -188,10 +226,21 @@ pub use components::*;
 /// DrawSys, MoveSys, InitSys
 pub mod systems {
     use super::*;
+
+    #[system(GameCtrlSys)]
+    pub fn run(rl: Unique<NonSend<&RaylibHandle>>, mut state: Unique<&mut GameState>) {
+        use raylib::consts::KeyboardKey::*;
+        if rl.is_key_pressed(KEY_SPACE) {
+            *state = GameState::Reset(GameConfig::random());
+        }
+    }
+
     #[system(ResetSys)]
     pub fn run(
         mut entities: &mut Entities,
         mut state: Unique<&mut GameState>,
+        mut key_ents: Unique<&mut KeyEntities>,
+        mut cleanup: Unique<&mut Cleanup>,
         mut pos: &mut Position,
         mut vel: &mut Velocity,
         mut mcol: &mut MColor,
@@ -202,9 +251,14 @@ pub mod systems {
     ) {
         match *state {
             GameState::Reset(ref config) => {
+                // delete old entities
+                for e in key_ents.all() {
+                    cleanup.to_delete.push(e);
+                }
+
                 // Add Left paddles
                 let offset = ARENA_BOUNDS.x;
-                entities.add_entity(
+                let e = entities.add_entity(
                     (
                         &mut pos,
                         &mut vel,
@@ -222,8 +276,10 @@ pub mod systems {
                         config.lpaddle,
                     ),
                 );
-                // Add Left paddles
-                entities.add_entity(
+                key_ents.lpaddle = Some(e);
+
+                // Add Right paddles
+                let e = entities.add_entity(
                     (
                         &mut pos,
                         &mut vel,
@@ -241,10 +297,12 @@ pub mod systems {
                         config.rpaddle,
                     ),
                 );
+                key_ents.rpaddle = Some(e);
+
                 // ADD
                 // Add Ball
-                // let angle: f32 = random::<f32>() * 2.0 * std::f32::consts::PI;
-                let angle = (1.0 / 4.0) * std::f32::consts::PI;
+                let angle: f32 = random::<f32>() * 2.0 * std::f32::consts::PI;
+                // let angle = (1.0 / 4.0) * std::f32::consts::PI;
                 let ball = entities.add_entity(
                     (
                         &mut pos,
@@ -268,17 +326,22 @@ pub mod systems {
                         config.ball,
                     ),
                 );
+                key_ents.ball = Some(ball);
+
+                key_ents.walls = Vec::new();
 
                 // ADD Walls
-                entities.add_entity(
+                let e = entities.add_entity(
                     (&mut pos, &mut colliders),
                     (
                         Position(vec2(ARENA_WIDTH / 2.0, WALL_SIZE.height / 2.0)),
                         Collider::wall(WALL_SIZE),
                     ),
                 );
+                key_ents.walls.push(e);
+
                 // ADD Walls
-                entities.add_entity(
+                let e = entities.add_entity(
                     (&mut pos, &mut colliders),
                     (
                         Position(vec2(
@@ -288,26 +351,29 @@ pub mod systems {
                         Collider::wall(WALL_SIZE),
                     ),
                 );
+                key_ents.walls.push(e);
 
+                key_ents.other = Vec::new();
                 // ADD Goals
-                entities.add_entity(
+                let e = entities.add_entity(
                     (&mut pos, &mut colliders),
                     (
                         Position(vec2(0.0, ARENA_HEIGHT / 2.0)),
                         Collider::goal(GOAL_SIZE),
                     ),
                 );
+                key_ents.other.push(e);
 
                 // ADD Goals
-                entities.add_entity(
+                let e = entities.add_entity(
                     (&mut pos, &mut colliders),
                     (
                         Position(vec2(ARENA_WIDTH, ARENA_HEIGHT / 2.0)),
                         Collider::goal(GOAL_SIZE),
                     ),
                 );
+                key_ents.other.push(e);
 
-                println!("Ball: {:?}", ball);
                 *state = GameState::Playing;
             }
             _ => {}
@@ -465,7 +531,10 @@ pub mod systems {
         mut vel: &mut Velocity,
     ) {
         use raylib::consts::KeyboardKey::*;
-        let (_, ball_pos) = (&ball, &pos).iter().next().unwrap();
+        let (_, ball_pos) = match (&ball, &pos).iter().next() {
+            Some(stuff) => stuff,
+            _ => return,
+        };
 
         (&paddle, &pos, &mut vel).iter().for_each(|(pad, p, v)| {
             // If ball is beyond us then don't do anything
@@ -582,30 +651,36 @@ fn main() {
         height: 480.0,
     });
     world.add_unique(DrawState::default());
-    world.add_unique(GameState::Reset(GameConfig {
-        lpaddle: Paddle {
-            speed: ARENA_HEIGHT / 6.0,
-            ctrl: Controller::Player,
-        },
-        rpaddle: Paddle {
-            speed: ARENA_HEIGHT / 5.0,
-            ctrl: Controller::AI,
-        },
-        ball: Ball(ARENA_WIDTH / 2.0),
-    }));
+    world.add_unique(GameState::Reset(GameConfig::random()));
+    world.add_unique(KeyEntities::default());
+    world.add_unique(Cleanup::default());
+
+    // Entities to delete at end of a frame.
+    let mut to_delete = Vec::new();
 
     while !world
         .borrow::<Unique<NonSend<&RaylibHandle>>>()
         .window_should_close()
     {
-        world.run_system::<ResetSys>();
         world.run_system::<PaddleControlSys>();
-
         world.run_system::<TimeKeeperSys>();
         world.run_system::<CollisionSys>();
         world.run_system::<CollisionResolveSys>();
         world.run_system::<MoveSys>();
         world.run_system::<DrawSys>();
+        // run the logic for the next frame AFTER everything happens
+        world.run_system::<GameCtrlSys>();
+        world.run_system::<ResetSys>();
+
+        // Delete stuff
+        world.run::<Unique<&mut Cleanup>, _, _>(|mut cleanup| {
+            to_delete.append(&mut cleanup.to_delete);
+        });
+        world.run::<AllStorages, _, _>(|mut all_storages| {
+            for e in to_delete.drain(..) {
+                all_storages.delete(e);
+            }
+        });
     }
 }
 
