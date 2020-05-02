@@ -298,17 +298,36 @@ impl Image {
 
     /// Draws a source image within a destination image.
     #[inline]
-    pub fn image_draw(&mut self, src: &Image, src_rec: Rectangle, dst_rec: Rectangle) {
+    pub fn image_draw(
+        &mut self,
+        src: &Image,
+        src_rec: Rectangle,
+        dst_rec: Rectangle,
+        color: impl Into<ffi::Color>,
+    ) {
         unsafe {
-            ffi::ImageDraw(&mut self.0, src.0, src_rec.into(), dst_rec.into());
+            ffi::ImageDraw(
+                &mut self.0,
+                src.0,
+                src_rec.into(),
+                dst_rec.into(),
+                color.into(),
+            );
         }
     }
 
     /// Draws a rectangle within an image.
     #[inline]
-    pub fn image_draw_rectangle(&mut self, rec: Rectangle, color: impl Into<ffi::Color>) {
+    pub fn image_draw_rectangle(
+        &mut self,
+        pos_x: i32,
+        pos_y: i32,
+        width: i32,
+        height: i32,
+        color: impl Into<ffi::Color>,
+    ) {
         unsafe {
-            ffi::ImageDrawRectangle(&mut self.0, rec.into(), color.into());
+            ffi::ImageDrawRectangle(&mut self.0, pos_x, pos_y, width, height, color.into());
         }
     }
 

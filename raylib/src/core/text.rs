@@ -1,6 +1,6 @@
 //! Text and Font related functions
 //! Text manipulation functions are super unsafe so use rust String functions
-use crate::core::math::Vector2;
+use crate::core::math::{Rectangle, Vector2};
 use crate::core::texture::{Image, Texture2D};
 use crate::core::{RaylibHandle, RaylibThread};
 use crate::ffi;
@@ -176,29 +176,6 @@ impl Font {
         std::mem::forget(self);
         return w;
     }
-    /// Returns a new `Font` using provided `CharInfo` data and parameters.
-    fn from_data(
-        chars: &[ffi::CharInfo],
-        base_size: i32,
-        padding: i32,
-        pack_method: i32,
-    ) -> Result<Font, String> {
-        let f = unsafe {
-            let mut f = std::mem::zeroed::<Font>();
-            f.baseSize = base_size;
-            f.set_chars(chars);
-
-            let atlas =
-                ffi::GenImageFontAtlas(f.chars, f.baseSize, f.charsCount, padding, pack_method);
-            f.texture = ffi::LoadTextureFromImage(atlas);
-            ffi::UnloadImage(atlas);
-            f
-        };
-        if f.0.chars.is_null() || f.0.texture.id == 0 {
-            return Err(format!("Error loading font from image."));
-        }
-        Ok(f)
-    }
 
     /// Sets the character data on the current Font.
     fn set_chars(&mut self, chars: &[ffi::CharInfo]) {
@@ -227,6 +204,7 @@ impl Font {
 pub fn gen_image_font_atlas(
     _: &RaylibThread,
     chars: &mut [ffi::CharInfo],
+    recs: &mut [&mut Rectangle],
     font_size: i32,
     padding: i32,
     pack_method: i32,
@@ -234,6 +212,7 @@ pub fn gen_image_font_atlas(
     unsafe {
         Image(ffi::GenImageFontAtlas(
             chars.as_mut_ptr(),
+            recs.as_ptr() as *mut _,
             font_size,
             chars.len() as i32,
             padding,

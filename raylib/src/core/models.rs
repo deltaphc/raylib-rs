@@ -7,7 +7,7 @@ use std::ffi::CString;
 
 fn no_drop<T>(_thing: T) {}
 make_thin_wrapper!(Model, ffi::Model, ffi::UnloadModel);
-make_thin_wrapper!(Mesh, ffi::Mesh, |mut mesh| ffi::UnloadMesh(&mut mesh));
+make_thin_wrapper!(Mesh, ffi::Mesh, |mut mesh| ffi::UnloadMesh(mesh));
 make_thin_wrapper!(Material, ffi::Material, ffi::UnloadMaterial);
 make_thin_wrapper!(WeakMaterial, ffi::Material, no_drop);
 make_thin_wrapper!(BoneInfo, ffi::BoneInfo, no_drop);
@@ -373,11 +373,13 @@ pub trait RaylibMaterial: AsRef<ffi::Material> + AsMut<ffi::Material> {
     }
 
     fn maps(&self) -> &[ffi::MaterialMap] {
-        &self.as_ref().maps
+        // taken from https://github.com/raysan5/raylib/blob/c83477ffcad3f2ff457e74a4cfee9cb6e606d4a1/src/rlgl.h#L161
+        unsafe { std::slice::from_raw_parts(self.as_ref().maps, 12) }
     }
 
     fn maps_mut(&mut self) -> &mut [ffi::MaterialMap] {
-        &mut self.as_mut().maps
+        // taken from https://github.com/raysan5/raylib/blob/c83477ffcad3f2ff457e74a4cfee9cb6e606d4a1/src/rlgl.h#L161
+        unsafe { std::slice::from_raw_parts_mut(self.as_mut().maps, 12) }
     }
 }
 

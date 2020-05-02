@@ -1,7 +1,6 @@
 //! Various constant enums to use with raylib
 pub use crate::ffi;
 
-pub use ffi::rIconDescription;
 pub use ffi::BlendMode;
 pub use ffi::CameraMode;
 pub use ffi::CameraType;
@@ -20,8 +19,6 @@ pub use ffi::TextureFilterMode;
 pub use ffi::TextureWrapMode;
 pub use ffi::TraceLogType;
 pub use ffi::DEG2RAD;
-pub use ffi::MAX_MATERIAL_MAPS;
-pub use ffi::MAX_SHADER_LOCATIONS;
 pub use ffi::MAX_TOUCH_POINTS;
 pub use ffi::PI;
 pub use ffi::RAD2DEG;

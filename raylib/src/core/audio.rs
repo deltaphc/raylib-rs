@@ -269,30 +269,6 @@ impl Wave {
         Ok(Wave(w))
     }
 
-    /// Loads wave data from raw array data.
-    #[inline]
-    pub fn load_wave_ex(
-        data: &[u8],
-        sample_count: i32,
-        sample_rate: i32,
-        sample_size: i32,
-        channels: i32,
-    ) -> Result<Wave, String> {
-        let w = unsafe {
-            ffi::LoadWaveEx(
-                data.as_ptr() as *mut std::os::raw::c_void,
-                sample_count,
-                sample_rate,
-                sample_size,
-                channels,
-            )
-        };
-        if w.data.is_null() {
-            return Err(format!("Cannot load wave from data is it valid?"));
-        }
-        Ok(Wave(w))
-    }
-
     /// Export wave file. Extension must be .wav or .raw
     #[inline]
     pub fn export_wave(&self, filename: &str) {
@@ -345,14 +321,8 @@ impl Wave {
 }
 
 impl Sound {
-    pub fn source(&self) -> u32 {
-        self.0.source
-    }
-    pub fn buffer(&self) -> u32 {
-        self.0.buffer
-    }
-    pub fn format(&self) -> i32 {
-        self.0.format
+    pub fn sample_count(&self) -> u32 {
+        self.0.sampleCount
     }
     pub unsafe fn inner(self) -> ffi::Sound {
         let inner = self.0;
@@ -363,7 +333,7 @@ impl Sound {
     pub fn load_sound(filename: &str) -> Result<Sound, String> {
         let c_filename = CString::new(filename).unwrap();
         let s = unsafe { ffi::LoadSound(c_filename.as_ptr()) };
-        if s.audioBuffer.is_null() {
+        if s.stream.buffer.is_null() {
             return Err(format!("failed to load sound {}", filename));
         }
         Ok(Sound(s))
@@ -372,7 +342,7 @@ impl Sound {
     /// Loads sound from wave data.
     pub fn load_sound_from_wave(wave: &Wave) -> Result<Sound, String> {
         let s = unsafe { ffi::LoadSoundFromWave(wave.0) };
-        if s.audioBuffer.is_null() {
+        if s.stream.buffer.is_null() {
             return Err(format!("failed to load sound from wave"));
         }
         Ok(Sound(s))
@@ -391,13 +361,25 @@ impl Sound {
     }
 }
 
+impl std::convert::AsRef<ffi::AudioStream> for Sound {
+    fn as_ref(&self) -> &ffi::AudioStream {
+        return &self.stream;
+    }
+}
+
+impl std::convert::AsMut<ffi::AudioStream> for Sound {
+    fn as_mut(&mut self) -> &mut ffi::AudioStream {
+        return &mut self.stream;
+    }
+}
+
 impl Music {
     /// Loads music stream from file.
     // #[inline]
     pub fn load_music_stream(_: &RaylibThread, filename: &str) -> Result<Music, String> {
         let c_filename = CString::new(filename).unwrap();
         let m = unsafe { ffi::LoadMusicStream(c_filename.as_ptr()) };
-        if m.is_null() {
+        if m.ctxData.is_null() {
             return Err(format!("music could not be loaded from file {}", filename));
         }
         Ok(Music(m))
@@ -414,11 +396,11 @@ impl AudioStream {
     pub fn channels(&self) -> u32 {
         self.0.channels
     }
-    pub fn format(&self) -> i32 {
-        self.0.format
+    pub fn buffer(&self) -> &ffi::rAudioBuffer {
+        unsafe { &*self.0.buffer }
     }
-    pub fn source(&self) -> u32 {
-        self.0.source
+    pub fn buffer_mut(&mut self) -> &mut ffi::rAudioBuffer {
+        unsafe { &mut *self.0.buffer }
     }
     pub unsafe fn inner(self) -> ffi::AudioStream {
         let inner = self.0;
@@ -446,11 +428,5 @@ impl AudioStream {
                 data.len() as i32,
             );
         }
-    }
-
-    /// Checks if any audio stream buffers requires refill.
-    #[inline]
-    pub fn is_audio_buffer_processed(&mut self) -> bool {
-        unsafe { ffi::IsAudioBufferProcessed(self.0) }
     }
 }
