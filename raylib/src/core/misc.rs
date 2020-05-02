@@ -2,7 +2,7 @@
 use crate::core::texture::Image;
 use crate::core::{RaylibHandle, RaylibThread};
 use crate::ffi;
-use std::ffi::{CStr, CString};
+use std::ffi::{CString};
 
 /// Returns a random value between min and max (both included)
 /// ```rust
