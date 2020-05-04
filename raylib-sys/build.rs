@@ -203,8 +203,7 @@ fn download_raylib() -> PathBuf {
     }
 
     // Uncomment when we go back to tar.gz
-    let reader =
-        flate2::read::GzDecoder::new(fs::File::open(&raylib_archive_path).unwrap()).unwrap();
+    let reader = flate2::read::GzDecoder::new(fs::File::open(&raylib_archive_path).unwrap());
     let mut ar = tar::Archive::new(reader);
     ar.unpack(&out_dir).unwrap();
 

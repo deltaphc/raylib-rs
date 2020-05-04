@@ -11,11 +11,11 @@ categories = ["external-ffi-bindings"]
 edition = "2018"
 
 [build-dependencies]
-tar = "0.4"
-flate2 = "0.2"
-cmake = "0.1.35"
-cc = "1.0"
-ureq = "0.11"
+tar = "0.4.26"
+flate2 = "1.0.14"
+cmake = "0.1.42"
+cc = "1.0.52"
+ureq = "0.12.1"
 
 [features]
 default = []
