@@ -111,6 +111,30 @@ impl RaylibHandle {
     ) -> Vector2 {
         unsafe { ffi::GetWorldToScreen(position.into(), camera.into()).into() }
     }
+
+    /// Returns size position for a 3d world space position
+    pub fn get_world_to_screen_ex(
+        position: impl Into<ffi::Vector3>,
+        camera: impl Into<ffi::Camera>,
+        width: i32,
+        height: i32,
+    ) -> Vector2 {
+        unsafe { ffi::GetWorldToScreenEx(position.into(), camera.into(), width, height).into() }
+    }
+    /// Returns the screen space position for a 2d camera world space position
+    pub fn get_world_to_screen_2d(
+        position: impl Into<ffi::Vector2>,
+        camera: impl Into<ffi::Camera2D>,
+    ) -> Vector2 {
+        unsafe { ffi::GetWorldToScreen2D(position.into(), camera.into()).into() }
+    }
+
+    pub fn get_screen_to_world_2d(
+        position: impl Into<ffi::Vector2>,
+        camera: impl Into<ffi::Camera2D>,
+    ) -> Vector2 {
+        unsafe { ffi::GetScreenToWorld2D(position.into(), camera.into()).into() }
+    }
 }
 
 // Timing related functions
