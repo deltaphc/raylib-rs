@@ -7,11 +7,16 @@ use std::ffi::{CStr, CString, IntoStringError, NulError};
 // MonitorInfo grabs the sizes (virtual and physical) of your monitor
 #[derive(Clone, Debug)]
 pub struct MonitorInfo {
-    width: i32,
-    height: i32,
-    physical_width: i32,
-    physical_height: i32,
-    name: String,
+    /// The width in pixels of the monitor.
+    pub width: i32,
+    /// The height in pixels of the monitor.
+    pub height: i32,
+    /// The width in millimetres of the monitor.
+    pub physical_width: i32,
+    /// The height in millimetres of the monitor.
+    pub physical_height: i32,
+    /// The human-readable, UTF-8 encoded name of the monitor.
+    pub name: String,
 }
 
 /// Get number of connected monitors
