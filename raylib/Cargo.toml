@@ -13,8 +13,8 @@ edition = "2018"
 
 [dependencies]
 raylib-sys = { version = "1.1", path = "../raylib-sys" }
-libc = "0.2.45"
-lazy_static = "1.2.0"
+libc = "0.2.69"
+lazy_static = "1.4.0"
 
 [features]
 nightly = []

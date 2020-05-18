@@ -348,8 +348,9 @@ impl Image {
     #[inline]
     pub fn image_draw_text(
         &mut self,
-        position: impl Into<ffi::Vector2>,
         text: &str,
+        pos_x: i32,
+        pos_y: i32,
         font_size: i32,
         color: impl Into<ffi::Color>,
     ) {
@@ -357,9 +358,10 @@ impl Image {
         unsafe {
             ffi::ImageDrawText(
                 &mut self.0,
-                position.into(),
                 c_text.as_ptr(),
                 font_size,
+                pos_x,
+                pos_y,
                 color.into(),
             );
         }
@@ -369,23 +371,23 @@ impl Image {
     #[inline]
     pub fn image_draw_text_ex(
         &mut self,
-        position: impl Into<ffi::Vector2>,
         font: impl AsRef<ffi::Font>,
         text: &str,
+        position: impl Into<ffi::Vector2>,
         font_size: f32,
         spacing: f32,
-        color: impl Into<ffi::Color>,
+        tint: impl Into<ffi::Color>,
     ) {
         let c_text = CString::new(text).unwrap();
         unsafe {
             ffi::ImageDrawTextEx(
                 &mut self.0,
-                position.into(),
                 *font.as_ref(),
                 c_text.as_ptr(),
+                position.into(),
                 font_size,
                 spacing,
-                color.into(),
+                tint.into(),
             );
         }
     }
@@ -615,31 +617,6 @@ impl Image {
                 pixels.as_ptr() as *mut ffi::Color,
                 width,
                 height,
-            )))
-        }
-    }
-
-    /// Loads image from raw data with parameters.
-    pub fn load_image_pro(
-        data: &[u8],
-        width: i32,
-        height: i32,
-        format: crate::consts::PixelFormat,
-    ) -> Result<Image, String> {
-        let expected_len = get_pixel_data_size(width, height, format) as usize;
-        if data.len() != expected_len {
-            return Err(format!(
-                "load_image_pro: Data is wrong size. Expected {}, got {}",
-                expected_len,
-                data.len()
-            ));
-        }
-        unsafe {
-            Ok(Image(ffi::LoadImagePro(
-                data.as_ptr() as *mut std::os::raw::c_void,
-                width,
-                height,
-                format as i32,
             )))
         }
     }
