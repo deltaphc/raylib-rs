@@ -46,7 +46,9 @@ impl Color {
     /// * `color_hex_str` - A string slice, 6 characters long
     /// # Example
     /// ```
-    /// let color = Color::from("FAFB09");
+    /// use raylib::prelude::*;
+    /// let color = Color::from_hex("FAFB09").unwrap();
+    /// assert_eq!(Color::new(250, 251, 9, 255), color);
     /// ```
     pub fn from_hex(color_hex_str: &str) -> Result<Color, std::num::ParseIntError> {
         let color = i32::from_str_radix(color_hex_str, 16)?;

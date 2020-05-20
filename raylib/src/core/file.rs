@@ -9,7 +9,7 @@ use std::path::Path;
 /// use raylib::prelude::*;
 /// fn main() {
 ///     let check = file_exists("resources/just_exists.txt");
-///     assert!(check, "file doesn't exist");
+///     assert!(!check, "file unexpectedly exists");
 /// }
 pub fn file_exists(file_name: impl AsRef<Path>) -> bool {
     if let Some(s) = file_name.as_ref().to_str() {
