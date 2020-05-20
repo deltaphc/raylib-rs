@@ -1107,7 +1107,7 @@ Defense: {}",
         }
         return TookTurn;
     }
-    return DidntTakeTurn;
+    DidntTakeTurn
 }
 
 /// add to the player's inventory and remove from the map
@@ -1413,7 +1413,7 @@ fn ai_confused(
             objects,
         );
         Ai::Confused {
-            previous_ai: previous_ai,
+            previous_ai,
             num_turns: num_turns - 1,
         }
     } else {
@@ -1643,7 +1643,7 @@ fn inventory_menu(
     root: &mut RaylibDrawHandle,
 ) -> Option<usize> {
     // how a menu with each item of the inventory as an option
-    let options = if inventory.len() == 0 {
+    let options = if inventory.is_empty() {
         vec!["Inventory is empty.".into()]
     } else {
         inventory
@@ -1663,7 +1663,7 @@ fn inventory_menu(
     let inventory_index = menu(header, &options, INVENTORY_WIDTH, root);
 
     // if an item was chosen, return it
-    if inventory.len() > 0 {
+    if !inventory.is_empty() {
         inventory_index
     } else {
         None

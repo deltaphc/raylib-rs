@@ -56,11 +56,11 @@ pub enum DrawResult {
 }
 
 fn u322bool(u: u32) -> bool {
-    return match u {
+    match u {
         0 => false,
         1 => true,
         _ => panic!("none zero or one boolean result"),
-    };
+    }
 }
 
 impl From<u32> for DrawResult {
@@ -233,7 +233,7 @@ gui_draw! {
 GuiToggle(
                     bounds.into(),
                     text.as_ptr(),
-                    if *active { true } else { false },
+                    *active,
                 )
                 .into()
 }
@@ -258,7 +258,7 @@ gui_draw! {
         text: CString,
         checked: bool,
     },
-    GuiCheckBox(bounds.into(), text.as_ptr(), if *checked {true} else {false}).into()
+    GuiCheckBox(bounds.into(), text.as_ptr(), *checked).into()
 }
 
 gui_draw! {
@@ -274,7 +274,7 @@ gui_draw! {
                         bounds.into(),
                         text.as_ptr(),
                         &mut active,
-                        if *edit_mode { true } else { false },
+                        *edit_mode,
                     );
                     DrawResult::Dropdown(u322bool(active as u32), b)
                 }
@@ -295,7 +295,7 @@ gui_draw! {
                         &mut value,
                         *min_value,
                         *max_value,
-                        if *edit_mode { true } else { false },
+                        *edit_mode,
                     );
                     DrawResult::Value(value, b)
                 }
@@ -314,7 +314,7 @@ gui_draw! {
                         bounds.into(),
                         update.as_ptr() as *mut i8,
                         *text_size,
-                        if *edit_mode { true } else { false },
+                        *edit_mode,
                     );
                     DrawResult::Text(update, b)
                 }
@@ -333,7 +333,7 @@ gui_draw! {
                         bounds.into(),
                         update.as_ptr() as *mut i8,
                         *text_size,
-                        if *edit_mode { true } else { false },
+                        *edit_mode,
                     );
                     DrawResult::Text(update, b)
                 }
@@ -349,7 +349,7 @@ gui_draw! {
     },
     {
         let mut value = *value;
-        let b = GuiValueBox(bounds.into(), &mut value, *min_value, *max_value, if *edit_mode {true} else {false});
+        let b = GuiValueBox(bounds.into(), &mut value, *min_value, *max_value, *edit_mode);
         DrawResult::Value(value, b)
     }
 }
@@ -369,7 +369,7 @@ GuiSlider(
                     *valuef,
                     *min_valuef,
                     *max_valuef,
-                    if *show_value { true } else { false },
+                    *show_value,
                 )
                 .into()
 }
@@ -389,7 +389,7 @@ GuiSliderBar(
                     *valuef,
                     *min_valuef,
                     *max_valuef,
-                    if *show_value { true } else { false },
+                    *show_value,
                 )
                 .into()
 }
@@ -409,7 +409,7 @@ GuiProgressBar(
                     *valuef,
                     *min_valuef,
                     *max_valuef,
-                    if *show_value { true } else { false },
+                    *show_value,
                 )
                 .into()
 }
@@ -461,7 +461,7 @@ gui_draw! {
                         text.as_ptr(),
                         &mut active,
                         &mut scroll_index,
-                        if *edit_mode { true } else { false },
+                        *edit_mode,
                     );
                     DrawResult::ListView(scroll_index, u322bool(active as u32), b)
                 }
@@ -494,7 +494,7 @@ gui_draw! {
                         &mut active,
                         &mut focus,
                         &mut scroll_index,
-                        if *edit_mode { true } else { false },
+                        *edit_mode,
                     );
                     current_text = CString::from_raw(next_text);
                     DrawResult::ListViewEx(

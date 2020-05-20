@@ -17,7 +17,7 @@ pub fn file_exists(file_name: impl AsRef<Path>) -> bool {
             return unsafe { ffi::FileExists(c.as_ptr()) };
         }
     }
-    return false;
+    false
 }
 
 // Check file extension

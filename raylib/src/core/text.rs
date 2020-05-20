@@ -24,13 +24,13 @@ make_thin_wrapper!(CharInfo, ffi::CharInfo, no_drop);
 
 impl AsRef<ffi::Texture2D> for Font {
     fn as_ref(&self) -> &ffi::Texture2D {
-        return &self.0.texture;
+        &self.0.texture
     }
 }
 
 impl AsRef<ffi::Texture2D> for WeakFont {
     fn as_ref(&self) -> &ffi::Texture2D {
-        return &self.0.texture;
+        &self.0.texture
     }
 }
 
@@ -103,7 +103,7 @@ impl RaylibHandle {
     ) -> Result<Font, String> {
         let f = unsafe { ffi::LoadFontFromImage(image.0, key.into(), first_char) };
         if f.chars.is_null() {
-            return Err(format!("Error loading font from image."));
+            return Err("Error loading font from image.".to_string());
         }
         Ok(Font(f))
     }
@@ -134,7 +134,7 @@ impl RaylibHandle {
             let ci_size = if let Some(c) = chars { c.len() } else { 95 }; // raylib assumes 95 if none given
             let mut ci_vec = Vec::with_capacity(ci_size);
             for i in 0..ci_size {
-                ci_vec.push(*ci_arr_ptr.offset(i as isize));
+                ci_vec.push(*ci_arr_ptr.add(i));
             }
             libc::free(ci_arr_ptr as *mut libc::c_void);
             ci_vec
@@ -174,7 +174,7 @@ impl Font {
     pub fn make_weak(self) -> WeakFont {
         let w = WeakFont(self.0);
         std::mem::forget(self);
-        return w;
+        w
     }
     /// Returns a new `Font` using provided `CharInfo` data and parameters.
     fn from_data(
@@ -195,7 +195,7 @@ impl Font {
             f
         };
         if f.0.chars.is_null() || f.0.texture.id == 0 {
-            return Err(format!("Error loading font from image."));
+            return Err("Error loading font from image.".to_string());
         }
         Ok(f)
     }

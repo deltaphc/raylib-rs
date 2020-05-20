@@ -288,7 +288,7 @@ impl Wave {
             )
         };
         if w.data.is_null() {
-            return Err(format!("Cannot load wave from data is it valid?"));
+            return Err("Cannot load wave from data is it valid?".to_string());
         }
         Ok(Wave(w))
     }
@@ -373,7 +373,7 @@ impl Sound {
     pub fn load_sound_from_wave(wave: &Wave) -> Result<Sound, String> {
         let s = unsafe { ffi::LoadSoundFromWave(wave.0) };
         if s.audioBuffer.is_null() {
-            return Err(format!("failed to load sound from wave"));
+            return Err("failed to load sound from wave".to_string());
         }
         Ok(Sound(s))
     }

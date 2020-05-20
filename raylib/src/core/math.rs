@@ -87,7 +87,7 @@ impl Vector2 {
 
     /// Calculates the dot product with vector `v`.
     pub fn dot(&self, v: Vector2) -> f32 {
-        (self.x * v.x + self.y * v.y)
+        self.x * v.x + self.y * v.y
     }
 
     /// Calculates the distance towards vector `v`.

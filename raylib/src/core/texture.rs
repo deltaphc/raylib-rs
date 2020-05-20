@@ -572,9 +572,7 @@ impl Image {
         let c_filename = CString::new(filename).unwrap();
         let i = unsafe { ffi::LoadImage(c_filename.as_ptr()) };
         if i.data.is_null() {
-            return Err(format!(
-            "Image data is null. Either the file doesnt exist or the image type is unsupported."
-        ));
+            return Err("Image data is null. Either the file doesnt exist or the image type is unsupported.".to_string());
         }
         Ok(Image(i))
     }
@@ -637,9 +635,7 @@ impl Image {
         let i =
             unsafe { ffi::LoadImageRaw(c_filename.as_ptr(), width, height, format, header_size) };
         if i.data.is_null() {
-            return Err(format!(
-            "Image data is null. Either the file doesnt exist or the image type is unsupported."
-        ));
+            return Err("Image data is null. Either the file doesnt exist or the image type is unsupported.".to_string());
         }
         Ok(Image(i))
     }
@@ -726,7 +722,7 @@ impl Texture2D {
     pub fn get_texture_data(&self) -> Result<Image, String> {
         let i = unsafe { ffi::GetTextureData(self.0) };
         if i.data.is_null() {
-            return Err(format!("Texture cannot be rendered to an image"));
+            return Err("Texture cannot be rendered to an image".to_string());
         }
         Ok(Image(i))
     }
@@ -778,7 +774,7 @@ impl RaylibHandle {
     ) -> Result<Texture2D, String> {
         let t = unsafe { ffi::LoadTextureFromImage(image.0) };
         if t.id == 0 {
-            return Err(format!("failed to load image as a texture."));
+            return Err("failed to load image as a texture.".to_string());
         }
         Ok(Texture2D(t))
     }
@@ -792,7 +788,7 @@ impl RaylibHandle {
     ) -> Result<RenderTexture2D, String> {
         let t = unsafe { ffi::LoadRenderTexture(width as i32, height as i32) };
         if t.id == 0 {
-            return Err(format!("failed to create render texture."));
+            return Err("failed to create render texture.".to_string());
         }
         Ok(RenderTexture2D(t))
     }

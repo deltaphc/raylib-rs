@@ -65,7 +65,7 @@ fn main() {
             d2.draw_cube(Vector3::new(16.0, 2.5, 0.0), 1.0, 5.0, 32.0, Color::LIME);
             d2.draw_cube(Vector3::new(0.0, 2.5, 16.0), 32.0, 5.0, 1.0, Color::GOLD);
 
-            for column in columns.into_iter() {
+            for column in columns.iter() {
                 d2.draw_cube(column.position, 2.0, column.height, 2.0, column.color);
                 d2.draw_cube_wires(column.position, 2.0, column.height, 2.0, Color::MAROON);
             }

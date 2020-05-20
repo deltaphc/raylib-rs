@@ -31,7 +31,7 @@ impl Rectangle {
         if self.check_collision_recs(other) {
             return Some(unsafe { ffi::GetCollisionRec(self.into(), other.into()).into() });
         }
-        return None;
+        None
     }
 
     /// Checks if point is inside rectangle.

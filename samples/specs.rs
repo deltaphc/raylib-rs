@@ -56,7 +56,7 @@ impl<'a> System<'a> for DeathSys {
 
     fn run(&mut self, (mut gs, players, fire): Self::SystemData) {
         // Touch fire then die
-        if let Some(_) = (&players, &fire).join().nth(0) {
+        if (&players, &fire).join().next().is_some() {
             *gs = GameState::LOST;
             println!("Lost");
         }
@@ -77,7 +77,7 @@ impl<'a> System<'a> for PlayerSys {
     fn run(&mut self, (ents, rl, emap, mut players, pos): Self::SystemData) {
         use raylib::consts::KeyboardKey::*;
 
-        let player = (&*ents, &pos, &players).join().nth(0).unwrap();
+        let player = (&*ents, &pos, &players).join().next().unwrap();
 
         let mut new_pos = player.1.clone();
         if rl.is_key_pressed(KEY_D) {
