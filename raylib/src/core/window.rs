@@ -3,6 +3,7 @@ use crate::core::math::{Matrix, Ray, Vector2};
 use crate::core::{RaylibHandle, RaylibThread};
 use crate::ffi;
 use std::ffi::{CStr, CString, IntoStringError, NulError};
+use std::os::raw::c_char;
 
 // MonitorInfo grabs the sizes (virtual and physical) of your monitor
 #[derive(Clone, Debug)]
@@ -47,10 +48,9 @@ pub fn get_monitor_info(index: i32) -> Result<MonitorInfo, IntoStringError> {
             ffi::GetMonitorPhysicalHeight(index),
         )
     };
-    let name = unsafe {
-        let c = CString::from_raw(ffi::GetMonitorName(index) as *mut i8);
-        c.into_string()?
-    };
+    let name_cstr = unsafe { CStr::from_ptr(ffi::GetMonitorName(index) as *const c_char) };
+    let name = name_cstr.to_string_lossy().to_string();
+
     Ok(MonitorInfo {
         width,
         height,
