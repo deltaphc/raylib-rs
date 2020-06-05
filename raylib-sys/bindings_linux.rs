@@ -6,6 +6,7 @@ pub const PI: f64 = 3.141592653589793;
 pub const DEG2RAD: f64 = 0.017453292519943295;
 pub const RAD2DEG: f64 = 57.29577951308232;
 pub const true_: u32 = 1;
+pub const MAX_TOUCH_POINTS: u32 = 10;
 pub const false_: u32 = 0;
 pub const __bool_true_false_are_defined: u32 = 1;
 pub const _FEATURES_H: u32 = 1;
