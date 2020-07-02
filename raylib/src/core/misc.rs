@@ -47,7 +47,7 @@ impl RaylibHandle {
 pub fn load_text(filename: &str) -> String {
     let c_filename = CString::new(filename).unwrap();
     unsafe {
-        let text = ffi::LoadText(c_filename.as_ptr());
+        let text = ffi::LoadFileText(c_filename.as_ptr());
         let safe_text = CStr::from_ptr(text).to_str().unwrap().to_owned();
         libc::free(text as *mut libc::c_void);
         safe_text

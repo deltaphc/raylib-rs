@@ -13,6 +13,7 @@ use std::ffi::CString;
 /// Seems like all draw commands must be issued from the main thread
 impl RaylibHandle {
     /// Setup canvas (framebuffer) to start drawing
+    #[must_use]
     pub fn begin_drawing(&mut self, _: &RaylibThread) -> RaylibDrawHandle {
         unsafe {
             ffi::BeginDrawing();
@@ -21,6 +22,7 @@ impl RaylibHandle {
         d
     }
 }
+
 
 pub struct RaylibDrawHandle<'a>(&'a mut RaylibHandle);
 
@@ -293,28 +295,11 @@ pub trait RaylibDraw {
         unsafe { ffi::SetShapesTexture(*texture.as_ref(), source.into()) }
     }
 
-    // Draw gui widget
-    fn draw_gui<G: crate::rgui::GuiDraw>(&mut self, widget: G) -> crate::rgui::DrawResult {
-        widget.draw()
-    }
+    // // Draw gui widget
+    // fn draw_gui<G: crate::rgui::GuiDraw>(&mut self, widget: G) -> crate::rgui::DrawResult {
+    //     widget.draw()
+    // }
 
-    /// Draw and icon on screen
-    fn draw_icon(
-        &mut self,
-        icon_id: crate::consts::rIconDescription,
-        position: impl Into<ffi::Vector2>,
-        pixel_size: i32,
-        color: impl Into<ffi::Color>,
-    ) {
-        unsafe {
-            ffi::DrawIcon(
-                (icon_id as u32) as i32,
-                position.into(),
-                pixel_size,
-                color.into(),
-            )
-        }
-    }
 
     // SHAPES
     /// Draws a pixel.

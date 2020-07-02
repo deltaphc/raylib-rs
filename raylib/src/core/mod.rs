@@ -56,7 +56,6 @@ impl Drop for RaylibHandle {
 /// A builder that allows more customization of the game window shown to the user before the `RaylibHandle` is created.
 #[derive(Debug, Default)]
 pub struct RaylibBuilder {
-    show_logo: bool,
     fullscreen_mode: bool,
     window_resizable: bool,
     window_undecorated: bool,
@@ -79,11 +78,6 @@ pub fn init() -> RaylibBuilder {
 }
 
 impl RaylibBuilder {
-    /// Shows the raylib logo at startup.
-    pub fn with_logo(&mut self) -> &mut Self {
-        self.show_logo = true;
-        self
-    }
 
     /// Sets the window to be fullscreen.
     pub fn fullscreen(&mut self) -> &mut Self {
@@ -154,9 +148,6 @@ impl RaylibBuilder {
     pub fn build(&self) -> (RaylibHandle, RaylibThread) {
         use crate::consts::ConfigFlag::*;
         let mut flags = 0u32;
-        if self.show_logo {
-            flags |= FLAG_SHOW_LOGO as u32;
-        }
         if self.fullscreen_mode {
             flags |= FLAG_FULLSCREEN_MODE as u32;
         }
@@ -177,7 +168,7 @@ impl RaylibBuilder {
         }
 
         unsafe {
-            ffi::SetConfigFlags(flags as u8);
+            ffi::SetConfigFlags(flags as u32);
         }
         let rl = init_window(self.width, self.height, &self.title);
         (rl, RaylibThread(PhantomData))
