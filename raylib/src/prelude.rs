@@ -28,6 +28,7 @@ pub use crate::consts::*;
 pub use crate::core::audio::*;
 pub use crate::core::camera::*;
 pub use crate::core::color::*;
+pub use crate::core::data::*;
 pub use crate::core::drawing::*;
 pub use crate::core::logging::*;
 pub use crate::core::math::*;

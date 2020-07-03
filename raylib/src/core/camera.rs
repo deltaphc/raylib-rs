@@ -39,7 +39,7 @@ impl Into<ffi::Camera3D> for &Camera3D {
 }
 
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, Default)]
 pub struct Camera2D {
     pub offset: Vector2,
     pub target: Vector2,
@@ -70,10 +70,13 @@ impl Into<ffi::Camera2D> for &Camera2D {
     }
 }
 
+
 impl Camera3D {
     pub fn camera_type(&self) -> crate::consts::CameraType {
         unsafe { std::mem::transmute(self.type_.clone()) }
     }
+    /// Create a perspective camera.
+    /// fovy is in degrees
     pub fn perspective(position: Vector3, target: Vector3, up: Vector3, fovy: f32) -> Camera3D {
         Camera3D {
             position,
@@ -83,6 +86,8 @@ impl Camera3D {
             type_: ffi::CameraType::CAMERA_PERSPECTIVE,
         }
     }
+    /// Create a orthographic camera.
+    /// fovy is in degrees
     pub fn orthographic(position: Vector3, target: Vector3, up: Vector3, fovy: f32) -> Camera3D {
         let mut c = Self::perspective(position, target, up, fovy);
         c.type_ = ffi::CameraType::CAMERA_ORTHOGRAPHIC;

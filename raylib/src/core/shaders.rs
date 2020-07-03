@@ -25,13 +25,13 @@ impl RaylibHandle {
         fs_filename: Option<&str>,
     ) -> Result<Shader, String> {
         if let Some(f) = vs_filename {
-            if !crate::core::file::file_exists(f) {
-                return Err(format!("could not load shader file {}", f));
+            if std::path::Path::new(f).exists() {
+                return Err(format!("could not load vertex shader file {}", f));
             }
         }
         if let Some(f) = fs_filename {
-            if !crate::core::file::file_exists(f) {
-                return Err(format!("could not load shader file {}", f));
+            if std::path::Path::new(f).exists() {
+                return Err(format!("could not load fragment shader file {}", f));
             }
         }
 

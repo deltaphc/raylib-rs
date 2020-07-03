@@ -23,7 +23,6 @@ impl RaylibHandle {
     }
 }
 
-
 pub struct RaylibDrawHandle<'a>(&'a mut RaylibHandle);
 
 impl<'a> Drop for RaylibDrawHandle<'a> {
@@ -300,7 +299,6 @@ pub trait RaylibDraw {
     //     widget.draw()
     // }
 
-
     // SHAPES
     /// Draws a pixel.
     #[inline]
@@ -484,6 +482,36 @@ pub trait RaylibDraw {
     ) {
         unsafe {
             ffi::DrawCircleLines(center_x, center_y, radius, color.into());
+        }
+    }
+
+    /// Draws ellipse.
+    #[inline]
+    fn draw_ellipse(
+        &mut self,
+        center_x: i32,
+        center_y: i32,
+        radius_h: f32,
+        radius_v: f32,
+        color: impl Into<ffi::Color>,
+    ) {
+        unsafe {
+            ffi::DrawEllipse(center_x, center_y, radius_h, radius_v, color.into());
+        }
+    }
+
+    /// Draws ellipse.
+    #[inline]
+    fn draw_ellipse_lines(
+        &mut self,
+        center_x: i32,
+        center_y: i32,
+        radius_h: f32,
+        radius_v: f32,
+        color: impl Into<ffi::Color>,
+    ) {
+        unsafe {
+            ffi::DrawEllipseLines(center_x, center_y, radius_h, radius_v, color.into());
         }
     }
 
@@ -748,6 +776,18 @@ pub trait RaylibDraw {
         }
     }
 
+    /// Draw a triangle strip defined by points
+    #[inline]
+    fn draw_triangle_strip(&mut self, points: &[Vector2], color: impl Into<ffi::Color>) {
+        unsafe {
+            ffi::DrawTriangleStrip(
+                points.as_ptr() as *mut ffi::Vector2,
+                points.len() as i32,
+                color.into(),
+            );
+        }
+    }
+
     /// Draws a regular polygon of n sides (Vector version).
     #[inline]
     fn draw_poly(
@@ -763,30 +803,20 @@ pub trait RaylibDraw {
         }
     }
 
-    // TODO update library with new poly funcs
-    // /// Draw a closed polygon defined by points
-    // #[inline]
-    // fn draw_poly_ex(
-    //     &mut self,
-    //     points: impl AsRef<[ffi::Vector2]>,
-    //     color: impl Into<ffi::Color>,
-    // ) {
-    //     unsafe {
-    //         ffi::DrawPolyEx(points.as_ref().as_ptr(), points.as_ref().len(), color.into());
-    //     }
-    // }
-
-    // /// Draw polygon lines
-    // #[inline]
-    // fn draw_poly_ex_lines(
-    //     &mut self,
-    //     points: impl AsRef<[ffi::Vector2]>,
-    //     color: impl Into<ffi::Color>,
-    // ) {
-    //     unsafe {
-    //         ffi::DrawPolyExLines(points.as_ref().as_ptr(), points.as_ref().len(), color.into());
-    //     }
-    // }
+    /// Draws a regular polygon of n sides (Vector version).
+    #[inline]
+    fn draw_poly_lines(
+        &mut self,
+        center: impl Into<ffi::Vector2>,
+        sides: i32,
+        radius: f32,
+        rotation: f32,
+        color: impl Into<ffi::Color>,
+    ) {
+        unsafe {
+            ffi::DrawPolyLines(center.into(), sides, radius, rotation, color.into());
+        }
+    }
 
     /// Draws a `texture` using specified position and `tint` color.
     #[inline]
@@ -1029,9 +1059,39 @@ pub trait RaylibDraw {
             );
         }
     }
+
+    /// Draw one character (codepoint)
+    #[inline]
+    fn draw_text_codepoint(
+        &mut self,
+        font: impl AsRef<ffi::Font>,
+        codepoint: i32,
+        position: impl Into<ffi::Vector2>,
+        scale: f32,
+        tint: impl Into<ffi::Color>,
+    ) {
+        unsafe {
+            ffi::DrawTextCodepoint(
+                *font.as_ref(),
+                codepoint,
+                position.into(),
+                scale,
+                tint.into(),
+            );
+        }
+    }
 }
 
 pub trait RaylibDraw3D {
+    /// Draw a point in 3D space, actually a small line
+    #[allow(non_snake_case)]
+    #[inline]
+    fn draw_point3D(&mut self, position: impl Into<ffi::Vector3>, color: impl Into<ffi::Color>) {
+        unsafe {
+            ffi::DrawPoint3D(position.into(), color.into());
+        }
+    }
+
     /// Draws a line in 3D world space.
     #[inline]
     fn draw_line_3d(

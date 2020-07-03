@@ -196,6 +196,15 @@ impl RaylibHandle {
         }
     }
 
+    /// Sets mouse offset.
+    #[inline]
+    pub fn set_mouse_offset(&mut self, offset: impl Into<Vector2>) {
+        unsafe {
+            let Vector2 { x, y } = offset.into();
+            ffi::SetMouseOffset(x as i32, y as i32);
+        }
+    }
+
     /// Sets mouse scaling.
     #[inline]
     pub fn set_mouse_scale(&mut self, scale_x: f32, scale_y: f32) {

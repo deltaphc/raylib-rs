@@ -7,7 +7,7 @@ use std::ffi::CString;
 
 fn no_drop<T>(_thing: T) {}
 make_thin_wrapper!(Model, ffi::Model, ffi::UnloadModel);
-make_thin_wrapper!(Mesh, ffi::Mesh, |mut mesh: ffi::Mesh| ffi::UnloadMesh(mesh));
+make_thin_wrapper!(Mesh, ffi::Mesh, |mesh: ffi::Mesh| ffi::UnloadMesh(mesh));
 make_thin_wrapper!(Material, ffi::Material, ffi::UnloadMaterial);
 make_thin_wrapper!(WeakMaterial, ffi::Material, no_drop);
 make_thin_wrapper!(BoneInfo, ffi::BoneInfo, no_drop);

@@ -5,6 +5,7 @@ pub mod audio;
 pub mod camera;
 pub mod collision;
 pub mod color;
+pub mod data;
 pub mod drawing;
 pub mod file;
 pub mod input;
@@ -13,7 +14,6 @@ pub mod math;
 pub mod misc;
 pub mod models;
 pub mod shaders;
-pub mod storage;
 pub mod text;
 pub mod texture;
 pub mod vr;
@@ -78,7 +78,6 @@ pub fn init() -> RaylibBuilder {
 }
 
 impl RaylibBuilder {
-
     /// Sets the window to be fullscreen.
     pub fn fullscreen(&mut self) -> &mut Self {
         self.fullscreen_mode = true;
@@ -182,11 +181,14 @@ impl RaylibBuilder {
 /// Attempting to initialize Raylib more than once will result in a panic.
 fn init_window(width: i32, height: i32, title: &str) -> RaylibHandle {
     if IS_INITIALIZED.load(Ordering::Relaxed) {
-        panic!("Attempted to initialize raylib-rs more than once");
+        panic!("Attempted to initialize raylib-rs more than once!");
     } else {
         unsafe {
             let c_title = CString::new(title).unwrap();
             ffi::InitWindow(width, height, c_title.as_ptr());
+        }
+        if !unsafe { ffi::IsWindowReady() } {
+            panic!("Attempting to create window failed!");
         }
         IS_INITIALIZED.store(true, Ordering::Relaxed);
         RaylibHandle(())

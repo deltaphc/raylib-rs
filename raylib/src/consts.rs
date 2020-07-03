@@ -5,6 +5,7 @@ pub use ffi::BlendMode;
 pub use ffi::CameraMode;
 pub use ffi::CameraType;
 pub use ffi::ConfigFlag;
+pub use ffi::CubemapLayoutType;
 pub use ffi::GamepadButton;
 pub use ffi::GamepadNumber;
 pub use ffi::GestureType;
