@@ -35,6 +35,16 @@ impl RaylibVR {
         }
     }
 
+    /// Set stereo rendering configuration parameters
+    pub fn update_vr_configuration(
+        &mut self,
+        _: &RaylibThread,
+        info: ffi::VrDeviceInfo,
+        distortion: impl AsRef<ffi::Shader>,
+    ) {
+        unsafe { ffi::SetVrConfiguration(info, *distortion.as_ref()) }
+    }
+
     /// Detects if VR simulator is ready.
     #[inline]
     pub fn is_vr_simulator_ready(&self) -> bool {

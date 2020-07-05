@@ -92,6 +92,11 @@ impl RaylibHandle {
             },
         };
     }
+
+    /// Get default shader. Modifying it modifies everthing that uses that shader
+    pub fn get_shader_default() -> WeakShader {
+        unsafe { WeakShader(ffi::GetShaderDefault()) }
+    }
 }
 
 pub trait ShaderV {
@@ -313,5 +318,11 @@ impl RaylibHandle {
     #[inline]
     pub fn get_matrix_modelview(&self) -> Matrix {
         unsafe { ffi::GetMatrixModelview().into() }
+    }
+
+    /// Gets internal projection matrix.
+    #[inline]
+    pub fn get_matrix_projection(&self) -> Matrix {
+        unsafe { ffi::GetMatrixProjection().into() }
     }
 }

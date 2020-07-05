@@ -43,11 +43,25 @@ impl RaylibAudio {
         }
     }
 
+    /// Get number of sounds playing in the multichannel
+    #[inline]
+    pub fn get_sounds_playing(&self) -> i32 {
+        unsafe { ffi::GetSoundsPlaying() }
+    }
+
     /// Plays a sound.
     #[inline]
     pub fn play_sound(&mut self, sound: &Sound) {
         unsafe {
             ffi::PlaySound(sound.0);
+        }
+    }
+
+    /// Play a sound (using multichannel buffer pool)
+    #[inline]
+    pub fn play_sound_multi(&mut self, sound: &Sound) {
+        unsafe {
+            ffi::PlaySoundMulti(sound.0);
         }
     }
 
@@ -72,6 +86,14 @@ impl RaylibAudio {
     pub fn stop_sound(&mut self, sound: &Sound) {
         unsafe {
             ffi::StopSound(sound.0);
+        }
+    }
+
+    /// Stops playing a sound.
+    #[inline]
+    pub fn stop_sound_multi(&mut self) {
+        unsafe {
+            ffi::StopSoundMulti();
         }
     }
 

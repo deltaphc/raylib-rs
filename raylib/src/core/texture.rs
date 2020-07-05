@@ -839,6 +839,7 @@ impl Texture2D {
     }
 }
 
+/// MipMaps
 impl Texture2D {
     /// Generates GPU mipmaps for a `texture`.
     #[inline]
@@ -916,5 +917,68 @@ impl RaylibHandle {
             return Err(format!("failed to create render texture."));
         }
         Ok(RenderTexture2D(t))
+    }
+}
+
+impl RaylibHandle {
+    /// Generate cubemap texture from 2D texture
+    pub fn gen_texture_cubemap(
+        &mut self,
+        _: &RaylibThread,
+        shader: impl AsRef<ffi::Shader>,
+        map: impl AsRef<ffi::Texture2D>,
+        size: i32,
+    ) -> Texture2D {
+        unsafe {
+            Texture2D(ffi::GenTextureCubemap(
+                *shader.as_ref(),
+                *map.as_ref(),
+                size,
+            ))
+        }
+    }
+
+    /// Generate irradiance texture using cubemap data
+    pub fn gen_texture_irradiance(
+        &mut self,
+        _: &RaylibThread,
+        shader: impl AsRef<ffi::Shader>,
+        cubemap: impl AsRef<ffi::Texture2D>,
+        size: i32,
+    ) -> Texture2D {
+        unsafe {
+            Texture2D(ffi::GenTextureIrradiance(
+                *shader.as_ref(),
+                *cubemap.as_ref(),
+                size,
+            ))
+        }
+    }
+
+    /// Generate prefilter texture using cubemap data
+    pub fn gen_texture_prefilter(
+        &mut self,
+        _: &RaylibThread,
+        shader: impl AsRef<ffi::Shader>,
+        cubemap: impl AsRef<ffi::Texture2D>,
+        size: i32,
+    ) -> Texture2D {
+        unsafe {
+            Texture2D(ffi::GenTexturePrefilter(
+                *shader.as_ref(),
+                *cubemap.as_ref(),
+                size,
+            ))
+        }
+    }
+
+    /// Generate BRDF texture
+    pub fn gen_texture_brdf(
+        &mut self,
+        _: &RaylibThread,
+        shader: impl AsRef<ffi::Shader>,
+        size: i32,
+    ) -> Texture2D {
+        unsafe { Texture2D(ffi::GenTextureBRDF(*shader.as_ref(), size)) }
     }
 }
