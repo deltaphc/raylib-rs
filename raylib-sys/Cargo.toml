@@ -1,6 +1,6 @@
 [package]
 name = "raylib-sys"
-version = "1.0.0"
+version = "3.0.0"
 authors = ["DeltaPHC <phclem@protonmail.com>"]
 license = "Zlib"
 description = "Raw FFI bindings for Raylib"

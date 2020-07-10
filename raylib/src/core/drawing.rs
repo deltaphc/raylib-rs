@@ -73,8 +73,9 @@ where
     }
 }
 
-// Only the DrawHandle can start a texture
+// Only the DrawHandle and the RaylibHandle can start a texture
 impl<'a> RaylibTextureModeExt for RaylibDrawHandle<'a> {}
+impl RaylibTextureModeExt for &mut RaylibHandle {}
 impl<'a, T> RaylibDraw for RaylibTextureMode<'a, T> {}
 
 // VR Stuff
