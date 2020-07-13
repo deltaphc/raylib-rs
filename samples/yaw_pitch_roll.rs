@@ -191,7 +191,7 @@ fn main() {
         }
         // Draw 3D model (recomended to draw 3D always before 2D)
         {
-            let mut d = d.begin_mode_3D(camera);
+            let mut d = d.begin_mode3D(camera);
 
             d.draw_model(&model, Vector3::new(0.0, 6.0, 0.0), 1.0, Color::WHITE); // Draw 3d model with texture
             d.draw_grid(10, 10.0);

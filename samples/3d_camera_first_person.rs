@@ -54,7 +54,7 @@ fn main() {
 
         d.clear_background(Color::DARKGREEN);
         {
-            let mut d2 = d.begin_mode_3D(camera);
+            let mut d2 = d.begin_mode3D(camera);
 
             d2.draw_plane(
                 Vector3::new(0.0, 0.0, 0.0),

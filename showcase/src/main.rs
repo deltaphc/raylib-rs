@@ -1,67 +1,15 @@
-use nom::bytes::complete::{tag, take_until};
-use nom::character::complete::{char, line_ending, space1};
-use nom::sequence::{delimited, preceded};
-use nom::IResult;
+pub mod example;
 
-fn parse_space(input: &str) -> IResult<&str, &str> {
-    space1(input)
-}
-
-fn parse_line_ending(input: &str) -> IResult<&str, &str> {
-    line_ending(input)
-}
-
-fn parse_quote(input: &str) -> IResult<&str, &str> {
-    delimited(char('"'), take_until("\""), char('"'))(input)
-}
-
-fn parse_include(input: &str) -> IResult<&str, &str> {
-    preceded(tag("#include "), parse_quote)(input)
-}
+use raylib::prelude::*;
 
 fn main() {
-    let source = include_str!("../original/core/core_basic_window.c");
+    let (mut rl, thread) = raylib::init().size(800, 640).title("Showcase").build();
+    // let logo = raylib::prelude::Image::load_image("static/logo.png").unwrap();
+    // rl.set_window_icon(&logo);
+    // rl.set_target_fps(self.fps);
 
-    let print_line = |i: usize, str: &str| println!("{}:{}", i, str);
-
-    let mut lines = source.lines().enumerate();
-
-    'top: loop {
-        let line = lines.next();
-        if line.is_none() {
-            return;
-        }
-        let (line_number, line) = line.unwrap();
-
-        if line.is_empty() {
-            println!("");
-            continue;
-        }
-
-        if let Ok((_, file)) = parse_include(line) {
-            match file {
-                "raylib.h" => print_line(line_number, "use raylib::prelude::*;"),
-                _ => unimplemented!(),
-            }
-            continue;
-        }
-
-        if line.starts_with("//") {
-            print_line(line_number, line);
-            continue;
-        }
-        if line.starts_with("/*") {
-            print_line(line_number, line);
-            if line.ends_with("*/") {
-                continue;
-            }
-            while let Some((_, next_line)) = lines.next() {
-                println!("{}", next_line);
-                if next_line.ends_with("*/") {
-                    continue 'top;
-                }
-            }
-        }
-        print_line(line_number, line);
+    let mut run = example::core::core_2d_camera::run(&mut rl, &thread);
+    while !rl.window_should_close() {
+        run(&mut rl, &thread);
     }
 }

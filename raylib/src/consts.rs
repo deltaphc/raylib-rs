@@ -26,3 +26,4 @@ pub const MAX_SHADER_LOCATIONS: u32 = 32;
 pub use ffi::MAX_TOUCH_POINTS;
 pub use ffi::PI;
 pub use ffi::RAD2DEG;
+pub type RICON = ffi::rIconDescription;

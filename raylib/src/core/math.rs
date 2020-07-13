@@ -15,6 +15,7 @@ Permission is granted to anyone to use this software for any purpose, including 
 */
 
 use crate::ffi;
+use crate::misc::AsF32;
 use std::f32::consts::PI;
 use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssign};
 
@@ -48,20 +49,20 @@ impl Into<ffi::Vector2> for &Vector2 {
 
 /// A convenience function for making a new `Vector2`.
 #[inline]
-pub fn vec2(x: f32, y: f32) -> Vector2 {
-    Vector2::new(x, y)
+pub fn rvec2<T1: AsF32, T2: AsF32>(x: T1, y: T2) -> Vector2 {
+    Vector2::new(x.as_f32(), y.as_f32())
 }
 
 /// A convenience function for making a new `Vector3`.
 #[inline]
-pub fn vec3(x: f32, y: f32, z: f32) -> Vector3 {
-    Vector3::new(x, y, z)
+pub fn rvec3<T1: AsF32, T2: AsF32, T3: AsF32>(x: T1, y: T2, z: T3) -> Vector3 {
+    Vector3::new(x.as_f32(), y.as_f32(), z.as_f32())
 }
 
 /// A convenience function for making a new `Quaternion`.
 #[inline]
-pub fn quat(x: f32, y: f32, z: f32, w: f32) -> Quaternion {
-    Quaternion::new(x, y, z, w)
+pub fn rquat<T1: AsF32, T2: AsF32, T3: AsF32, T4: AsF32>(x: T1, y: T2, z: T3, w: T4) -> Quaternion {
+    Quaternion::new(x.as_f32(), y.as_f32(), z.as_f32(), w.as_f32())
 }
 
 impl Vector2 {

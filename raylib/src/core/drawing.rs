@@ -131,7 +131,7 @@ where
 {
     #[allow(non_snake_case)]
     #[must_use]
-    fn begin_mode_2D(&mut self, camera: impl Into<ffi::Camera2D>) -> RaylibMode2D<Self> {
+    fn begin_mode2D(&mut self, camera: impl Into<ffi::Camera2D>) -> RaylibMode2D<Self> {
         unsafe {
             ffi::BeginMode2D(camera.into());
         }
@@ -164,7 +164,7 @@ where
 {
     #[allow(non_snake_case)]
     #[must_use]
-    fn begin_mode_3D(&mut self, camera: impl Into<ffi::Camera3D>) -> RaylibMode3D<Self> {
+    fn begin_mode3D(&mut self, camera: impl Into<ffi::Camera3D>) -> RaylibMode3D<Self> {
         unsafe {
             ffi::BeginMode3D(camera.into());
         }
@@ -1079,6 +1079,20 @@ pub trait RaylibDraw {
                 scale,
                 tint.into(),
             );
+        }
+    }
+
+    /// Draw icon
+    #[inline]
+    fn draw_icon(
+        &mut self,
+        icon: crate::consts::RICON,
+        position: impl Into<ffi::Vector2>,
+        pixel_size: i32,
+        color: impl Into<ffi::Color>,
+    ) {
+        unsafe {
+            ffi::DrawIcon(icon as i32, position.into(), pixel_size, color.into());
         }
     }
 }

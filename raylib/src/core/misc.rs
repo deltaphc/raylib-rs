@@ -11,8 +11,8 @@ use std::ffi::CString;
 ///     let r = get_random_value(0, 10);
 ///     println!("random value: {}", r);
 /// }
-pub fn get_random_value(min: i32, max: i32) -> i32 {
-    unsafe { ffi::GetRandomValue(min, max) }
+pub fn get_random_value<T: From<i32>>(min: i32, max: i32) -> T {
+    unsafe { (ffi::GetRandomValue(min, max) as i32).into() }
 }
 
 /// Open URL with default system browser (if available)
@@ -41,3 +41,26 @@ impl RaylibHandle {
         }
     }
 }
+
+// lossy conversion to an f32
+pub trait AsF32: Copy {
+    fn as_f32(self) -> f32;
+}
+
+macro_rules! as_f32 {
+    ($ty:ty) => {
+        impl AsF32 for $ty {
+            fn as_f32(self) -> f32 {
+                self as f32
+            }
+        }
+    };
+}
+
+as_f32!(u8);
+as_f32!(u16);
+as_f32!(u32);
+as_f32!(i8);
+as_f32!(i16);
+as_f32!(i32);
+as_f32!(f32);
