@@ -38,4 +38,5 @@ pub use crate::core::text::*;
 pub use crate::core::texture::*;
 pub use crate::core::window::*;
 pub use crate::core::*;
+pub use crate::rgui::*;
 pub use crate::*;

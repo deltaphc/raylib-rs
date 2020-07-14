@@ -27,3 +27,6 @@ pub use ffi::MAX_TOUCH_POINTS;
 pub use ffi::PI;
 pub use ffi::RAD2DEG;
 pub type RICON = ffi::rIconDescription;
+pub use ffi::GuiControl;
+pub use ffi::GuiControlProperty;
+pub use ffi::GuiControlState;

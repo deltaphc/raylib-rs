@@ -19,25 +19,25 @@ pub fn run(
 ) -> impl FnMut(&mut RaylibHandle, &RaylibThread) -> () {
     // Initialization
     //--------------------------------------------------------------------------------------
-    let screenWidth = 800;
-    let screenHeight = 450;
+    let screen_width = 800;
+    let screen_height = 450;
     rl.set_window_title(thread, "raylib [core] example - 2d camera");
 
     let mut player = Rectangle::new(400.0, 280.0, 40.0, 40.0);
     let mut buildings = [Rectangle::default(); MAX_BUILDINGS as usize];
-    let mut buildColors = [Color::default(); MAX_BUILDINGS as usize];
+    let mut build_colors = [Color::default(); MAX_BUILDINGS as usize];
 
     let mut spacing = 0f32;
 
     for i in 0..MAX_BUILDINGS as usize {
         buildings[i].width = get_random_value::<i32>(50, 200) as f32;
         buildings[i].height = get_random_value::<i32>(100, 800) as f32;
-        buildings[i].y = screenHeight as f32 - 130.0 - buildings[i].height;
+        buildings[i].y = screen_height as f32 - 130.0 - buildings[i].height;
         buildings[i].x = -6000.0 + spacing;
 
         spacing += buildings[i].width;
 
-        buildColors[i] = Color::new(
+        build_colors[i] = Color::new(
             get_random_value::<i32>(200, 240) as u8,
             get_random_value::<i32>(200, 240) as u8,
             get_random_value::<i32>(200, 250) as u8,
@@ -47,7 +47,7 @@ pub fn run(
 
     let mut camera = Camera2D {
         target: rvec2(player.x + 20.0, player.y + 20.0),
-        offset: rvec2(screenWidth as f32 / 2.0, screenHeight as f32 / 2.0),
+        offset: rvec2(screen_width as f32 / 2.0, screen_height as f32 / 2.0),
         rotation: 0.0,
         zoom: 1.0,
     };
@@ -63,9 +63,9 @@ pub fn run(
         //----------------------------------------------------------------------------------
 
         // Player movement
-        if (rl.is_key_down(KEY_RIGHT)) {
+        if rl.is_key_down(KEY_RIGHT) {
             player.x += 2.0;
-        } else if (rl.is_key_down(KEY_LEFT)) {
+        } else if rl.is_key_down(KEY_LEFT) {
             player.x -= 2.0;
         }
 
@@ -73,29 +73,29 @@ pub fn run(
         camera.target = Vector2::new(player.x + 20.0, player.y + 20.0);
 
         // Camera rotation controls
-        if (rl.is_key_down(KEY_A)) {
+        if rl.is_key_down(KEY_A) {
             camera.rotation -= 1.0;
         } else if rl.is_key_down(KEY_S) {
             camera.rotation += 1.0;
         }
         // Limit camera rotation to 80 degrees (-40 to 40)
-        if (camera.rotation > 40.0) {
+        if camera.rotation > 40.0 {
             camera.rotation = 40.0;
-        } else if (camera.rotation < -40.0) {
+        } else if camera.rotation < -40.0 {
             camera.rotation = -40.0;
         }
 
         // Camera zoom controls
         camera.zoom += rl.get_mouse_wheel_move() as f32 * 0.05;
 
-        if (camera.zoom > 3.0) {
+        if camera.zoom > 3.0 {
             camera.zoom = 3.0;
-        } else if (camera.zoom < 0.1) {
+        } else if camera.zoom < 0.1 {
             camera.zoom = 0.1;
         }
 
         // Camera reset (zoom and rotation)
-        if (rl.is_key_pressed(KEY_R)) {
+        if rl.is_key_pressed(KEY_R) {
             camera.zoom = 1.0;
             camera.rotation = 0.0;
         }
@@ -113,22 +113,22 @@ pub fn run(
             d.draw_rectangle(-6000, 320, 13000, 8000, Color::DARKGRAY);
 
             for i in 0..MAX_BUILDINGS as usize {
-                d.draw_rectangle_rec(buildings[i], buildColors[i]);
+                d.draw_rectangle_rec(buildings[i], build_colors[i]);
             }
 
             d.draw_rectangle_rec(player, Color::RED);
 
             d.draw_line(
                 camera.target.x as i32,
-                -screenHeight * 10,
+                -screen_height * 10,
                 camera.target.x as i32,
-                screenHeight * 10,
+                screen_height * 10,
                 Color::GREEN,
             );
             d.draw_line(
-                -screenWidth * 10,
+                -screen_width * 10,
                 camera.target.y as i32,
-                screenWidth * 10,
+                screen_width * 10,
                 camera.target.y as i32,
                 Color::GREEN,
             );
@@ -136,10 +136,10 @@ pub fn run(
 
         d.draw_text("SCREEN AREA", 640, 10, 20, Color::RED);
 
-        d.draw_rectangle(0, 0, screenWidth, 5, Color::RED);
-        d.draw_rectangle(0, 5, 5, screenHeight - 10, Color::RED);
-        d.draw_rectangle(screenWidth - 5, 5, 5, screenHeight - 10, Color::RED);
-        d.draw_rectangle(0, screenHeight - 5, screenWidth, 5, Color::RED);
+        d.draw_rectangle(0, 0, screen_width, 5, Color::RED);
+        d.draw_rectangle(0, 5, 5, screen_height - 10, Color::RED);
+        d.draw_rectangle(screen_width - 5, 5, 5, screen_height - 10, Color::RED);
+        d.draw_rectangle(0, screen_height - 5, screen_width, 5, Color::RED);
 
         d.draw_rectangle(10, 10, 250, 113, Color::SKYBLUE.fade(0.5));
         d.draw_rectangle_lines(10, 10, 250, 113, Color::BLUE);

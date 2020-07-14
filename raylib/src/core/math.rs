@@ -65,6 +65,17 @@ pub fn rquat<T1: AsF32, T2: AsF32, T3: AsF32, T4: AsF32>(x: T1, y: T2, z: T3, w:
     Quaternion::new(x.as_f32(), y.as_f32(), z.as_f32(), w.as_f32())
 }
 
+/// A convenience function for making a new `Rectangle`.
+#[inline]
+pub fn rrect<T1: AsF32, T2: AsF32, T3: AsF32, T4: AsF32>(
+    x: T1,
+    y: T2,
+    width: T3,
+    height: T4,
+) -> Rectangle {
+    Rectangle::new(x.as_f32(), y.as_f32(), width.as_f32(), height.as_f32())
+}
+
 impl Vector2 {
     /// Returns a new `Vector2` with specified components.
     pub const fn new(x: f32, y: f32) -> Vector2 {
