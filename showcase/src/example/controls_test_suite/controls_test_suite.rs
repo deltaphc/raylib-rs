@@ -36,7 +36,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) {
     let mut listViewExScrollIndex = 0;
     let mut listViewExActive = 2;
     let mut listViewExFocus = -1;
-    let mut listViewExList = vec![
+    let listViewExList = vec![
         rstr!("This"),
         rstr!("is"),
         rstr!("a"),
@@ -71,24 +71,24 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) {
     //Font font = LoadFontEx("fonts/rainyhearts16.ttf", 12, 0, 0);
     //GuiSetFont(font);
 
-    let mut exitWindow = false;
+    let exitWindow = false;
     let mut showMessageBox = false;
 
-    let mut textInput = vec![0u8; 256];
+    let _textInput = vec![0u8; 256];
     let mut showTextInputBox = false;
 
-    let mut textInputFileName = [0u8; 256];
+    let _textInputFileName = [0u8; 256];
 
     //--------------------------------------------------------------------------------------
 
     // Main game loop
-    while (!exitWindow)
+    while !exitWindow
     // Detect window close button or ESC key
     {
-        use raylib::consts::rIconDescription::*;
+        
         use raylib::consts::GuiControl::*;
         use raylib::consts::GuiControlProperty::*;
-        use raylib::consts::GuiControlProperty::*;
+        
         use raylib::consts::GuiControlState::*;
         use raylib::consts::GuiDefaultProperty::*;
         use raylib::consts::GuiTextAlignment::*;
@@ -96,18 +96,18 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) {
         // Update
         //----------------------------------------------------------------------------------
 
-        if (rl.is_key_pressed(KEY_ESCAPE)) {
+        if rl.is_key_pressed(KEY_ESCAPE) {
             showMessageBox = !showMessageBox;
         }
 
-        if (rl.is_key_down(KEY_LEFT_CONTROL) && rl.is_key_pressed(KEY_S)) {
+        if rl.is_key_down(KEY_LEFT_CONTROL) && rl.is_key_pressed(KEY_S) {
             showTextInputBox = true;
         }
 
-        if (rl.is_file_dropped()) {
+        if rl.is_file_dropped() {
             let droppedFiles = rl.get_dropped_files();
 
-            if ((droppedFiles.len() > 0) && droppedFiles[0].ends_with(".rgs")) {
+            if (droppedFiles.len() > 0) && droppedFiles[0].ends_with(".rgs") {
                 rl.gui_load_style(Some(&CString::new(droppedFiles[0].clone()).unwrap()));
             }
 
@@ -124,7 +124,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) {
 
         // raygui: controls drawing
         //----------------------------------------------------------------------------------
-        if (dropDown000EditMode || dropDown001EditMode) {
+        if dropDown000EditMode || dropDown001EditMode {
             d.gui_lock();
         }
         //GuiDisable();
@@ -280,7 +280,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) {
         );
 
         // NOTE: View rectangle could be used to perform some scissor test
-        let (view, nextScroll) = d.gui_scroll_panel(
+        let (_view, nextScroll) = d.gui_scroll_panel(
             rrect(560, 25, 100, 160),
             rrect(560, 25, 200, 400),
             viewScroll,
@@ -294,7 +294,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) {
 
         alphaValue = d.gui_color_bar_alpha(rrect(320, 490, 200, 30), alphaValue);
 
-        if (showMessageBox) {
+        if showMessageBox {
             d.draw_rectangle(
                 0,
                 0,
@@ -322,7 +322,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) {
             // }
         }
 
-        if (showTextInputBox) {
+        if showTextInputBox {
             d.draw_rectangle(
                 0,
                 0,
