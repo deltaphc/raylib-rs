@@ -375,13 +375,6 @@ pub trait RaylibDrawGui {
         max_value: i32,
         edit_mode: bool,
     ) -> bool {
-        debug_assert!(
-            min_value <= *value && *value <= max_value,
-            format!(
-                "value out of bounds, {} <= {} <= {}",
-                min_value, value, max_value
-            )
-        );
         let clicked = unsafe {
             ffi::GuiSpinner(
                 bounds.into(),
@@ -405,13 +398,6 @@ pub trait RaylibDrawGui {
         max_value: i32,
         edit_mode: bool,
     ) -> bool {
-        debug_assert!(
-            min_value >= *value && *value <= max_value,
-            format!(
-                "value out of bounds, {} <= {} <= {}",
-                min_value, value, max_value
-            )
-        );
         unsafe {
             ffi::GuiValueBox(
                 bounds.into(),
@@ -474,13 +460,6 @@ pub trait RaylibDrawGui {
         min_value: f32,
         max_value: f32,
     ) -> f32 {
-        debug_assert!(
-            min_value <= value && value <= max_value,
-            format!(
-                "value out of bounds, {} <= {} <= {}",
-                min_value, value, max_value
-            )
-        );
         unsafe {
             ffi::GuiSlider(
                 bounds.into(),
@@ -503,13 +482,6 @@ pub trait RaylibDrawGui {
         min_value: f32,
         max_value: f32,
     ) -> f32 {
-        debug_assert!(
-            min_value <= value && value <= max_value,
-            format!(
-                "value out of bounds, {} <= {} <= {}",
-                min_value, value, max_value
-            )
-        );
         unsafe {
             ffi::GuiSliderBar(
                 bounds.into(),
@@ -532,13 +504,6 @@ pub trait RaylibDrawGui {
         min_value: f32,
         max_value: f32,
     ) -> f32 {
-        debug_assert!(
-            min_value <= value && value <= max_value,
-            format!(
-                "value out of bounds, {} <= {} <= {}",
-                min_value, value, max_value
-            )
-        );
         unsafe {
             ffi::GuiProgressBar(
                 bounds.into(),
@@ -579,13 +544,6 @@ pub trait RaylibDrawGui {
         min_value: i32,
         max_value: i32,
     ) -> i32 {
-        debug_assert!(
-            min_value <= value && value <= max_value,
-            format!(
-                "value out of bounds, {} <= {} <= {}",
-                min_value, value, max_value
-            )
-        );
         unsafe { ffi::GuiScrollBar(bounds.into(), value, min_value, max_value) }
     }
     /// Grid control
@@ -696,20 +654,27 @@ pub trait RaylibDrawGui {
     // NOTE: Useful to add icons by name id (enum) instead of
     // a number that can change between ricon versions
     #[inline]
-    unsafe fn gui_icon_text(
+    fn gui_icon_text(
         &mut self,
         icon_id: crate::consts::rIconDescription,
         text: Option<&CStr>,
-    ) -> CString {
+    ) -> String {
         let buffer = unsafe {
             ffi::GuiIconText(
                 icon_id as i32,
                 text.map(CStr::as_ptr).unwrap_or(std::ptr::null()),
             )
         };
-        // TODO This is probably 100% unsafe. buffer is 1024 and I'm not sure if freeing this will result in a segfault.
-        // I don't want to do the copy allocation, but I'll probably have to.
-        CString::from_raw(buffer as *mut i8)
+        if buffer.is_null() {
+            return text
+                .map(|s| s.to_string_lossy().to_string())
+                .unwrap_or("".to_owned());
+        }
+        let c_str = unsafe { CStr::from_ptr(buffer) };
+        let str_slice = c_str.to_str().unwrap_or("");
+        let str_buf = str_slice.to_owned();
+        // THERE IS NO WAY THIS DOESN"T LEEK MEMORY. TODO figure out a way to free this buffer.
+        str_buf
     }
 
     /// Color Bar Alpha control

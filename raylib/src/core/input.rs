@@ -33,7 +33,7 @@ impl RaylibHandle {
 
     /// Gets latest key pressed.
     #[inline]
-    pub fn get_key_pressed(&self) -> Option<crate::consts::KeyboardKey> {
+    pub fn get_key_pressed(&mut self) -> Option<crate::consts::KeyboardKey> {
         let key = unsafe { ffi::GetKeyPressed() };
         if key > 0 {
             return key_from_i32(key);
@@ -43,7 +43,7 @@ impl RaylibHandle {
 
     /// Gets latest key pressed.
     #[inline]
-    pub fn get_key_pressed_number(&self) -> Option<u32> {
+    pub fn get_key_pressed_number(&mut self) -> Option<u32> {
         let key = unsafe { ffi::GetKeyPressed() };
         if key > 0 {
             return Some(key as u32);

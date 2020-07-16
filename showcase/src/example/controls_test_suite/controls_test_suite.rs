@@ -1,6 +1,6 @@
+#![allow(non_snake_case)]
 use raylib::prelude::*;
 use std::ffi::CString;
-
 //------------------------------------------------------------------------------------
 // Program main entry point
 //------------------------------------------------------------------------------------
@@ -71,30 +71,33 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) {
     //Font font = LoadFontEx("fonts/rainyhearts16.ttf", 12, 0, 0);
     //GuiSetFont(font);
 
-    let exitWindow = false;
+    let mut exitWindow = false;
     let mut showMessageBox = false;
 
-    let _textInput = vec![0u8; 256];
+    let mut textInput = vec![0u8; 256];
     let mut showTextInputBox = false;
 
-    let _textInputFileName = [0u8; 256];
+    let mut textInputFileName = [0u8; 256];
 
     //--------------------------------------------------------------------------------------
+
+    rl.set_target_fps(60);
 
     // Main game loop
     while !exitWindow
     // Detect window close button or ESC key
     {
-        
+        use raylib::consts::rIconDescription::*;
         use raylib::consts::GuiControl::*;
         use raylib::consts::GuiControlProperty::*;
-        
         use raylib::consts::GuiControlState::*;
         use raylib::consts::GuiDefaultProperty::*;
         use raylib::consts::GuiTextAlignment::*;
         use raylib::consts::KeyboardKey::*;
         // Update
         //----------------------------------------------------------------------------------
+
+        exitWindow = rl.window_should_close();
 
         if rl.is_key_pressed(KEY_ESCAPE) {
             showMessageBox = !showMessageBox;
@@ -166,10 +169,11 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) {
 
         d.gui_set_style(BUTTON, TEXT_ALIGNMENT as i32, GUI_TEXT_ALIGN_CENTER as i32);
 
-        // let itext = unsafe { d.gui_icon_text(RICON_FILE_SAVE, Some(rstr!("Save File"))) };
-        // if d.gui_button(rrect(25, 255, 125, 30), Some(&itext)) {
-        //     showTextInputBox = true;
-        // }
+        let itext = d.gui_icon_text(RICON_FILE_SAVE, Some(rstr!("Save File")));
+        let itext = CString::new(itext).unwrap();
+        if d.gui_button(rrect(25, 255, 125, 30), Some(&itext)) {
+            showTextInputBox = true;
+        }
 
         d.gui_group_box(rrect(25, 310, 125, 150), Some(rstr!("STATES")));
 
@@ -302,24 +306,25 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) {
                 d.get_screen_height(),
                 Color::RAYWHITE.fade(0.8),
             );
-            // let itext = unsafe { d.gui_icon_text(RICON_EXIT, Some(rstr!("Close Window"))) };
-            // let result = d.gui_message_box(
-            //     rrect(
-            //         d.get_screen_width() / 2 - 125,
-            //         d.get_screen_height() / 2 - 50,
-            //         250,
-            //         100,
-            //     ),
-            //     Some(&itext),
-            //     Some(rstr!("Do you really want to exit?")),
-            //     Some(rstr!("Yes;No")),
-            // );
+            let itext = d.gui_icon_text(RICON_EXIT, Some(rstr!("Close Window")));
+            let itext = CString::new(itext).unwrap();
+            let result = d.gui_message_box(
+                rrect(
+                    d.get_screen_width() / 2 - 125,
+                    d.get_screen_height() / 2 - 50,
+                    250,
+                    100,
+                ),
+                Some(&itext),
+                Some(rstr!("Do you really want to exit?")),
+                Some(rstr!("Yes;No")),
+            );
 
-            // if ((result == 0) || (result == 2)) {
-            //     showMessageBox = false;
-            // } else if (result == 1) {
-            //     exitWindow = true;
-            // }
+            if ((result == 0) || (result == 2)) {
+                showMessageBox = false;
+            } else if (result == 1) {
+                exitWindow = true;
+            }
         }
 
         if showTextInputBox {
@@ -330,29 +335,30 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) {
                 d.get_screen_height(),
                 Color::RAYWHITE.fade(0.8),
             );
-            // let itext = unsafe { d.gui_icon_text(RICON_FILE_SAVE, Some(rstr!("Save file as..."))) };
-            // let result = d.gui_text_input_box(
-            //     rrect(
-            //         d.get_screen_width() / 2 - 120,
-            //         d.get_screen_height() / 2 - 60,
-            //         240,
-            //         140,
-            //     ),
-            //     Some(&itext),
-            //     Some(rstr!("Introduce a save file name")),
-            //     Some(rstr!("Ok;Cancel")),
-            //     &mut textInput,
-            // );
+            let itext = unsafe { d.gui_icon_text(RICON_FILE_SAVE, Some(rstr!("Save file as..."))) };
+            let itext = CString::new(itext).unwrap();
+            let result = d.gui_text_input_box(
+                rrect(
+                    d.get_screen_width() / 2 - 120,
+                    d.get_screen_height() / 2 - 60,
+                    240,
+                    140,
+                ),
+                Some(&itext),
+                Some(rstr!("Introduce a save file name")),
+                Some(rstr!("Ok;Cancel")),
+                &mut textInput,
+            );
 
-            // if (result == 1) {
-            //     // TODO: Validate textInput value and save
-            //     textInputFileName[..textInput.len()].clone_from_slice(&textInput);
-            // }
+            if (result == 1) {
+                // TODO: Validate textInput value and save
+                textInputFileName[..textInput.len()].clone_from_slice(&textInput);
+            }
 
-            // if ((result == 0) || (result == 1) || (result == 2)) {
-            //     showTextInputBox = false;
-            //     textInput[0] = b'\0';
-            // }
+            if ((result == 0) || (result == 1) || (result == 2)) {
+                showTextInputBox = false;
+                textInput[0] = b'\0';
+            }
         }
 
         d.gui_unlock();

@@ -10,6 +10,8 @@ pub const TEXTEDIT_CURSOR_BLINK_FRAMES: u32 = 20;
 pub const NUM_CONTROLS: u32 = 16;
 pub const NUM_PROPS_DEFAULT: u32 = 16;
 pub const NUM_PROPS_EXTENDED: u32 = 8;
+pub const RICONS_COUNT: u32 = 199;
+pub const RICONS_SIZE: u32 = 16;
 pub const _VCRT_COMPILER_PREPROCESSOR: u32 = 1;
 pub const _SAL_VERSION: u32 = 20;
 pub const __SAL_H_VERSION: u32 = 180000000;
@@ -205,7 +207,7 @@ pub const GROUPBOX_LINE_THICK: u32 = 1;
 pub const GROUPBOX_TEXT_PADDING: u32 = 10;
 pub const LINE_TEXT_PADDING: u32 = 10;
 pub const PANEL_BORDER_WIDTH: u32 = 1;
-pub const VALUEBOX_MAX_CHARS: u32 = 32;
+pub const GUI_TEXTBOX_CURSOR_SPEED_MODIFIER: u32 = 5;
 pub const COLORBARALPHA_CHECKED_SIZE: u32 = 10;
 pub const MESSAGEBOX_BUTTON_HEIGHT: u32 = 24;
 pub const MESSAGEBOX_BUTTON_PADDING: u32 = 10;
@@ -219,8 +221,6 @@ pub const MAX_SUBSTRINGS_COUNT: u32 = 64;
 pub const MAX_LIGHTS: u32 = 4;
 pub const LIGHT_DISTANCE: f64 = 3.5;
 pub const LIGHT_HEIGHT: f64 = 1.0;
-pub const RICONS_COUNT: u32 = 199;
-pub const RICONS_SIZE: u32 = 16;
 pub type va_list = __builtin_va_list;
 pub type __gnuc_va_list = __builtin_va_list;
 
@@ -4697,6 +4697,67 @@ extern "C" {
 extern "C" {
     pub fn SetAudioStreamBufferSizeDefault(size: ::std::os::raw::c_int);
 }
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct GuiTextBoxState {
+    pub cursor: ::std::os::raw::c_int,
+    pub start: ::std::os::raw::c_int,
+    pub index: ::std::os::raw::c_int,
+    pub select: ::std::os::raw::c_int,
+}
+#[test]
+fn bindgen_test_layout_GuiTextBoxState() {
+    assert_eq!(
+        ::std::mem::size_of::<GuiTextBoxState>(),
+        16usize,
+        concat!("Size of: ", stringify!(GuiTextBoxState))
+    );
+    assert_eq!(
+        ::std::mem::align_of::<GuiTextBoxState>(),
+        4usize,
+        concat!("Alignment of ", stringify!(GuiTextBoxState))
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<GuiTextBoxState>())).cursor as *const _ as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(GuiTextBoxState),
+            "::",
+            stringify!(cursor)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<GuiTextBoxState>())).start as *const _ as usize },
+        4usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(GuiTextBoxState),
+            "::",
+            stringify!(start)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<GuiTextBoxState>())).index as *const _ as usize },
+        8usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(GuiTextBoxState),
+            "::",
+            stringify!(index)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<GuiTextBoxState>())).select as *const _ as usize },
+        12usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(GuiTextBoxState),
+            "::",
+            stringify!(select)
+        )
+    );
+}
 #[repr(i32)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub enum GuiControlState {
@@ -4878,6 +4939,60 @@ extern "C" {
     pub fn GuiGetStyle(
         control: ::std::os::raw::c_int,
         property: ::std::os::raw::c_int,
+    ) -> ::std::os::raw::c_int;
+}
+extern "C" {
+    pub fn GuiTextBoxSetActive(bounds: Rectangle);
+}
+extern "C" {
+    pub fn GuiTextBoxGetActive() -> Rectangle;
+}
+extern "C" {
+    pub fn GuiTextBoxSetCursor(cursor: ::std::os::raw::c_int);
+}
+extern "C" {
+    pub fn GuiTextBoxGetCursor() -> ::std::os::raw::c_int;
+}
+extern "C" {
+    pub fn GuiTextBoxSetSelection(start: ::std::os::raw::c_int, length: ::std::os::raw::c_int);
+}
+extern "C" {
+    pub fn GuiTextBoxGetSelection() -> Vector2;
+}
+extern "C" {
+    pub fn GuiTextBoxIsActive(bounds: Rectangle) -> bool;
+}
+extern "C" {
+    pub fn GuiTextBoxGetState() -> GuiTextBoxState;
+}
+extern "C" {
+    pub fn GuiTextBoxSetState(state: GuiTextBoxState);
+}
+extern "C" {
+    pub fn GuiTextBoxSelectAll(text: *const ::std::os::raw::c_char);
+}
+extern "C" {
+    pub fn GuiTextBoxCopy(text: *const ::std::os::raw::c_char);
+}
+extern "C" {
+    pub fn GuiTextBoxPaste(text: *mut ::std::os::raw::c_char, textSize: ::std::os::raw::c_int);
+}
+extern "C" {
+    pub fn GuiTextBoxCut(text: *mut ::std::os::raw::c_char);
+}
+extern "C" {
+    pub fn GuiTextBoxDelete(
+        text: *mut ::std::os::raw::c_char,
+        length: ::std::os::raw::c_int,
+        before: bool,
+    ) -> ::std::os::raw::c_int;
+}
+extern "C" {
+    pub fn GuiTextBoxGetByteIndex(
+        text: *const ::std::os::raw::c_char,
+        start: ::std::os::raw::c_int,
+        from: ::std::os::raw::c_int,
+        to: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int;
 }
 extern "C" {
@@ -5090,6 +5205,220 @@ extern "C" {
         iconId: ::std::os::raw::c_int,
         text: *const ::std::os::raw::c_char,
     ) -> *const ::std::os::raw::c_char;
+}
+#[repr(i32)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+pub enum rIconDescription {
+    RICON_NONE = 0,
+    RICON_FOLDER_FILE_OPEN = 1,
+    RICON_FILE_SAVE_CLASSIC = 2,
+    RICON_FOLDER_OPEN = 3,
+    RICON_FOLDER_SAVE = 4,
+    RICON_FILE_OPEN = 5,
+    RICON_FILE_SAVE = 6,
+    RICON_FILE_EXPORT = 7,
+    RICON_FILE_NEW = 8,
+    RICON_FILE_DELETE = 9,
+    RICON_FILETYPE_TEXT = 10,
+    RICON_FILETYPE_AUDIO = 11,
+    RICON_FILETYPE_IMAGE = 12,
+    RICON_FILETYPE_PLAY = 13,
+    RICON_FILETYPE_VIDEO = 14,
+    RICON_FILETYPE_INFO = 15,
+    RICON_FILE_COPY = 16,
+    RICON_FILE_CUT = 17,
+    RICON_FILE_PASTE = 18,
+    RICON_CURSOR_HAND = 19,
+    RICON_CURSOR_POINTER = 20,
+    RICON_CURSOR_CLASSIC = 21,
+    RICON_PENCIL = 22,
+    RICON_PENCIL_BIG = 23,
+    RICON_BRUSH_CLASSIC = 24,
+    RICON_BRUSH_PAINTER = 25,
+    RICON_WATER_DROP = 26,
+    RICON_COLOR_PICKER = 27,
+    RICON_RUBBER = 28,
+    RICON_COLOR_BUCKET = 29,
+    RICON_TEXT_T = 30,
+    RICON_TEXT_A = 31,
+    RICON_SCALE = 32,
+    RICON_RESIZE = 33,
+    RICON_FILTER_POINT = 34,
+    RICON_FILTER_BILINEAR = 35,
+    RICON_CROP = 36,
+    RICON_CROP_ALPHA = 37,
+    RICON_SQUARE_TOGGLE = 38,
+    RICON_SIMMETRY = 39,
+    RICON_SIMMETRY_HORIZONTAL = 40,
+    RICON_SIMMETRY_VERTICAL = 41,
+    RICON_LENS = 42,
+    RICON_LENS_BIG = 43,
+    RICON_EYE_ON = 44,
+    RICON_EYE_OFF = 45,
+    RICON_FILTER_TOP = 46,
+    RICON_FILTER = 47,
+    RICON_TARGET_POINT = 48,
+    RICON_TARGET_SMALL = 49,
+    RICON_TARGET_BIG = 50,
+    RICON_TARGET_MOVE = 51,
+    RICON_CURSOR_MOVE = 52,
+    RICON_CURSOR_SCALE = 53,
+    RICON_CURSOR_SCALE_RIGHT = 54,
+    RICON_CURSOR_SCALE_LEFT = 55,
+    RICON_UNDO = 56,
+    RICON_REDO = 57,
+    RICON_REREDO = 58,
+    RICON_MUTATE = 59,
+    RICON_ROTATE = 60,
+    RICON_REPEAT = 61,
+    RICON_SHUFFLE = 62,
+    RICON_EMPTYBOX = 63,
+    RICON_TARGET = 64,
+    RICON_TARGET_SMALL_FILL = 65,
+    RICON_TARGET_BIG_FILL = 66,
+    RICON_TARGET_MOVE_FILL = 67,
+    RICON_CURSOR_MOVE_FILL = 68,
+    RICON_CURSOR_SCALE_FILL = 69,
+    RICON_CURSOR_SCALE_RIGHT_FILL = 70,
+    RICON_CURSOR_SCALE_LEFT_FILL = 71,
+    RICON_UNDO_FILL = 72,
+    RICON_REDO_FILL = 73,
+    RICON_REREDO_FILL = 74,
+    RICON_MUTATE_FILL = 75,
+    RICON_ROTATE_FILL = 76,
+    RICON_REPEAT_FILL = 77,
+    RICON_SHUFFLE_FILL = 78,
+    RICON_EMPTYBOX_SMALL = 79,
+    RICON_BOX = 80,
+    RICON_BOX_TOP = 81,
+    RICON_BOX_TOP_RIGHT = 82,
+    RICON_BOX_RIGHT = 83,
+    RICON_BOX_BOTTOM_RIGHT = 84,
+    RICON_BOX_BOTTOM = 85,
+    RICON_BOX_BOTTOM_LEFT = 86,
+    RICON_BOX_LEFT = 87,
+    RICON_BOX_TOP_LEFT = 88,
+    RICON_BOX_CENTER = 89,
+    RICON_BOX_CIRCLE_MASK = 90,
+    RICON_POT = 91,
+    RICON_ALPHA_MULTIPLY = 92,
+    RICON_ALPHA_CLEAR = 93,
+    RICON_DITHERING = 94,
+    RICON_MIPMAPS = 95,
+    RICON_BOX_GRID = 96,
+    RICON_GRID = 97,
+    RICON_BOX_CORNERS_SMALL = 98,
+    RICON_BOX_CORNERS_BIG = 99,
+    RICON_FOUR_BOXES = 100,
+    RICON_GRID_FILL = 101,
+    RICON_BOX_MULTISIZE = 102,
+    RICON_ZOOM_SMALL = 103,
+    RICON_ZOOM_MEDIUM = 104,
+    RICON_ZOOM_BIG = 105,
+    RICON_ZOOM_ALL = 106,
+    RICON_ZOOM_CENTER = 107,
+    RICON_BOX_DOTS_SMALL = 108,
+    RICON_BOX_DOTS_BIG = 109,
+    RICON_BOX_CONCENTRIC = 110,
+    RICON_BOX_GRID_BIG = 111,
+    RICON_OK_TICK = 112,
+    RICON_CROSS = 113,
+    RICON_ARROW_LEFT = 114,
+    RICON_ARROW_RIGHT = 115,
+    RICON_ARROW_BOTTOM = 116,
+    RICON_ARROW_TOP = 117,
+    RICON_ARROW_LEFT_FILL = 118,
+    RICON_ARROW_RIGHT_FILL = 119,
+    RICON_ARROW_BOTTOM_FILL = 120,
+    RICON_ARROW_TOP_FILL = 121,
+    RICON_AUDIO = 122,
+    RICON_FX = 123,
+    RICON_WAVE = 124,
+    RICON_WAVE_SINUS = 125,
+    RICON_WAVE_SQUARE = 126,
+    RICON_WAVE_TRIANGULAR = 127,
+    RICON_CROSS_SMALL = 128,
+    RICON_PLAYER_PREVIOUS = 129,
+    RICON_PLAYER_PLAY_BACK = 130,
+    RICON_PLAYER_PLAY = 131,
+    RICON_PLAYER_PAUSE = 132,
+    RICON_PLAYER_STOP = 133,
+    RICON_PLAYER_NEXT = 134,
+    RICON_PLAYER_RECORD = 135,
+    RICON_MAGNET = 136,
+    RICON_LOCK_CLOSE = 137,
+    RICON_LOCK_OPEN = 138,
+    RICON_CLOCK = 139,
+    RICON_TOOLS = 140,
+    RICON_GEAR = 141,
+    RICON_GEAR_BIG = 142,
+    RICON_BIN = 143,
+    RICON_HAND_POINTER = 144,
+    RICON_LASER = 145,
+    RICON_COIN = 146,
+    RICON_EXPLOSION = 147,
+    RICON_1UP = 148,
+    RICON_PLAYER = 149,
+    RICON_PLAYER_JUMP = 150,
+    RICON_KEY = 151,
+    RICON_DEMON = 152,
+    RICON_TEXT_POPUP = 153,
+    RICON_GEAR_EX = 154,
+    RICON_CRACK = 155,
+    RICON_CRACK_POINTS = 156,
+    RICON_STAR = 157,
+    RICON_DOOR = 158,
+    RICON_EXIT = 159,
+    RICON_MODE_2D = 160,
+    RICON_MODE_3D = 161,
+    RICON_CUBE = 162,
+    RICON_CUBE_FACE_TOP = 163,
+    RICON_CUBE_FACE_LEFT = 164,
+    RICON_CUBE_FACE_FRONT = 165,
+    RICON_CUBE_FACE_BOTTOM = 166,
+    RICON_CUBE_FACE_RIGHT = 167,
+    RICON_CUBE_FACE_BACK = 168,
+    RICON_CAMERA = 169,
+    RICON_SPECIAL = 170,
+    RICON_LINK_NET = 171,
+    RICON_LINK_BOXES = 172,
+    RICON_LINK_MULTI = 173,
+    RICON_LINK = 174,
+    RICON_LINK_BROKE = 175,
+    RICON_TEXT_NOTES = 176,
+    RICON_NOTEBOOK = 177,
+    RICON_SUITCASE = 178,
+    RICON_SUITCASE_ZIP = 179,
+    RICON_MAILBOX = 180,
+    RICON_MONITOR = 181,
+    RICON_PRINTER = 182,
+    RICON_PHOTO_CAMERA = 183,
+    RICON_PHOTO_CAMERA_FLASH = 184,
+    RICON_HOUSE = 185,
+    RICON_HEART = 186,
+    RICON_CORNER = 187,
+    RICON_VERTICAL_BARS = 188,
+    RICON_VERTICAL_BARS_FILL = 189,
+    RICON_LIFE_BARS = 190,
+    RICON_INFO = 191,
+    RICON_CROSSLINE = 192,
+    RICON_HELP = 193,
+    RICON_FILETYPE_ALPHA = 194,
+    RICON_FILETYPE_HOME = 195,
+    RICON_LAYERS_VISIBLE = 196,
+    RICON_LAYERS = 197,
+    RICON_WINDOW = 198,
+}
+extern "C" {
+    pub fn DrawIcon(
+        iconId: ::std::os::raw::c_int,
+        position: Vector2,
+        pixelSize: ::std::os::raw::c_int,
+        color: Color,
+    );
+}
+extern "C" {
+    pub static RICONS: [::std::os::raw::c_uint; 1592usize];
 }
 extern "C" {
     pub fn __va_start(arg1: *mut *mut ::std::os::raw::c_char, ...);
@@ -8376,6 +8705,23 @@ extern "C" {
     pub static mut guiStyleLoaded: bool;
 }
 extern "C" {
+    pub static mut guiTextBoxActive: Rectangle;
+}
+extern "C" {
+    pub static mut guiTextBoxState: GuiTextBoxState;
+}
+pub const GUI_MEASURE_MODE_CURSOR_END: _bindgen_ty_1 = _bindgen_ty_1::GUI_MEASURE_MODE_CURSOR_END;
+pub const GUI_MEASURE_MODE_CURSOR_POS: _bindgen_ty_1 = _bindgen_ty_1::GUI_MEASURE_MODE_CURSOR_POS;
+pub const GUI_MEASURE_MODE_CURSOR_COORDS: _bindgen_ty_1 =
+    _bindgen_ty_1::GUI_MEASURE_MODE_CURSOR_COORDS;
+#[repr(i32)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+pub enum _bindgen_ty_1 {
+    GUI_MEASURE_MODE_CURSOR_END = 10,
+    GUI_MEASURE_MODE_CURSOR_POS = 11,
+    GUI_MEASURE_MODE_CURSOR_COORDS = 12,
+}
+extern "C" {
     pub fn GuiSliderPro(
         bounds: Rectangle,
         textLeft: *const ::std::os::raw::c_char,
@@ -8547,220 +8893,6 @@ extern "C" {
     pub static mut lights: [Light; 4usize];
 }
 pub const lightsCount: ::std::os::raw::c_int = 0;
-#[repr(i32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum rIconDescription {
-    RICON_NONE = 0,
-    RICON_FOLDER_FILE_OPEN = 1,
-    RICON_FILE_SAVE_CLASSIC = 2,
-    RICON_FOLDER_OPEN = 3,
-    RICON_FOLDER_SAVE = 4,
-    RICON_FILE_OPEN = 5,
-    RICON_FILE_SAVE = 6,
-    RICON_FILE_EXPORT = 7,
-    RICON_FILE_NEW = 8,
-    RICON_FILE_DELETE = 9,
-    RICON_FILETYPE_TEXT = 10,
-    RICON_FILETYPE_AUDIO = 11,
-    RICON_FILETYPE_IMAGE = 12,
-    RICON_FILETYPE_PLAY = 13,
-    RICON_FILETYPE_VIDEO = 14,
-    RICON_FILETYPE_INFO = 15,
-    RICON_FILE_COPY = 16,
-    RICON_FILE_CUT = 17,
-    RICON_FILE_PASTE = 18,
-    RICON_CURSOR_HAND = 19,
-    RICON_CURSOR_POINTER = 20,
-    RICON_CURSOR_CLASSIC = 21,
-    RICON_PENCIL = 22,
-    RICON_PENCIL_BIG = 23,
-    RICON_BRUSH_CLASSIC = 24,
-    RICON_BRUSH_PAINTER = 25,
-    RICON_WATER_DROP = 26,
-    RICON_COLOR_PICKER = 27,
-    RICON_RUBBER = 28,
-    RICON_COLOR_BUCKET = 29,
-    RICON_TEXT_T = 30,
-    RICON_TEXT_A = 31,
-    RICON_SCALE = 32,
-    RICON_RESIZE = 33,
-    RICON_FILTER_POINT = 34,
-    RICON_FILTER_BILINEAR = 35,
-    RICON_CROP = 36,
-    RICON_CROP_ALPHA = 37,
-    RICON_SQUARE_TOGGLE = 38,
-    RICON_SIMMETRY = 39,
-    RICON_SIMMETRY_HORIZONTAL = 40,
-    RICON_SIMMETRY_VERTICAL = 41,
-    RICON_LENS = 42,
-    RICON_LENS_BIG = 43,
-    RICON_EYE_ON = 44,
-    RICON_EYE_OFF = 45,
-    RICON_FILTER_TOP = 46,
-    RICON_FILTER = 47,
-    RICON_TARGET_POINT = 48,
-    RICON_TARGET_SMALL = 49,
-    RICON_TARGET_BIG = 50,
-    RICON_TARGET_MOVE = 51,
-    RICON_CURSOR_MOVE = 52,
-    RICON_CURSOR_SCALE = 53,
-    RICON_CURSOR_SCALE_RIGHT = 54,
-    RICON_CURSOR_SCALE_LEFT = 55,
-    RICON_UNDO = 56,
-    RICON_REDO = 57,
-    RICON_REREDO = 58,
-    RICON_MUTATE = 59,
-    RICON_ROTATE = 60,
-    RICON_REPEAT = 61,
-    RICON_SHUFFLE = 62,
-    RICON_EMPTYBOX = 63,
-    RICON_TARGET = 64,
-    RICON_TARGET_SMALL_FILL = 65,
-    RICON_TARGET_BIG_FILL = 66,
-    RICON_TARGET_MOVE_FILL = 67,
-    RICON_CURSOR_MOVE_FILL = 68,
-    RICON_CURSOR_SCALE_FILL = 69,
-    RICON_CURSOR_SCALE_RIGHT_FILL = 70,
-    RICON_CURSOR_SCALE_LEFT_FILL = 71,
-    RICON_UNDO_FILL = 72,
-    RICON_REDO_FILL = 73,
-    RICON_REREDO_FILL = 74,
-    RICON_MUTATE_FILL = 75,
-    RICON_ROTATE_FILL = 76,
-    RICON_REPEAT_FILL = 77,
-    RICON_SHUFFLE_FILL = 78,
-    RICON_EMPTYBOX_SMALL = 79,
-    RICON_BOX = 80,
-    RICON_BOX_TOP = 81,
-    RICON_BOX_TOP_RIGHT = 82,
-    RICON_BOX_RIGHT = 83,
-    RICON_BOX_BOTTOM_RIGHT = 84,
-    RICON_BOX_BOTTOM = 85,
-    RICON_BOX_BOTTOM_LEFT = 86,
-    RICON_BOX_LEFT = 87,
-    RICON_BOX_TOP_LEFT = 88,
-    RICON_BOX_CENTER = 89,
-    RICON_BOX_CIRCLE_MASK = 90,
-    RICON_POT = 91,
-    RICON_ALPHA_MULTIPLY = 92,
-    RICON_ALPHA_CLEAR = 93,
-    RICON_DITHERING = 94,
-    RICON_MIPMAPS = 95,
-    RICON_BOX_GRID = 96,
-    RICON_GRID = 97,
-    RICON_BOX_CORNERS_SMALL = 98,
-    RICON_BOX_CORNERS_BIG = 99,
-    RICON_FOUR_BOXES = 100,
-    RICON_GRID_FILL = 101,
-    RICON_BOX_MULTISIZE = 102,
-    RICON_ZOOM_SMALL = 103,
-    RICON_ZOOM_MEDIUM = 104,
-    RICON_ZOOM_BIG = 105,
-    RICON_ZOOM_ALL = 106,
-    RICON_ZOOM_CENTER = 107,
-    RICON_BOX_DOTS_SMALL = 108,
-    RICON_BOX_DOTS_BIG = 109,
-    RICON_BOX_CONCENTRIC = 110,
-    RICON_BOX_GRID_BIG = 111,
-    RICON_OK_TICK = 112,
-    RICON_CROSS = 113,
-    RICON_ARROW_LEFT = 114,
-    RICON_ARROW_RIGHT = 115,
-    RICON_ARROW_BOTTOM = 116,
-    RICON_ARROW_TOP = 117,
-    RICON_ARROW_LEFT_FILL = 118,
-    RICON_ARROW_RIGHT_FILL = 119,
-    RICON_ARROW_BOTTOM_FILL = 120,
-    RICON_ARROW_TOP_FILL = 121,
-    RICON_AUDIO = 122,
-    RICON_FX = 123,
-    RICON_WAVE = 124,
-    RICON_WAVE_SINUS = 125,
-    RICON_WAVE_SQUARE = 126,
-    RICON_WAVE_TRIANGULAR = 127,
-    RICON_CROSS_SMALL = 128,
-    RICON_PLAYER_PREVIOUS = 129,
-    RICON_PLAYER_PLAY_BACK = 130,
-    RICON_PLAYER_PLAY = 131,
-    RICON_PLAYER_PAUSE = 132,
-    RICON_PLAYER_STOP = 133,
-    RICON_PLAYER_NEXT = 134,
-    RICON_PLAYER_RECORD = 135,
-    RICON_MAGNET = 136,
-    RICON_LOCK_CLOSE = 137,
-    RICON_LOCK_OPEN = 138,
-    RICON_CLOCK = 139,
-    RICON_TOOLS = 140,
-    RICON_GEAR = 141,
-    RICON_GEAR_BIG = 142,
-    RICON_BIN = 143,
-    RICON_HAND_POINTER = 144,
-    RICON_LASER = 145,
-    RICON_COIN = 146,
-    RICON_EXPLOSION = 147,
-    RICON_1UP = 148,
-    RICON_PLAYER = 149,
-    RICON_PLAYER_JUMP = 150,
-    RICON_KEY = 151,
-    RICON_DEMON = 152,
-    RICON_TEXT_POPUP = 153,
-    RICON_GEAR_EX = 154,
-    RICON_CRACK = 155,
-    RICON_CRACK_POINTS = 156,
-    RICON_STAR = 157,
-    RICON_DOOR = 158,
-    RICON_EXIT = 159,
-    RICON_MODE_2D = 160,
-    RICON_MODE_3D = 161,
-    RICON_CUBE = 162,
-    RICON_CUBE_FACE_TOP = 163,
-    RICON_CUBE_FACE_LEFT = 164,
-    RICON_CUBE_FACE_FRONT = 165,
-    RICON_CUBE_FACE_BOTTOM = 166,
-    RICON_CUBE_FACE_RIGHT = 167,
-    RICON_CUBE_FACE_BACK = 168,
-    RICON_CAMERA = 169,
-    RICON_SPECIAL = 170,
-    RICON_LINK_NET = 171,
-    RICON_LINK_BOXES = 172,
-    RICON_LINK_MULTI = 173,
-    RICON_LINK = 174,
-    RICON_LINK_BROKE = 175,
-    RICON_TEXT_NOTES = 176,
-    RICON_NOTEBOOK = 177,
-    RICON_SUITCASE = 178,
-    RICON_SUITCASE_ZIP = 179,
-    RICON_MAILBOX = 180,
-    RICON_MONITOR = 181,
-    RICON_PRINTER = 182,
-    RICON_PHOTO_CAMERA = 183,
-    RICON_PHOTO_CAMERA_FLASH = 184,
-    RICON_HOUSE = 185,
-    RICON_HEART = 186,
-    RICON_CORNER = 187,
-    RICON_VERTICAL_BARS = 188,
-    RICON_VERTICAL_BARS_FILL = 189,
-    RICON_LIFE_BARS = 190,
-    RICON_INFO = 191,
-    RICON_CROSSLINE = 192,
-    RICON_HELP = 193,
-    RICON_FILETYPE_ALPHA = 194,
-    RICON_FILETYPE_HOME = 195,
-    RICON_LAYERS_VISIBLE = 196,
-    RICON_LAYERS = 197,
-    RICON_WINDOW = 198,
-}
-extern "C" {
-    pub fn DrawIcon(
-        iconId: ::std::os::raw::c_int,
-        position: Vector2,
-        pixelSize: ::std::os::raw::c_int,
-        color: Color,
-    );
-}
-extern "C" {
-    pub static RICONS: [::std::os::raw::c_uint; 1592usize];
-}
 pub type __builtin_va_list = *mut ::std::os::raw::c_char;
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
