@@ -34,7 +34,7 @@ macro_rules! rstr {
     });
     ($e:tt, $($arg:tt)*) => ({
         unsafe {
-          std::ffi::CString::new(format!(concat!($e, "\0"), $($arg)*))
+          std::ffi::CString::new(format!($e, $($arg)*))
         }
     })
 }

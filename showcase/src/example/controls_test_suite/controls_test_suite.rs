@@ -166,10 +166,10 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) {
 
         d.gui_set_style(BUTTON, TEXT_ALIGNMENT as i32, GUI_TEXT_ALIGN_CENTER as i32);
 
-        let itext = unsafe { d.gui_icon_text(RICON_FILE_SAVE, Some(rstr!("Save File"))) };
-        if d.gui_button(rrect(25, 255, 125, 30), Some(&itext)) {
-            showTextInputBox = true;
-        }
+        // let itext = unsafe { d.gui_icon_text(RICON_FILE_SAVE, Some(rstr!("Save File"))) };
+        // if d.gui_button(rrect(25, 255, 125, 30), Some(&itext)) {
+        //     showTextInputBox = true;
+        // }
 
         d.gui_group_box(rrect(25, 310, 125, 150), Some(rstr!("STATES")));
 
@@ -257,7 +257,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) {
         sliderValue = d.gui_slider(
             rrect(355, 400, 165, 20),
             Some(rstr!("TEST")),
-            Some(&rstr!("{:2.2}", sliderValue as f32).unwrap()),
+            Some(&rstr!("{:.2}", sliderValue as f32).unwrap()),
             sliderValue,
             -50.0,
             100.0,
@@ -302,24 +302,24 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) {
                 d.get_screen_height(),
                 Color::RAYWHITE.fade(0.8),
             );
-            let itext = unsafe { d.gui_icon_text(RICON_EXIT, Some(rstr!("Close Window"))) };
-            let result = d.gui_message_box(
-                rrect(
-                    d.get_screen_width() / 2 - 125,
-                    d.get_screen_height() / 2 - 50,
-                    250,
-                    100,
-                ),
-                Some(&itext),
-                Some(rstr!("Do you really want to exit?")),
-                Some(rstr!("Yes;No")),
-            );
+            // let itext = unsafe { d.gui_icon_text(RICON_EXIT, Some(rstr!("Close Window"))) };
+            // let result = d.gui_message_box(
+            //     rrect(
+            //         d.get_screen_width() / 2 - 125,
+            //         d.get_screen_height() / 2 - 50,
+            //         250,
+            //         100,
+            //     ),
+            //     Some(&itext),
+            //     Some(rstr!("Do you really want to exit?")),
+            //     Some(rstr!("Yes;No")),
+            // );
 
-            if ((result == 0) || (result == 2)) {
-                showMessageBox = false;
-            } else if (result == 1) {
-                exitWindow = true;
-            }
+            // if ((result == 0) || (result == 2)) {
+            //     showMessageBox = false;
+            // } else if (result == 1) {
+            //     exitWindow = true;
+            // }
         }
 
         if (showTextInputBox) {
@@ -330,29 +330,29 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) {
                 d.get_screen_height(),
                 Color::RAYWHITE.fade(0.8),
             );
-            let itext = unsafe { d.gui_icon_text(RICON_FILE_SAVE, Some(rstr!("Save file as..."))) };
-            let result = d.gui_text_input_box(
-                rrect(
-                    d.get_screen_width() / 2 - 120,
-                    d.get_screen_height() / 2 - 60,
-                    240,
-                    140,
-                ),
-                Some(&itext),
-                Some(rstr!("Introduce a save file name")),
-                Some(rstr!("Ok;Cancel")),
-                &mut textInput,
-            );
+            // let itext = unsafe { d.gui_icon_text(RICON_FILE_SAVE, Some(rstr!("Save file as..."))) };
+            // let result = d.gui_text_input_box(
+            //     rrect(
+            //         d.get_screen_width() / 2 - 120,
+            //         d.get_screen_height() / 2 - 60,
+            //         240,
+            //         140,
+            //     ),
+            //     Some(&itext),
+            //     Some(rstr!("Introduce a save file name")),
+            //     Some(rstr!("Ok;Cancel")),
+            //     &mut textInput,
+            // );
 
-            if (result == 1) {
-                // TODO: Validate textInput value and save
-                textInputFileName[..textInput.len()].clone_from_slice(&textInput);
-            }
+            // if (result == 1) {
+            //     // TODO: Validate textInput value and save
+            //     textInputFileName[..textInput.len()].clone_from_slice(&textInput);
+            // }
 
-            if ((result == 0) || (result == 1) || (result == 2)) {
-                showTextInputBox = false;
-                textInput[0] = b'\0';
-            }
+            // if ((result == 0) || (result == 1) || (result == 2)) {
+            //     showTextInputBox = false;
+            //     textInput[0] = b'\0';
+            // }
         }
 
         d.gui_unlock();

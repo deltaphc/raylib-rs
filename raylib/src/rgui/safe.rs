@@ -376,8 +376,11 @@ pub trait RaylibDrawGui {
         edit_mode: bool,
     ) -> bool {
         debug_assert!(
-            min_value >= *value && *value <= max_value,
-            "value out of bounds"
+            min_value <= *value && *value <= max_value,
+            format!(
+                "value out of bounds, {} <= {} <= {}",
+                min_value, value, max_value
+            )
         );
         let clicked = unsafe {
             ffi::GuiSpinner(
@@ -404,7 +407,10 @@ pub trait RaylibDrawGui {
     ) -> bool {
         debug_assert!(
             min_value >= *value && *value <= max_value,
-            "value out of bounds"
+            format!(
+                "value out of bounds, {} <= {} <= {}",
+                min_value, value, max_value
+            )
         );
         unsafe {
             ffi::GuiValueBox(
@@ -469,8 +475,11 @@ pub trait RaylibDrawGui {
         max_value: f32,
     ) -> f32 {
         debug_assert!(
-            min_value >= value && value <= max_value,
-            "value out of bounds"
+            min_value <= value && value <= max_value,
+            format!(
+                "value out of bounds, {} <= {} <= {}",
+                min_value, value, max_value
+            )
         );
         unsafe {
             ffi::GuiSlider(
@@ -495,8 +504,11 @@ pub trait RaylibDrawGui {
         max_value: f32,
     ) -> f32 {
         debug_assert!(
-            min_value >= value && value <= max_value,
-            "value out of bounds"
+            min_value <= value && value <= max_value,
+            format!(
+                "value out of bounds, {} <= {} <= {}",
+                min_value, value, max_value
+            )
         );
         unsafe {
             ffi::GuiSliderBar(
@@ -521,8 +533,11 @@ pub trait RaylibDrawGui {
         max_value: f32,
     ) -> f32 {
         debug_assert!(
-            min_value >= value && value <= max_value,
-            "value out of bounds"
+            min_value <= value && value <= max_value,
+            format!(
+                "value out of bounds, {} <= {} <= {}",
+                min_value, value, max_value
+            )
         );
         unsafe {
             ffi::GuiProgressBar(
@@ -565,8 +580,11 @@ pub trait RaylibDrawGui {
         max_value: i32,
     ) -> i32 {
         debug_assert!(
-            min_value >= value && value <= max_value,
-            "value out of bounds"
+            min_value <= value && value <= max_value,
+            format!(
+                "value out of bounds, {} <= {} <= {}",
+                min_value, value, max_value
+            )
         );
         unsafe { ffi::GuiScrollBar(bounds.into(), value, min_value, max_value) }
     }
