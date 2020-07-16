@@ -1086,7 +1086,7 @@ pub trait RaylibDraw {
     #[inline]
     fn draw_icon(
         &mut self,
-        icon: crate::consts::RICON,
+        icon: crate::consts::rIconDescription,
         position: impl Into<ffi::Vector2>,
         pixel_size: i32,
         color: impl Into<ffi::Color>,

@@ -24,6 +24,21 @@ use std::ffi::CString;
 use std::marker::PhantomData;
 use std::sync::atomic::{AtomicBool, Ordering};
 
+// shamelessly stolen from imgui
+#[macro_export]
+macro_rules! rstr {
+    ($e:tt) => ({
+        unsafe {
+          std::ffi::CStr::from_bytes_with_nul_unchecked(concat!($e, "\0").as_bytes())
+        }
+    });
+    ($e:tt, $($arg:tt)*) => ({
+        unsafe {
+          std::ffi::CString::new(format!(concat!($e, "\0"), $($arg)*))
+        }
+    })
+}
+
 static IS_INITIALIZED: AtomicBool = AtomicBool::new(false);
 
 /// This token is used to ensure certain functions are only running on the same

@@ -3085,10 +3085,8 @@ extern "C" {
     ) -> bool;
 }
 extern "C" {
-    pub fn IsGamepadButtonUp(
-        gamepad: ::std::os::raw::c_int,
-        button: ::std::os::raw::c_int,
-    ) -> bool;
+    pub fn IsGamepadButtonUp(gamepad: ::std::os::raw::c_int, button: ::std::os::raw::c_int)
+        -> bool;
 }
 extern "C" {
     pub fn GetGamepadButtonPressed() -> ::std::os::raw::c_int;
@@ -4923,11 +4921,7 @@ extern "C" {
     ) -> bool;
 }
 extern "C" {
-    pub fn GuiToggle(
-        bounds: Rectangle,
-        text: *const ::std::os::raw::c_char,
-        active: bool,
-    ) -> bool;
+    pub fn GuiToggle(bounds: Rectangle, text: *const ::std::os::raw::c_char, active: bool) -> bool;
 }
 extern "C" {
     pub fn GuiToggleGroup(

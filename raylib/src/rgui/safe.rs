@@ -5,10 +5,93 @@ use crate::core::text::WeakFont;
 use crate::core::RaylibHandle;
 use crate::ffi;
 
-use std::ffi::CString;
+use std::ffi::{CStr, CString};
 
 /// Global gui modification functions
 impl RaylibHandle {
+    /// Enable gui controls (global state)
+    #[inline]
+    pub fn gui_enable(&mut self) {
+        unsafe { ffi::GuiEnable() }
+    }
+    /// Disable gui controls (global state)
+    #[inline]
+    pub fn gui_disable(&mut self) {
+        unsafe { ffi::GuiDisable() }
+    }
+    /// Lock gui controls (global state)
+    #[inline]
+    pub fn gui_lock(&mut self) {
+        unsafe { ffi::GuiLock() }
+    }
+    /// Unlock gui controls (global state)
+    #[inline]
+    pub fn gui_unlock(&mut self) {
+        unsafe { ffi::GuiUnlock() }
+    }
+    // Set gui controls alpha (global state), alpha goes from 0.0f to 1.0f
+    #[inline]
+    pub fn gui_fade(&mut self, alpha: f32) {
+        unsafe { ffi::GuiFade(alpha) }
+    }
+    /// Set gui state (global state)
+    #[inline]
+    pub fn gui_set_state(&mut self, state: crate::consts::GuiControlState) {
+        unsafe { ffi::GuiSetState(state as i32) }
+    }
+    /// Get gui state (global state)
+    #[inline]
+    pub fn gui_get_state(&mut self) -> crate::consts::GuiControlState {
+        unsafe { std::mem::transmute(ffi::GuiGetState()) }
+    }
+    /// Set gui custom font (global state)
+    #[inline]
+    pub fn gui_set_font(&mut self, font: impl AsRef<ffi::Font>) {
+        unsafe { ffi::GuiSetFont(*font.as_ref()) }
+    }
+    /// Get gui custom font (global state)
+    #[inline]
+    pub fn gui_get_font(&mut self) -> WeakFont {
+        unsafe { WeakFont(ffi::GuiGetFont()) }
+    }
+    /// Set one style property
+    /// SHOULD use one of the Gui*Property enums
+    #[inline]
+    pub fn gui_set_style(&mut self, control: crate::consts::GuiControl, property: i32, value: i32) {
+        unsafe { ffi::GuiSetStyle(control as i32, property as i32, value) }
+    }
+
+    /// Get one style property
+    /// SHOULD use one of the Gui*Property enums
+    #[inline]
+    pub fn gui_get_style(&mut self, control: crate::consts::GuiControl, property: i32) -> i32 {
+        unsafe { ffi::GuiGetStyle(control as i32, property as i32) }
+    }
+    /// Load style file (.rgs)
+    #[inline]
+    pub fn gui_load_style(&mut self, filename: Option<&CStr>) {
+        unsafe { ffi::GuiLoadStyle(filename.map(CStr::as_ptr).unwrap_or(std::ptr::null())) }
+    }
+    /// Load style properties from array
+    #[inline]
+    pub fn gui_load_style_props(&mut self, props: &[crate::consts::GuiControlProperty]) {
+        unsafe { ffi::GuiLoadStyleProps(props.as_ptr() as *const _, props.len() as i32) }
+    }
+    /// Load style default over global style
+    #[inline]
+    pub fn gui_load_style_default(&mut self) {
+        unsafe { ffi::GuiLoadStyleDefault() }
+    }
+    /// Updates full style properties set with default values
+    #[inline]
+    pub fn gui_update_style_complete(&mut self) {
+        unsafe { ffi::GuiUpdateStyleComplete() }
+    }
+}
+
+impl<D: RaylibDraw> RaylibDrawGui for D {}
+
+pub trait RaylibDrawGui {
     /// Enable gui controls (global state)
     #[inline]
     fn gui_enable(&mut self) {
@@ -55,30 +138,22 @@ impl RaylibHandle {
         unsafe { WeakFont(ffi::GuiGetFont()) }
     }
     /// Set one style property
+    /// SHOULD use one of the Gui*Property enums
     #[inline]
-    fn gui_set_style(
-        &mut self,
-        control: crate::consts::GuiControl,
-        property: crate::consts::GuiControlProperty,
-        value: i32,
-    ) {
+    fn gui_set_style(&mut self, control: crate::consts::GuiControl, property: i32, value: i32) {
         unsafe { ffi::GuiSetStyle(control as i32, property as i32, value) }
     }
 
     /// Get one style property
+    /// SHOULD use one of the Gui*Property enums
     #[inline]
-    fn gui_get_style(
-        &mut self,
-        control: crate::consts::GuiControl,
-        property: crate::consts::GuiControlProperty,
-    ) -> i32 {
+    fn gui_get_style(&mut self, control: crate::consts::GuiControl, property: i32) -> i32 {
         unsafe { ffi::GuiGetStyle(control as i32, property as i32) }
     }
     /// Load style file (.rgs)
     #[inline]
-    fn gui_load_style(&mut self, filename: &str) {
-        let c_text = CString::new(filename).unwrap();
-        unsafe { ffi::GuiLoadStyle(c_text.as_ptr()) }
+    fn gui_load_style(&mut self, filename: Option<&CStr>) {
+        unsafe { ffi::GuiLoadStyle(filename.map(CStr::as_ptr).unwrap_or(std::ptr::null())) }
     }
     /// Load style properties from array
     #[inline]
@@ -95,28 +170,35 @@ impl RaylibHandle {
     fn gui_update_style_complete(&mut self) {
         unsafe { ffi::GuiUpdateStyleComplete() }
     }
-}
-
-impl<D: RaylibDraw> RaylibDrawGui for D {}
-
-pub trait RaylibDrawGui {
     /// Window Box control, shows a window that can be closed
     #[inline]
-    fn gui_window_box(&mut self, bounds: impl Into<ffi::Rectangle>, title: &str) -> bool {
-        let c_text = CString::new(title).unwrap();
-        unsafe { ffi::GuiWindowBox(bounds.into(), c_text.as_ptr()) }
+    fn gui_window_box(&mut self, bounds: impl Into<ffi::Rectangle>, title: Option<&CStr>) -> bool {
+        unsafe {
+            ffi::GuiWindowBox(
+                bounds.into(),
+                title.map(CStr::as_ptr).unwrap_or(std::ptr::null()),
+            )
+        }
     }
     /// Group Box control with text name
     #[inline]
-    fn gui_group_box(&mut self, bounds: impl Into<ffi::Rectangle>, text: &str) {
-        let c_text = CString::new(text).unwrap();
-        unsafe { ffi::GuiGroupBox(bounds.into(), c_text.as_ptr()) }
+    fn gui_group_box(&mut self, bounds: impl Into<ffi::Rectangle>, text: Option<&CStr>) {
+        unsafe {
+            ffi::GuiGroupBox(
+                bounds.into(),
+                text.map(CStr::as_ptr).unwrap_or(std::ptr::null()),
+            )
+        }
     }
     /// Line separator control, could contain text
     #[inline]
-    fn gui_line(&mut self, bounds: impl Into<ffi::Rectangle>, text: &str) {
-        let c_text = CString::new(text).unwrap();
-        unsafe { ffi::GuiLine(bounds.into(), c_text.as_ptr()) }
+    fn gui_line(&mut self, bounds: impl Into<ffi::Rectangle>, text: Option<&CStr>) {
+        unsafe {
+            ffi::GuiLine(
+                bounds.into(),
+                text.map(CStr::as_ptr).unwrap_or(std::ptr::null()),
+            )
+        }
     }
     /// Panel control, useful to group controls
     #[inline]
@@ -138,47 +220,63 @@ pub trait RaylibDrawGui {
     }
     /// Label control, shows text
     #[inline]
-    fn gui_label(&mut self, bounds: impl Into<ffi::Rectangle>, text: &str) {
-        let c_text = CString::new(text).unwrap();
-        unsafe { ffi::GuiLabel(bounds.into(), c_text.as_ptr()) }
+    fn gui_label(&mut self, bounds: impl Into<ffi::Rectangle>, text: Option<&CStr>) {
+        unsafe {
+            ffi::GuiLabel(
+                bounds.into(),
+                text.map(CStr::as_ptr).unwrap_or(std::ptr::null()),
+            )
+        }
     }
     /// Button control, returns true when clicked
     #[inline]
-    fn gui_button(&mut self, bounds: impl Into<ffi::Rectangle>, text: &str) -> bool {
-        let c_text = CString::new(text).unwrap();
-        unsafe { ffi::GuiButton(bounds.into(), c_text.as_ptr()) }
+    fn gui_button(&mut self, bounds: impl Into<ffi::Rectangle>, text: Option<&CStr>) -> bool {
+        unsafe {
+            ffi::GuiButton(
+                bounds.into(),
+                text.map(CStr::as_ptr).unwrap_or(std::ptr::null()),
+            )
+        }
     }
     /// Label button control, show true when clicked
     #[inline]
-    fn gui_label_button(&mut self, bounds: impl Into<ffi::Rectangle>, text: &str) -> bool {
-        let c_text = CString::new(text).unwrap();
-        unsafe { ffi::GuiLabelButton(bounds.into(), c_text.as_ptr()) }
+    fn gui_label_button(&mut self, bounds: impl Into<ffi::Rectangle>, text: Option<&CStr>) -> bool {
+        unsafe {
+            ffi::GuiLabelButton(
+                bounds.into(),
+                text.map(CStr::as_ptr).unwrap_or(std::ptr::null()),
+            )
+        }
     }
     /// Image button control, returns true when clicked
     #[inline]
     fn gui_image_button(
         &mut self,
         bounds: impl Into<ffi::Rectangle>,
-        text: &str,
+        text: Option<&CStr>,
         texture: impl AsRef<ffi::Texture>,
     ) -> bool {
-        let c_text = CString::new(text).unwrap();
-        unsafe { ffi::GuiImageButton(bounds.into(), c_text.as_ptr(), *texture.as_ref()) }
+        unsafe {
+            ffi::GuiImageButton(
+                bounds.into(),
+                text.map(CStr::as_ptr).unwrap_or(std::ptr::null()),
+                *texture.as_ref(),
+            )
+        }
     }
     /// Image button extended control, returns true when clicked
     #[inline]
     fn gui_image_button_ex(
         &mut self,
         bounds: impl Into<ffi::Rectangle>,
-        text: &str,
+        text: Option<&CStr>,
         texture: impl AsRef<ffi::Texture>,
         tex_source: impl Into<ffi::Rectangle>,
     ) -> bool {
-        let c_text = CString::new(text).unwrap();
         unsafe {
             ffi::GuiImageButtonEx(
                 bounds.into(),
-                c_text.as_ptr(),
+                text.map(CStr::as_ptr).unwrap_or(std::ptr::null()),
                 *texture.as_ref(),
                 tex_source.into(),
             )
@@ -186,110 +284,138 @@ pub trait RaylibDrawGui {
     }
     /// Toggle Button control, returns true when active
     #[inline]
-    fn gui_toggle(&mut self, bounds: impl Into<ffi::Rectangle>, text: &str, active: bool) -> bool {
-        let c_text = CString::new(text).unwrap();
-        unsafe { ffi::GuiToggle(bounds.into(), c_text.as_ptr(), active) }
+    fn gui_toggle(
+        &mut self,
+        bounds: impl Into<ffi::Rectangle>,
+        text: Option<&CStr>,
+        active: bool,
+    ) -> bool {
+        unsafe {
+            ffi::GuiToggle(
+                bounds.into(),
+                text.map(CStr::as_ptr).unwrap_or(std::ptr::null()),
+                active,
+            )
+        }
     }
     /// Toggle Group control, returns active toggle index
     #[inline]
     fn gui_toggle_group(
         &mut self,
         bounds: impl Into<ffi::Rectangle>,
-        text: &str,
+        text: Option<&CStr>,
         active: i32,
     ) -> i32 {
-        let c_text = CString::new(text).unwrap();
-        unsafe { ffi::GuiToggleGroup(bounds.into(), c_text.as_ptr(), active) }
+        unsafe {
+            ffi::GuiToggleGroup(
+                bounds.into(),
+                text.map(CStr::as_ptr).unwrap_or(std::ptr::null()),
+                active,
+            )
+        }
     }
     /// Check Box control, returns true when active
     #[inline]
     fn gui_check_box(
         &mut self,
         bounds: impl Into<ffi::Rectangle>,
-        text: &str,
+        text: Option<&CStr>,
         checked: bool,
     ) -> bool {
-        let c_text = CString::new(text).unwrap();
-        unsafe { ffi::GuiCheckBox(bounds.into(), c_text.as_ptr(), checked) }
+        unsafe {
+            ffi::GuiCheckBox(
+                bounds.into(),
+                text.map(CStr::as_ptr).unwrap_or(std::ptr::null()),
+                checked,
+            )
+        }
     }
     /// Combo Box control, returns selected item index
     #[inline]
-    fn gui_combo_box(&mut self, bounds: impl Into<ffi::Rectangle>, text: &str, active: i32) -> i32 {
-        let c_text = CString::new(text).unwrap();
-        unsafe { ffi::GuiComboBox(bounds.into(), c_text.as_ptr(), active) }
+    fn gui_combo_box(
+        &mut self,
+        bounds: impl Into<ffi::Rectangle>,
+        text: Option<&CStr>,
+        active: i32,
+    ) -> i32 {
+        unsafe {
+            ffi::GuiComboBox(
+                bounds.into(),
+                text.map(CStr::as_ptr).unwrap_or(std::ptr::null()),
+                active,
+            )
+        }
     }
     /// Dropdown Box control, returns selected item
     #[inline]
     fn gui_dropdown_box(
         &mut self,
         bounds: impl Into<ffi::Rectangle>,
-        text: &str,
-        active: i32,
+        text: Option<&CStr>,
+        active: &mut i32,
         edit_mode: bool,
-    ) -> (i32, bool) {
-        let mut active = active;
-        let c_text = CString::new(text).unwrap();
-        let clicked =
-            unsafe { ffi::GuiDropdownBox(bounds.into(), c_text.as_ptr(), &mut active, edit_mode) };
-        return (active, clicked);
+    ) -> bool {
+        unsafe {
+            ffi::GuiDropdownBox(
+                bounds.into(),
+                text.map(CStr::as_ptr).unwrap_or(std::ptr::null()),
+                active,
+                edit_mode,
+            )
+        }
     }
     /// Spinner control, returns selected value
     #[inline]
-    fn gui_spinner_box(
+    fn gui_spinner(
         &mut self,
         bounds: impl Into<ffi::Rectangle>,
-        text: &str,
-        value: i32,
+        text: Option<&CStr>,
+        value: &mut i32,
         min_value: i32,
         max_value: i32,
         edit_mode: bool,
-    ) -> (i32, bool) {
+    ) -> bool {
         debug_assert!(
-            min_value >= value && value <= max_value,
+            min_value >= *value && *value <= max_value,
             "value out of bounds"
         );
-        let mut value = value;
-        let c_text = CString::new(text).unwrap();
         let clicked = unsafe {
             ffi::GuiSpinner(
                 bounds.into(),
-                c_text.as_ptr(),
-                &mut value,
+                text.map(CStr::as_ptr).unwrap_or(std::ptr::null()),
+                value,
                 min_value,
                 max_value,
                 edit_mode,
             )
         };
-        return (value, clicked);
+        return clicked;
     }
     /// Value Box control, updates input text with numbers
     #[inline]
     fn gui_value_box(
         &mut self,
         bounds: impl Into<ffi::Rectangle>,
-        text: &str,
-        value: i32,
+        text: Option<&CStr>,
+        value: &mut i32,
         min_value: i32,
         max_value: i32,
         edit_mode: bool,
-    ) -> (i32, bool) {
+    ) -> bool {
         debug_assert!(
-            min_value >= value && value <= max_value,
+            min_value >= *value && *value <= max_value,
             "value out of bounds"
         );
-        let mut value = value;
-        let c_text = CString::new(text).unwrap();
-        let clicked = unsafe {
+        unsafe {
             ffi::GuiValueBox(
                 bounds.into(),
-                c_text.as_ptr(),
-                &mut value,
+                text.map(CStr::as_ptr).unwrap_or(std::ptr::null()),
+                value,
                 min_value,
                 max_value,
                 edit_mode,
             )
-        };
-        return (value, clicked);
+        }
     }
     /// Text Box control, updates input text
     /// Use at your own risk!!! The allocated vector MUST have enough space for edits.
@@ -297,20 +423,19 @@ pub trait RaylibDrawGui {
     fn gui_text_box(
         &mut self,
         bounds: impl Into<ffi::Rectangle>,
-        buffer: Vec<u8>,
+        buffer: &mut [u8],
         edit_mode: bool,
-    ) -> (Vec<u8>, bool) {
+    ) -> bool {
         let len = buffer.len();
-        let c_text = unsafe { CString::from_vec_unchecked(buffer) };
-        let clicked = unsafe {
+        let c_text = unsafe { CStr::from_bytes_with_nul_unchecked(buffer) };
+        unsafe {
             ffi::GuiTextBox(
                 bounds.into(),
                 c_text.as_ptr() as *mut _,
                 len as i32,
                 edit_mode,
             )
-        };
-        return (c_text.into_bytes(), clicked);
+        }
     }
     /// Text Box control with multiple lines
     /// Use at your own risk!!! The allocated vector MUST have a nul terminator.
@@ -318,28 +443,27 @@ pub trait RaylibDrawGui {
     fn gui_text_box_multi(
         &mut self,
         bounds: impl Into<ffi::Rectangle>,
-        buffer: Vec<u8>,
+        buffer: &mut [u8],
         edit_mode: bool,
-    ) -> (Vec<u8>, bool) {
+    ) -> bool {
         let len = buffer.len();
-        let c_text = unsafe { CString::from_vec_unchecked(buffer) };
-        let clicked = unsafe {
+        let c_text = unsafe { CStr::from_bytes_with_nul_unchecked(buffer) };
+        unsafe {
             ffi::GuiTextBoxMulti(
                 bounds.into(),
                 c_text.as_ptr() as *mut _,
                 len as i32,
                 edit_mode,
             )
-        };
-        return (c_text.into_bytes(), clicked);
+        }
     }
     /// Slider control, returns selected value
     #[inline]
     fn gui_slider(
         &mut self,
         bounds: impl Into<ffi::Rectangle>,
-        text_left: &str,
-        text_right: &str,
+        text_left: Option<&CStr>,
+        text_right: Option<&CStr>,
         value: f32,
         min_value: f32,
         max_value: f32,
@@ -348,13 +472,11 @@ pub trait RaylibDrawGui {
             min_value >= value && value <= max_value,
             "value out of bounds"
         );
-        let c_text_left = CString::new(text_left).unwrap();
-        let c_text_right = CString::new(text_right).unwrap();
         unsafe {
             ffi::GuiSlider(
                 bounds.into(),
-                c_text_left.as_ptr(),
-                c_text_right.as_ptr(),
+                text_left.map(CStr::as_ptr).unwrap_or(std::ptr::null()),
+                text_right.map(CStr::as_ptr).unwrap_or(std::ptr::null()),
                 value,
                 min_value,
                 max_value,
@@ -366,8 +488,8 @@ pub trait RaylibDrawGui {
     fn gui_slider_bar(
         &mut self,
         bounds: impl Into<ffi::Rectangle>,
-        text_left: &str,
-        text_right: &str,
+        text_left: Option<&CStr>,
+        text_right: Option<&CStr>,
         value: f32,
         min_value: f32,
         max_value: f32,
@@ -376,13 +498,11 @@ pub trait RaylibDrawGui {
             min_value >= value && value <= max_value,
             "value out of bounds"
         );
-        let c_text_left = CString::new(text_left).unwrap();
-        let c_text_right = CString::new(text_right).unwrap();
         unsafe {
             ffi::GuiSliderBar(
                 bounds.into(),
-                c_text_left.as_ptr(),
-                c_text_right.as_ptr(),
+                text_left.map(CStr::as_ptr).unwrap_or(std::ptr::null()),
+                text_right.map(CStr::as_ptr).unwrap_or(std::ptr::null()),
                 value,
                 min_value,
                 max_value,
@@ -394,8 +514,8 @@ pub trait RaylibDrawGui {
     fn gui_progress_bar(
         &mut self,
         bounds: impl Into<ffi::Rectangle>,
-        text_left: &str,
-        text_right: &str,
+        text_left: Option<&CStr>,
+        text_right: Option<&CStr>,
         value: f32,
         min_value: f32,
         max_value: f32,
@@ -404,13 +524,11 @@ pub trait RaylibDrawGui {
             min_value >= value && value <= max_value,
             "value out of bounds"
         );
-        let c_text_left = CString::new(text_left).unwrap();
-        let c_text_right = CString::new(text_right).unwrap();
         unsafe {
             ffi::GuiProgressBar(
                 bounds.into(),
-                c_text_left.as_ptr(),
-                c_text_right.as_ptr(),
+                text_left.map(CStr::as_ptr).unwrap_or(std::ptr::null()),
+                text_right.map(CStr::as_ptr).unwrap_or(std::ptr::null()),
                 value,
                 min_value,
                 max_value,
@@ -419,15 +537,23 @@ pub trait RaylibDrawGui {
     }
     /// Status Bar control, shows info text
     #[inline]
-    fn gui_status_bar(&mut self, bounds: impl Into<ffi::Rectangle>, text: &str) {
-        let c_text = CString::new(text).unwrap();
-        unsafe { ffi::GuiStatusBar(bounds.into(), c_text.as_ptr()) }
+    fn gui_status_bar(&mut self, bounds: impl Into<ffi::Rectangle>, text: Option<&CStr>) {
+        unsafe {
+            ffi::GuiStatusBar(
+                bounds.into(),
+                text.map(CStr::as_ptr).unwrap_or(std::ptr::null()),
+            )
+        }
     }
     /// Dummy control for placeholders
     #[inline]
-    fn gui_dummy_rec(&mut self, bounds: impl Into<ffi::Rectangle>, text: &str) {
-        let c_text = CString::new(text).unwrap();
-        unsafe { ffi::GuiStatusBar(bounds.into(), c_text.as_ptr()) }
+    fn gui_dummy_rec(&mut self, bounds: impl Into<ffi::Rectangle>, text: Option<&CStr>) {
+        unsafe {
+            ffi::GuiStatusBar(
+                bounds.into(),
+                text.map(CStr::as_ptr).unwrap_or(std::ptr::null()),
+            )
+        }
     }
     /// Scroll Bar control
     #[inline]
@@ -459,67 +585,60 @@ pub trait RaylibDrawGui {
     fn gui_list_view(
         &mut self,
         bounds: impl Into<ffi::Rectangle>,
-        text: &str,
-        scroll_index: i32,
+        text: Option<&CStr>,
+        scroll_index: &mut i32,
         active: i32,
-    ) -> (i32, i32) {
-        let mut scroll_index = scroll_index;
-        let c_text = CString::new(text).unwrap();
-        let scroll =
-            unsafe { ffi::GuiListView(bounds.into(), c_text.as_ptr(), &mut scroll_index, active) };
-        return (scroll, scroll_index);
+    ) -> i32 {
+        unsafe {
+            ffi::GuiListView(
+                bounds.into(),
+                text.map(CStr::as_ptr).unwrap_or(std::ptr::null()),
+                scroll_index,
+                active,
+            )
+        }
     }
     /// List View with extended parameters
     #[inline]
     fn gui_list_view_ex(
         &mut self,
         bounds: impl Into<ffi::Rectangle>,
-        text: &[&str],
+        text: &[&CStr],
         count: i32,
-        focus: i32,
-        scroll_index: i32,
+        focus: &mut i32,
+        scroll_index: &mut i32,
         active: i32,
-    ) -> (i32, i32, i32) {
-        let mut scroll_index = scroll_index;
-        let mut focus = focus;
+    ) -> i32 {
         let mut buffer = Vec::with_capacity(text.len());
-        let mut str_buffer = Vec::with_capacity(text.len());
         for t in text {
-            let c_text = CString::new(*t).unwrap();
-            buffer.push(c_text.as_ptr());
-            str_buffer.push(c_text);
+            buffer.push(t.as_ptr());
         }
-        let scroll = unsafe {
+        unsafe {
             ffi::GuiListViewEx(
                 bounds.into(),
                 buffer.as_mut_ptr(),
                 count,
-                &mut focus,
-                &mut scroll_index,
+                focus,
+                scroll_index,
                 active,
             )
-        };
-        return (scroll, focus, scroll_index);
+        }
     }
     /// Message Box control, displays a message
     #[inline]
     fn gui_message_box(
         &mut self,
         bounds: impl Into<ffi::Rectangle>,
-        text: &str,
-        message: &str,
-        buttons: &str,
+        text: Option<&CStr>,
+        message: Option<&CStr>,
+        buttons: Option<&CStr>,
     ) -> i32 {
-        let c_title = CString::new(text).unwrap();
-        let c_message = CString::new(message).unwrap();
-        let c_buttons = CString::new(buttons).unwrap();
-
         unsafe {
             ffi::GuiMessageBox(
                 bounds.into(),
-                c_title.as_ptr(),
-                c_message.as_ptr(),
-                c_buttons.as_ptr(),
+                text.map(CStr::as_ptr).unwrap_or(std::ptr::null()),
+                message.map(CStr::as_ptr).unwrap_or(std::ptr::null()),
+                buttons.map(CStr::as_ptr).unwrap_or(std::ptr::null()),
             )
         }
     }
@@ -528,28 +647,24 @@ pub trait RaylibDrawGui {
     fn gui_text_input_box(
         &mut self,
         bounds: impl Into<ffi::Rectangle>,
-        title: &str,
-        message: &str,
-        buttons: &str,
-        mut text: Vec<u8>,
-    ) -> (i32, Vec<u8>) {
-        let c_title = CString::new(title).unwrap();
-        let c_message = CString::new(message).unwrap();
-        let c_buttons = CString::new(buttons).unwrap();
+        title: Option<&CStr>,
+        message: Option<&CStr>,
+        buttons: Option<&CStr>,
+        text: &mut Vec<u8>,
+    ) -> i32 {
         // rgui.h: line 3699 MAX_FILENAME_LEN
         text.reserve((256 - text.len()).max(0) as usize);
-        let c_text = unsafe { CString::from_vec_unchecked(text) };
-        let out = unsafe {
+        unsafe {
             ffi::GuiTextInputBox(
                 bounds.into(),
-                c_title.as_ptr(),
-                c_message.as_ptr(),
-                c_buttons.as_ptr(),
-                c_text.as_ptr() as *mut _,
+                title.map(CStr::as_ptr).unwrap_or(std::ptr::null()),
+                message.map(CStr::as_ptr).unwrap_or(std::ptr::null()),
+                buttons.map(CStr::as_ptr).unwrap_or(std::ptr::null()),
+                text.as_mut_ptr() as *mut _,
             )
-        };
-        return (out, c_text.into_bytes());
+        }
     }
+
     /// Color Picker control
     #[inline]
     fn gui_color_picker(
@@ -558,5 +673,31 @@ pub trait RaylibDrawGui {
         color: impl Into<ffi::Color>,
     ) -> Color {
         unsafe { ffi::GuiColorPicker(bounds.into(), color.into()).into() }
+    }
+    // Get text with icon id prepended
+    // NOTE: Useful to add icons by name id (enum) instead of
+    // a number that can change between ricon versions
+    #[inline]
+    unsafe fn gui_icon_text(
+        &mut self,
+        icon_id: crate::consts::rIconDescription,
+        text: Option<&CStr>,
+    ) -> CString {
+        let buffer = unsafe {
+            ffi::GuiIconText(
+                icon_id as i32,
+                text.map(CStr::as_ptr).unwrap_or(std::ptr::null()),
+            )
+        };
+        // TODO This is probably 100% unsafe. buffer is 1024 and I'm not sure if freeing this will result in a segfault.
+        // I don't want to do the copy allocation, but I'll probably have to.
+        CString::from_raw(buffer as *mut i8)
+    }
+
+    /// Color Bar Alpha control
+    /// NOTE: Returns alpha value normalized [0..1]
+    #[inline]
+    fn gui_color_bar_alpha(&mut self, bounds: impl Into<ffi::Rectangle>, alpha: f32) -> f32 {
+        unsafe { ffi::GuiColorBarAlpha(bounds.into(), alpha).into() }
     }
 }
