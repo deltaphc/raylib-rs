@@ -47,7 +47,7 @@ impl RaylibHandle {
     pub fn load_model_from_mesh(&mut self, _: &RaylibThread, mesh: &Mesh) -> Result<Model, String> {
         let m = unsafe { ffi::LoadModelFromMesh(mesh.0) };
 
-        if m.meshes.is_null() || m.materials.is_null() || m.bones.is_null() || m.bindPose.is_null()
+        if m.meshes.is_null() || m.materials.is_null()
         {
             return Err("Could not load model from mesh".to_owned());
         }

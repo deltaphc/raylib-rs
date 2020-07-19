@@ -23,4 +23,22 @@ mod model_test {
         let _ = ModelAnimation::load_model_animations("resources/guy/guyanim.iqm")
             .expect("could not load model animations");
     }
+
+    ray_test!(test_model_from_generated_mesh);
+    fn test_model_from_generated_mesh(thread: &RaylibThread){
+        let mut handle = TEST_HANDLE.write().unwrap();
+        let rl = handle.as_mut().unwrap();
+
+        let mesh = Mesh::gen_mesh_cube(&thread, 1.0, 1.0, 1.0);
+        let model = rl.load_model_from_mesh(&thread, &mesh).unwrap();
+
+        let zero = Vector3::zero();
+
+        let camera = Camera3D::perspective(zero, zero, zero, 10.0);
+
+        let mut d = rl.begin_drawing(&thread);
+        let mut world = d.begin_mode_3D(&camera);
+
+        world.draw_model(&model, zero, 1.0, Color::RED);
+    }
 }
