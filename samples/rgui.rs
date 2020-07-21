@@ -1,4 +1,5 @@
 #![allow(non_snake_case)]
+use raylib::ffi;
 use raylib::prelude::*;
 use std::ffi::CString;
 //------------------------------------------------------------------------------------
@@ -10,80 +11,85 @@ pub fn main() {
     let screenWidth = 690;
     let screenHeight = 560;
 
-    let (mut rl, thread) = raylib::init()
-        .size(screenWidth, screenHeight)
-        .title("rgui")
-        .build();
+    // let (mut rl, thread) = raylib::init()
+    //     .size(screenWidth, screenHeight)
+    //     .title("rgui")
+    //     .build();
     // let logo = raylib::prelude::Image::load_image("static/logo.png").unwrap();
     // rl.set_window_icon(&logo);
-    rl.set_target_fps(60);
+    // rl.set_target_fps(60);
+
+    unsafe {
+        ffi::InitWindow(screenWidth, screenHeight, b"raygui\0".as_ptr() as *const _);
+        ffi::SetTargetFPS(60);
+    }
 
     // GUI controls initialization
     //----------------------------------------------------------------------------------
-    let mut dropdownBox000Active = 0;
-    let mut dropDown000EditMode = false;
+    // let mut dropdownBox000Active = 0;
+    // let mut dropDown000EditMode = false;
 
-    let mut dropdownBox001Active = 0;
-    let mut dropDown001EditMode = false;
+    // let mut dropdownBox001Active = 0;
+    // let mut dropDown001EditMode = false;
 
     let mut spinner001Value = 0;
     let mut spinnerEditMode = false;
 
-    let mut valueBox002Value = 0;
-    let mut valueBoxEditMode = false;
+    // let mut valueBox002Value = 0;
+    // let mut valueBoxEditMode = false;
 
-    let mut textBoxText = [0u8; 64];
-    textBoxText[..8].clone_from_slice(b"Text box");
-    let mut textBoxEditMode = false;
+    // let mut textBoxText = [0u8; 64];
+    // textBoxText[..8].clone_from_slice(b"Text box");
+    // let mut textBoxEditMode = false;
 
-    let mut listViewScrollIndex = 0;
-    let mut listViewActive = -1;
+    // let mut listViewScrollIndex = 0;
+    // let mut listViewActive = -1;
 
-    let mut listViewExScrollIndex = 0;
-    let mut listViewExActive = 2;
-    let mut listViewExFocus = -1;
-    let listViewExList = vec![
-        rstr!("This"),
-        rstr!("is"),
-        rstr!("a"),
-        rstr!("list view"),
-        rstr!("with"),
-        rstr!("disable"),
-        rstr!("elements"),
-        rstr!("amazing!"),
-    ];
+    // let mut listViewExScrollIndex = 0;
+    // let mut listViewExActive = 2;
+    // let mut listViewExFocus = -1;
+    // let listViewExList = vec![
+    //     rstr!("This"),
+    //     rstr!("is"),
+    //     rstr!("a"),
+    //     rstr!("list view"),
+    //     rstr!("with"),
+    //     rstr!("disable"),
+    //     rstr!("elements"),
+    //     rstr!("amazing!"),
+    // ];
 
-    let mut multiTextBoxText = [0u8; 256];
-    multiTextBoxText[..14].clone_from_slice(b"Multi text box");
-    let mut multiTextBoxEditMode = false;
-    let mut colorPickerValue = Color::RED;
+    // let mut multiTextBoxText = [0u8; 256];
+    // multiTextBoxText[..14].clone_from_slice(b"Multi text box");
+    // let mut multiTextBoxEditMode = false;
+    // let mut colorPickerValue = Color::RED;
 
-    let mut sliderValue = 50f32;
-    let mut sliderBarValue = 60f32;
-    let mut progressValue = 0.4;
+    // let mut sliderValue = 50f32;
+    // let mut sliderBarValue = 60f32;
+    // let mut progressValue = 0.4;
 
-    let mut forceSquaredChecked = false;
+    // let mut forceSquaredChecked = false;
 
-    let mut alphaValue = 0.5;
+    // let mut alphaValue = 0.5;
 
-    let mut comboBoxActive = 1;
+    // let mut comboBoxActive = 1;
 
-    let mut toggleGroupActive = 0;
+    // let mut toggleGroupActive = 0;
 
-    let mut viewScroll = rvec2(0, 0);
-    //----------------------------------------------------------------------------------
+    // let mut viewScroll = rvec2(0, 0);
+    // //----------------------------------------------------------------------------------
 
-    // Custom GUI font loading
-    //Font font = LoadFontEx("fonts/rainyhearts16.ttf", 12, 0, 0);
-    //GuiSetFont(font);
+    // // Custom GUI font loading
+    // //Font font = LoadFontEx("fonts/rainyhearts16.ttf", 12, 0, 0);
+    // //GuiSetFont(font);
 
     let mut exitWindow = false;
-    let mut showMessageBox = false;
+    // let mut showMessageBox = false;
 
-    let mut textInput = vec![0u8; 256];
-    let mut showTextInputBox = false;
+    // let mut textInput = vec![0u8; 256];
+    // let mut showTextInputBox = false;
 
-    let mut textInputFileName = [0u8; 256];
+    // let mut textInputFileName = [0u8; 256];
 
     //--------------------------------------------------------------------------------------
 
@@ -101,33 +107,39 @@ pub fn main() {
         // Update
         //----------------------------------------------------------------------------------
 
-        exitWindow = rl.window_should_close();
+        // exitWindow = rl.window_should_close();
+        exitWindow = unsafe { ffi::WindowShouldClose() };
 
-        if rl.is_key_pressed(KEY_ESCAPE) {
-            showMessageBox = !showMessageBox;
-        }
+        // if rl.is_key_pressed(KEY_ESCAPE) {
+        //     showMessageBox = !showMessageBox;
+        // }
 
-        if rl.is_key_down(KEY_LEFT_CONTROL) && rl.is_key_pressed(KEY_S) {
-            showTextInputBox = true;
-        }
+        // if rl.is_key_down(KEY_LEFT_CONTROL) && rl.is_key_pressed(KEY_S) {
+        //     showTextInputBox = true;
+        // }
 
-        if rl.is_file_dropped() {
-            let droppedFiles = rl.get_dropped_files();
+        // if rl.is_file_dropped() {
+        //     let droppedFiles = rl.get_dropped_files();
 
-            if (droppedFiles.len() > 0) && droppedFiles[0].ends_with(".rgs") {
-                rl.gui_load_style(Some(&CString::new(droppedFiles[0].clone()).unwrap()));
-            }
+        //     if (droppedFiles.len() > 0) && droppedFiles[0].ends_with(".rgs") {
+        //         rl.gui_load_style(Some(&CString::new(droppedFiles[0].clone()).unwrap()));
+        //     }
 
-            rl.clear_dropped_files();
-        }
+        //     rl.clear_dropped_files();
+        // }
 
         //----------------------------------------------------------------------------------
 
         // Draw
         //----------------------------------------------------------------------------------
-        let mut d = rl.begin_drawing(&thread);
-        let hex = d.gui_get_style(DEFAULT, BACKGROUND_COLOR as i32);
-        d.clear_background(Color::get_color(hex));
+        // let mut d = rl.begin_drawing(&thread);
+        // let hex = d.gui_get_style(DEFAULT, BACKGROUND_COLOR as i32);
+        // d.clear_background(Color::get_color(hex));
+
+        unsafe {
+            ffi::BeginDrawing();
+            ffi::ClearBackground(Color::WHITE.into());
+        }
 
         // // raygui: controls drawing
         // //----------------------------------------------------------------------------------
@@ -150,15 +162,38 @@ pub fn main() {
         // let coll = rrect(25, 135, 125, 30).check_collision_point_rec(pos);
         // let down = d.is_mouse_button_down(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON);
 
-        if d.gui_spinner(
-            rrect(25, 135, 125, 30),
-            None,
-            &mut spinner001Value,
-            0,
-            100,
-            spinnerEditMode,
-        ) {
-            spinnerEditMode = dbg!(!spinnerEditMode);
+        // if d.gui_spinner(
+        //     rrect(25, 135, 125, 30),
+        //     None,
+        //     &mut spinner001Value,
+        //     0,
+        //     100,
+        //     spinnerEditMode,
+        // ) {
+        //     spinnerEditMode = dbg!(!spinnerEditMode);
+        // }
+
+        unsafe {
+            ffi::DrawCircle(
+                50,
+                50,
+                5.0,
+                if spinnerEditMode {
+                    Color::RED.into()
+                } else {
+                    Color::BLUE.into()
+                },
+            );
+            if ffi::GuiSpinner(
+                rrect(25, 135, 125, 30).into(),
+                std::ptr::null(),
+                &mut spinner001Value,
+                0,
+                100,
+                spinnerEditMode,
+            ) {
+                spinnerEditMode = dbg!(!spinnerEditMode);
+            }
         }
         // if d.gui_value_box(
         //     rrect(25, 175, 125, 30),
@@ -370,5 +405,8 @@ pub fn main() {
         // }
 
         // d.gui_unlock();
+        unsafe {
+            ffi::EndDrawing();
+        }
     }
 }
