@@ -197,17 +197,17 @@ impl RaylibBuilder {
 ///
 /// Attempting to initialize Raylib more than once will result in a panic.
 fn init_window(width: i32, height: i32, title: &str) -> RaylibHandle {
-    // if IS_INITIALIZED.load(Ordering::Relaxed) {
-    //     panic!("Attempted to initialize raylib-rs more than once!");
-    // } else {
-    unsafe {
-        let c_title = CString::new(title).unwrap();
-        ffi::InitWindow(width, height, c_title.as_ptr());
+    if IS_INITIALIZED.load(Ordering::Relaxed) {
+        panic!("Attempted to initialize raylib-rs more than once!");
+    } else {
+        unsafe {
+            let c_title = CString::new(title).unwrap();
+            ffi::InitWindow(width, height, c_title.as_ptr());
+        }
+        if !unsafe { ffi::IsWindowReady() } {
+            panic!("Attempting to create window failed!");
+        }
+        IS_INITIALIZED.store(true, Ordering::Relaxed);
+        RaylibHandle(())
     }
-    // if !unsafe { ffi::IsWindowReady() } {
-    //     panic!("Attempting to create window failed!");
-    // }
-    // IS_INITIALIZED.store(true, Ordering::Relaxed);
-    RaylibHandle(())
-    // }
 }

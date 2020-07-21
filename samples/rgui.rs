@@ -20,7 +20,11 @@ pub fn main() {
     // rl.set_target_fps(60);
 
     unsafe {
-        ffi::InitWindow(screenWidth, screenHeight, b"raygui\0".as_ptr() as *const _);
+        ffi::InitWindow(
+            screenWidth,
+            screenHeight,
+            b"raygui - controls test suite\0".as_ptr() as *const _,
+        );
         ffi::SetTargetFPS(60);
     }
 
@@ -156,7 +160,13 @@ pub fn main() {
         //     forceSquaredChecked,
         // );
 
-        // d.gui_set_style(TEXTBOX, TEXT_ALIGNMENT as i32, GUI_TEXT_ALIGN_CENTER as i32);
+        unsafe {
+            ffi::GuiSetStyle(
+                TEXTBOX as i32,
+                TEXT_ALIGNMENT as i32,
+                GUI_TEXT_ALIGN_CENTER as i32,
+            );
+        }
         // dbg!(spinnerEditMode);
         // let pos = d.get_mouse_position();
         // let coll = rrect(25, 135, 125, 30).check_collision_point_rec(pos);
@@ -179,9 +189,9 @@ pub fn main() {
                 50,
                 5.0,
                 if spinnerEditMode {
-                    Color::RED.into()
-                } else {
                     Color::BLUE.into()
+                } else {
+                    Color::RED.into()
                 },
             );
             if ffi::GuiSpinner(

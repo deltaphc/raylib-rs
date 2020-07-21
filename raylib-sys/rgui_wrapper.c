@@ -7,4 +7,5 @@
 #define RLGL_SUPPORT_TRACELOG
 // #include "rlgl.h" // Don't include rlgl since it's in raylib
 #include "raygui.h"
+#undef RAYGUI_IMPLEMENTATION
 #include "rlights.h"
