@@ -17,19 +17,19 @@ fn main() {
     let mut spacing = 0.0;
 
     for i in 0..MAX_BUILDINGS {
-        let bh = get_random_value(100, 800);
+        let bh: i32 = get_random_value(100, 800);
         buildings.push(Rectangle::new(
             -6000.0 + spacing,
             (h - 130 - bh) as f32,
-            get_random_value(50, 200) as f32,
+            get_random_value::<i32>(50, 200) as f32,
             bh as f32,
         ));
 
         spacing += buildings[i].width;
         build_colors.push(Color::new(
-            get_random_value(200, 240) as u8,
-            get_random_value(200, 240) as u8,
-            get_random_value(200, 240) as u8,
+            get_random_value::<i32>(200, 240) as u8,
+            get_random_value::<i32>(200, 240) as u8,
+            get_random_value::<i32>(200, 240) as u8,
             255,
         ));
     }
@@ -76,7 +76,7 @@ fn main() {
         let mut d = rl.begin_drawing(&thread);
         d.clear_background(Color::RAYWHITE);
         {
-            let mut d2 = d.begin_mode_2D(camera);
+            let mut d2 = d.begin_mode2D(camera);
             d2.draw_rectangle(-6000, 320, 13000, 8000, Color::DARKGRAY);
 
             for i in 0..MAX_BUILDINGS {

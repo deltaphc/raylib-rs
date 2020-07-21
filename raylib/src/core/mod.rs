@@ -28,11 +28,13 @@ use std::sync::atomic::{AtomicBool, Ordering};
 #[macro_export]
 macro_rules! rstr {
     ($e:tt) => ({
+        #[allow(unused_unsafe)]
         unsafe {
           std::ffi::CStr::from_bytes_with_nul_unchecked(concat!($e, "\0").as_bytes())
         }
     });
     ($e:tt, $($arg:tt)*) => ({
+        #[allow(unused_unsafe)]
         unsafe {
           std::ffi::CString::new(format!($e, $($arg)*))
         }

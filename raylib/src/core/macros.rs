@@ -54,5 +54,21 @@ macro_rules! impl_wrapper {
                 &mut self.$rawfield
             }
         }
+
+        impl $name {
+            /// returns the unwrapped raylib-sys object
+            pub fn to_raw(self) -> $t {
+                let raw = self.$rawfield;
+                std::mem::forget(self);
+                raw
+            }
+
+            /// converts raylib-sys object to a "safe"
+            /// version. Make sure to call this function
+            /// from the thread the resource was created.
+            pub unsafe fn from_raw(raw: $t) -> Self {
+                Self(raw)
+            }
+        }
     };
 }

@@ -1,3 +1,4 @@
+#[macro_use]
 use crate::core::color::Color;
 use crate::core::drawing::RaylibDraw;
 use crate::core::math::{Rectangle, Vector2};
@@ -72,20 +73,10 @@ impl RaylibHandle {
     pub fn gui_load_style(&mut self, filename: Option<&CStr>) {
         unsafe { ffi::GuiLoadStyle(filename.map(CStr::as_ptr).unwrap_or(std::ptr::null())) }
     }
-    /// Load style properties from array
-    #[inline]
-    pub fn gui_load_style_props(&mut self, props: &[crate::consts::GuiControlProperty]) {
-        unsafe { ffi::GuiLoadStyleProps(props.as_ptr() as *const _, props.len() as i32) }
-    }
     /// Load style default over global style
     #[inline]
     pub fn gui_load_style_default(&mut self) {
         unsafe { ffi::GuiLoadStyleDefault() }
-    }
-    /// Updates full style properties set with default values
-    #[inline]
-    pub fn gui_update_style_complete(&mut self) {
-        unsafe { ffi::GuiUpdateStyleComplete() }
     }
 }
 
@@ -155,20 +146,10 @@ pub trait RaylibDrawGui {
     fn gui_load_style(&mut self, filename: Option<&CStr>) {
         unsafe { ffi::GuiLoadStyle(filename.map(CStr::as_ptr).unwrap_or(std::ptr::null())) }
     }
-    /// Load style properties from array
-    #[inline]
-    fn gui_load_style_props(&mut self, props: &[crate::consts::GuiControlProperty]) {
-        unsafe { ffi::GuiLoadStyleProps(props.as_ptr() as *const _, props.len() as i32) }
-    }
     /// Load style default over global style
     #[inline]
     fn gui_load_style_default(&mut self) {
         unsafe { ffi::GuiLoadStyleDefault() }
-    }
-    /// Updates full style properties set with default values
-    #[inline]
-    fn gui_update_style_complete(&mut self) {
-        unsafe { ffi::GuiUpdateStyleComplete() }
     }
     /// Window Box control, shows a window that can be closed
     #[inline]
@@ -375,17 +356,17 @@ pub trait RaylibDrawGui {
         max_value: i32,
         edit_mode: bool,
     ) -> bool {
-        let clicked = unsafe {
+        unsafe {
             ffi::GuiSpinner(
                 bounds.into(),
+                // text.map(CStr::as_ptr).unwrap_or(crate::rstr!("").as_ptr()),
                 text.map(CStr::as_ptr).unwrap_or(std::ptr::null()),
                 value,
                 min_value,
                 max_value,
                 edit_mode,
             )
-        };
-        return clicked;
+        }
     }
     /// Value Box control, updates input text with numbers
     #[inline]
@@ -656,7 +637,7 @@ pub trait RaylibDrawGui {
     #[inline]
     fn gui_icon_text(
         &mut self,
-        icon_id: crate::consts::rIconDescription,
+        icon_id: crate::consts::guiIconName,
         text: Option<&CStr>,
     ) -> String {
         let buffer = unsafe {

@@ -23,7 +23,7 @@ pub use ffi::DEG2RAD;
 // TODO Fix when rlgl bindings are in
 pub const MAX_MATERIAL_MAPS: u32 = 12;
 pub const MAX_SHADER_LOCATIONS: u32 = 32;
-pub use ffi::rIconDescription;
+pub use ffi::guiIconName;
 pub use ffi::GuiCheckBoxProperty;
 pub use ffi::GuiColorPickerProperty;
 pub use ffi::GuiComboBoxProperty;

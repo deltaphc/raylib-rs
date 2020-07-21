@@ -4,13 +4,19 @@ use std::ffi::CString;
 //------------------------------------------------------------------------------------
 // Program main entry point
 //------------------------------------------------------------------------------------
-pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) {
+pub fn main() {
     // Initialization
     //---------------------------------------------------------------------------------------
     let screenWidth = 690;
     let screenHeight = 560;
 
-    rl.set_window_size(screenWidth, screenHeight);
+    let (mut rl, thread) = raylib::init()
+        .size(screenWidth, screenHeight)
+        .title("rgui")
+        .build();
+    // let logo = raylib::prelude::Image::load_image("static/logo.png").unwrap();
+    // rl.set_window_icon(&logo);
+    rl.set_target_fps(60);
 
     // GUI controls initialization
     //----------------------------------------------------------------------------------
@@ -80,8 +86,6 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) {
     let mut textInputFileName = [0u8; 256];
 
     //--------------------------------------------------------------------------------------
-
-    rl.set_target_fps(30);
 
     // Main game loop
     while !exitWindow

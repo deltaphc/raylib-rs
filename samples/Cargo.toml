@@ -27,6 +27,10 @@ name = "specs"
 path = "./specs.rs"
 
 [[bin]]
+name = "rgui"
+path = "./rgui.rs"
+
+[[bin]]
 name = "arkanoid"
 path = "./arkanoid.rs"
 

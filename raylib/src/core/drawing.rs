@@ -1081,20 +1081,6 @@ pub trait RaylibDraw {
             );
         }
     }
-
-    /// Draw icon
-    #[inline]
-    fn draw_icon(
-        &mut self,
-        icon: crate::consts::rIconDescription,
-        position: impl Into<ffi::Vector2>,
-        pixel_size: i32,
-        color: impl Into<ffi::Color>,
-    ) {
-        unsafe {
-            ffi::DrawIcon(icon as i32, position.into(), pixel_size, color.into());
-        }
-    }
 }
 
 pub trait RaylibDraw3D {
@@ -1337,13 +1323,13 @@ pub trait RaylibDraw3D {
     #[inline]
     fn draw_model(
         &mut self,
-        model: &Model,
+        model: impl AsRef<ffi::Model>,
         position: impl Into<ffi::Vector3>,
         scale: f32,
         tint: impl Into<ffi::Color>,
     ) {
         unsafe {
-            ffi::DrawModel(model.0, position.into(), scale, tint.into());
+            ffi::DrawModel(*model.as_ref(), position.into(), scale, tint.into());
         }
     }
 
@@ -1351,7 +1337,7 @@ pub trait RaylibDraw3D {
     #[inline]
     fn draw_model_ex(
         &mut self,
-        model: &Model,
+        model: impl AsRef<ffi::Model>,
         position: impl Into<ffi::Vector3>,
         rotation_axis: impl Into<ffi::Vector3>,
         rotation_angle: f32,
@@ -1360,7 +1346,7 @@ pub trait RaylibDraw3D {
     ) {
         unsafe {
             ffi::DrawModelEx(
-                model.0,
+                *model.as_ref(),
                 position.into(),
                 rotation_axis.into(),
                 rotation_angle,
@@ -1374,13 +1360,13 @@ pub trait RaylibDraw3D {
     #[inline]
     fn draw_model_wires(
         &mut self,
-        model: &Model,
+        model: impl AsRef<ffi::Model>,
         position: impl Into<ffi::Vector3>,
         scale: f32,
         tint: impl Into<ffi::Color>,
     ) {
         unsafe {
-            ffi::DrawModelWires(model.0, position.into(), scale, tint.into());
+            ffi::DrawModelWires(*model.as_ref(), position.into(), scale, tint.into());
         }
     }
 
@@ -1388,7 +1374,7 @@ pub trait RaylibDraw3D {
     #[inline]
     fn draw_model_wires_ex(
         &mut self,
-        model: &Model,
+        model: impl AsRef<ffi::Model>,
         position: impl Into<ffi::Vector3>,
         rotation_axis: impl Into<ffi::Vector3>,
         rotation_angle: f32,
@@ -1397,7 +1383,7 @@ pub trait RaylibDraw3D {
     ) {
         unsafe {
             ffi::DrawModelWiresEx(
-                model.0,
+                *model.as_ref(),
                 position.into(),
                 rotation_axis.into(),
                 rotation_angle,
