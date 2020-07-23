@@ -12,8 +12,8 @@ fn main() {
         .build();
 
     rl.set_exit_key(None);
-    example::others::rlgl_standalone::run(&mut rl, &thread);
-    // example::controls_test_suite::controls_test_suite::run(&mut rl, &thread);
+    // example::others::rlgl_standalone::run(&mut rl, &thread);
+    example::controls_test_suite::controls_test_suite::run(&mut rl, &thread);
 
     // let samples = &[example::core::core_2d_camera::run];
     // let mut sample = None;
