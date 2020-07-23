@@ -182,7 +182,6 @@ pub fn main() {
         // ) {
         //     spinnerEditMode = dbg!(!spinnerEditMode);
         // }
-
         unsafe {
             ffi::DrawCircle(
                 50,
@@ -204,6 +203,26 @@ pub fn main() {
             ) {
                 spinnerEditMode = dbg!(!spinnerEditMode);
             }
+            // if ffi::GuiSpinner(
+            //     rrect(25, 185, 125, 30).into(),
+            //     std::ptr::null(),
+            //     &mut spinner001Value,
+            //     0,
+            //     100,
+            //     false,
+            // ) {
+            //     // spinnerEditMode = dbg!(!spinnerEditMode);
+            // }
+            // if ffi::GuiSpinner(
+            //     rrect(25, 225, 125, 30).into(),
+            //     std::ptr::null(),
+            //     &mut spinner001Value,
+            //     0,
+            //     100,
+            //     false,
+            // ) {
+            //     // spinnerEditMode = dbg!(!spinnerEditMode);
+            // }
         }
         // if d.gui_value_box(
         //     rrect(25, 175, 125, 30),
