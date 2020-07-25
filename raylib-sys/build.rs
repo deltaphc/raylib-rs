@@ -19,7 +19,7 @@ use std::path::{Path, PathBuf};
 use std::{env, fs};
 
 /// latest version on github's release page as of time or writing
-const LATEST_RAYLIB_VERSION: &str = "master";
+const LATEST_RAYLIB_VERSION: &str = "3.0.0";
 const LATEST_RAYLIB_API_VERSION: &str = "3";
 
 #[cfg(feature = "nobuild")]
@@ -127,7 +127,7 @@ fn gen_bindings() {
 fn gen_rgui() {
     // Compile the code and link with cc crate
     cc::Build::new()
-        .file("rgui_wrapper.c")
+        .file("rgui_wrapper.cpp")
         .include(".")
         .warnings(false)
         .extra_warnings(false)

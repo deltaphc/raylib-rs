@@ -38,19 +38,21 @@
 //----------------------------------------------------------------------------------
 // Defines and Macros
 //----------------------------------------------------------------------------------
-#define         MAX_LIGHTS            4         // Max lights supported by shader
-#define         LIGHT_DISTANCE        3.5f      // Light distance from world center
-#define         LIGHT_HEIGHT          1.0f      // Light height position
+#define MAX_LIGHTS 4        // Max lights supported by shader
+#define LIGHT_DISTANCE 3.5f // Light distance from world center
+#define LIGHT_HEIGHT 1.0f   // Light height position
 
 //----------------------------------------------------------------------------------
 // Types and Structures Definition
 //----------------------------------------------------------------------------------
-typedef enum {
+typedef enum
+{
     LIGHT_DIRECTIONAL,
     LIGHT_POINT
 } LightType;
 
-typedef struct {
+typedef struct
+{
     bool enabled;
     LightType type;
     Vector3 position;
@@ -64,21 +66,21 @@ typedef struct {
 } Light;
 
 #ifdef __cplusplus
-extern "C" {            // Prevents name mangling of functions
+extern "C"
+{ // Prevents name mangling of functions
 #endif
 
-//----------------------------------------------------------------------------------
-// Module Functions Declaration
-//----------------------------------------------------------------------------------
-void CreateLight(int type, Vector3 pos, Vector3 targ, Color color, Shader shader);         // Defines a light and get locations from PBR shader
-void UpdateLightValues(Shader shader, Light light);                                        // Send to PBR shader light values
+    //----------------------------------------------------------------------------------
+    // Module Functions Declaration
+    //----------------------------------------------------------------------------------
+    void CreateLight(int type, Vector3 pos, Vector3 targ, Color color, Shader shader); // Defines a light and get locations from PBR shader
+    void UpdateLightValues(Shader shader, Light light);                                // Send to PBR shader light values
 
 #ifdef __cplusplus
 }
 #endif
 
 #endif // RLIGHTS_H
-
 
 /***********************************************************************************
 *
@@ -103,8 +105,8 @@ void UpdateLightValues(Shader shader, Light light);                             
 //----------------------------------------------------------------------------------
 // Global Variables Definition
 //----------------------------------------------------------------------------------
-static Light lights[MAX_LIGHTS] = { 0 };
-static int lightsCount = 0;    // Current amount of created lights
+static Light lights[MAX_LIGHTS] = {0};
+static int lightsCount = 0; // Current amount of created lights
 
 //----------------------------------------------------------------------------------
 // Module specific Functions Declaration
@@ -118,12 +120,12 @@ static int lightsCount = 0;    // Current amount of created lights
 // Defines a light and get locations from PBR shader
 void CreateLight(int type, Vector3 pos, Vector3 targ, Color color, Shader shader)
 {
-    Light light = { 0 };
+    Light light = {0};
 
     if (lightsCount < MAX_LIGHTS)
     {
         light.enabled = true;
-        light.type = type;
+        light.type = (LightType)type;
         light.position = pos;
         light.target = targ;
         light.color = color;
@@ -160,15 +162,15 @@ void UpdateLightValues(Shader shader, Light light)
     SetShaderValue(shader, light.typeLoc, &light.type, UNIFORM_INT);
 
     // Send to shader light position values
-    float position[3] = { light.position.x, light.position.y, light.position.z };
+    float position[3] = {light.position.x, light.position.y, light.position.z};
     SetShaderValue(shader, light.posLoc, position, UNIFORM_VEC3);
 
     // Send to shader light target position values
-    float target[3] = { light.target.x, light.target.y, light.target.z };
+    float target[3] = {light.target.x, light.target.y, light.target.z};
     SetShaderValue(shader, light.targetLoc, target, UNIFORM_VEC3);
 
     // Send to shader light color values
-    float diff[4] = { (float)light.color.r/(float)255, (float)light.color.g/(float)255, (float)light.color.b/(float)255, (float)light.color.a/(float)255 };
+    float diff[4] = {(float)light.color.r / (float)255, (float)light.color.g / (float)255, (float)light.color.b / (float)255, (float)light.color.a / (float)255};
     SetShaderValue(shader, light.colorLoc, diff, UNIFORM_VEC4);
 }
 
