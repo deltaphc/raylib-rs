@@ -41,47 +41,65 @@ impl Into<ffi::NPatchInfo> for &NPatchInfo {
     }
 }
 
+fn no_drop<T>(_thing: T) {}
 make_thin_wrapper!(Image, ffi::Image, ffi::UnloadImage);
 make_thin_wrapper!(Texture2D, ffi::Texture2D, ffi::UnloadTexture);
+make_thin_wrapper!(WeakTexture2D, ffi::Texture2D, no_drop);
 make_thin_wrapper!(
     RenderTexture2D,
     ffi::RenderTexture2D,
     ffi::UnloadRenderTexture
 );
+make_thin_wrapper!(WeakRenderTexture2D, ffi::RenderTexture2D, no_drop);
 
-// Prevent Textures from being sent to other threads
-// #[cfg(feature = "nightly")]
-// impl !Send for Texture2D {}
-// #[cfg(feature = "nightly")]
-// impl !Sync for Texture2D {}
-// #[cfg(feature = "nightly")]
-// impl !Send for RenderTexture2D {}
-// #[cfg(feature = "nightly")]
-// impl !Sync for RenderTexture2D {}
+// Weak things can be clone
+impl Clone for WeakTexture2D {
+    fn clone(&self) -> WeakTexture2D {
+        WeakTexture2D(self.0)
+    }
+}
+
+// Weak things can be clone
+impl Clone for WeakRenderTexture2D {
+    fn clone(&self) -> WeakRenderTexture2D {
+        WeakRenderTexture2D(self.0)
+    }
+}
+
+impl RaylibRenderTexture2D for WeakRenderTexture2D {}
+impl RaylibRenderTexture2D for RenderTexture2D {}
 
 impl RenderTexture2D {
-    pub fn id(&self) -> u32 {
-        self.0.id
+    pub unsafe fn make_weak(self) -> WeakRenderTexture2D {
+        let m = WeakRenderTexture2D(self.0);
+        std::mem::forget(self);
+        m
+    }
+}
+
+pub trait RaylibRenderTexture2D: AsRef<ffi::RenderTexture2D> + AsMut<ffi::RenderTexture2D> {
+    fn id(&self) -> u32 {
+        self.as_ref().id
     }
 
-    pub fn texture(&self) -> &Texture2D {
-        unsafe { std::mem::transmute(&self.0.texture) }
+    fn texture(&self) -> &WeakTexture2D {
+        unsafe { std::mem::transmute(&self.as_ref().texture) }
     }
 
-    pub fn texture_mut(&mut self) -> &mut Texture2D {
-        unsafe { std::mem::transmute(&mut self.0.texture) }
+    fn texture_mut(&mut self) -> &mut WeakTexture2D {
+        unsafe { std::mem::transmute(&mut self.as_mut().texture) }
     }
 
-    pub fn depth(&self) -> Option<&Texture2D> {
-        if self.0.depthTexture {
-            return unsafe { Some(std::mem::transmute(&self.0.depth)) };
+    fn depth(&self) -> Option<&WeakTexture2D> {
+        if self.as_ref().depthTexture {
+            return unsafe { Some(std::mem::transmute(&self.as_ref().depth)) };
         }
         None
     }
 
-    pub fn depth_mut(&mut self) -> Option<&mut Texture2D> {
-        if self.0.depthTexture {
-            return unsafe { Some(std::mem::transmute(&mut self.0.depth)) };
+    fn depth_mut(&mut self) -> Option<&mut WeakTexture2D> {
+        if self.as_mut().depthTexture {
+            return unsafe { Some(std::mem::transmute(&mut self.as_mut().depth)) };
         }
         None
     }
@@ -780,31 +798,42 @@ impl Image {
     }
 }
 
+impl RaylibTexture2D for WeakTexture2D {}
+impl RaylibTexture2D for Texture2D {}
+
 impl Texture2D {
-    pub fn width(&self) -> i32 {
-        self.0.width
+    pub unsafe fn make_weak(self) -> WeakTexture2D {
+        let m = WeakTexture2D(self.0);
+        std::mem::forget(self);
+        m
+    }
+}
+
+pub trait RaylibTexture2D: AsRef<ffi::Texture2D> + AsMut<ffi::Texture2D> {
+    fn width(&self) -> i32 {
+        self.as_ref().width
     }
 
-    pub fn height(&self) -> i32 {
-        self.0.height
+    fn height(&self) -> i32 {
+        self.as_ref().height
     }
 
-    pub fn mipmaps(&self) -> i32 {
-        self.0.width
+    fn mipmaps(&self) -> i32 {
+        self.as_ref().width
     }
 
-    pub fn format(&self) -> i32 {
-        self.0.format
+    fn format(&self) -> i32 {
+        self.as_ref().format
     }
 
     /// Updates GPU texture with new data.
     #[inline]
-    pub fn update_texture(&self, pixels: &[u8]) {
+    fn update_texture(&mut self, pixels: &[u8]) {
         let expected_len = unsafe {
             get_pixel_data_size(
-                self.width,
-                self.height,
-                std::mem::transmute::<i32, ffi::PixelFormat>(self.format),
+                self.as_ref().width,
+                self.as_ref().height,
+                std::mem::transmute::<i32, ffi::PixelFormat>(self.as_ref().format),
             ) as usize
         };
         if pixels.len() != expected_len {
@@ -815,7 +844,45 @@ impl Texture2D {
             );
         }
         unsafe {
-            ffi::UpdateTexture(self.0, pixels.as_ptr() as *const std::os::raw::c_void);
+            ffi::UpdateTexture(
+                *self.as_mut(),
+                pixels.as_ptr() as *const std::os::raw::c_void,
+            );
+        }
+    }
+
+    /// Gets pixel data from GPU texture and returns an `Image`.
+    /// Fairly sure this would never fail. If it does wrap in result.
+    #[inline]
+    fn get_texture_data(&self) -> Result<Image, String> {
+        let i = unsafe { ffi::GetTextureData(*self.as_ref()) };
+        if i.data.is_null() {
+            return Err(format!("Texture cannot be rendered to an image"));
+        }
+        Ok(Image(i))
+    }
+
+    /// Generates GPU mipmaps for a `texture`.
+    #[inline]
+    fn gen_texture_mipmaps(&mut self) {
+        unsafe {
+            ffi::GenTextureMipmaps(self.as_mut());
+        }
+    }
+
+    /// Sets global `texture` scaling filter mode.
+    #[inline]
+    fn set_texture_filter(&self, _: &RaylibThread, filter_mode: crate::consts::TextureFilterMode) {
+        unsafe {
+            ffi::SetTextureFilter(*self.as_ref(), filter_mode as i32);
+        }
+    }
+
+    /// Sets global texture wrapping mode.
+    #[inline]
+    fn set_texture_wrap(&self, _: &RaylibThread, wrap_mode: crate::consts::TextureWrapMode) {
+        unsafe {
+            ffi::SetTextureWrap(*self.as_ref(), wrap_mode as i32);
         }
     }
 }
@@ -824,46 +891,6 @@ impl Texture2D {
 #[inline]
 pub fn get_pixel_data_size(width: i32, height: i32, format: ffi::PixelFormat) -> i32 {
     unsafe { ffi::GetPixelDataSize(width, height, format as i32) }
-}
-
-impl Texture2D {
-    /// Gets pixel data from GPU texture and returns an `Image`.
-    /// Fairly sure this would never fail. If it does wrap in result.
-    #[inline]
-    pub fn get_texture_data(&self) -> Result<Image, String> {
-        let i = unsafe { ffi::GetTextureData(self.0) };
-        if i.data.is_null() {
-            return Err(format!("Texture cannot be rendered to an image"));
-        }
-        Ok(Image(i))
-    }
-}
-
-/// MipMaps
-impl Texture2D {
-    /// Generates GPU mipmaps for a `texture`.
-    #[inline]
-    pub fn gen_texture_mipmaps(&mut self) {
-        unsafe {
-            ffi::GenTextureMipmaps(&mut self.0);
-        }
-    }
-
-    /// Sets `texture` scaling filter mode.
-    #[inline]
-    pub fn set_texture_filter(&mut self, filter_mode: crate::consts::TextureFilterMode) {
-        unsafe {
-            ffi::SetTextureFilter(self.0, filter_mode as i32);
-        }
-    }
-
-    /// Sets texture wrapping mode.
-    #[inline]
-    pub fn set_texture_wrap(&mut self, wrap_mode: crate::consts::TextureWrapMode) {
-        unsafe {
-            ffi::SetTextureWrap(self.0, wrap_mode as i32);
-        }
-    }
 }
 
 impl RaylibHandle {
@@ -980,5 +1007,22 @@ impl RaylibHandle {
         size: i32,
     ) -> Texture2D {
         unsafe { Texture2D(ffi::GenTextureBRDF(*shader.as_ref(), size)) }
+    }
+}
+
+impl RaylibHandle {
+    /// Weak Textures will leak memeory if they are not unlaoded
+    /// Unload textures from GPU memory (VRAM)
+    pub unsafe fn unload_texture(&mut self, _: &RaylibThread, texture: WeakTexture2D) {
+        {
+            ffi::UnloadTexture(*texture.as_ref())
+        }
+    }
+    /// Weak RenderTextures will leak memeory if they are not unlaoded
+    /// Unload RenderTextures from GPU memory (VRAM)
+    pub unsafe fn unload_render_texture(&mut self, _: &RaylibThread, texture: WeakRenderTexture2D) {
+        {
+            ffi::UnloadRenderTexture(*texture.as_ref())
+        }
     }
 }

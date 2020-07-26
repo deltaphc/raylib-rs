@@ -24,17 +24,6 @@ impl RaylibHandle {
         vs_filename: Option<&str>,
         fs_filename: Option<&str>,
     ) -> Result<Shader, String> {
-        if let Some(f) = vs_filename {
-            if std::path::Path::new(f).exists() {
-                return Err(format!("could not load vertex shader file {}", f));
-            }
-        }
-        if let Some(f) = fs_filename {
-            if std::path::Path::new(f).exists() {
-                return Err(format!("could not load fragment shader file {}", f));
-            }
-        }
-
         let c_vs_filename = vs_filename.map(|f| CString::new(f).unwrap());
         let c_fs_filename = fs_filename.map(|f| CString::new(f).unwrap());
 
@@ -189,6 +178,12 @@ impl ShaderV for &[i32] {
 }
 
 impl Shader {
+    pub unsafe fn make_weak(self) -> WeakShader {
+        let m = WeakShader(self.0);
+        std::mem::forget(self);
+        m
+    }
+
     /// Sets shader uniform value
     #[inline]
     pub fn set_shader_value<S: ShaderV>(&mut self, uniform_loc: i32, value: S) {
@@ -241,6 +236,16 @@ impl RaylibShader for WeakShader {}
 impl RaylibShader for Shader {}
 
 pub trait RaylibShader: AsRef<ffi::Shader> + AsMut<ffi::Shader> {
+    #[inline]
+    fn locs(&self) -> &[i32] {
+        unsafe { std::slice::from_raw_parts(self.as_ref().locs, 32) }
+    }
+
+    #[inline]
+    fn locs_mut(&mut self) -> &mut [i32] {
+        unsafe { std::slice::from_raw_parts_mut(self.as_mut().locs, 32) }
+    }
+
     /// Gets shader uniform location by name.
     #[inline]
     fn get_shader_location(&self, uniform_name: &str) -> i32 {
