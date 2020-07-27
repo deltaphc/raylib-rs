@@ -12,10 +12,11 @@ const BRDF_SIZE: i32 = 512; // BRDF LUT texture size
 pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) {
     // Initialization
     //--------------------------------------------------------------------------------------
-    let screenWidth = 800;
-    let screenHeight = 450;
+    let screen_width = 800;
+    let screen_height = 450;
 
     rl.set_window_title(thread, "raylib [models] example - pbr material");
+    rl.set_window_size(screen_width, screen_height);
 
     // Define the camera to look into our 3d world
     let mut camera = Camera3D::perspective(
@@ -34,7 +35,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) {
     // NOTE: New VBO for tangents is generated at default location and also binded to mesh VAO
     model.meshes_mut()[0].mesh_tangents(thread);
 
-    let mut pbrmat = load_material_pbr(rl, thread, rcolor(255, 255, 255, 255), 1.0, 1.0);
+    let pbrmat = load_material_pbr(rl, thread, rcolor(255, 255, 255, 255), 1.0, 1.0);
     model.materials_mut()[0] = pbrmat;
     // std::mem::swap(&mut model.materials_mut()[0], &mut pbrmat);
     // unsafe {
@@ -96,7 +97,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) {
                            //--------------------------------------------------------------------------------------
 
     // Main game loop
-    while (!rl.window_should_close())
+    while !rl.window_should_close()
     // Detect window close button or ESC key
     {
         // Update
@@ -104,12 +105,12 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) {
         rl.update_camera(&mut camera); // Update camera
 
         // Send to material PBR shader camera view position
-        let cameraPos: [f32; 3] = [camera.position.x, camera.position.y, camera.position.z];
+        let camera_pos: [f32; 3] = [camera.position.x, camera.position.y, camera.position.z];
         let loc = model.materials()[0].shader().locs()
             [raylib::consts::ShaderLocationIndex::LOC_VECTOR_VIEW as usize];
         model.materials_mut()[0]
             .shader_mut()
-            .set_shader_value(loc, cameraPos);
+            .set_shader_value(loc, camera_pos);
         //----------------------------------------------------------------------------------
 
         // Draw
@@ -292,10 +293,10 @@ fn load_material_pbr(
             .as_ref();
     }
 
-    let mut shdrCubemap;
+    let mut shdr_cubemap;
     #[cfg(not(target_arch = "wasm32"))]
     unsafe {
-        shdrCubemap = rl
+        shdr_cubemap = rl
             .load_shader(
                 thread,
                 Some("original/models/resources/shaders/glsl330/pbr.vs"),
@@ -306,7 +307,7 @@ fn load_material_pbr(
     }
     #[cfg(target_arch = "wasm32")]
     unsafe {
-        shdrCubemap = rl
+        shdr_cubemap = rl
             .load_shader(
                 thread,
                 Some("original/models/resources/shaders/glsl100/cubemap.vs"),
@@ -316,10 +317,10 @@ fn load_material_pbr(
             .make_weak();
     }
 
-    let mut shdrIrradiance;
+    let mut shdr_irradiance;
     #[cfg(not(target_arch = "wasm32"))]
     unsafe {
-        shdrIrradiance = rl
+        shdr_irradiance = rl
             .load_shader(
                 thread,
                 Some("original/models/resources/shaders/glsl330/skybox.vss"),
@@ -330,7 +331,7 @@ fn load_material_pbr(
     }
     #[cfg(target_arch = "wasm32")]
     unsafe {
-        shdrIrradiance = rl
+        shdr_irradiance = rl
             .load_shader(
                 thread,
                 Some("original/models/resources/shaders/glsl100/skybox.vs"),
@@ -340,10 +341,10 @@ fn load_material_pbr(
             .make_weak();
     }
 
-    let mut shdrPrefilter;
+    let mut shdr_pre_filter;
     #[cfg(not(target_arch = "wasm32"))]
     unsafe {
-        shdrPrefilter = rl
+        shdr_pre_filter = rl
             .load_shader(
                 thread,
                 Some("original/models/resources/shaders/glsl330/skybox.vs"),
@@ -354,7 +355,7 @@ fn load_material_pbr(
     }
     #[cfg(target_arch = "wasm32")]
     unsafe {
-        shdrPrefilter = rl
+        shdr_pre_filter = rl
             .load_shader(
                 thread,
                 Some("original/models/resources/shaders/glsl100/skybox.vs"),
@@ -364,7 +365,8 @@ fn load_material_pbr(
             .make_weak();
     }
 
-    let mut shdrBRDF;
+    #[allow(non_snake_case)]
+    let shdrBRDF;
     #[cfg(not(target_arch = "wasm32"))]
     unsafe {
         shdrBRDF = rl
@@ -389,20 +391,21 @@ fn load_material_pbr(
     }
 
     // Setup required shader locations
-    shdrCubemap.set_shader_value(shdrCubemap.get_shader_location("equirectangularMap"), 0i32);
-    shdrIrradiance.set_shader_value(shdrIrradiance.get_shader_location("environmentMap"), 0i32);
-    shdrPrefilter.set_shader_value(shdrPrefilter.get_shader_location("environmentMap"), 0i32);
+    shdr_cubemap.set_shader_value(shdr_cubemap.get_shader_location("equirectangularMap"), 0i32);
+    shdr_irradiance.set_shader_value(shdr_irradiance.get_shader_location("environmentMap"), 0i32);
+    shdr_pre_filter.set_shader_value(shdr_pre_filter.get_shader_location("environmentMap"), 0i32);
 
-    let mut texHDR = rl
+    #[allow(non_snake_case)]
+    let texHDR = rl
         .load_texture(thread, "original/models/resources/dresden_square.hdr")
         .unwrap();
-    let mut cubemap = rl.gen_texture_cubemap(thread, &shdrCubemap, &texHDR, CUBEMAP_SIZE);
+    let cubemap = rl.gen_texture_cubemap(thread, &shdr_cubemap, &texHDR, CUBEMAP_SIZE);
     unsafe {
         *mat.maps_mut()[MAP_IRRADIANCE as usize].texture_mut() = rl
-            .gen_texture_irradiance(thread, &shdrIrradiance, &cubemap, IRRADIANCE_SIZE)
+            .gen_texture_irradiance(thread, &shdr_irradiance, &cubemap, IRRADIANCE_SIZE)
             .make_weak();
         *mat.maps_mut()[MAP_PREFILTER as usize].texture_mut() = rl
-            .gen_texture_prefilter(thread, &shdrPrefilter, &cubemap, PREFILTERED_SIZE)
+            .gen_texture_prefilter(thread, &shdr_pre_filter, &cubemap, PREFILTERED_SIZE)
             .make_weak();
         *mat.maps_mut()[MAP_BRDF as usize].texture_mut() = rl
             .gen_texture_brdf(thread, &shdrBRDF, BRDF_SIZE)
@@ -438,8 +441,8 @@ fn load_material_pbr(
     let loc = mat.shader().get_shader_location("occlusion.useSampler");
     mat.shader_mut().set_shader_value(loc, 1i32);
 
-    let renderModeLoc = mat.shader().get_shader_location("renderMode");
-    mat.shader_mut().set_shader_value(renderModeLoc, 0i32);
+    let render_mode_loc = mat.shader().get_shader_location("renderMode");
+    mat.shader_mut().set_shader_value(render_mode_loc, 0i32);
 
     // Set up material properties color
     *mat.maps_mut()[MAP_ALBEDO as usize].color_mut() = albedo;

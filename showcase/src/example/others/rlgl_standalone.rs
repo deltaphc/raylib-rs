@@ -53,11 +53,11 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) {
     unsafe {
         // Initialization
         //--------------------------------------------------------------------------------------
-        let screenWidth = 800;
-        let screenHeight = 450;
+        let screen_width = 800;
+        let screen_height = 450;
 
-        rl.set_window_size(screenWidth, screenHeight);
-        let window = rl.get_window_handle();
+        rl.set_window_size(screen_width, screen_height);
+        let _window = rl.get_window_handle();
 
         // // GLFW3 Initialization + OpenGL 3.3 Context + Extensions
         // //--------------------------------------------------------
@@ -77,7 +77,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) {
         // glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
         // //glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
 
-        // GLFWwindow *window = glfwCreateWindow(screenWidth, screenHeight, "rlgl standalone", NULL, NULL);
+        // GLFWwindow *window = glfwCreateWindow(screen_width, screen_height, "rlgl standalone", NULL, NULL);
 
         // if (!window)
         // {
@@ -98,13 +98,20 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) {
         //--------------------------------------------------------
 
         // Initialize OpenGL context (states and resources)
-        // rlglInit(screenWidth, screenHeight);
+        // rlglInit(screen_width, screen_height);
 
         // Initialize viewport and internal projection/modelview matrices
-        // rlViewport(0, 0, screenWidth, screenHeight);
+        // rlViewport(0, 0, screen_width, screen_height);
         ffi::rlMatrixMode(ffi::RL_PROJECTION as i32); // Switch to PROJECTION matrix
         ffi::rlLoadIdentity(); // Reset current matrix (PROJECTION)
-        ffi::rlOrtho(0.0, screenWidth as f64, screenHeight as f64, 0.0, 0.0, 1.0); // Orthographic projection with top-left corner at (0,0)
+        ffi::rlOrtho(
+            0.0,
+            screen_width as f64,
+            screen_height as f64,
+            0.0,
+            0.0,
+            1.0,
+        ); // Orthographic projection with top-left corner at (0,0)
         ffi::rlMatrixMode(ffi::RL_MODELVIEW as i32); // Switch back to MODELVIEW matrix
         ffi::rlLoadIdentity(); // Reset current matrix (MODELVIEW)
 
@@ -114,12 +121,12 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) {
         let camera =
             Camera3D::perspective(rvec3(5.0, 5.0, 5.0), Vector3::zero(), Vector3::up(), 45.0);
 
-        let cubePosition = Vector3::zero(); // Cube default position (center)
-                                            //--------------------------------------------------------------------------------------
+        let cube_position = Vector3::zero(); // Cube default position (center)
+                                             //--------------------------------------------------------------------------------------
 
         // Main game loop
-        while (!rl.window_should_close()) {
-            let d = rl.begin_drawing(&thread);
+        while !rl.window_should_close() {
+            let _d = rl.begin_drawing(&thread);
             // Update
             //----------------------------------------------------------------------------------
             //camera.position.x += 0.01f;
@@ -132,20 +139,20 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) {
             // Draw '3D' elements in the scene
             //-----------------------------------------------
             // Calculate projection matrix (from perspective) and view matrix from camera look at
-            let matProj = Matrix::perspective(
+            let mat_proj = Matrix::perspective(
                 camera.fovy.to_radians(),
-                screenWidth as f32 / screenHeight as f32,
+                screen_width as f32 / screen_height as f32,
                 0.01,
                 1000.0,
             );
-            let matView = Matrix::look_at(camera.position, camera.target, camera.up);
+            let mat_view = Matrix::look_at(camera.position, camera.target, camera.up);
 
-            ffi::SetMatrixModelview(matView.into()); // Set internal modelview matrix (default shader)
-            ffi::SetMatrixProjection(matProj.into()); // Set internal projection matrix (default shader)
+            ffi::SetMatrixModelview(mat_view.into()); // Set internal modelview matrix (default shader)
+            ffi::SetMatrixProjection(mat_proj.into()); // Set internal projection matrix (default shader)
 
-            DrawCube(cubePosition, 2.0, 2.0, 2.0, Color::RED);
-            DrawCubeWires(cubePosition, 2.0, 2.0, 2.0, Color::RAYWHITE);
-            DrawGrid(10, 1.0);
+            draw_cube(cube_position, 2.0, 2.0, 2.0, Color::RED);
+            draw_cube_wires(cube_position, 2.0, 2.0, 2.0, Color::RAYWHITE);
+            draw_grid(10, 1.0);
 
             // NOTE: Internal buffers drawing (3D data)
             ffi::rlglDraw();
@@ -155,21 +162,28 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) {
             //-----------------------------------------------
             // #define RLGL_CREATE_MATRIX_MANUALLY
             // #if defined(RLGL_CREATE_MATRIX_MANUALLY)
-            //             matProj = MatrixOrtho(0.0, screenWidth, screenHeight, 0.0, 0.0, 1.0);
-            //             matView = MatrixIdentity();
+            //             mat_proj = MatrixOrtho(0.0, screen_width, screen_height, 0.0, 0.0, 1.0);
+            //             mat_view = MatrixIdentity();
 
-            //             SetMatrixModelview(matView);    // Set internal modelview matrix (default shader)
-            //             SetMatrixProjection(matProj);   // Set internal projection matrix (default shader)
+            //             SetMatrixModelview(mat_view);    // Set internal modelview matrix (default shader)
+            //             SetMatrixProjection(mat_proj);   // Set internal projection matrix (default shader)
 
             // #else   // Let rlgl generate and multiply matrix internally
 
             ffi::rlMatrixMode(ffi::RL_PROJECTION as i32); // Enable internal projection matrix
             ffi::rlLoadIdentity(); // Reset internal projection matrix
-            ffi::rlOrtho(0.0, screenWidth as f64, screenHeight as f64, 0.0, 0.0, 1.0); // Recalculate internal projection matrix
+            ffi::rlOrtho(
+                0.0,
+                screen_width as f64,
+                screen_height as f64,
+                0.0,
+                0.0,
+                1.0,
+            ); // Recalculate internal projection matrix
             ffi::rlMatrixMode(ffi::RL_MODELVIEW as i32); // Enable internal modelview matrix
             ffi::rlLoadIdentity(); // Reset internal modelview matrix
                                    // #endif
-            DrawRectangleV(rvec2(10.0, 10.0), rvec2(780.0, 20.0), Color::DARKGRAY);
+            draw_rectanglev(rvec2(10.0, 10.0), rvec2(780.0, 20.0), Color::DARKGRAY);
 
             // NOTE: Internal buffers drawing (2D data)
             ffi::rlglDraw();
@@ -184,7 +198,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) {
 }
 
 // Draw rectangle using rlgl OpenGL 1.1 style coding (translated to OpenGL 3.3 internally)
-unsafe fn DrawRectangleV(position: Vector2, size: Vector2, color: Color) {
+unsafe fn draw_rectanglev(position: Vector2, size: Vector2, color: Color) {
     ffi::rlBegin(ffi::RL_TRIANGLES as i32);
     ffi::rlColor4ub(color.r, color.g, color.b, color.a);
 
@@ -199,11 +213,11 @@ unsafe fn DrawRectangleV(position: Vector2, size: Vector2, color: Color) {
 }
 
 // Draw a grid centered at (0, 0, 0)
-unsafe fn DrawGrid(slices: i32, spacing: f32) {
-    let halfSlices = slices / 2;
+unsafe fn draw_grid(slices: i32, spacing: f32) {
+    let half_slices = slices / 2;
 
     ffi::rlBegin(ffi::RL_LINES as i32);
-    for i in -halfSlices..=halfSlices {
+    for i in -half_slices..=half_slices {
         if i == 0 {
             ffi::rlColor3f(0.5, 0.5, 0.5);
             ffi::rlColor3f(0.5, 0.5, 0.5);
@@ -216,18 +230,18 @@ unsafe fn DrawGrid(slices: i32, spacing: f32) {
             ffi::rlColor3f(0.75, 0.75, 0.75);
         }
 
-        ffi::rlVertex3f(i as f32 * spacing, 0.0, -halfSlices as f32 * spacing);
-        ffi::rlVertex3f(i as f32 * spacing, 0.0, halfSlices as f32 * spacing);
+        ffi::rlVertex3f(i as f32 * spacing, 0.0, -half_slices as f32 * spacing);
+        ffi::rlVertex3f(i as f32 * spacing, 0.0, half_slices as f32 * spacing);
 
-        ffi::rlVertex3f(-halfSlices as f32 * spacing, 0.0, i as f32 * spacing);
-        ffi::rlVertex3f(halfSlices as f32 * spacing, 0.0, i as f32 * spacing);
+        ffi::rlVertex3f(-half_slices as f32 * spacing, 0.0, i as f32 * spacing);
+        ffi::rlVertex3f(half_slices as f32 * spacing, 0.0, i as f32 * spacing);
     }
     ffi::rlEnd();
 }
 
 // Draw cube
 // NOTE: Cube position is the center position
-unsafe fn DrawCube(position: Vector3, width: f32, height: f32, length: f32, color: Color) {
+unsafe fn draw_cube(position: Vector3, width: f32, height: f32, length: f32, color: Color) {
     let x = 0.0;
     let y = 0.0;
     let z = 0.0;
@@ -300,7 +314,7 @@ unsafe fn DrawCube(position: Vector3, width: f32, height: f32, length: f32, colo
 }
 
 // Draw cube wires
-unsafe fn DrawCubeWires(position: Vector3, width: f32, height: f32, length: f32, color: Color) {
+unsafe fn draw_cube_wires(position: Vector3, width: f32, height: f32, length: f32, color: Color) {
     let x = 0.0;
     let y = 0.0;
     let z = 0.0;

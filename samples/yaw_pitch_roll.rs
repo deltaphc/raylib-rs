@@ -23,7 +23,7 @@ fn main() {
     {
         let materials = model.materials_mut();
         let mat = &mut materials[0];
-        let mut mats = mat.maps_mut();
+        let mats = mat.maps_mut();
         let texture = unsafe {
             let mut t = rl
                 .load_texture(&thread, "static/plane_diffuse.png")

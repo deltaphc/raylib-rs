@@ -44,7 +44,7 @@ fn main() {
     material.shader = *shader.as_ref();
 
     // Assign loaded texture to material albedo map
-    let mut maps = material.maps_mut();
+    let maps = material.maps_mut();
     maps[MaterialMapType::MAP_ALBEDO as usize].texture = texture;
 
     let model_position = Vector3::new(0.0, 0.0, 0.0);

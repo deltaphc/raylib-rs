@@ -1570,7 +1570,7 @@ fn main_menu(rl: &mut RaylibHandle, thread: &RaylibThread, tcod: &mut Tcod) {
     let img =
         Image::load_image("static/menu_background.png").expect("could not load background image");
     let (w, h) = (img.width(), img.height());
-    let mut img = rl
+    let img = rl
         .load_texture_from_image(&thread, &img)
         .expect("could not load texture from image");
     img.set_texture_wrap(thread, raylib::consts::TextureWrapMode::WRAP_CLAMP);

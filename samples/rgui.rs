@@ -1,7 +1,7 @@
 #![allow(non_snake_case)]
 use raylib::ffi;
 use raylib::prelude::*;
-use std::ffi::CString;
+
 //------------------------------------------------------------------------------------
 // Program main entry point
 //------------------------------------------------------------------------------------
@@ -101,13 +101,13 @@ pub fn main() {
     while !exitWindow
     // Detect window close button or ESC key
     {
-        use raylib::consts::guiIconName::*;
+        
         use raylib::consts::GuiControl::*;
         use raylib::consts::GuiControlProperty::*;
-        use raylib::consts::GuiControlState::*;
-        use raylib::consts::GuiDefaultProperty::*;
+        
+        
         use raylib::consts::GuiTextAlignment::*;
-        use raylib::consts::KeyboardKey::*;
+        
         // Update
         //----------------------------------------------------------------------------------
 

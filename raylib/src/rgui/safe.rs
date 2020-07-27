@@ -1,4 +1,3 @@
-#[macro_use]
 use crate::core::color::Color;
 use crate::core::drawing::RaylibDraw;
 use crate::core::math::{Rectangle, Vector2};
@@ -6,7 +5,7 @@ use crate::core::text::WeakFont;
 use crate::core::RaylibHandle;
 use crate::ffi;
 
-use std::ffi::{CStr, CString};
+use std::ffi::CStr;
 
 /// Global gui modification functions
 impl RaylibHandle {
