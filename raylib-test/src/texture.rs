@@ -74,43 +74,54 @@ mod texture_test {
                 }
             }
         }
+
         let mut i = Image::load_image_ex(&col, 32, 32).expect("failed to load binary image");
         let mut canvas = Image::load_image_ex(&blank, 32, 32).expect("failed to load canvas image");
         let mask = Image::load_image_ex(&alpha, 32, 32).expect("failed to load alpha image");
+
         let mut c = i.clone();
-        c.image_alpha_mask(&mask);
-        c.image_alpha_clear(Color::BLUE, 0.5);
+
+        c.alpha_mask(&mask);
+        c.alpha_clear(Color::BLUE, 0.5);
         // shouldn't do anything
-        c.image_alpha_crop(0.5);
+        c.alpha_crop(0.5);
         // shouldn't do anything
-        c.image_alpha_premultiply();
+        c.alpha_premultiply();
         let mut blurry = c.clone();
-        blurry.image_resize(256, 256);
+        blurry.resize(256, 256);
         blurry.export_image("test_out/chessboard_blurry.png");
-        c.image_resize_nn(256, 256);
-        i.image_resize_canvas(256, 256, 10, 10, Color::BLUE);
+        c.resize_nn(256, 256);
+        i.resize_canvas(256, 256, 10, 10, Color::BLUE);
         i.export_image("test_out/resized.png");
         c.export_image("test_out/chessboard.png");
-        c.image_mipmaps();
-        blurry.image_dither(128, 128, 128, 128);
-        let colors = c.image_extract_palette(100);
+        c.mipmaps();
+        blurry.dither(128, 128, 128, 128);
+        let colors = c.extract_palette(100);
         assert_eq!(colors.len(), 2, "color palette extraction failed");
-        canvas.image_draw(
+        canvas.draw(
             &i,
             Rectangle::new(0.0, 0.0, 20.0, 20.0),
             Rectangle::new(0.0, 0.0, 20.0, 20.0),
+            Color::WHITE,
         );
-        canvas.image_draw_rectangle_lines(Rectangle::new(20.0, 0.0, 20.0, 20.0), 4, Color::GREEN);
-        canvas.image_draw_rectangle(Rectangle::new(40.0, 0.0, 20.0, 20.0), Color::ORANGE);
-        canvas.image_flip_vertical();
-        canvas.image_flip_horizontal();
-        canvas.image_rotate_cw();
-        canvas.image_rotate_ccw();
-        canvas.image_color_tint(Color::PINK);
-        canvas.image_color_invert();
-        canvas.image_color_contrast(0.5);
-        canvas.image_color_brightness(128);
-        canvas.image_color_replace(Color::GREEN, Color::RED);
+        canvas.draw_rectangle_lines(Rectangle::new(20.0, 0.0, 20.0, 20.0), 4, Color::GREEN);
+        let rec = Rectangle::new(40.0, 0.0, 20.0, 20.0);
+        canvas.draw_rectangle(
+            rec.x as i32,
+            rec.y as i32,
+            rec.width as i32,
+            rec.height as i32,
+            Color::ORANGE,
+        );
+        canvas.flip_vertical();
+        canvas.flip_horizontal();
+        canvas.rotate_cw();
+        canvas.rotate_ccw();
+        canvas.color_tint(Color::PINK);
+        canvas.color_invert();
+        canvas.color_contrast(0.5);
+        canvas.color_brightness(128);
+        canvas.color_replace(Color::GREEN, Color::RED);
         canvas.export_image("test_out/canvas.png");
 
         // Test generation functions
@@ -130,7 +141,5 @@ mod texture_test {
         g.export_image("test_out/generated_perlin.png");
         let g = Image::gen_image_cellular(64, 64, 4);
         g.export_image("test_out/generated_cellular.png");
-
-        // c.image_format(crate::consts::PixelFormat::UNCOMPRESSED_R32G32B32A32);
     }
 }
