@@ -172,8 +172,8 @@ fn main() {
     let (platform, platform_os) = platform_from_target(&target);
 
     // Donwload raylib source
-    let src = download_raylib();
-    build_with_cmake(src.to_str().expect("failed to download raylib"));
+    let src = cp_raylib();
+    build_with_cmake(&src);
 
     gen_bindings();
 
@@ -182,60 +182,19 @@ fn main() {
     gen_rgui();
 }
 
-#[cfg(feature = "nobuild")]
-fn download_raylib() -> PathBuf {
-    env::var("OUT_DIR").unwrap().into()
-}
+// cp_raylib copy raylib to an out dir
+fn cp_raylib() -> String {
+    let out = env::var("OUT_DIR").unwrap();
+    let out = Path::new(&out); //.join("raylib_source");
 
-/// download_raylib downloads raylib
-#[cfg(not(feature = "nobuild"))]
-fn download_raylib() -> PathBuf {
-    let out_dir = env::var("OUT_DIR").unwrap();
+    let mut options = fs_extra::dir::CopyOptions::new();
+    options.skip_exist = true;
+    fs_extra::dir::copy("raylib", &out, &options).expect(&format!(
+        "failed to copy raylib source to {}",
+        &out.to_string_lossy()
+    ));
 
-    let raylib_archive_name = format!("{}.tar.gz", LATEST_RAYLIB_VERSION);
-    let raylib_archive_url = format!(
-        "https://codeload.github.com/raysan5/raylib/tar.gz/{}",
-        LATEST_RAYLIB_VERSION
-    );
-    println!("out: {:?}", out_dir);
-    println!("url: {:?}", raylib_archive_url);
-
-    let raylib_archive_path = Path::new(&out_dir).join(raylib_archive_name);
-    let raylib_build_path = Path::new(&out_dir).join(format!("raylib-{}", LATEST_RAYLIB_VERSION));
-
-    // avoid re-downloading the archive if it already exist
-    if !raylib_build_path.exists() {
-        download_to(
-            &raylib_archive_url,
-            raylib_archive_path
-                .to_str()
-                .expect("Download path not stringable"),
-        );
-    }
-
-    // Uncomment when we go back to tar.gz
-    let reader =
-        flate2::read::GzDecoder::new(fs::File::open(&raylib_archive_path).unwrap()).unwrap();
-    let mut ar = tar::Archive::new(reader);
-    ar.unpack(&out_dir).unwrap();
-
-    raylib_build_path
-}
-
-/// download_to uses powershell or curl to download raylib to the output directory.
-fn download_to(url: &str, dest: &str) {
-    use std::io::Read;
-
-    let resp = ureq::get(url).call();
-
-    let mut reader = resp.into_reader();
-    let mut bytes = vec![];
-    reader
-        .read_to_end(&mut bytes)
-        .expect("Couldn't download raylib zip.");
-
-    fs::write(dest, bytes).expect("Unable to write raylib to disk.");
-    // run_command("curl", &[url, "-o", dest]);
+    out.join("raylib").to_string_lossy().to_string()
 }
 
 // run_command runs a command to completion or panics. Used for running curl and powershell.
