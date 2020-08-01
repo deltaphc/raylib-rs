@@ -126,13 +126,26 @@ fn gen_bindings() {
 
 fn gen_rgui() {
     // Compile the code and link with cc crate
-    cc::Build::new()
-        .file("rgui_wrapper.c")
-        .include(".")
-        .warnings(false)
-        // .flag("-std=c99")
-        .extra_warnings(false)
-        .compile("rgui");
+    #[cfg(target_os = "windows")]
+    {
+        cc::Build::new()
+            .file("rgui_wrapper.cpp")
+            .include(".")
+            .warnings(false)
+            // .flag("-std=c99")
+            .extra_warnings(false)
+            .compile("rgui");
+    }
+    #[cfg(target_os = "macos")]
+    {
+        cc::Build::new()
+            .file("rgui_wrapper.c")
+            .include(".")
+            .warnings(false)
+            // .flag("-std=c99")
+            .extra_warnings(false)
+            .compile("rgui");
+    }
 }
 
 #[cfg(feature = "nobuild")]
