@@ -7,10 +7,12 @@ use std::ffi::CString;
 pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) {
     // Initialization
     //---------------------------------------------------------------------------------------
-    let screenWidth = 690;
-    let screenHeight = 560;
-
-    rl.set_window_size(screenWidth, screenHeight);
+    #[cfg(not(target_os = "macos"))] { // Macos has issues with high DPI
+        let screenWidth = 690;
+        let screenHeight = 560;
+    
+        rl.set_window_size(screenWidth, screenHeight);
+    }
 
     // GUI controls initialization
     //----------------------------------------------------------------------------------
