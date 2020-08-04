@@ -136,7 +136,7 @@ fn gen_rgui() {
             .extra_warnings(false)
             .compile("rgui");
     }
-    #[cfg(target_os = "macos")]
+    #[cfg(not(target_os = "windows"))]
     {
         cc::Build::new()
             .file("rgui_wrapper.c")
