@@ -3,12 +3,17 @@ use crate::core::math::{Vector3, Vector4};
 use crate::ffi;
 
 #[repr(C)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Default)]
 pub struct Color {
     pub r: u8,
     pub g: u8,
     pub b: u8,
     pub a: u8,
+}
+
+// A convenience function for making a new `Color`.
+pub fn rcolor(r: u8, g: u8, b: u8, a: u8) -> Color {
+    Color::new(r, g, b, a)
 }
 
 impl From<ffi::Color> for Color {
@@ -46,7 +51,12 @@ impl Color {
     /// * `color_hex_str` - A string slice, 6 characters long
     /// # Example
     /// ```
-    /// let color = Color::from("FAFB09");
+    ///    use raylib::prelude::*;
+    ///     let color_white = Color::from_hex("FFFFFF").unwrap();
+    ///     let color_black = Color::from_hex("000000").unwrap();
+    ///     
+    ///    assert_eq!(color_black, Color::BLACK);
+    ///    assert_eq!(color_white, Color::WHITE);
     /// ```
     pub fn from_hex(color_hex_str: &str) -> Result<Color, std::num::ParseIntError> {
         let color = i32::from_str_radix(color_hex_str, 16)?;
@@ -225,41 +235,50 @@ impl Color {
     }
 
     /// Returns hexadecimal value for a Color
+    #[inline]
     pub fn color_to_int(&self) -> i32 {
         unsafe { ffi::ColorToInt(self.into()) }
     }
 
     /// Returns color normalized as float [0..1]
+    #[inline]
     pub fn color_normalize(&self) -> Vector4 {
         unsafe { ffi::ColorNormalize(self.into()).into() }
     }
 
     /// Returns HSV values for a Color
+    #[inline]
     pub fn color_to_hsv(&self) -> Vector3 {
         unsafe { ffi::ColorToHSV(self.into()).into() }
     }
 
     /// Returns a Color from HSV values
+    #[inline]
     pub fn color_from_hsv(hsv: Vector3) -> Color {
         unsafe { ffi::ColorFromHSV(hsv.into()).into() }
     }
 
+    /// Returns color from normalized values [0..1]
+    /// ```rust
+    /// use raylib::prelude::*;
+    /// fn main() {    
+    ///     assert_eq!(Color::color_from_normalized(Vector4::new(1.0, 1.0, 1.0, 1.0)), Color::new(255, 255, 255, 255));
+    /// }
+    /// ```
+    #[inline]
+    pub fn color_from_normalized(normalized: Vector4) -> Color {
+        unsafe { ffi::ColorFromNormalized(normalized.into()).into() }
+    }
+
     /// Returns a Color struct from hexadecimal value
+    #[inline]
     pub fn get_color(hex_value: i32) -> Color {
         unsafe { ffi::GetColor(hex_value).into() }
     }
 
     /// Color fade-in or fade-out, alpha goes from 0.0f to 1.0f
+    #[inline]
     pub fn fade(&self, alpha: f32) -> Color {
         unsafe { ffi::Fade(self.into(), alpha).into() }
     }
-}
-
-#[test]
-fn test_color_macro() {
-    let color_white = Color::from_hex("FFFFFF").unwrap();
-    let color_black = Color::from_hex("000000").unwrap();
-
-    assert_eq!(color_black, Color::BLACK);
-    assert_eq!(color_white, Color::WHITE);
 }

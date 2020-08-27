@@ -1,540 +1,666 @@
-// Container
-// WindowBox
-// GroupBox
-// Line
-// Panel
+use crate::core::color::Color;
+use crate::core::drawing::RaylibDraw;
+use crate::core::math::{Rectangle, Vector2};
+use crate::core::text::WeakFont;
+use crate::core::RaylibHandle;
+use crate::ffi;
 
-// Basic
-// + Label
-// + Button
-// + LabelButton
-// + ImageButton
-// Toggle
-// ToggleGroup
-// CheckBox
-// ComboBox
-// DropdownBox
-// TextBox
-// TextBoxMulti
-// ValueBox
-// Spinner
-// Slider
-// SliderBar
-// ProgressBar
-// StatusBar
-// ScrollPanel
-// DummyRec
+use std::ffi::CStr;
 
-// Advanced
-// ListView
-// ColorPicker
-// GuiMessageBox
-// Grid
+/// Global gui modification functions
+impl RaylibHandle {
+    /// Enable gui controls (global state)
+    #[inline]
+    pub fn gui_enable(&mut self) {
+        unsafe { ffi::GuiEnable() }
+    }
+    /// Disable gui controls (global state)
+    #[inline]
+    pub fn gui_disable(&mut self) {
+        unsafe { ffi::GuiDisable() }
+    }
+    /// Lock gui controls (global state)
+    #[inline]
+    pub fn gui_lock(&mut self) {
+        unsafe { ffi::GuiLock() }
+    }
+    /// Unlock gui controls (global state)
+    #[inline]
+    pub fn gui_unlock(&mut self) {
+        unsafe { ffi::GuiUnlock() }
+    }
+    // Set gui controls alpha (global state), alpha goes from 0.0f to 1.0f
+    #[inline]
+    pub fn gui_fade(&mut self, alpha: f32) {
+        unsafe { ffi::GuiFade(alpha) }
+    }
+    /// Set gui state (global state)
+    #[inline]
+    pub fn gui_set_state(&mut self, state: crate::consts::GuiControlState) {
+        unsafe { ffi::GuiSetState(state as i32) }
+    }
+    /// Get gui state (global state)
+    #[inline]
+    pub fn gui_get_state(&mut self) -> crate::consts::GuiControlState {
+        unsafe { std::mem::transmute(ffi::GuiGetState()) }
+    }
+    /// Set gui custom font (global state)
+    #[inline]
+    pub fn gui_set_font(&mut self, font: impl AsRef<ffi::Font>) {
+        unsafe { ffi::GuiSetFont(*font.as_ref()) }
+    }
+    /// Get gui custom font (global state)
+    #[inline]
+    pub fn gui_get_font(&mut self) -> WeakFont {
+        unsafe { WeakFont(ffi::GuiGetFont()) }
+    }
+    /// Set one style property
+    /// SHOULD use one of the Gui*Property enums
+    #[inline]
+    pub fn gui_set_style(&mut self, control: crate::consts::GuiControl, property: i32, value: i32) {
+        unsafe { ffi::GuiSetStyle(control as i32, property as i32, value) }
+    }
 
-use std::ffi::CString;
-
-use crate::core::math::Rectangle;
-use crate::ffi::*;
-
-pub enum DrawResult {
-    Empty,
-    Bool(bool),
-    Rectangle(Rectangle),
-    Scroll(Vector2, Rectangle),
-    Selected(i32),
-    Dropdown(bool, bool),
-    Value(i32, bool),
-    Text(CString, bool),
-    Percentage(f32),
-    ScrollBar(i32),
-    // scrollindex, active, bool
-    ListView(i32, bool, bool),
-    // text, enabled, active, focus, scroll_index
-    ListViewEx(CString, bool, bool, bool, i32),
-    Color(Color),
-    Grid(Vector2),
-}
-
-fn u322bool(u: u32) -> bool {
-    return match u {
-        0 => false,
-        1 => true,
-        _ => panic!("none zero or one boolean result"),
-    };
-}
-
-impl From<u32> for DrawResult {
-    fn from(b: u32) -> DrawResult {
-        DrawResult::Bool(u322bool(b))
+    /// Get one style property
+    /// SHOULD use one of the Gui*Property enums
+    #[inline]
+    pub fn gui_get_style(&mut self, control: crate::consts::GuiControl, property: i32) -> i32 {
+        unsafe { ffi::GuiGetStyle(control as i32, property as i32) }
+    }
+    /// Load style file (.rgs)
+    #[inline]
+    pub fn gui_load_style(&mut self, filename: Option<&CStr>) {
+        unsafe { ffi::GuiLoadStyle(filename.map(CStr::as_ptr).unwrap_or(std::ptr::null())) }
+    }
+    /// Load style default over global style
+    #[inline]
+    pub fn gui_load_style_default(&mut self) {
+        unsafe { ffi::GuiLoadStyleDefault() }
     }
 }
 
-impl From<i32> for DrawResult {
-    fn from(selected: i32) -> DrawResult {
-        DrawResult::Selected(selected)
+impl<D: RaylibDraw> RaylibDrawGui for D {}
+
+pub trait RaylibDrawGui {
+    /// Enable gui controls (global state)
+    #[inline]
+    fn gui_enable(&mut self) {
+        unsafe { ffi::GuiEnable() }
     }
-}
-
-impl From<f32> for DrawResult {
-    fn from(percentage: f32) -> DrawResult {
-        DrawResult::Percentage(percentage)
+    /// Disable gui controls (global state)
+    #[inline]
+    fn gui_disable(&mut self) {
+        unsafe { ffi::GuiDisable() }
     }
-}
-
-impl From<bool> for DrawResult {
-    fn from(b: bool) -> DrawResult {
-        DrawResult::Bool(b)
+    /// Lock gui controls (global state)
+    #[inline]
+    fn gui_lock(&mut self) {
+        unsafe { ffi::GuiLock() }
     }
-}
-
-impl From<()> for DrawResult {
-    fn from(_empty: ()) -> DrawResult {
-        DrawResult::Empty
+    /// Unlock gui controls (global state)
+    #[inline]
+    fn gui_unlock(&mut self) {
+        unsafe { ffi::GuiUnlock() }
     }
-}
-
-impl From<Rectangle> for DrawResult {
-    fn from(rect: Rectangle) -> DrawResult {
-        DrawResult::Rectangle(rect)
+    // Set gui controls alpha (global state), alpha goes from 0.0f to 1.0f
+    #[inline]
+    fn gui_fade(&mut self, alpha: f32) {
+        unsafe { ffi::GuiFade(alpha) }
     }
-}
+    /// Set gui state (global state)
+    #[inline]
+    fn gui_set_state(&mut self, state: crate::consts::GuiControlState) {
+        unsafe { ffi::GuiSetState(state as i32) }
+    }
+    /// Get gui state (global state)
+    #[inline]
+    fn gui_get_state(&mut self) -> crate::consts::GuiControlState {
+        unsafe { std::mem::transmute(ffi::GuiGetState()) }
+    }
+    /// Set gui custom font (global state)
+    #[inline]
+    fn gui_set_font(&mut self, font: impl AsRef<ffi::Font>) {
+        unsafe { ffi::GuiSetFont(*font.as_ref()) }
+    }
+    /// Get gui custom font (global state)
+    #[inline]
+    fn gui_get_font(&mut self) -> WeakFont {
+        unsafe { WeakFont(ffi::GuiGetFont()) }
+    }
+    /// Set one style property
+    /// SHOULD use one of the Gui*Property enums
+    #[inline]
+    fn gui_set_style(&mut self, control: crate::consts::GuiControl, property: i32, value: i32) {
+        unsafe { ffi::GuiSetStyle(control as i32, property as i32, value) }
+    }
 
-pub trait GuiDraw {
-    fn draw(&self) -> DrawResult;
-}
-
-macro_rules! gui_draw {
-    (struct $name:ident {
-        $($field_name:ident: $field_type:ty,)*
-    }, $draw:expr) => {
-        #[derive(Clone, Debug)]
-        pub struct $name {
-            $(pub $field_name: $field_type,)*
+    /// Get one style property
+    /// SHOULD use one of the Gui*Property enums
+    #[inline]
+    fn gui_get_style(&mut self, control: crate::consts::GuiControl, property: i32) -> i32 {
+        unsafe { ffi::GuiGetStyle(control as i32, property as i32) }
+    }
+    /// Load style file (.rgs)
+    #[inline]
+    fn gui_load_style(&mut self, filename: Option<&CStr>) {
+        unsafe { ffi::GuiLoadStyle(filename.map(CStr::as_ptr).unwrap_or(std::ptr::null())) }
+    }
+    /// Load style default over global style
+    #[inline]
+    fn gui_load_style_default(&mut self) {
+        unsafe { ffi::GuiLoadStyleDefault() }
+    }
+    /// Window Box control, shows a window that can be closed
+    #[inline]
+    fn gui_window_box(&mut self, bounds: impl Into<ffi::Rectangle>, title: Option<&CStr>) -> bool {
+        unsafe {
+            ffi::GuiWindowBox(
+                bounds.into(),
+                title.map(CStr::as_ptr).unwrap_or(std::ptr::null()),
+            )
         }
-
-        impl GuiDraw for $name{
-            fn draw(&self) -> crate::rgui::DrawResult {
-                $(let $field_name = &self.$field_name;)*
-                unsafe {
-                    $draw
-                }
-            }
-        }
-
-        impl GuiDraw for &$name{
-            fn draw(&self) -> crate::rgui::DrawResult {
-                $(let $field_name = &self.$field_name;)*
-                unsafe {
-                    $draw
-                }
-            }
-        }
-    };
-}
-
-gui_draw! {
-    struct WindowBox {
-        bounds: Rectangle,
-        text: CString,
-    },
-    GuiWindowBox(bounds.into(), text.as_ptr()).into()
-}
-
-gui_draw! {
-    struct GroupBox {
-        bounds: Rectangle,
-        text: CString,
-    },
-    GuiGroupBox(bounds.into(), text.as_ptr()).into()
-}
-
-gui_draw! {
-    struct Line {
-        bounds: Rectangle,
-        text: CString,
-    },
-    GuiLine(bounds.into(), text.as_ptr()).into()
-}
-
-gui_draw! {
-    struct Panel {
-        bounds: Rectangle,
-    },
-    GuiPanel(bounds.into()).into()
-}
-
-gui_draw! {
-    struct ScrollPanel {
-        bounds: Rectangle,
-        content: Rectangle,
-        scroll: Vector2,
-    },
-    {
-        let mut scroll = scroll.clone();
-        let rect = GuiScrollPanel(bounds.into(), content.into(), &mut scroll);
-        DrawResult::Scroll(scroll, rect.into())
     }
-}
-
-gui_draw! {
-    struct Label {
-        bounds: Rectangle,
-        text: CString,
-    },
-    GuiLabel(bounds.into(), text.as_ptr()).into()
-}
-
-gui_draw! {
-    struct Button {
-        bounds: Rectangle,
-        text: CString,
-    },
-    GuiButton(bounds.into(), text.as_ptr()).into()
-}
-
-gui_draw! {
-    struct LabelButton {
-        bounds: Rectangle,
-        text: CString,
-    },
-    GuiLabelButton(bounds.into(), text.as_ptr()).into()
-}
-
-gui_draw! {
-    struct ImageButton {
-        bounds: Rectangle,
-        texture: Texture2D,
-    },
-    GuiImageButton(bounds.into(), *texture).into()
-}
-
-gui_draw! {
-    struct ImageButtonEx {
-        bounds: Rectangle,
-        texture: Texture2D,
-        tex_source: Rectangle,
-        text: CString,
-    },
-GuiImageButtonEx(
-                    bounds.into(),
-                    *texture,
-                    tex_source.into(),
-                    text.as_ptr(),
-                )
-                .into()
-}
-
-gui_draw! {
-    struct Toggle {
-        bounds: Rectangle,
-        text: CString,
+    /// Group Box control with text name
+    #[inline]
+    fn gui_group_box(&mut self, bounds: impl Into<ffi::Rectangle>, text: Option<&CStr>) {
+        unsafe {
+            ffi::GuiGroupBox(
+                bounds.into(),
+                text.map(CStr::as_ptr).unwrap_or(std::ptr::null()),
+            )
+        }
+    }
+    /// Line separator control, could contain text
+    #[inline]
+    fn gui_line(&mut self, bounds: impl Into<ffi::Rectangle>, text: Option<&CStr>) {
+        unsafe {
+            ffi::GuiLine(
+                bounds.into(),
+                text.map(CStr::as_ptr).unwrap_or(std::ptr::null()),
+            )
+        }
+    }
+    /// Panel control, useful to group controls
+    #[inline]
+    fn gui_panel(&mut self, bounds: impl Into<ffi::Rectangle>) {
+        unsafe { ffi::GuiPanel(bounds.into()) }
+    }
+    /// Scroll Panel control
+    #[inline]
+    fn gui_scroll_panel(
+        &mut self,
+        bounds: impl Into<ffi::Rectangle>,
+        content: impl Into<ffi::Rectangle>,
+        scroll: impl Into<ffi::Vector2>,
+    ) -> (Rectangle, Vector2) {
+        let mut scroll = scroll.into();
+        let bounds: ffi::Rectangle =
+            unsafe { ffi::GuiScrollPanel(bounds.into(), content.into(), &mut scroll) };
+        return (bounds.into(), scroll.into());
+    }
+    /// Label control, shows text
+    #[inline]
+    fn gui_label(&mut self, bounds: impl Into<ffi::Rectangle>, text: Option<&CStr>) {
+        unsafe {
+            ffi::GuiLabel(
+                bounds.into(),
+                text.map(CStr::as_ptr).unwrap_or(std::ptr::null()),
+            )
+        }
+    }
+    /// Button control, returns true when clicked
+    #[inline]
+    fn gui_button(&mut self, bounds: impl Into<ffi::Rectangle>, text: Option<&CStr>) -> bool {
+        unsafe {
+            ffi::GuiButton(
+                bounds.into(),
+                text.map(CStr::as_ptr).unwrap_or(std::ptr::null()),
+            )
+        }
+    }
+    /// Label button control, show true when clicked
+    #[inline]
+    fn gui_label_button(&mut self, bounds: impl Into<ffi::Rectangle>, text: Option<&CStr>) -> bool {
+        unsafe {
+            ffi::GuiLabelButton(
+                bounds.into(),
+                text.map(CStr::as_ptr).unwrap_or(std::ptr::null()),
+            )
+        }
+    }
+    /// Image button control, returns true when clicked
+    #[inline]
+    fn gui_image_button(
+        &mut self,
+        bounds: impl Into<ffi::Rectangle>,
+        text: Option<&CStr>,
+        texture: impl AsRef<ffi::Texture>,
+    ) -> bool {
+        unsafe {
+            ffi::GuiImageButton(
+                bounds.into(),
+                text.map(CStr::as_ptr).unwrap_or(std::ptr::null()),
+                *texture.as_ref(),
+            )
+        }
+    }
+    /// Image button extended control, returns true when clicked
+    #[inline]
+    fn gui_image_button_ex(
+        &mut self,
+        bounds: impl Into<ffi::Rectangle>,
+        text: Option<&CStr>,
+        texture: impl AsRef<ffi::Texture>,
+        tex_source: impl Into<ffi::Rectangle>,
+    ) -> bool {
+        unsafe {
+            ffi::GuiImageButtonEx(
+                bounds.into(),
+                text.map(CStr::as_ptr).unwrap_or(std::ptr::null()),
+                *texture.as_ref(),
+                tex_source.into(),
+            )
+        }
+    }
+    /// Toggle Button control, returns true when active
+    #[inline]
+    fn gui_toggle(
+        &mut self,
+        bounds: impl Into<ffi::Rectangle>,
+        text: Option<&CStr>,
         active: bool,
-    },
-GuiToggle(
-                    bounds.into(),
-                    text.as_ptr(),
-                    if *active { true } else { false },
-                )
-                .into()
-}
-
-gui_draw! {
-    struct ToggleGroup {
-        bounds: Rectangle,
-        text: CString,
-        active: bool,
-    },
-    GuiToggleGroup(
-                    bounds.into(),
-                    text.as_ptr(),
-                    if *active { 1 } else { 0 },
-                )
-                .into()
-}
-
-gui_draw! {
-    struct CheckBox {
-        bounds: Rectangle,
-        text: CString,
+    ) -> bool {
+        unsafe {
+            ffi::GuiToggle(
+                bounds.into(),
+                text.map(CStr::as_ptr).unwrap_or(std::ptr::null()),
+                active,
+            )
+        }
+    }
+    /// Toggle Group control, returns active toggle index
+    #[inline]
+    fn gui_toggle_group(
+        &mut self,
+        bounds: impl Into<ffi::Rectangle>,
+        text: Option<&CStr>,
+        active: i32,
+    ) -> i32 {
+        unsafe {
+            ffi::GuiToggleGroup(
+                bounds.into(),
+                text.map(CStr::as_ptr).unwrap_or(std::ptr::null()),
+                active,
+            )
+        }
+    }
+    /// Check Box control, returns true when active
+    #[inline]
+    fn gui_check_box(
+        &mut self,
+        bounds: impl Into<ffi::Rectangle>,
+        text: Option<&CStr>,
         checked: bool,
-    },
-    GuiCheckBox(bounds.into(), text.as_ptr(), if *checked {true} else {false}).into()
-}
-
-gui_draw! {
-    struct DropDownBox {
-        bounds: Rectangle,
-        text: CString,
-        active: bool,
-        edit_mode: bool,
-    },
-{
-                    let mut active = if *active { 1 } else { 0 };
-                    let b = GuiDropdownBox(
-                        bounds.into(),
-                        text.as_ptr(),
-                        &mut active,
-                        if *edit_mode { true } else { false },
-                    );
-                    DrawResult::Dropdown(u322bool(active as u32), b)
-                }
-}
-
-gui_draw! {
-    struct Spinner {
-        bounds: Rectangle,
-        value: i32,
-        min_value: i32,
-        max_value: i32,
-        edit_mode: bool,
-    },
-{
-                    let mut value = *value;
-                    let b = GuiSpinner(
-                        bounds.into(),
-                        &mut value,
-                        *min_value,
-                        *max_value,
-                        if *edit_mode { true } else { false },
-                    );
-                    DrawResult::Value(value, b)
-                }
-}
-
-gui_draw! {
-    struct TextBox {
-        bounds: Rectangle,
-        text: CString,
-        text_size: i32,
-        edit_mode: bool,
-    },
-{
-                    let update = text.clone();
-                    let b = GuiTextBox(
-                        bounds.into(),
-                        update.as_ptr() as *mut i8,
-                        *text_size,
-                        if *edit_mode { true } else { false },
-                    );
-                    DrawResult::Text(update, b)
-                }
-}
-
-gui_draw! {
-    struct TextBoxMulti {
-        bounds: Rectangle,
-        text: CString,
-        text_size: i32,
-        edit_mode: bool,
-    },
-{
-                    let update = text.clone();
-                    let b = GuiTextBoxMulti(
-                        bounds.into(),
-                        update.as_ptr() as *mut i8,
-                        *text_size,
-                        if *edit_mode { true } else { false },
-                    );
-                    DrawResult::Text(update, b)
-                }
-}
-
-gui_draw! {
-    struct ValueBox {
-        bounds: Rectangle,
-        value: i32,
-        min_value: i32,
-        max_value: i32,
-        edit_mode: bool,
-    },
-    {
-        let mut value = *value;
-        let b = GuiValueBox(bounds.into(), &mut value, *min_value, *max_value, if *edit_mode {true} else {false});
-        DrawResult::Value(value, b)
+    ) -> bool {
+        unsafe {
+            ffi::GuiCheckBox(
+                bounds.into(),
+                text.map(CStr::as_ptr).unwrap_or(std::ptr::null()),
+                checked,
+            )
+        }
     }
-}
-
-gui_draw! {
-    struct Slider {
-        bounds: Rectangle,
-        text: CString,
-        valuef: f32,
-        min_valuef: f32,
-        max_valuef: f32,
-        show_value: bool,
-    },
-GuiSlider(
-                    bounds.into(),
-                    text.as_ptr(),
-                    *valuef,
-                    *min_valuef,
-                    *max_valuef,
-                    if *show_value { true } else { false },
-                )
-                .into()
-}
-
-gui_draw! {
-    struct SliderBar {
-        bounds: Rectangle,
-        text: CString,
-        valuef: f32,
-        min_valuef: f32,
-        max_valuef: f32,
-        show_value: bool,
-    },
-GuiSliderBar(
-                    bounds.into(),
-                    text.as_ptr(),
-                    *valuef,
-                    *min_valuef,
-                    *max_valuef,
-                    if *show_value { true } else { false },
-                )
-                .into()
-}
-
-gui_draw! {
-    struct ProgressBar {
-        bounds: Rectangle,
-        text: CString,
-        valuef: f32,
-        min_valuef: f32,
-        max_valuef: f32,
-        show_value: bool,
-    },
-GuiProgressBar(
-                    bounds.into(),
-                    text.as_ptr(),
-                    *valuef,
-                    *min_valuef,
-                    *max_valuef,
-                    if *show_value { true } else { false },
-                )
-                .into()
-}
-
-gui_draw! {
-    struct StatusBar {
-        bounds: Rectangle,
-        text: CString,
-    },
-    GuiStatusBar(bounds.into(), text.as_ptr()).into()
-}
-
-gui_draw! {
-    struct DummyRec {
-        bounds: Rectangle,
-        text: CString,
-    },
-    GuiDummyRec(bounds.into(), text.as_ptr()).into()
-}
-
-gui_draw! {
-    struct ScrollBar {
-        bounds: Rectangle,
+    /// Combo Box control, returns selected item index
+    #[inline]
+    fn gui_combo_box(
+        &mut self,
+        bounds: impl Into<ffi::Rectangle>,
+        text: Option<&CStr>,
+        active: i32,
+    ) -> i32 {
+        unsafe {
+            ffi::GuiComboBox(
+                bounds.into(),
+                text.map(CStr::as_ptr).unwrap_or(std::ptr::null()),
+                active,
+            )
+        }
+    }
+    /// Dropdown Box control, returns selected item
+    #[inline]
+    fn gui_dropdown_box(
+        &mut self,
+        bounds: impl Into<ffi::Rectangle>,
+        text: Option<&CStr>,
+        active: &mut i32,
+        edit_mode: bool,
+    ) -> bool {
+        unsafe {
+            ffi::GuiDropdownBox(
+                bounds.into(),
+                text.map(CStr::as_ptr).unwrap_or(std::ptr::null()),
+                active,
+                edit_mode,
+            )
+        }
+    }
+    /// Spinner control, returns selected value
+    #[inline]
+    fn gui_spinner(
+        &mut self,
+        bounds: impl Into<ffi::Rectangle>,
+        text: Option<&CStr>,
+        value: &mut i32,
+        min_value: i32,
+        max_value: i32,
+        edit_mode: bool,
+    ) -> bool {
+        unsafe {
+            ffi::GuiSpinner(
+                bounds.into(),
+                // text.map(CStr::as_ptr).unwrap_or(crate::rstr!("").as_ptr()),
+                text.map(CStr::as_ptr).unwrap_or(std::ptr::null()),
+                value,
+                min_value,
+                max_value,
+                edit_mode,
+            )
+        }
+    }
+    /// Value Box control, updates input text with numbers
+    #[inline]
+    fn gui_value_box(
+        &mut self,
+        bounds: impl Into<ffi::Rectangle>,
+        text: Option<&CStr>,
+        value: &mut i32,
+        min_value: i32,
+        max_value: i32,
+        edit_mode: bool,
+    ) -> bool {
+        unsafe {
+            ffi::GuiValueBox(
+                bounds.into(),
+                text.map(CStr::as_ptr).unwrap_or(std::ptr::null()),
+                value,
+                min_value,
+                max_value,
+                edit_mode,
+            )
+        }
+    }
+    /// Text Box control, updates input text
+    /// Use at your own risk!!! The allocated vector MUST have enough space for edits.
+    #[inline]
+    fn gui_text_box(
+        &mut self,
+        bounds: impl Into<ffi::Rectangle>,
+        buffer: &mut [u8],
+        edit_mode: bool,
+    ) -> bool {
+        let len = buffer.len();
+        let c_text = unsafe { CStr::from_bytes_with_nul_unchecked(buffer) };
+        unsafe {
+            ffi::GuiTextBox(
+                bounds.into(),
+                c_text.as_ptr() as *mut _,
+                len as i32,
+                edit_mode,
+            )
+        }
+    }
+    /// Text Box control with multiple lines
+    /// Use at your own risk!!! The allocated vector MUST have a nul terminator.
+    #[inline]
+    fn gui_text_box_multi(
+        &mut self,
+        bounds: impl Into<ffi::Rectangle>,
+        buffer: &mut [u8],
+        edit_mode: bool,
+    ) -> bool {
+        let len = buffer.len();
+        let c_text = unsafe { CStr::from_bytes_with_nul_unchecked(buffer) };
+        unsafe {
+            ffi::GuiTextBoxMulti(
+                bounds.into(),
+                c_text.as_ptr() as *mut _,
+                len as i32,
+                edit_mode,
+            )
+        }
+    }
+    /// Slider control, returns selected value
+    #[inline]
+    fn gui_slider(
+        &mut self,
+        bounds: impl Into<ffi::Rectangle>,
+        text_left: Option<&CStr>,
+        text_right: Option<&CStr>,
+        value: f32,
+        min_value: f32,
+        max_value: f32,
+    ) -> f32 {
+        unsafe {
+            ffi::GuiSlider(
+                bounds.into(),
+                text_left.map(CStr::as_ptr).unwrap_or(std::ptr::null()),
+                text_right.map(CStr::as_ptr).unwrap_or(std::ptr::null()),
+                value,
+                min_value,
+                max_value,
+            )
+        }
+    }
+    /// Slider Bar control, returns selected value
+    #[inline]
+    fn gui_slider_bar(
+        &mut self,
+        bounds: impl Into<ffi::Rectangle>,
+        text_left: Option<&CStr>,
+        text_right: Option<&CStr>,
+        value: f32,
+        min_value: f32,
+        max_value: f32,
+    ) -> f32 {
+        unsafe {
+            ffi::GuiSliderBar(
+                bounds.into(),
+                text_left.map(CStr::as_ptr).unwrap_or(std::ptr::null()),
+                text_right.map(CStr::as_ptr).unwrap_or(std::ptr::null()),
+                value,
+                min_value,
+                max_value,
+            )
+        }
+    }
+    /// Progress Bar control, shows current progress value
+    #[inline]
+    fn gui_progress_bar(
+        &mut self,
+        bounds: impl Into<ffi::Rectangle>,
+        text_left: Option<&CStr>,
+        text_right: Option<&CStr>,
+        value: f32,
+        min_value: f32,
+        max_value: f32,
+    ) -> f32 {
+        unsafe {
+            ffi::GuiProgressBar(
+                bounds.into(),
+                text_left.map(CStr::as_ptr).unwrap_or(std::ptr::null()),
+                text_right.map(CStr::as_ptr).unwrap_or(std::ptr::null()),
+                value,
+                min_value,
+                max_value,
+            )
+        }
+    }
+    /// Status Bar control, shows info text
+    #[inline]
+    fn gui_status_bar(&mut self, bounds: impl Into<ffi::Rectangle>, text: Option<&CStr>) {
+        unsafe {
+            ffi::GuiStatusBar(
+                bounds.into(),
+                text.map(CStr::as_ptr).unwrap_or(std::ptr::null()),
+            )
+        }
+    }
+    /// Dummy control for placeholders
+    #[inline]
+    fn gui_dummy_rec(&mut self, bounds: impl Into<ffi::Rectangle>, text: Option<&CStr>) {
+        unsafe {
+            ffi::GuiStatusBar(
+                bounds.into(),
+                text.map(CStr::as_ptr).unwrap_or(std::ptr::null()),
+            )
+        }
+    }
+    /// Scroll Bar control
+    #[inline]
+    fn gui_scroll_bar(
+        &mut self,
+        bounds: impl Into<ffi::Rectangle>,
         value: i32,
         min_value: i32,
         max_value: i32,
-    },
-DrawResult::ScrollBar(GuiScrollBar(
-                    bounds.into(),
-                    *value,
-                    *min_value,
-                    *max_value,
-                ))
-}
-
-gui_draw! {
-    struct ListView {
-        bounds: Rectangle,
-        text: CString,
-        active: bool,
-        scroll_index: i32,
-        edit_mode: bool,
-    },
-{
-                    let mut scroll_index = *scroll_index;
-                    let mut active = if *active { 1 } else { 0 };
-                    let b = GuiListView(
-                        bounds.into(),
-                        text.as_ptr(),
-                        &mut active,
-                        &mut scroll_index,
-                        if *edit_mode { true } else { false },
-                    );
-                    DrawResult::ListView(scroll_index, u322bool(active as u32), b)
-                }
-}
-
-gui_draw! {
-    struct ListViewEx {
-        bounds: Rectangle,
-        text: CString,
-        count: i32,
-        enabled: bool,
-        active: bool,
-        focus: bool,
-        scroll_index: i32,
-        edit_mode: bool,
-    },
-{
-                    let mut current_text = text.clone();
-                    let current_text_ptr = current_text.as_ptr() as *mut i8;
-                    let next_text = current_text_ptr;
-                    let mut enabled = if *enabled { 1 } else { 0 };
-                    let mut active = if *active { 1 } else { 0 };
-                    let mut focus = if *focus { 1 } else { 0 };
-                    let mut scroll_index = *scroll_index;
-                    let _b = GuiListViewEx(
-                        bounds.into(),
-                        &mut (next_text as *const i8),
-                        *count,
-                        &mut enabled,
-                        &mut active,
-                        &mut focus,
-                        &mut scroll_index,
-                        if *edit_mode { true } else { false },
-                    );
-                    current_text = CString::from_raw(next_text);
-                    DrawResult::ListViewEx(
-                        current_text,
-                        u322bool(enabled as u32),
-                        u322bool(active as u32),
-                        u322bool(focus as u32),
-                        scroll_index,
-                    )
-                }
-}
-
-gui_draw! {
-    struct MessageBox {
-        bounds: Rectangle,
-        window_title: CString,
-        message: CString,
-        buttons: CString,
-    },
-DrawResult::Selected(GuiMessageBox(
-                    bounds.into(),
-                    window_title.as_ptr(),
-                    message.as_ptr(),
-                    buttons.as_ptr(),
-                ))
-}
-
-gui_draw! {
-    struct ColorPicker {
-        bounds: Rectangle,
-        color: Color,
-    },
-    DrawResult::Color(GuiColorPicker(bounds.into(), *color))
-}
-
-gui_draw! {
-    struct Grid {
-        bounds: Rectangle,
+    ) -> i32 {
+        unsafe { ffi::GuiScrollBar(bounds.into(), value, min_value, max_value) }
+    }
+    /// Grid control
+    #[inline]
+    fn gui_grid(
+        &mut self,
+        bounds: impl Into<ffi::Rectangle>,
         spacing: f32,
         subdivs: i32,
-    },
-    DrawResult::Grid(GuiGrid(bounds.into(), *spacing, *subdivs))
+    ) -> Vector2 {
+        unsafe { ffi::GuiGrid(bounds.into(), spacing, subdivs).into() }
+    }
+    /// List View control, returns selected list item index
+    #[inline]
+    fn gui_list_view(
+        &mut self,
+        bounds: impl Into<ffi::Rectangle>,
+        text: Option<&CStr>,
+        scroll_index: &mut i32,
+        active: i32,
+    ) -> i32 {
+        unsafe {
+            ffi::GuiListView(
+                bounds.into(),
+                text.map(CStr::as_ptr).unwrap_or(std::ptr::null()),
+                scroll_index,
+                active,
+            )
+        }
+    }
+    /// List View with extended parameters
+    #[inline]
+    fn gui_list_view_ex(
+        &mut self,
+        bounds: impl Into<ffi::Rectangle>,
+        text: &[&CStr],
+        count: i32,
+        focus: &mut i32,
+        scroll_index: &mut i32,
+        active: i32,
+    ) -> i32 {
+        let mut buffer = Vec::with_capacity(text.len());
+        for t in text {
+            buffer.push(t.as_ptr());
+        }
+        unsafe {
+            ffi::GuiListViewEx(
+                bounds.into(),
+                buffer.as_mut_ptr(),
+                count,
+                focus,
+                scroll_index,
+                active,
+            )
+        }
+    }
+    /// Message Box control, displays a message
+    #[inline]
+    fn gui_message_box(
+        &mut self,
+        bounds: impl Into<ffi::Rectangle>,
+        text: Option<&CStr>,
+        message: Option<&CStr>,
+        buttons: Option<&CStr>,
+    ) -> i32 {
+        unsafe {
+            ffi::GuiMessageBox(
+                bounds.into(),
+                text.map(CStr::as_ptr).unwrap_or(std::ptr::null()),
+                message.map(CStr::as_ptr).unwrap_or(std::ptr::null()),
+                buttons.map(CStr::as_ptr).unwrap_or(std::ptr::null()),
+            )
+        }
+    }
+    /// Text Input Box control, ask for text
+    #[inline]
+    fn gui_text_input_box(
+        &mut self,
+        bounds: impl Into<ffi::Rectangle>,
+        title: Option<&CStr>,
+        message: Option<&CStr>,
+        buttons: Option<&CStr>,
+        text: &mut Vec<u8>,
+    ) -> i32 {
+        // rgui.h: line 3699 MAX_FILENAME_LEN
+        text.reserve((256 - text.len()).max(0) as usize);
+        unsafe {
+            ffi::GuiTextInputBox(
+                bounds.into(),
+                title.map(CStr::as_ptr).unwrap_or(std::ptr::null()),
+                message.map(CStr::as_ptr).unwrap_or(std::ptr::null()),
+                buttons.map(CStr::as_ptr).unwrap_or(std::ptr::null()),
+                text.as_mut_ptr() as *mut _,
+            )
+        }
+    }
+
+    /// Color Picker control
+    #[inline]
+    fn gui_color_picker(
+        &mut self,
+        bounds: impl Into<ffi::Rectangle>,
+        color: impl Into<ffi::Color>,
+    ) -> Color {
+        unsafe { ffi::GuiColorPicker(bounds.into(), color.into()).into() }
+    }
+    // Get text with icon id prepended
+    // NOTE: Useful to add icons by name id (enum) instead of
+    // a number that can change between ricon versions
+    #[inline]
+    fn gui_icon_text(
+        &mut self,
+        icon_id: crate::consts::guiIconName,
+        text: Option<&CStr>,
+    ) -> String {
+        let buffer = unsafe {
+            ffi::GuiIconText(
+                icon_id as i32,
+                text.map(CStr::as_ptr).unwrap_or(std::ptr::null()),
+            )
+        };
+        if buffer.is_null() {
+            return text
+                .map(|s| s.to_string_lossy().to_string())
+                .unwrap_or("".to_owned());
+        }
+        let c_str = unsafe { CStr::from_ptr(buffer) };
+        let str_slice = c_str.to_str().unwrap_or("");
+        let str_buf = str_slice.to_owned();
+        // THERE IS NO WAY THIS DOESN"T LEEK MEMORY. TODO figure out a way to free this buffer.
+        str_buf
+    }
+
+    /// Color Bar Alpha control
+    /// NOTE: Returns alpha value normalized [0..1]
+    #[inline]
+    fn gui_color_bar_alpha(&mut self, bounds: impl Into<ffi::Rectangle>, alpha: f32) -> f32 {
+        unsafe { ffi::GuiColorBarAlpha(bounds.into(), alpha).into() }
+    }
 }

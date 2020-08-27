@@ -2,7 +2,7 @@
 use crate::core::texture::Image;
 use crate::core::{RaylibHandle, RaylibThread};
 use crate::ffi;
-use std::ffi::{CStr, CString};
+use std::ffi::CString;
 
 /// Returns a random value between min and max (both included)
 /// ```rust
@@ -11,8 +11,8 @@ use std::ffi::{CStr, CString};
 ///     let r = get_random_value(0, 10);
 ///     println!("random value: {}", r);
 /// }
-pub fn get_random_value(min: i32, max: i32) -> i32 {
-    unsafe { ffi::GetRandomValue(min, max) }
+pub fn get_random_value<T: From<i32>>(min: i32, max: i32) -> T {
+    unsafe { (ffi::GetRandomValue(min, max) as i32).into() }
 }
 
 /// Open URL with default system browser (if available)
@@ -42,14 +42,25 @@ impl RaylibHandle {
     }
 }
 
-/// Loads a text file and returns its contents in a string.
-#[inline]
-pub fn load_text(filename: &str) -> String {
-    let c_filename = CString::new(filename).unwrap();
-    unsafe {
-        let text = ffi::LoadText(c_filename.as_ptr());
-        let safe_text = CStr::from_ptr(text).to_str().unwrap().to_owned();
-        libc::free(text as *mut libc::c_void);
-        safe_text
-    }
+// lossy conversion to an f32
+pub trait AsF32: Copy {
+    fn as_f32(self) -> f32;
 }
+
+macro_rules! as_f32 {
+    ($ty:ty) => {
+        impl AsF32 for $ty {
+            fn as_f32(self) -> f32 {
+                self as f32
+            }
+        }
+    };
+}
+
+as_f32!(u8);
+as_f32!(u16);
+as_f32!(u32);
+as_f32!(i8);
+as_f32!(i16);
+as_f32!(i32);
+as_f32!(f32);

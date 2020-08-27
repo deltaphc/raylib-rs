@@ -986,6 +986,8 @@ fn handle_keys(
     use raylib::consts::KeyboardKey::*;
     use PlayerAction::*;
 
+    let pressed_key = rl.get_key_pressed_number();
+
     if rl.is_key_down(KEY_LEFT_ALT) && rl.is_key_pressed(KEY_ENTER) {
         rl.toggle_fullscreen();
         return DidntTakeTurn;
@@ -1022,6 +1024,7 @@ fn handle_keys(
                     inventory_menu(
                         &game.inventory,
                         "Press the key next to an item to use it, or any other to cancel.",
+                        pressed_key,
                         &mut d,
                     )
                 };
@@ -1046,6 +1049,7 @@ fn handle_keys(
                     inventory_menu(
                         &game.inventory,
                         "Press the key next to an item to drop it, or any other to cancel.\n'",
+                        pressed_key,
                         &mut d,
                     )
                 };
@@ -1095,7 +1099,7 @@ Defense: {}",
                     {
                         let mut d = rl.begin_drawing(thread);
                         render_all(tcod, &mut d, game, objects, false);
-                        msgbox(&msg, CHARACTER_SCREEN_WIDTH, &mut d);
+                        msgbox(&msg, CHARACTER_SCREEN_WIDTH, pressed_key, &mut d);
                     }
                     if let Some(_key) = rl.get_key_pressed_number() {
                         break;
@@ -1462,6 +1466,7 @@ fn level_up(rl: &mut RaylibHandle, thread: &RaylibThread, game: &mut Game, objec
         let fighter = player.fighter.as_mut().unwrap();
         let mut choice = None;
         while choice.is_none() {
+            let pressed_key = rl.get_key_pressed_number();
             let mut d = rl.begin_drawing(thread);
             // keep asking until a choice is made
             choice = menu(
@@ -1472,6 +1477,7 @@ fn level_up(rl: &mut RaylibHandle, thread: &RaylibThread, game: &mut Game, objec
                     format!("Agility (+1 defense, from {})", fighter.base_defense),
                 ],
                 LEVEL_SCREEN_WIDTH,
+                pressed_key,
                 &mut d,
             );
         }
@@ -1564,13 +1570,14 @@ fn main_menu(rl: &mut RaylibHandle, thread: &RaylibThread, tcod: &mut Tcod) {
     let img =
         Image::load_image("static/menu_background.png").expect("could not load background image");
     let (w, h) = (img.width(), img.height());
-    let mut img = rl
+    let img = rl
         .load_texture_from_image(&thread, &img)
         .expect("could not load texture from image");
-    img.set_texture_wrap(raylib::consts::TextureWrapMode::WRAP_CLAMP);
+    img.set_texture_wrap(thread, raylib::consts::TextureWrapMode::WRAP_CLAMP);
 
     while !rl.window_should_close() {
         // show the background image, at twice the regular console resolution
+        let pressed_key = rl.get_key_pressed_number();
         let choice = {
             let mut d = rl.begin_drawing(thread);
             d.clear_background(Color::BLACK);
@@ -1599,7 +1606,7 @@ fn main_menu(rl: &mut RaylibHandle, thread: &RaylibThread, tcod: &mut Tcod) {
             );
             // show options and wait for the player's choice
             let choices = &["Play a new game", "Continue last game", "Quit"];
-            menu("", choices, 24, &mut d)
+            menu("", choices, 24, pressed_key, &mut d)
         };
         match choice {
             Some(0) => {
@@ -1617,7 +1624,7 @@ fn main_menu(rl: &mut RaylibHandle, thread: &RaylibThread, tcod: &mut Tcod) {
                     Err(_e) => {
                         {
                             let mut d = rl.begin_drawing(thread);
-                            msgbox("\nNo saved game to load.\n", 24, &mut d);
+                            msgbox("\nNo saved game to load.\n", 24, pressed_key, &mut d);
                         }
                         continue;
                     }
@@ -1632,14 +1639,15 @@ fn main_menu(rl: &mut RaylibHandle, thread: &RaylibThread, tcod: &mut Tcod) {
     }
 }
 
-fn msgbox(text: &str, width: i32, d: &mut RaylibDrawHandle) {
+fn msgbox(text: &str, width: i32, pressed_key: Option<u32>, d: &mut RaylibDrawHandle) {
     let options: &[&str] = &[];
-    menu(text, options, width, d);
+    menu(text, options, width, pressed_key, d);
 }
 
 fn inventory_menu(
     inventory: &[Object],
     header: &str,
+    pressed_key: Option<u32>,
     root: &mut RaylibDrawHandle,
 ) -> Option<usize> {
     // how a menu with each item of the inventory as an option
@@ -1660,7 +1668,7 @@ fn inventory_menu(
             .collect()
     };
 
-    let inventory_index = menu(header, &options, INVENTORY_WIDTH, root);
+    let inventory_index = menu(header, &options, INVENTORY_WIDTH, pressed_key, root);
 
     // if an item was chosen, return it
     if inventory.len() > 0 {
@@ -1848,6 +1856,7 @@ fn menu<T: AsRef<str>>(
     header: &str,
     options: &[T],
     width: i32,
+    pressed_key: Option<u32>,
     d: &mut RaylibDrawHandle,
 ) -> Option<usize> {
     assert!(
@@ -1881,7 +1890,7 @@ fn menu<T: AsRef<str>>(
         );
     }
 
-    if let Some(pressed_key) = d.get_key_pressed_number() {
+    if let Some(pressed_key) = pressed_key {
         dbg!(pressed_key);
         use std::num::Wrapping;
         let index = Wrapping(pressed_key) - Wrapping('a' as u32);

@@ -7,16 +7,70 @@ use std::ffi::{CStr, CString, IntoStringError, NulError};
 // MonitorInfo grabs the sizes (virtual and physical) of your monitor
 #[derive(Clone, Debug)]
 pub struct MonitorInfo {
-    width: i32,
-    height: i32,
-    physical_width: i32,
-    physical_height: i32,
-    name: String,
+    pub width: i32,
+    pub height: i32,
+    pub physical_width: i32,
+    pub physical_height: i32,
+    pub name: String,
 }
 
 /// Get number of connected monitors
+#[inline]
 pub fn get_monitor_count() -> i32 {
     unsafe { ffi::GetMonitorCount() }
+}
+
+/// Get number of connected monitors
+/// Only checks that monitor index is in range in debug mode
+#[inline]
+pub fn get_monitor_width(monitor: i32) -> i32 {
+    let len = get_monitor_count();
+    debug_assert!(monitor < len && monitor >= 0, "monitor index out of range");
+
+    unsafe { ffi::GetMonitorWidth(monitor) }
+}
+
+/// Get number of connected monitors
+/// Only checks that monitor index is in range in debug mode
+#[inline]
+pub fn get_monitor_height(monitor: i32) -> i32 {
+    let len = get_monitor_count();
+    debug_assert!(monitor < len && monitor >= 0, "monitor index out of range");
+
+    unsafe { ffi::GetMonitorHeight(monitor) }
+}
+
+/// Get number of connected monitors
+/// Only checks that monitor index is in range in debug mode
+#[inline]
+pub fn get_monitor_physical_width(monitor: i32) -> i32 {
+    let len = get_monitor_count();
+    debug_assert!(monitor < len && monitor >= 0, "monitor index out of range");
+
+    unsafe { ffi::GetMonitorPhysicalWidth(monitor) }
+}
+
+/// Get number of connected monitors
+/// Only checks that monitor index is in range in debug mode
+#[inline]
+pub fn get_monitor_physical_height(monitor: i32) -> i32 {
+    let len = get_monitor_count();
+    debug_assert!(monitor < len && monitor >= 0, "monitor index out of range");
+
+    unsafe { ffi::GetMonitorPhysicalHeight(monitor) }
+}
+
+/// Get number of connected monitors
+/// Only checks that monitor index is in range in debug mode
+#[inline]
+pub fn get_monitor_name(monitor: i32) -> Result<String, IntoStringError> {
+    let len = get_monitor_count();
+    debug_assert!(monitor < len && monitor >= 0, "monitor index out of range");
+
+    Ok(unsafe {
+        let c = CString::from_raw(ffi::GetMonitorName(monitor) as *mut i8);
+        c.into_string()?
+    })
 }
 /// Gets the attributes of the monitor as well as the name
 /// fails if monitor name is not a utf8 string
@@ -31,27 +85,16 @@ pub fn get_monitor_count() -> i32 {
 ///     Ok(())
 /// }
 /// ```
-pub fn get_monitor_info(index: i32) -> Result<MonitorInfo, IntoStringError> {
+pub fn get_monitor_info(monitor: i32) -> Result<MonitorInfo, IntoStringError> {
     let len = get_monitor_count();
-    debug_assert!(index < len && index >= 0, "monitor index out of range");
-    let (width, height, physical_width, physical_height) = unsafe {
-        (
-            ffi::GetMonitorWidth(index),
-            ffi::GetMonitorHeight(index),
-            ffi::GetMonitorPhysicalWidth(index),
-            ffi::GetMonitorPhysicalHeight(index),
-        )
-    };
-    let name = unsafe {
-        let c = CString::from_raw(ffi::GetMonitorName(index) as *mut i8);
-        c.into_string()?
-    };
+    debug_assert!(monitor < len && monitor >= 0, "monitor index out of range");
+
     Ok(MonitorInfo {
-        width,
-        height,
-        physical_height,
-        physical_width,
-        name,
+        width: get_monitor_width(monitor),
+        height: get_monitor_height(monitor),
+        physical_height: get_monitor_physical_height(monitor),
+        physical_width: get_monitor_physical_width(monitor),
+        name: get_monitor_name(monitor)?,
     })
 }
 
@@ -59,17 +102,35 @@ pub fn get_monitor_info(index: i32) -> Result<MonitorInfo, IntoStringError> {
 /// ```rust
 /// use raylib::prelude::*;
 /// fn main() {
-///     let c = Camera::orthographic(
+///     let c = Camera::perspective(
 ///            Vector3::zero(),
-///            Vector3::new(0.0, 0.0, 1.0),
+///            Vector3::new(0.0, 0.0, -1.0),
 ///            Vector3::up(),
 ///            90.0,
 ///        );
 ///        let m = get_camera_matrix(&c);
+///        assert_eq!(m, Matrix::identity());
 /// }
 /// ```
 pub fn get_camera_matrix(camera: impl Into<ffi::Camera>) -> Matrix {
     unsafe { ffi::GetCameraMatrix(camera.into()).into() }
+}
+
+/// Returns camera 2D transform matrix (view matrix)
+/// ```rust
+/// use raylib::prelude::*;
+/// fn main() {
+///     let c = Camera2D::default();
+///     let m = get_camera_matrix2D(&c);
+///     let mut check = Matrix::zero();
+///     check.m10 = 1.0;
+///     check.m15 = 1.0;
+///     assert_eq!(m, check);
+/// }
+/// ```
+#[allow(non_snake_case)]
+pub fn get_camera_matrix2D(camera: impl Into<ffi::Camera2D>) -> Matrix {
+    unsafe { ffi::GetCameraMatrix2D(camera.into()).into() }
 }
 
 impl RaylibHandle {
@@ -110,6 +171,37 @@ impl RaylibHandle {
         camera: impl Into<ffi::Camera>,
     ) -> Vector2 {
         unsafe { ffi::GetWorldToScreen(position.into(), camera.into()).into() }
+    }
+
+    /// Returns the screen space position for a 2d camera world space position
+    #[allow(non_snake_case)]
+    pub fn get_world_to_screen2D(
+        &self,
+        position: impl Into<ffi::Vector2>,
+        camera: impl Into<ffi::Camera2D>,
+    ) -> Vector2 {
+        unsafe { ffi::GetWorldToScreen2D(position.into(), camera.into()).into() }
+    }
+
+    /// Returns size position for a 3d world space position
+    pub fn get_world_to_screen_ex(
+        &self,
+        position: impl Into<ffi::Vector3>,
+        camera: impl Into<ffi::Camera>,
+        width: i32,
+        height: i32,
+    ) -> Vector2 {
+        unsafe { ffi::GetWorldToScreenEx(position.into(), camera.into(), width, height).into() }
+    }
+
+    /// Returns the world space position for a 2d camera screen space position
+    #[allow(non_snake_case)]
+    pub fn get_screen_to_world2D(
+        &self,
+        position: impl Into<ffi::Vector2>,
+        camera: impl Into<ffi::Camera2D>,
+    ) -> Vector2 {
+        unsafe { ffi::GetScreenToWorld2D(position.into(), camera.into()).into() }
     }
 }
 
@@ -222,6 +314,8 @@ impl RaylibHandle {
     /// Sets monitor for the current window (fullscreen mode).
     #[inline]
     pub fn set_window_monitor(&mut self, monitor: i32) {
+        let len = get_monitor_count();
+        debug_assert!(monitor < len && monitor >= 0, "monitor index out of range");
         unsafe {
             ffi::SetWindowMonitor(monitor);
         }
@@ -253,6 +347,12 @@ impl RaylibHandle {
     #[inline]
     pub fn get_screen_height(&self) -> i32 {
         unsafe { ffi::GetScreenHeight() }
+    }
+
+    /// Get window position
+    #[inline]
+    pub fn get_window_position(&self) -> Vector2 {
+        unsafe { ffi::GetWindowPosition().into() }
     }
 }
 
@@ -296,7 +396,7 @@ impl RaylibHandle {
         }
     }
 
-    /// Get the raw window Handle
+    /// Get native window handle
     #[inline]
     pub unsafe fn get_window_handle(&mut self) -> *mut ::std::os::raw::c_void {
         ffi::GetWindowHandle()

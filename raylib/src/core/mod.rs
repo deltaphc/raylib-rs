@@ -5,6 +5,7 @@ pub mod audio;
 pub mod camera;
 pub mod collision;
 pub mod color;
+pub mod data;
 pub mod drawing;
 pub mod file;
 pub mod input;
@@ -13,7 +14,6 @@ pub mod math;
 pub mod misc;
 pub mod models;
 pub mod shaders;
-pub mod storage;
 pub mod text;
 pub mod texture;
 pub mod vr;
@@ -23,6 +23,23 @@ use crate::ffi;
 use std::ffi::CString;
 use std::marker::PhantomData;
 use std::sync::atomic::{AtomicBool, Ordering};
+
+// shamelessly stolen from imgui
+#[macro_export]
+macro_rules! rstr {
+    ($e:tt) => ({
+        #[allow(unused_unsafe)]
+        unsafe {
+          std::ffi::CStr::from_bytes_with_nul_unchecked(concat!($e, "\0").as_bytes())
+        }
+    });
+    ($e:tt, $($arg:tt)*) => ({
+        #[allow(unused_unsafe)]
+        unsafe {
+          std::ffi::CString::new(format!($e, $($arg)*))
+        }
+    })
+}
 
 static IS_INITIALIZED: AtomicBool = AtomicBool::new(false);
 
@@ -56,7 +73,6 @@ impl Drop for RaylibHandle {
 /// A builder that allows more customization of the game window shown to the user before the `RaylibHandle` is created.
 #[derive(Debug, Default)]
 pub struct RaylibBuilder {
-    show_logo: bool,
     fullscreen_mode: bool,
     window_resizable: bool,
     window_undecorated: bool,
@@ -79,12 +95,6 @@ pub fn init() -> RaylibBuilder {
 }
 
 impl RaylibBuilder {
-    /// Shows the raylib logo at startup.
-    pub fn with_logo(&mut self) -> &mut Self {
-        self.show_logo = true;
-        self
-    }
-
     /// Sets the window to be fullscreen.
     pub fn fullscreen(&mut self) -> &mut Self {
         self.fullscreen_mode = true;
@@ -154,9 +164,6 @@ impl RaylibBuilder {
     pub fn build(&self) -> (RaylibHandle, RaylibThread) {
         use crate::consts::ConfigFlag::*;
         let mut flags = 0u32;
-        if self.show_logo {
-            flags |= FLAG_SHOW_LOGO as u32;
-        }
         if self.fullscreen_mode {
             flags |= FLAG_FULLSCREEN_MODE as u32;
         }
@@ -177,7 +184,7 @@ impl RaylibBuilder {
         }
 
         unsafe {
-            ffi::SetConfigFlags(flags as u8);
+            ffi::SetConfigFlags(flags as u32);
         }
         let rl = init_window(self.width, self.height, &self.title);
         (rl, RaylibThread(PhantomData))
@@ -191,11 +198,14 @@ impl RaylibBuilder {
 /// Attempting to initialize Raylib more than once will result in a panic.
 fn init_window(width: i32, height: i32, title: &str) -> RaylibHandle {
     if IS_INITIALIZED.load(Ordering::Relaxed) {
-        panic!("Attempted to initialize raylib-rs more than once");
+        panic!("Attempted to initialize raylib-rs more than once!");
     } else {
         unsafe {
             let c_title = CString::new(title).unwrap();
             ffi::InitWindow(width, height, c_title.as_ptr());
+        }
+        if !unsafe { ffi::IsWindowReady() } {
+            panic!("Attempting to create window failed!");
         }
         IS_INITIALIZED.store(true, Ordering::Relaxed);
         RaylibHandle(())

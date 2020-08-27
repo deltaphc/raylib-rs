@@ -188,8 +188,14 @@ impl Font {
             f.baseSize = base_size;
             f.set_chars(chars);
 
-            let atlas =
-                ffi::GenImageFontAtlas(f.chars, f.baseSize, f.charsCount, padding, pack_method);
+            let atlas = ffi::GenImageFontAtlas(
+                f.chars,
+                &mut f.0.recs,
+                f.baseSize,
+                f.charsCount,
+                padding,
+                pack_method,
+            );
             f.texture = ffi::LoadTextureFromImage(atlas);
             ffi::UnloadImage(atlas);
             f
@@ -223,6 +229,8 @@ impl Font {
 }
 
 /// Generates image font atlas using `chars` info.
+/// Sets a pointer to an array of rectangles raylib allocated that MUST manually be freed.
+/// Good luck freeing it safely though ;)
 #[inline]
 pub fn gen_image_font_atlas(
     _: &RaylibThread,
@@ -230,15 +238,24 @@ pub fn gen_image_font_atlas(
     font_size: i32,
     padding: i32,
     pack_method: i32,
-) -> Image {
+) -> (Image, Vec<ffi::Rectangle>) {
     unsafe {
-        Image(ffi::GenImageFontAtlas(
+        let mut ptr = std::ptr::null_mut();
+
+        let img = Image(ffi::GenImageFontAtlas(
             chars.as_mut_ptr(),
+            &mut ptr,
             font_size,
             chars.len() as i32,
             padding,
             pack_method,
-        ))
+        ));
+
+        let mut recs = Vec::with_capacity(chars.len());
+        recs.set_len(chars.len());
+        std::ptr::copy(ptr, recs.as_mut_ptr(), chars.len());
+        libc::free(ptr as *mut libc::c_void);
+        return (img, recs);
     }
 }
 

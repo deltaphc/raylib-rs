@@ -199,10 +199,10 @@ fn init_world(rl: &RaylibHandle, world: &mut World) -> EntityMap {
     for x in 0..TILE_COUNT {
         for y in 0..TILE_COUNT {
             let mut eb = world.create_entity().with(Tile).with(Pos(x, y));
-            if !placed_player && get_random_value(0, 100) < 10 {
+            if !placed_player && get_random_value::<i32>(0, 100) < 10 {
                 placed_player = true;
                 eb = eb.with(Player);
-            } else if get_random_value(0, 100) < 10 {
+            } else if get_random_value::<i32>(0, 100) < 10 {
                 eb = eb.with(Fire);
             }
 

@@ -41,47 +41,65 @@ impl Into<ffi::NPatchInfo> for &NPatchInfo {
     }
 }
 
+fn no_drop<T>(_thing: T) {}
 make_thin_wrapper!(Image, ffi::Image, ffi::UnloadImage);
 make_thin_wrapper!(Texture2D, ffi::Texture2D, ffi::UnloadTexture);
+make_thin_wrapper!(WeakTexture2D, ffi::Texture2D, no_drop);
 make_thin_wrapper!(
     RenderTexture2D,
     ffi::RenderTexture2D,
     ffi::UnloadRenderTexture
 );
+make_thin_wrapper!(WeakRenderTexture2D, ffi::RenderTexture2D, no_drop);
 
-// Prevent Textures from being sent to other threads
-// #[cfg(feature = "nightly")]
-// impl !Send for Texture2D {}
-// #[cfg(feature = "nightly")]
-// impl !Sync for Texture2D {}
-// #[cfg(feature = "nightly")]
-// impl !Send for RenderTexture2D {}
-// #[cfg(feature = "nightly")]
-// impl !Sync for RenderTexture2D {}
+// Weak things can be clone
+impl Clone for WeakTexture2D {
+    fn clone(&self) -> WeakTexture2D {
+        WeakTexture2D(self.0)
+    }
+}
+
+// Weak things can be clone
+impl Clone for WeakRenderTexture2D {
+    fn clone(&self) -> WeakRenderTexture2D {
+        WeakRenderTexture2D(self.0)
+    }
+}
+
+impl RaylibRenderTexture2D for WeakRenderTexture2D {}
+impl RaylibRenderTexture2D for RenderTexture2D {}
 
 impl RenderTexture2D {
-    pub fn id(&self) -> u32 {
-        self.0.id
+    pub unsafe fn make_weak(self) -> WeakRenderTexture2D {
+        let m = WeakRenderTexture2D(self.0);
+        std::mem::forget(self);
+        m
+    }
+}
+
+pub trait RaylibRenderTexture2D: AsRef<ffi::RenderTexture2D> + AsMut<ffi::RenderTexture2D> {
+    fn id(&self) -> u32 {
+        self.as_ref().id
     }
 
-    pub fn texture(&self) -> &Texture2D {
-        unsafe { std::mem::transmute(&self.0.texture) }
+    fn texture(&self) -> &WeakTexture2D {
+        unsafe { std::mem::transmute(&self.as_ref().texture) }
     }
 
-    pub fn texture_mut(&mut self) -> &mut Texture2D {
-        unsafe { std::mem::transmute(&mut self.0.texture) }
+    fn texture_mut(&mut self) -> &mut WeakTexture2D {
+        unsafe { std::mem::transmute(&mut self.as_mut().texture) }
     }
 
-    pub fn depth(&self) -> Option<&Texture2D> {
-        if self.0.depthTexture {
-            return unsafe { Some(std::mem::transmute(&self.0.depth)) };
+    fn depth(&self) -> Option<&WeakTexture2D> {
+        if self.as_ref().depthTexture {
+            return unsafe { Some(std::mem::transmute(&self.as_ref().depth)) };
         }
         None
     }
 
-    pub fn depth_mut(&mut self) -> Option<&mut Texture2D> {
-        if self.0.depthTexture {
-            return unsafe { Some(std::mem::transmute(&mut self.0.depth)) };
+    fn depth_mut(&mut self) -> Option<&mut WeakTexture2D> {
+        if self.as_mut().depthTexture {
+            return unsafe { Some(std::mem::transmute(&mut self.as_mut().depth)) };
         }
         None
     }
@@ -106,10 +124,16 @@ impl Image {
     pub unsafe fn data(&self) -> *mut ::std::os::raw::c_void {
         self.0.data
     }
+
     #[inline]
     pub fn format(&self) -> crate::consts::PixelFormat {
         let i: u32 = self.format as u32;
         unsafe { std::mem::transmute(i) }
+    }
+
+    #[inline]
+    pub fn from_image(&self, rec: impl Into<ffi::Rectangle>) -> Image {
+        unsafe { Image(ffi::ImageFromImage(self.0, rec.into())) }
     }
 
     /// Exports image as a PNG file.
@@ -166,8 +190,9 @@ impl Image {
         }
     }
 
+    /// Extract color palette from image to maximum size
     #[inline]
-    pub fn image_extract_palette(&self, max_palette_size: u32) -> Vec<Color> {
+    pub fn extract_palette(&self, max_palette_size: u32) -> Vec<Color> {
         unsafe {
             let mut palette_len = 0;
             let image_data =
@@ -179,6 +204,7 @@ impl Image {
                 safe_image_data.as_mut_ptr() as *mut ffi::Color,
                 palette_len as usize,
             );
+            // TODO replace this with raylib free
             libc::free(image_data as *mut libc::c_void);
             safe_image_data
         }
@@ -186,7 +212,7 @@ impl Image {
 
     /// Converts `image` to POT (power-of-two).
     #[inline]
-    pub fn image_to_pot(&mut self, fill_color: impl Into<ffi::Color>) {
+    pub fn to_pot(&mut self, fill_color: impl Into<ffi::Color>) {
         unsafe {
             ffi::ImageToPOT(&mut self.0, fill_color.into());
         }
@@ -194,7 +220,7 @@ impl Image {
 
     /// Converts `image` data to desired pixel format.
     #[inline]
-    pub fn image_format(&mut self, new_format: crate::consts::PixelFormat) {
+    pub fn set_format(&mut self, new_format: crate::consts::PixelFormat) {
         unsafe {
             ffi::ImageFormat(&mut self.0, (new_format as u32) as i32);
         }
@@ -204,7 +230,7 @@ impl Image {
     /// Alpha mask must be same size as the image. If alpha mask is not greyscale
     /// Ensure the colors are white (255, 255, 255, 255) or black (0, 0, 0, 0)
     #[inline]
-    pub fn image_alpha_mask(&mut self, alpha_mask: &Image) {
+    pub fn alpha_mask(&mut self, alpha_mask: &Image) {
         unsafe {
             ffi::ImageAlphaMask(&mut self.0, alpha_mask.0);
         }
@@ -212,7 +238,7 @@ impl Image {
 
     /// Clears alpha channel on `image` to desired color.
     #[inline]
-    pub fn image_alpha_clear(&mut self, color: impl Into<ffi::Color>, threshold: f32) {
+    pub fn alpha_clear(&mut self, color: impl Into<ffi::Color>, threshold: f32) {
         unsafe {
             ffi::ImageAlphaClear(&mut self.0, color.into(), threshold);
         }
@@ -220,7 +246,7 @@ impl Image {
 
     /// Crops `image` depending on alpha value.
     #[inline]
-    pub fn image_alpha_crop(&mut self, threshold: f32) {
+    pub fn alpha_crop(&mut self, threshold: f32) {
         unsafe {
             ffi::ImageAlphaCrop(&mut self.0, threshold);
         }
@@ -228,7 +254,7 @@ impl Image {
 
     /// Premultiplies alpha channel on `image`.
     #[inline]
-    pub fn image_alpha_premultiply(&mut self) {
+    pub fn alpha_premultiply(&mut self) {
         unsafe {
             ffi::ImageAlphaPremultiply(&mut self.0);
         }
@@ -236,7 +262,7 @@ impl Image {
 
     /// Crops `image` to a defined rectangle.
     #[inline]
-    pub fn image_crop(&mut self, crop: impl Into<ffi::Rectangle>) {
+    pub fn crop(&mut self, crop: impl Into<ffi::Rectangle>) {
         unsafe {
             ffi::ImageCrop(&mut self.0, crop.into());
         }
@@ -244,7 +270,7 @@ impl Image {
 
     /// Resizes `image` (bilinear filtering).
     #[inline]
-    pub fn image_resize(&mut self, new_width: i32, new_height: i32) {
+    pub fn resize(&mut self, new_width: i32, new_height: i32) {
         unsafe {
             ffi::ImageResize(&mut self.0, new_width, new_height);
         }
@@ -252,7 +278,7 @@ impl Image {
 
     /// Resizes `image` (nearest-neighbor scaling).
     #[inline]
-    pub fn image_resize_nn(&mut self, new_width: i32, new_height: i32) {
+    pub fn resize_nn(&mut self, new_width: i32, new_height: i32) {
         unsafe {
             ffi::ImageResizeNN(&mut self.0, new_width, new_height);
         }
@@ -260,7 +286,7 @@ impl Image {
 
     /// Resizes `image` canvas and fills with `color`.
     #[inline]
-    pub fn image_resize_canvas(
+    pub fn resize_canvas(
         &mut self,
         new_width: i32,
         new_height: i32,
@@ -282,7 +308,7 @@ impl Image {
 
     /// Generates all mipmap levels for a provided `image`.
     #[inline]
-    pub fn image_mipmaps(&mut self) {
+    pub fn gen_mipmaps(&mut self) {
         unsafe {
             ffi::ImageMipmaps(&mut self.0);
         }
@@ -290,31 +316,134 @@ impl Image {
 
     /// Dithers `image` data to 16bpp or lower (Floyd-Steinberg dithering).
     #[inline]
-    pub fn image_dither(&mut self, r_bpp: i32, g_bpp: i32, b_bpp: i32, a_bpp: i32) {
+    pub fn dither(&mut self, r_bpp: i32, g_bpp: i32, b_bpp: i32, a_bpp: i32) {
         unsafe {
             ffi::ImageDither(&mut self.0, r_bpp, g_bpp, b_bpp, a_bpp);
         }
     }
 
+    /// Get image alpha border rectangle
+    #[inline]
+    pub fn get_image_alpha_border(&self, threshold: f32) -> Rectangle {
+        unsafe { ffi::GetImageAlphaBorder(self.0, threshold).into() }
+    }
+
+    /// Clear image background with given color
+    #[inline]
+    pub fn clear_background(&mut self, color: impl Into<ffi::Color>) {
+        unsafe { ffi::ImageClearBackground(&mut self.0, color.into()) }
+    }
+
     /// Draws a source image within a destination image.
     #[inline]
-    pub fn image_draw(&mut self, src: &Image, src_rec: Rectangle, dst_rec: Rectangle) {
+    pub fn draw(
+        &mut self,
+        src: &Image,
+        src_rec: Rectangle,
+        dst_rec: Rectangle,
+        tint: impl Into<ffi::Color>,
+    ) {
         unsafe {
-            ffi::ImageDraw(&mut self.0, src.0, src_rec.into(), dst_rec.into());
+            ffi::ImageDraw(
+                &mut self.0,
+                src.0,
+                src_rec.into(),
+                dst_rec.into(),
+                tint.into(),
+            );
+        }
+    }
+
+    /// Draw pixel within an image
+    #[inline]
+    pub fn draw_pixel(&mut self, pos_x: i32, pos_y: i32, color: impl Into<ffi::Color>) {
+        unsafe { ffi::ImageDrawPixel(&mut self.0, pos_x, pos_y, color.into()) }
+    }
+
+    /// Draw pixel within an image (Vector version)
+    #[inline]
+    pub fn draw_pixel_v(
+        &mut self,
+        position: impl Into<ffi::Vector2>,
+        color: impl Into<ffi::Color>,
+    ) {
+        unsafe { ffi::ImageDrawPixelV(&mut self.0, position.into(), color.into()) }
+    }
+
+    /// Draw line within an image
+    #[inline]
+    pub fn draw_line(
+        &mut self,
+        start_pos_x: i32,
+        start_pos_y: i32,
+        end_pos_x: i32,
+        end_pos_y: i32,
+        color: impl Into<ffi::Color>,
+    ) {
+        unsafe {
+            ffi::ImageDrawLine(
+                &mut self.0,
+                start_pos_x,
+                start_pos_y,
+                end_pos_x,
+                end_pos_y,
+                color.into(),
+            )
+        }
+    }
+
+    /// Draw line within an image (Vector version)
+    #[inline]
+    pub fn draw_line_v(
+        &mut self,
+        start: impl Into<ffi::Vector2>,
+        end: impl Into<ffi::Vector2>,
+        color: impl Into<ffi::Color>,
+    ) {
+        unsafe { ffi::ImageDrawLineV(&mut self.0, start.into(), end.into(), color.into()) }
+    }
+
+    /// Draw circle within an image
+    #[inline]
+    pub fn draw_circle(
+        &mut self,
+        center_x: i32,
+        center_y: i32,
+        radius: i32,
+        color: impl Into<ffi::Color>,
+    ) {
+        unsafe { ffi::ImageDrawCircle(&mut self.0, center_x, center_y, radius, color.into()) }
+    }
+
+    /// Draw circle within an image (Vector version)
+    #[inline]
+    pub fn draw_circle_v(
+        &mut self,
+        center: impl Into<ffi::Vector2>,
+        radius: i32,
+        color: impl Into<ffi::Color>,
+    ) {
+        unsafe { ffi::ImageDrawCircleV(&mut self.0, center.into(), radius, color.into()) }
+    }
+
+    /// Draws a rectangle within an image.
+    #[inline]
+    pub fn draw_rectangle(
+        &mut self,
+        pos_x: i32,
+        pos_y: i32,
+        width: i32,
+        height: i32,
+        color: impl Into<ffi::Color>,
+    ) {
+        unsafe {
+            ffi::ImageDrawRectangle(&mut self.0, pos_x, pos_y, width, height, color.into());
         }
     }
 
     /// Draws a rectangle within an image.
     #[inline]
-    pub fn image_draw_rectangle(&mut self, rec: Rectangle, color: impl Into<ffi::Color>) {
-        unsafe {
-            ffi::ImageDrawRectangle(&mut self.0, rec.into(), color.into());
-        }
-    }
-
-    /// Draws a rectangle within an image.
-    #[inline]
-    pub fn image_draw_rectangle_lines(
+    pub fn draw_rectangle_lines(
         &mut self,
         rec: Rectangle,
         thickness: i32,
@@ -327,7 +456,7 @@ impl Image {
 
     /// Draws text (default font) within an image (destination).
     #[inline]
-    pub fn image_draw_text(
+    pub fn draw_text(
         &mut self,
         position: impl Into<ffi::Vector2>,
         text: &str,
@@ -348,7 +477,7 @@ impl Image {
 
     /// Draws text (default font) within an image (destination).
     #[inline]
-    pub fn image_draw_text_ex(
+    pub fn draw_text_ex(
         &mut self,
         position: impl Into<ffi::Vector2>,
         font: impl AsRef<ffi::Font>,
@@ -373,7 +502,7 @@ impl Image {
 
     /// Flips `image` vertically.
     #[inline]
-    pub fn image_flip_vertical(&mut self) {
+    pub fn flip_vertical(&mut self) {
         unsafe {
             ffi::ImageFlipVertical(&mut self.0);
         }
@@ -381,7 +510,7 @@ impl Image {
 
     /// Flips `image` horizontally.
     #[inline]
-    pub fn image_flip_horizontal(&mut self) {
+    pub fn flip_horizontal(&mut self) {
         unsafe {
             ffi::ImageFlipHorizontal(&mut self.0);
         }
@@ -389,7 +518,7 @@ impl Image {
 
     /// Rotates `image` clockwise by 90 degrees (PI/2 radians).
     #[inline]
-    pub fn image_rotate_cw(&mut self) {
+    pub fn rotate_cw(&mut self) {
         unsafe {
             ffi::ImageRotateCW(&mut self.0);
         }
@@ -397,7 +526,7 @@ impl Image {
 
     /// Rotates `image` counterclockwise by 90 degrees (PI/2 radians).
     #[inline]
-    pub fn image_rotate_ccw(&mut self) {
+    pub fn rotate_ccw(&mut self) {
         unsafe {
             ffi::ImageRotateCCW(&mut self.0);
         }
@@ -405,7 +534,7 @@ impl Image {
 
     /// Tints colors in `image` using specified `color`.
     #[inline]
-    pub fn image_color_tint(&mut self, color: impl Into<ffi::Color>) {
+    pub fn color_tint(&mut self, color: impl Into<ffi::Color>) {
         unsafe {
             ffi::ImageColorTint(&mut self.0, color.into());
         }
@@ -413,7 +542,7 @@ impl Image {
 
     /// Inverts the colors in `image`.
     #[inline]
-    pub fn image_color_invert(&mut self) {
+    pub fn color_invert(&mut self) {
         unsafe {
             ffi::ImageColorInvert(&mut self.0);
         }
@@ -421,7 +550,7 @@ impl Image {
 
     /// Converts `image color to grayscale.
     #[inline]
-    pub fn image_color_grayscale(&mut self) {
+    pub fn color_grayscale(&mut self) {
         unsafe {
             ffi::ImageColorGrayscale(&mut self.0);
         }
@@ -429,7 +558,7 @@ impl Image {
 
     /// Adjusts the contrast of `image`.
     #[inline]
-    pub fn image_color_contrast(&mut self, contrast: f32) {
+    pub fn color_contrast(&mut self, contrast: f32) {
         unsafe {
             ffi::ImageColorContrast(&mut self.0, contrast);
         }
@@ -437,7 +566,7 @@ impl Image {
 
     /// Adjusts the brightness of `image`.
     #[inline]
-    pub fn image_color_brightness(&mut self, brightness: i32) {
+    pub fn color_brightness(&mut self, brightness: i32) {
         unsafe {
             ffi::ImageColorBrightness(&mut self.0, brightness);
         }
@@ -445,11 +574,7 @@ impl Image {
 
     /// Searches `image` for all occurences of `color` and replaces them with `replace` color.
     #[inline]
-    pub fn image_color_replace(
-        &mut self,
-        color: impl Into<ffi::Color>,
-        replace: impl Into<ffi::Color>,
-    ) {
+    pub fn color_replace(&mut self, color: impl Into<ffi::Color>, replace: impl Into<ffi::Color>) {
         unsafe {
             ffi::ImageColorReplace(&mut self.0, color.into(), replace.into());
         }
@@ -673,31 +798,42 @@ impl Image {
     }
 }
 
+impl RaylibTexture2D for WeakTexture2D {}
+impl RaylibTexture2D for Texture2D {}
+
 impl Texture2D {
-    pub fn width(&self) -> i32 {
-        self.0.width
+    pub unsafe fn make_weak(self) -> WeakTexture2D {
+        let m = WeakTexture2D(self.0);
+        std::mem::forget(self);
+        m
+    }
+}
+
+pub trait RaylibTexture2D: AsRef<ffi::Texture2D> + AsMut<ffi::Texture2D> {
+    fn width(&self) -> i32 {
+        self.as_ref().width
     }
 
-    pub fn height(&self) -> i32 {
-        self.0.height
+    fn height(&self) -> i32 {
+        self.as_ref().height
     }
 
-    pub fn mipmaps(&self) -> i32 {
-        self.0.width
+    fn mipmaps(&self) -> i32 {
+        self.as_ref().width
     }
 
-    pub fn format(&self) -> i32 {
-        self.0.format
+    fn format(&self) -> i32 {
+        self.as_ref().format
     }
 
     /// Updates GPU texture with new data.
     #[inline]
-    pub fn update_texture(&self, pixels: &[u8]) {
+    fn update_texture(&mut self, pixels: &[u8]) {
         let expected_len = unsafe {
             get_pixel_data_size(
-                self.width,
-                self.height,
-                std::mem::transmute::<i32, ffi::PixelFormat>(self.format),
+                self.as_ref().width,
+                self.as_ref().height,
+                std::mem::transmute::<i32, ffi::PixelFormat>(self.as_ref().format),
             ) as usize
         };
         if pixels.len() != expected_len {
@@ -708,7 +844,45 @@ impl Texture2D {
             );
         }
         unsafe {
-            ffi::UpdateTexture(self.0, pixels.as_ptr() as *const std::os::raw::c_void);
+            ffi::UpdateTexture(
+                *self.as_mut(),
+                pixels.as_ptr() as *const std::os::raw::c_void,
+            );
+        }
+    }
+
+    /// Gets pixel data from GPU texture and returns an `Image`.
+    /// Fairly sure this would never fail. If it does wrap in result.
+    #[inline]
+    fn get_texture_data(&self) -> Result<Image, String> {
+        let i = unsafe { ffi::GetTextureData(*self.as_ref()) };
+        if i.data.is_null() {
+            return Err(format!("Texture cannot be rendered to an image"));
+        }
+        Ok(Image(i))
+    }
+
+    /// Generates GPU mipmaps for a `texture`.
+    #[inline]
+    fn gen_texture_mipmaps(&mut self) {
+        unsafe {
+            ffi::GenTextureMipmaps(self.as_mut());
+        }
+    }
+
+    /// Sets global `texture` scaling filter mode.
+    #[inline]
+    fn set_texture_filter(&self, _: &RaylibThread, filter_mode: crate::consts::TextureFilterMode) {
+        unsafe {
+            ffi::SetTextureFilter(*self.as_ref(), filter_mode as i32);
+        }
+    }
+
+    /// Sets global texture wrapping mode.
+    #[inline]
+    fn set_texture_wrap(&self, _: &RaylibThread, wrap_mode: crate::consts::TextureWrapMode) {
+        unsafe {
+            ffi::SetTextureWrap(*self.as_ref(), wrap_mode as i32);
         }
     }
 }
@@ -719,45 +893,6 @@ pub fn get_pixel_data_size(width: i32, height: i32, format: ffi::PixelFormat) ->
     unsafe { ffi::GetPixelDataSize(width, height, format as i32) }
 }
 
-impl Texture2D {
-    /// Gets pixel data from GPU texture and returns an `Image`.
-    /// Fairly sure this would never fail. If it does wrap in result.
-    #[inline]
-    pub fn get_texture_data(&self) -> Result<Image, String> {
-        let i = unsafe { ffi::GetTextureData(self.0) };
-        if i.data.is_null() {
-            return Err(format!("Texture cannot be rendered to an image"));
-        }
-        Ok(Image(i))
-    }
-}
-
-impl Texture2D {
-    /// Generates GPU mipmaps for a `texture`.
-    #[inline]
-    pub fn gen_texture_mipmaps(&mut self) {
-        unsafe {
-            ffi::GenTextureMipmaps(&mut self.0);
-        }
-    }
-
-    /// Sets `texture` scaling filter mode.
-    #[inline]
-    pub fn set_texture_filter(&mut self, filter_mode: crate::consts::TextureFilterMode) {
-        unsafe {
-            ffi::SetTextureFilter(self.0, filter_mode as i32);
-        }
-    }
-
-    /// Sets texture wrapping mode.
-    #[inline]
-    pub fn set_texture_wrap(&mut self, wrap_mode: crate::consts::TextureWrapMode) {
-        unsafe {
-            ffi::SetTextureWrap(self.0, wrap_mode as i32);
-        }
-    }
-}
-
 impl RaylibHandle {
     /// Loads texture from file into GPU memory (VRAM).
     pub fn load_texture(&mut self, _: &RaylibThread, filename: &str) -> Result<Texture2D, String> {
@@ -765,6 +900,20 @@ impl RaylibHandle {
         let t = unsafe { ffi::LoadTexture(c_filename.as_ptr()) };
         if t.id == 0 {
             return Err(format!("failed to load {} as a texture.", filename));
+        }
+        Ok(Texture2D(t))
+    }
+
+    /// Load cubemap from image, multiple image cubemap layouts supported
+    pub fn load_texture_cubemap(
+        &mut self,
+        _: &RaylibThread,
+        image: &Image,
+        layout: crate::consts::CubemapLayoutType,
+    ) -> Result<Texture2D, String> {
+        let t = unsafe { ffi::LoadTextureCubemap(image.0, std::mem::transmute(layout)) };
+        if t.id == 0 {
+            return Err(format!("failed to load image as a texture cubemap."));
         }
         Ok(Texture2D(t))
     }
@@ -795,5 +944,85 @@ impl RaylibHandle {
             return Err(format!("failed to create render texture."));
         }
         Ok(RenderTexture2D(t))
+    }
+}
+
+impl RaylibHandle {
+    /// Generate cubemap texture from 2D texture
+    pub fn gen_texture_cubemap(
+        &mut self,
+        _: &RaylibThread,
+        shader: impl AsRef<ffi::Shader>,
+        map: impl AsRef<ffi::Texture2D>,
+        size: i32,
+    ) -> Texture2D {
+        unsafe {
+            Texture2D(ffi::GenTextureCubemap(
+                *shader.as_ref(),
+                *map.as_ref(),
+                size,
+            ))
+        }
+    }
+
+    /// Generate irradiance texture using cubemap data
+    pub fn gen_texture_irradiance(
+        &mut self,
+        _: &RaylibThread,
+        shader: impl AsRef<ffi::Shader>,
+        cubemap: impl AsRef<ffi::Texture2D>,
+        size: i32,
+    ) -> Texture2D {
+        unsafe {
+            Texture2D(ffi::GenTextureIrradiance(
+                *shader.as_ref(),
+                *cubemap.as_ref(),
+                size,
+            ))
+        }
+    }
+
+    /// Generate prefilter texture using cubemap data
+    pub fn gen_texture_prefilter(
+        &mut self,
+        _: &RaylibThread,
+        shader: impl AsRef<ffi::Shader>,
+        cubemap: impl AsRef<ffi::Texture2D>,
+        size: i32,
+    ) -> Texture2D {
+        unsafe {
+            Texture2D(ffi::GenTexturePrefilter(
+                *shader.as_ref(),
+                *cubemap.as_ref(),
+                size,
+            ))
+        }
+    }
+
+    /// Generate BRDF texture
+    pub fn gen_texture_brdf(
+        &mut self,
+        _: &RaylibThread,
+        shader: impl AsRef<ffi::Shader>,
+        size: i32,
+    ) -> Texture2D {
+        unsafe { Texture2D(ffi::GenTextureBRDF(*shader.as_ref(), size)) }
+    }
+}
+
+impl RaylibHandle {
+    /// Weak Textures will leak memeory if they are not unlaoded
+    /// Unload textures from GPU memory (VRAM)
+    pub unsafe fn unload_texture(&mut self, _: &RaylibThread, texture: WeakTexture2D) {
+        {
+            ffi::UnloadTexture(*texture.as_ref())
+        }
+    }
+    /// Weak RenderTextures will leak memeory if they are not unlaoded
+    /// Unload RenderTextures from GPU memory (VRAM)
+    pub unsafe fn unload_render_texture(&mut self, _: &RaylibThread, texture: WeakRenderTexture2D) {
+        {
+            ffi::UnloadRenderTexture(*texture.as_ref())
+        }
     }
 }

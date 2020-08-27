@@ -27,7 +27,7 @@ fn clone_testfn(testfn: &TestFn) -> TestFn {
     }
 }
 
-pub fn test_runner(tests: &[&Testable]) {
+pub fn test_runner(tests: &[&dyn Testable]) {
     let (thread, assets) = {
         let mut handle = TEST_HANDLE.write().unwrap();
         let (rl, thread) = raylib::init()

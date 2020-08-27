@@ -1,6 +1,6 @@
 [package]
 name = "raylib-examples"
-version = "1.0.0"
+version = "3.0.0"
 authors = ["David Ayeke"]
 edition = "2018"
 license = "Zlib"
@@ -9,7 +9,7 @@ repository = "https://github.com/deltaphc/raylib-rs"
 
 
 [dependencies]
-raylib = { version = "1.0", path = "../raylib" }
+raylib = { version = "3.0", path = "../raylib" }
 structopt = "0.2"
 specs-derive = "0.4.1"
 rand = "0.7"
@@ -27,6 +27,10 @@ name = "specs"
 path = "./specs.rs"
 
 [[bin]]
+name = "rgui"
+path = "./rgui.rs"
+
+[[bin]]
 name = "arkanoid"
 path = "./arkanoid.rs"
 
@@ -34,17 +38,6 @@ path = "./arkanoid.rs"
 name = "logo"
 path = "./logo.rs"
 
-[[bin]]
-name = "rgui"
-path = "./rgui.rs"
-
-[[bin]]
-name = "rgui-button"
-path = "./rgui_button.rs"
-
-[[bin]]
-name = "file"
-path = "./file.rs"
 
 [[bin]]
 name = "camera2D"

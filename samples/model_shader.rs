@@ -44,7 +44,7 @@ fn main() {
     material.shader = *shader.as_ref();
 
     // Assign loaded texture to material albedo map
-    let mut maps = material.maps_mut();
+    let maps = material.maps_mut();
     maps[MaterialMapType::MAP_ALBEDO as usize].texture = texture;
 
     let model_position = Vector3::new(0.0, 0.0, 0.0);
@@ -55,7 +55,7 @@ fn main() {
         let mut drawing = rl.begin_drawing(&thread);
         drawing.clear_background(Color::WHITE);
         {
-            let mut mode_3d = drawing.begin_mode_3D(camera);
+            let mut mode_3d = drawing.begin_mode3D(camera);
 
             mode_3d.draw_model(&model, model_position, 0.2, Color::WHITE);
             mode_3d.draw_grid(10, 1.0);

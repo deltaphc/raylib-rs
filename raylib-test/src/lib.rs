@@ -37,7 +37,6 @@ mod audio;
 mod drawing;
 mod misc;
 mod models;
-mod storage;
 mod text;
 mod texture;
 mod window;

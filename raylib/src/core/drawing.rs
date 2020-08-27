@@ -2,7 +2,7 @@
 use crate::core::camera::Camera3D;
 use crate::core::math::Ray;
 use crate::core::math::Vector2;
-use crate::core::models::Model;
+
 use crate::core::texture::Texture2D;
 use crate::core::vr::RaylibVR;
 use crate::core::{RaylibHandle, RaylibThread};
@@ -13,6 +13,7 @@ use std::ffi::CString;
 /// Seems like all draw commands must be issued from the main thread
 impl RaylibHandle {
     /// Setup canvas (framebuffer) to start drawing
+    #[must_use]
     pub fn begin_drawing(&mut self, _: &RaylibThread) -> RaylibDrawHandle {
         unsafe {
             ffi::BeginDrawing();
@@ -72,8 +73,9 @@ where
     }
 }
 
-// Only the DrawHandle can start a texture
+// Only the DrawHandle and the RaylibHandle can start a texture
 impl<'a> RaylibTextureModeExt for RaylibDrawHandle<'a> {}
+impl RaylibTextureModeExt for &mut RaylibHandle {}
 impl<'a, T> RaylibDraw for RaylibTextureMode<'a, T> {}
 
 // VR Stuff
@@ -129,7 +131,7 @@ where
 {
     #[allow(non_snake_case)]
     #[must_use]
-    fn begin_mode_2D(&mut self, camera: impl Into<ffi::Camera2D>) -> RaylibMode2D<Self> {
+    fn begin_mode2D(&mut self, camera: impl Into<ffi::Camera2D>) -> RaylibMode2D<Self> {
         unsafe {
             ffi::BeginMode2D(camera.into());
         }
@@ -162,7 +164,7 @@ where
 {
     #[allow(non_snake_case)]
     #[must_use]
-    fn begin_mode_3D(&mut self, camera: impl Into<ffi::Camera3D>) -> RaylibMode3D<Self> {
+    fn begin_mode3D(&mut self, camera: impl Into<ffi::Camera3D>) -> RaylibMode3D<Self> {
         unsafe {
             ffi::BeginMode3D(camera.into());
         }
@@ -293,28 +295,10 @@ pub trait RaylibDraw {
         unsafe { ffi::SetShapesTexture(*texture.as_ref(), source.into()) }
     }
 
-    // Draw gui widget
-    fn draw_gui<G: crate::rgui::GuiDraw>(&mut self, widget: G) -> crate::rgui::DrawResult {
-        widget.draw()
-    }
-
-    /// Draw and icon on screen
-    fn draw_icon(
-        &mut self,
-        icon_id: crate::consts::rIconDescription,
-        position: impl Into<ffi::Vector2>,
-        pixel_size: i32,
-        color: impl Into<ffi::Color>,
-    ) {
-        unsafe {
-            ffi::DrawIcon(
-                (icon_id as u32) as i32,
-                position.into(),
-                pixel_size,
-                color.into(),
-            )
-        }
-    }
+    // // Draw gui widget
+    // fn draw_gui<G: crate::rgui::GuiDraw>(&mut self, widget: G) -> crate::rgui::DrawResult {
+    //     widget.draw()
+    // }
 
     // SHAPES
     /// Draws a pixel.
@@ -499,6 +483,36 @@ pub trait RaylibDraw {
     ) {
         unsafe {
             ffi::DrawCircleLines(center_x, center_y, radius, color.into());
+        }
+    }
+
+    /// Draws ellipse.
+    #[inline]
+    fn draw_ellipse(
+        &mut self,
+        center_x: i32,
+        center_y: i32,
+        radius_h: f32,
+        radius_v: f32,
+        color: impl Into<ffi::Color>,
+    ) {
+        unsafe {
+            ffi::DrawEllipse(center_x, center_y, radius_h, radius_v, color.into());
+        }
+    }
+
+    /// Draws ellipse.
+    #[inline]
+    fn draw_ellipse_lines(
+        &mut self,
+        center_x: i32,
+        center_y: i32,
+        radius_h: f32,
+        radius_v: f32,
+        color: impl Into<ffi::Color>,
+    ) {
+        unsafe {
+            ffi::DrawEllipseLines(center_x, center_y, radius_h, radius_v, color.into());
         }
     }
 
@@ -763,6 +777,18 @@ pub trait RaylibDraw {
         }
     }
 
+    /// Draw a triangle strip defined by points
+    #[inline]
+    fn draw_triangle_strip(&mut self, points: &[Vector2], color: impl Into<ffi::Color>) {
+        unsafe {
+            ffi::DrawTriangleStrip(
+                points.as_ptr() as *mut ffi::Vector2,
+                points.len() as i32,
+                color.into(),
+            );
+        }
+    }
+
     /// Draws a regular polygon of n sides (Vector version).
     #[inline]
     fn draw_poly(
@@ -778,30 +804,20 @@ pub trait RaylibDraw {
         }
     }
 
-    // TODO update library with new poly funcs
-    // /// Draw a closed polygon defined by points
-    // #[inline]
-    // fn draw_poly_ex(
-    //     &mut self,
-    //     points: impl AsRef<[ffi::Vector2]>,
-    //     color: impl Into<ffi::Color>,
-    // ) {
-    //     unsafe {
-    //         ffi::DrawPolyEx(points.as_ref().as_ptr(), points.as_ref().len(), color.into());
-    //     }
-    // }
-
-    // /// Draw polygon lines
-    // #[inline]
-    // fn draw_poly_ex_lines(
-    //     &mut self,
-    //     points: impl AsRef<[ffi::Vector2]>,
-    //     color: impl Into<ffi::Color>,
-    // ) {
-    //     unsafe {
-    //         ffi::DrawPolyExLines(points.as_ref().as_ptr(), points.as_ref().len(), color.into());
-    //     }
-    // }
+    /// Draws a regular polygon of n sides (Vector version).
+    #[inline]
+    fn draw_poly_lines(
+        &mut self,
+        center: impl Into<ffi::Vector2>,
+        sides: i32,
+        radius: f32,
+        rotation: f32,
+        color: impl Into<ffi::Color>,
+    ) {
+        unsafe {
+            ffi::DrawPolyLines(center.into(), sides, radius, rotation, color.into());
+        }
+    }
 
     /// Draws a `texture` using specified position and `tint` color.
     #[inline]
@@ -1044,9 +1060,39 @@ pub trait RaylibDraw {
             );
         }
     }
+
+    /// Draw one character (codepoint)
+    #[inline]
+    fn draw_text_codepoint(
+        &mut self,
+        font: impl AsRef<ffi::Font>,
+        codepoint: i32,
+        position: impl Into<ffi::Vector2>,
+        scale: f32,
+        tint: impl Into<ffi::Color>,
+    ) {
+        unsafe {
+            ffi::DrawTextCodepoint(
+                *font.as_ref(),
+                codepoint,
+                position.into(),
+                scale,
+                tint.into(),
+            );
+        }
+    }
 }
 
 pub trait RaylibDraw3D {
+    /// Draw a point in 3D space, actually a small line
+    #[allow(non_snake_case)]
+    #[inline]
+    fn draw_point3D(&mut self, position: impl Into<ffi::Vector3>, color: impl Into<ffi::Color>) {
+        unsafe {
+            ffi::DrawPoint3D(position.into(), color.into());
+        }
+    }
+
     /// Draws a line in 3D world space.
     #[inline]
     fn draw_line_3d(
@@ -1277,13 +1323,13 @@ pub trait RaylibDraw3D {
     #[inline]
     fn draw_model(
         &mut self,
-        model: &Model,
+        model: impl AsRef<ffi::Model>,
         position: impl Into<ffi::Vector3>,
         scale: f32,
         tint: impl Into<ffi::Color>,
     ) {
         unsafe {
-            ffi::DrawModel(model.0, position.into(), scale, tint.into());
+            ffi::DrawModel(*model.as_ref(), position.into(), scale, tint.into());
         }
     }
 
@@ -1291,7 +1337,7 @@ pub trait RaylibDraw3D {
     #[inline]
     fn draw_model_ex(
         &mut self,
-        model: &Model,
+        model: impl AsRef<ffi::Model>,
         position: impl Into<ffi::Vector3>,
         rotation_axis: impl Into<ffi::Vector3>,
         rotation_angle: f32,
@@ -1300,7 +1346,7 @@ pub trait RaylibDraw3D {
     ) {
         unsafe {
             ffi::DrawModelEx(
-                model.0,
+                *model.as_ref(),
                 position.into(),
                 rotation_axis.into(),
                 rotation_angle,
@@ -1314,13 +1360,13 @@ pub trait RaylibDraw3D {
     #[inline]
     fn draw_model_wires(
         &mut self,
-        model: &Model,
+        model: impl AsRef<ffi::Model>,
         position: impl Into<ffi::Vector3>,
         scale: f32,
         tint: impl Into<ffi::Color>,
     ) {
         unsafe {
-            ffi::DrawModelWires(model.0, position.into(), scale, tint.into());
+            ffi::DrawModelWires(*model.as_ref(), position.into(), scale, tint.into());
         }
     }
 
@@ -1328,7 +1374,7 @@ pub trait RaylibDraw3D {
     #[inline]
     fn draw_model_wires_ex(
         &mut self,
-        model: &Model,
+        model: impl AsRef<ffi::Model>,
         position: impl Into<ffi::Vector3>,
         rotation_axis: impl Into<ffi::Vector3>,
         rotation_angle: f32,
@@ -1337,7 +1383,7 @@ pub trait RaylibDraw3D {
     ) {
         unsafe {
             ffi::DrawModelWiresEx(
-                model.0,
+                *model.as_ref(),
                 position.into(),
                 rotation_axis.into(),
                 rotation_angle,
