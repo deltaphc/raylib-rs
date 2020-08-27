@@ -67,7 +67,7 @@ impl RaylibHandle {
     pub fn load_model_from_mesh(&mut self, _: &RaylibThread, mesh: &Mesh) -> Result<Model, String> {
         let m = unsafe { ffi::LoadModelFromMesh(mesh.0) };
 
-        if m.meshes.is_null() || m.materials.is_null() || m.bones.is_null() || m.bindPose.is_null()
+        if m.meshes.is_null() || m.materials.is_null()
         {
             return Err("Could not load model from mesh".to_owned());
         }
@@ -129,24 +129,48 @@ pub trait RaylibModel: AsRef<ffi::Model> + AsMut<ffi::Model> {
         }
     }
 
-    fn bones(&self) -> &[BoneInfo] {
-        unsafe {
+    fn bones(&self) -> Option<&[BoneInfo]> {
+        if self.as_ref().bones.is_null() {
+            return None;
+        }
+
+        Some(unsafe {
             std::slice::from_raw_parts(
                 self.as_ref().bones as *const BoneInfo,
                 self.as_ref().boneCount as usize,
             )
-        }
+        })
     }
-    fn bones_mut(&mut self) -> &mut [BoneInfo] {
-        unsafe {
-            std::slice::from_raw_parts_mut(
-                self.as_mut().bones as *mut BoneInfo,
-                self.as_mut().boneCount as usize,
-            )
+    fn bones_mut(&mut self) -> Option<&mut [BoneInfo]> {
+        if self.as_ref().bones.is_null() {
+            return None;
         }
+
+        Some(
+            unsafe {
+                std::slice::from_raw_parts_mut(
+                    self.as_mut().bones as *mut BoneInfo,
+                    self.as_mut().boneCount as usize,
+                )
+            }
+        )
     }
-    fn bind_pose(&self) -> &crate::math::Transform {
-        unsafe { std::mem::transmute(self.as_ref().bindPose) }
+    fn bind_pose(&self) -> Option<&crate::math::Transform> {
+        if self.as_ref().bindPose.is_null() {
+            return None;
+        }
+        Some(
+            unsafe { std::mem::transmute(self.as_ref().bindPose) }
+        )
+    }
+
+    fn bind_pose_mut(&mut self) -> Option<&mut crate::math::Transform> {
+        if self.as_ref().bindPose.is_null() {
+            return None;
+        }
+        Some(
+            unsafe { std::mem::transmute(self.as_mut().bindPose) }
+        )
     }
 
     /// Check model animation skeleton match
