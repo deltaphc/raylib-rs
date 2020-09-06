@@ -262,6 +262,12 @@ impl RaylibHandle {
         unsafe { ffi::IsWindowResized() }
     }
 
+    /// Returns whether or not window is in fullscreen or not
+    #[inline]
+    pub fn is_window_full_screen(&self) -> bool {
+        unsafe { ffi::IsWindowFullscreen() }
+    }
+
     /// Toggles fullscreen mode (only on desktop platforms).
     #[inline]
     pub fn toggle_fullscreen(&mut self) {
