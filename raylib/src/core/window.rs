@@ -264,7 +264,7 @@ impl RaylibHandle {
 
     /// Returns whether or not window is in fullscreen or not
     #[inline]
-    pub fn is_window_full_screen(&self) -> bool {
+    pub fn is_window_fullscreen(&self) -> bool {
         unsafe { ffi::IsWindowFullscreen() }
     }
 
