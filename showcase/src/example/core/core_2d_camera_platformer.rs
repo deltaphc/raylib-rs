@@ -56,7 +56,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
         canJump: false,
     };
 
-    let mut envItems = [
+    let envItems = [
         EnvItem::new(rrect(0, 0, 1000, 400), false, Color::LIGHTGRAY),
         EnvItem::new(rrect(0, 400, 1000, 200), true, Color::GRAY),
         EnvItem::new(rrect(300, 200, 400, 10), true, Color::GRAY),
@@ -103,18 +103,18 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
 
         camera.zoom += rl.get_mouse_wheel_move() as f32 * 0.05;
 
-        if (camera.zoom > 3.0) {
+        if camera.zoom > 3.0 {
             camera.zoom = 3.0;
-        } else if (camera.zoom < 0.25) {
+        } else if camera.zoom < 0.25 {
             camera.zoom = 0.25;
         }
 
-        if (rl.is_key_pressed(KEY_R)) {
+        if rl.is_key_pressed(KEY_R) {
             camera.zoom = 1.0;
             player.position = rvec2(400, 280);
         }
 
-        if (rl.is_key_pressed(KEY_C)) {
+        if rl.is_key_pressed(KEY_C) {
             cameraOption = (cameraOption + 1) % cameraUpdaters.len();
         }
 
@@ -177,13 +177,13 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
 }
 
 fn update_player(rl: &RaylibHandle, player: &mut Player, envItems: &[EnvItem], delta: f32) {
-    if (rl.is_key_down(KEY_LEFT)) {
+    if rl.is_key_down(KEY_LEFT) {
         player.position.x -= PLAYER_HOR_SPD * delta;
     }
-    if (rl.is_key_down(KEY_RIGHT)) {
+    if rl.is_key_down(KEY_RIGHT) {
         player.position.x += PLAYER_HOR_SPD * delta;
     }
-    if (rl.is_key_down(KEY_SPACE) && player.canJump) {
+    if rl.is_key_down(KEY_SPACE) && player.canJump {
         player.speed = -PLAYER_JUMP_SPD;
         player.canJump = false;
     }
@@ -213,11 +213,11 @@ fn update_player(rl: &RaylibHandle, player: &mut Player, envItems: &[EnvItem], d
 }
 
 fn update_camera_center(
-    rl: &RaylibHandle,
+    _rl: &RaylibHandle,
     camera: &mut Camera2D,
     player: &Player,
-    envItems: &[EnvItem],
-    delta: f32,
+    _envItems: &[EnvItem],
+    _delta: f32,
     width: f32,
     height: f32,
 ) {
@@ -230,7 +230,7 @@ fn update_camera_center_inside_map(
     camera: &mut Camera2D,
     player: &Player,
     envItems: &[EnvItem],
-    delta: f32,
+    _delta: f32,
     width: f32,
     height: f32,
 ) {
@@ -251,25 +251,25 @@ fn update_camera_center_inside_map(
     let max = rl.get_world_to_screen2D(rvec2(maxX, maxY), *camera);
     let min = rl.get_world_to_screen2D(rvec2(minX, minY), *camera);
 
-    if (max.x < width) {
+    if max.x < width {
         camera.offset.x = width - (max.x - width / 2.0);
     }
-    if (max.y < height) {
+    if max.y < height {
         camera.offset.y = height - (max.y - height / 2.0);
     }
-    if (min.x > 0.0) {
+    if min.x > 0.0 {
         camera.offset.x = width / 2.0 - min.x;
     }
-    if (min.y > 0.0) {
+    if min.y > 0.0 {
         camera.offset.y = height / 2.0 - min.y;
     }
 }
 
 fn update_camera_center_smooth_follow(
-    rl: &RaylibHandle,
+    _rl: &RaylibHandle,
     camera: &mut Camera2D,
     player: &Player,
-    envItems: &[EnvItem],
+    _envItems: &[EnvItem],
     delta: f32,
     width: f32,
     height: f32,
@@ -282,17 +282,17 @@ fn update_camera_center_smooth_follow(
     let diff = player.position - camera.target;
     let length = diff.length();
 
-    if (length > minEffectLength) {
+    if length > minEffectLength {
         let speed = (fractionSpeed * length).max(minSpeed);
         camera.target = camera.target + (diff * speed * delta / length);
     }
 }
 
 fn update_camera_even_out_on_landing(
-    rl: &RaylibHandle,
+    _rl: &RaylibHandle,
     camera: &mut Camera2D,
     player: &Player,
-    envItems: &[EnvItem],
+    _envItems: &[EnvItem],
     delta: f32,
     width: f32,
     height: f32,
@@ -305,24 +305,24 @@ fn update_camera_even_out_on_landing(
     camera.target.x = player.position.x;
 
     unsafe {
-        if (eveningOut) {
-            if (evenOutTarget > camera.target.y) {
+        if eveningOut {
+            if evenOutTarget > camera.target.y {
                 camera.target.y += evenOutSpeed * delta;
 
-                if (camera.target.y > evenOutTarget) {
+                if camera.target.y > evenOutTarget {
                     camera.target.y = evenOutTarget;
                     eveningOut = false;
                 }
             } else {
                 camera.target.y -= evenOutSpeed * delta;
 
-                if (camera.target.y < evenOutTarget) {
+                if camera.target.y < evenOutTarget {
                     camera.target.y = evenOutTarget;
                     eveningOut = false;
                 }
             }
         } else {
-            if (player.canJump && (player.speed == 0.0) && (player.position.y != camera.target.y)) {
+            if player.canJump && (player.speed == 0.0) && (player.position.y != camera.target.y) {
                 eveningOut = true;
                 evenOutTarget = player.position.y;
             }
@@ -334,8 +334,8 @@ fn update_camera_player_bounds_push(
     rl: &RaylibHandle,
     camera: &mut Camera2D,
     player: &Player,
-    envItems: &[EnvItem],
-    delta: f32,
+    _envItems: &[EnvItem],
+    _delta: f32,
     width: f32,
     height: f32,
 ) {
@@ -351,16 +351,16 @@ fn update_camera_player_bounds_push(
     );
     camera.offset = rvec2((1.0 - bbox.x) * 0.5 * width, (1.0 - bbox.y) * 0.5 * height);
 
-    if (player.position.x < bboxWorldMin.x) {
+    if player.position.x < bboxWorldMin.x {
         camera.target.x = player.position.x;
     }
-    if (player.position.y < bboxWorldMin.y) {
+    if player.position.y < bboxWorldMin.y {
         camera.target.y = player.position.y;
     }
-    if (player.position.x > bboxWorldMax.x) {
+    if player.position.x > bboxWorldMax.x {
         camera.target.x = bboxWorldMin.x + (player.position.x - bboxWorldMax.x);
     }
-    if (player.position.y > bboxWorldMax.y) {
+    if player.position.y > bboxWorldMax.y {
         camera.target.y = bboxWorldMin.y + (player.position.y - bboxWorldMax.y);
     }
 }
