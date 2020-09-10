@@ -18,6 +18,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
     //--------------------------------------------------------------------------------------
     let screen_width = 800;
     let screen_height = 450;
+    rl.set_window_size(screen_width, screen_height);
     rl.set_window_title(thread, "raylib [core] example - 2d camera");
 
     let mut player = Rectangle::new(400.0, 280.0, 40.0, 40.0);

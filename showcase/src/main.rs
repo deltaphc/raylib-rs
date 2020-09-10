@@ -36,6 +36,10 @@ fn main() {
             rstr!("rlgl standalone"),
             example::others::rlgl_standalone::run,
         ),
+        (
+            rstr!("raylib [textures] example - bunnymark"),
+            example::textures::textures_bunnymark::run,
+        ),
     ];
     let mut sample = None;
     let mut listViewActive = -1;

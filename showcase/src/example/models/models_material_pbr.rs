@@ -113,81 +113,86 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread)-> crate::SampleOut {
             .set_shader_value(loc, camera_pos);
         //----------------------------------------------------------------------------------
 
-        // Draw
-        //----------------------------------------------------------------------------------
-        let mut d = rl.begin_drawing(thread);
-
-        d.clear_background(Color::RAYWHITE);
-
         {
-            let mut d = d.begin_mode3D(&camera);
 
-            d.draw_model(&mut model, Vector3::zero(), 1.0, Color::WHITE);
-
-            d.draw_grid(10, 1.0);
+            // Draw
+            //----------------------------------------------------------------------------------
+            let mut d = rl.begin_drawing(thread);
+    
+            d.clear_background(Color::RAYWHITE);
+    
+            {
+                let mut d = d.begin_mode3D(&camera);
+    
+                d.draw_model(&mut model, Vector3::zero(), 1.0, Color::WHITE);
+    
+                d.draw_grid(10, 1.0);
+            }
+    
+            d.draw_fps(10, 10);
         }
 
-        d.draw_fps(10, 10);
-
-        //----------------------------------------------------------------------------------
+        //---------------------------------------------------------------------------------
+        if rl.is_key_pressed(raylib::consts::KeyboardKey::KEY_ESCAPE) {
+            // De-Initialization
+            //--------------------------------------------------------------------------------------
+            // Shaders and textures must be unloaded by user,
+            // they could be in use by other models
+            use raylib::consts::MaterialMapType::*;
+            unsafe {
+                rl.unload_texture(
+                    thread,
+                    model.materials()[0].maps()[MAP_ALBEDO as usize]
+                        .texture()
+                        .clone(),
+                );
+                rl.unload_texture(
+                    thread,
+                    model.materials()[0].maps()[MAP_NORMAL as usize]
+                        .texture()
+                        .clone(),
+                );
+                rl.unload_texture(
+                    thread,
+                    model.materials()[0].maps()[MAP_METALNESS as usize]
+                        .texture()
+                        .clone(),
+                );
+                rl.unload_texture(
+                    thread,
+                    model.materials()[0].maps()[MAP_ROUGHNESS as usize]
+                        .texture()
+                        .clone(),
+                );
+                rl.unload_texture(
+                    thread,
+                    model.materials()[0].maps()[MAP_OCCLUSION as usize]
+                        .texture()
+                        .clone(),
+                );
+                rl.unload_texture(
+                    thread,
+                    model.materials()[0].maps()[MAP_IRRADIANCE as usize]
+                        .texture()
+                        .clone(),
+                );
+                rl.unload_texture(
+                    thread,
+                    model.materials()[0].maps()[MAP_PREFILTER as usize]
+                        .texture()
+                        .clone(),
+                );
+                rl.unload_texture(
+                    thread,
+                    model.materials()[0].maps()[MAP_BRDF as usize]
+                        .texture()
+                        .clone(),
+                );
+            }
+        }
     });
 
-    // De-Initialization
-    //--------------------------------------------------------------------------------------
-
-    // // Shaders and textures must be unloaded by user,
-    // // they could be in use by other models
-    // use raylib::consts::MaterialMapType::*;
-    // unsafe {
-    //     rl.unload_texture(
-    //         thread,
-    //         model.materials()[0].maps()[MAP_ALBEDO as usize]
-    //             .texture()
-    //             .clone(),
-    //     );
-    //     rl.unload_texture(
-    //         thread,
-    //         model.materials()[0].maps()[MAP_NORMAL as usize]
-    //             .texture()
-    //             .clone(),
-    //     );
-    //     rl.unload_texture(
-    //         thread,
-    //         model.materials()[0].maps()[MAP_METALNESS as usize]
-    //             .texture()
-    //             .clone(),
-    //     );
-    //     rl.unload_texture(
-    //         thread,
-    //         model.materials()[0].maps()[MAP_ROUGHNESS as usize]
-    //             .texture()
-    //             .clone(),
-    //     );
-    //     rl.unload_texture(
-    //         thread,
-    //         model.materials()[0].maps()[MAP_OCCLUSION as usize]
-    //             .texture()
-    //             .clone(),
-    //     );
-    //     rl.unload_texture(
-    //         thread,
-    //         model.materials()[0].maps()[MAP_IRRADIANCE as usize]
-    //             .texture()
-    //             .clone(),
-    //     );
-    //     rl.unload_texture(
-    //         thread,
-    //         model.materials()[0].maps()[MAP_PREFILTER as usize]
-    //             .texture()
-    //             .clone(),
-    //     );
-    //     rl.unload_texture(
-    //         thread,
-    //         model.materials()[0].maps()[MAP_BRDF as usize]
-    //             .texture()
-    //             .clone(),
-    //     );
-    // }
+    
 
     //--------------------------------------------------------------------------------------
 }
