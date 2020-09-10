@@ -13,10 +13,7 @@ pub use raylib::prelude::*;
 
 const MAX_BUILDINGS: i32 = 100;
 
-pub fn run(
-    rl: &mut RaylibHandle,
-    thread: &RaylibThread,
-) -> impl FnMut(&mut RaylibHandle, &RaylibThread) -> () {
+pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
     // Initialization
     //--------------------------------------------------------------------------------------
     let screen_width = 800;
@@ -57,7 +54,7 @@ pub fn run(
 
     // Main game loop
     // Detect window close button or ESC key
-    return move |rl: &mut RaylibHandle, thread: &RaylibThread| -> () {
+    return Box::new(move |rl: &mut RaylibHandle, thread: &RaylibThread| -> () {
         use raylib::consts::KeyboardKey::*;
         // Update
         //----------------------------------------------------------------------------------
@@ -158,5 +155,5 @@ pub fn run(
 
         return ();
         //----------------------------------------------------------------------------------
-    };
+    });
 }

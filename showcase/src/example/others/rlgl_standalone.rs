@@ -49,59 +49,17 @@ use raylib::prelude::*;
 //----------------------------------------------------------------------------------
 // Main Entry point
 //----------------------------------------------------------------------------------
-pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) {
-    unsafe {
-        // Initialization
-        //--------------------------------------------------------------------------------------
-        let screen_width = 800;
-        let screen_height = 450;
+pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
+    // Initialization
+    //--------------------------------------------------------------------------------------
+    let screen_width = 800;
+    let screen_height = 450;
 
-        rl.set_window_size(screen_width, screen_height);
+    rl.set_window_size(screen_width, screen_height);
+    rl.set_window_title(thread, "rlgl standalone");
+    unsafe {
         let _window = rl.get_window_handle();
 
-        // // GLFW3 Initialization + OpenGL 3.3 Context + Extensions
-        // //--------------------------------------------------------
-        // glfwSetErrorCallback(ErrorCallback);
-
-        // if (!glfwInit())
-        // {
-        //     printf("GLFW3: Can not initialize GLFW\n");
-        //     return 1;
-        // }
-        // else printf("GLFW3: GLFW initialized successfully\n");
-
-        // glfwWindowHint(GLFW_SAMPLES, 4);
-        // glfwWindowHint(GLFW_DEPTH_BITS, 16);
-        // glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-        // glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-        // glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-        // //glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
-
-        // GLFWwindow *window = glfwCreateWindow(screen_width, screen_height, "rlgl standalone", NULL, NULL);
-
-        // if (!window)
-        // {
-        //     glfwTerminate();
-        //     return 2;
-        // }
-        // else printf("GLFW3: Window created successfully\n");
-
-        // glfwSetWindowPos(window, 200, 200);
-
-        // glfwSetKeyCallback(window, KeyCallback);
-
-        // glfwMakeContextCurrent(window);
-        // glfwSwapInterval(0);
-
-        // Load OpenGL 3.3 supported extensions
-        // ffi::rlLoadExtensions(glfwGetProcAddress);
-        //--------------------------------------------------------
-
-        // Initialize OpenGL context (states and resources)
-        // rlglInit(screen_width, screen_height);
-
-        // Initialize viewport and internal projection/modelview matrices
-        // rlViewport(0, 0, screen_width, screen_height);
         ffi::rlMatrixMode(ffi::RL_PROJECTION as i32); // Switch to PROJECTION matrix
         ffi::rlLoadIdentity(); // Reset current matrix (PROJECTION)
         ffi::rlOrtho(
@@ -117,15 +75,15 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) {
 
         ffi::rlClearColor(245, 245, 245, 255); // Define clear color
         ffi::rlEnableDepthTest(); // Enable DEPTH_TEST for 3D
+    }
 
-        let camera =
-            Camera3D::perspective(rvec3(5.0, 5.0, 5.0), Vector3::zero(), Vector3::up(), 45.0);
+    let camera = Camera3D::perspective(rvec3(5.0, 5.0, 5.0), Vector3::zero(), Vector3::up(), 45.0);
 
-        let cube_position = Vector3::zero(); // Cube default position (center)
-                                             //--------------------------------------------------------------------------------------
-
-        // Main game loop
-        while !rl.window_should_close() {
+    let cube_position = Vector3::zero(); // Cube default position (center)
+                                         //--------------------------------------------------------------------------------------
+                                         // Main game loop
+    return Box::new(move |rl: &mut RaylibHandle, thread: &RaylibThread| -> () {
+        unsafe {
             let _d = rl.begin_drawing(&thread);
             // Update
             //----------------------------------------------------------------------------------
@@ -191,10 +149,10 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) {
 
             //----------------------------------------------------------------------------------
         }
+    });
 
-        // De-Initialization
-        //--------------------------------------------------------------------------------------
-    }
+    // De-Initialization
+    //--------------------------------------------------------------------------------------
 }
 
 // Draw rectangle using rlgl OpenGL 1.1 style coding (translated to OpenGL 3.3 internally)

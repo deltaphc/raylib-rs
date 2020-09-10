@@ -2,48 +2,88 @@ pub use raylib::prelude::*;
 
 pub mod example;
 
+type SampleOut = Box<dyn for<'a> FnMut(&'a mut RaylibHandle, &'a RaylibThread) -> ()>;
+type Sample = fn(&mut RaylibHandle, &RaylibThread) -> SampleOut;
+
 fn main() {
+    let title = "Showcase";
     let screen_width = 800;
     let screen_height = 640;
     let (mut rl, thread) = raylib::init()
         .size(screen_width, screen_height)
-        .title("Showcase")
+        .title(title)
         .vsync()
         .msaa_4x()
         .build();
 
     rl.set_exit_key(None);
-    // example::others::rlgl_standalone::run(&mut rl, &thread);
-    example::controls_test_suite::controls_test_suite::run(&mut rl, &thread);
-    // example::models::models_material_pbr::run(&mut rl, &thread);
 
-    // let samples = &[example::core::core_2d_camera::run];
-    // let mut sample = None;
+    let samples: &[(&std::ffi::CStr, Sample)] = &[
+        (rstr!("Core2D Camera"), example::core::core_2d_camera::run),
+        (
+            rstr!("Core2D Camera Platformer"),
+            example::core::core_2d_camera_platformer::run,
+        ),
+        (
+            rstr!("raygui - controls test suite"),
+            example::controls_test_suite::controls_test_suite::run,
+        ),
+        (
+            rstr!("raylib [models] example - pbr material"),
+            example::models::models_material_pbr::run,
+        ),
+        (
+            rstr!("rlgl standalone"),
+            example::others::rlgl_standalone::run,
+        ),
+    ];
+    let mut sample = None;
+    let mut listViewActive = -1;
+    let mut listViewFocus = -1;
+    let mut listViewScrollIndex = -1;
 
-    // let mut run = example::core::core_2d_camera::run(&mut rl, &thread);
-    // while !rl.window_should_close() {
-    //     match &mut sample {
-    //         None => {
-    //             let mut init = None;
-    //             {
-    //                 let mut d = rl.begin_drawing(&thread);
-    //                 d.clear_background(Color::WHITE);
-    //                 if d.gui_button(rrect(400, 320, 100, 30), "Core") {
-    //                     init = Some(samples[0]);
-    //                 }
-    //             }
-    //             match init {
-    //                 Some(i) => sample = Some(i(&mut rl, &thread)),
-    //                 _ => {}
-    //             }
-    //         }
+    let boxLength = (50 * samples.len() as i32).min(500);
+    let yMargin = (screen_height - boxLength) / 2;
+    dbg!(boxLength);
 
-    //         Some(ref mut run) => {
-    //             (*run)(&mut rl, &thread);
-    //             if rl.is_key_pressed(raylib::consts::KeyboardKey::KEY_ESCAPE) {
-    //                 sample = None
-    //             }
-    //         }
-    //     }
-    // }
+    while !rl.window_should_close() {
+        match &mut sample {
+            None => {
+                let mut toRun = None;
+                {
+                    let mut d = rl.begin_drawing(&thread);
+                    d.clear_background(Color::WHITE);
+
+                    let listViewExList: Vec<_> = samples.iter().map(|(s, _)| *s).collect();
+
+                    listViewActive = d.gui_list_view_ex(
+                        rrect(200.0, yMargin, 400, boxLength),
+                        listViewExList.as_slice(),
+                        &mut listViewFocus,
+                        &mut listViewScrollIndex,
+                        listViewActive,
+                    );
+
+                    if listViewActive >= 0 {
+                        toRun.replace(samples[listViewActive as usize].1);
+                    }
+                }
+
+                match toRun {
+                    Some(run) => sample = Some(run(&mut rl, &thread)),
+                    _ => {}
+                }
+            }
+
+            Some(ref mut run) => {
+                (*run)(&mut rl, &thread);
+                if rl.is_key_pressed(raylib::consts::KeyboardKey::KEY_ESCAPE) {
+                    sample = None;
+                    rl.set_window_size(screen_width, screen_height);
+                    rl.set_window_title(&thread, title);
+                    listViewActive = -1;
+                }
+            }
+        }
+    }
 }

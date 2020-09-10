@@ -4,15 +4,17 @@ use std::ffi::CString;
 //------------------------------------------------------------------------------------
 // Program main entry point
 //------------------------------------------------------------------------------------
-pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) {
+pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
     // Initialization
     //---------------------------------------------------------------------------------------
-    #[cfg(not(target_os = "macos"))] { // Macos has issues with high DPI
+    // #[cfg(not(target_os = "macos"))] { // Macos has issues with high DPI
         let screenWidth = 690;
         let screenHeight = 560;
     
         rl.set_window_size(screenWidth, screenHeight);
-    }
+    // }
+    rl.set_window_title(thread, "raygui - controls test suite");
+
 
     // GUI controls initialization
     //----------------------------------------------------------------------------------
@@ -86,7 +88,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) {
     rl.set_target_fps(30);
 
     // Main game loop
-    while !exitWindow
+    return Box::new(move |rl: &mut RaylibHandle, thread: &RaylibThread| -> () 
     // Detect window close button or ESC key
     {
         use raylib::consts::guiIconName::*;
@@ -237,7 +239,6 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) {
         listViewExActive = d.gui_list_view_ex(
             rrect(165, 180, 140, 200),
             &listViewExList,
-            8,
             &mut listViewExFocus,
             &mut listViewExScrollIndex,
             listViewExActive,
@@ -363,5 +364,5 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) {
         }
 
         d.gui_unlock();
-    }
+    });
 }

@@ -560,7 +560,6 @@ pub trait RaylibDrawGui {
         &mut self,
         bounds: impl Into<ffi::Rectangle>,
         text: &[&CStr],
-        count: i32,
         focus: &mut i32,
         scroll_index: &mut i32,
         active: i32,
@@ -573,7 +572,7 @@ pub trait RaylibDrawGui {
             ffi::GuiListViewEx(
                 bounds.into(),
                 buffer.as_mut_ptr(),
-                count,
+                text.len() as i32,
                 focus,
                 scroll_index,
                 active,

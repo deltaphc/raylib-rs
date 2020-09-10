@@ -9,7 +9,7 @@ const BRDF_SIZE: i32 = 512; // BRDF LUT texture size
 // PBR material loading
 // static Material LoadMaterialPBR(Color albedo, float metalness, float roughness);
 
-pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) {
+pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread)-> crate::SampleOut {
     // Initialization
     //--------------------------------------------------------------------------------------
     let screen_width = 800;
@@ -97,7 +97,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) {
                            //--------------------------------------------------------------------------------------
 
     // Main game loop
-    while !rl.window_should_close()
+    return Box::new(move |rl: &mut RaylibHandle, thread: &RaylibThread| -> () 
     // Detect window close button or ESC key
     {
         // Update
@@ -130,64 +130,64 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) {
         d.draw_fps(10, 10);
 
         //----------------------------------------------------------------------------------
-    }
+    });
 
     // De-Initialization
     //--------------------------------------------------------------------------------------
 
-    // Shaders and textures must be unloaded by user,
-    // they could be in use by other models
-    use raylib::consts::MaterialMapType::*;
-    unsafe {
-        rl.unload_texture(
-            thread,
-            model.materials()[0].maps()[MAP_ALBEDO as usize]
-                .texture()
-                .clone(),
-        );
-        rl.unload_texture(
-            thread,
-            model.materials()[0].maps()[MAP_NORMAL as usize]
-                .texture()
-                .clone(),
-        );
-        rl.unload_texture(
-            thread,
-            model.materials()[0].maps()[MAP_METALNESS as usize]
-                .texture()
-                .clone(),
-        );
-        rl.unload_texture(
-            thread,
-            model.materials()[0].maps()[MAP_ROUGHNESS as usize]
-                .texture()
-                .clone(),
-        );
-        rl.unload_texture(
-            thread,
-            model.materials()[0].maps()[MAP_OCCLUSION as usize]
-                .texture()
-                .clone(),
-        );
-        rl.unload_texture(
-            thread,
-            model.materials()[0].maps()[MAP_IRRADIANCE as usize]
-                .texture()
-                .clone(),
-        );
-        rl.unload_texture(
-            thread,
-            model.materials()[0].maps()[MAP_PREFILTER as usize]
-                .texture()
-                .clone(),
-        );
-        rl.unload_texture(
-            thread,
-            model.materials()[0].maps()[MAP_BRDF as usize]
-                .texture()
-                .clone(),
-        );
-    }
+    // // Shaders and textures must be unloaded by user,
+    // // they could be in use by other models
+    // use raylib::consts::MaterialMapType::*;
+    // unsafe {
+    //     rl.unload_texture(
+    //         thread,
+    //         model.materials()[0].maps()[MAP_ALBEDO as usize]
+    //             .texture()
+    //             .clone(),
+    //     );
+    //     rl.unload_texture(
+    //         thread,
+    //         model.materials()[0].maps()[MAP_NORMAL as usize]
+    //             .texture()
+    //             .clone(),
+    //     );
+    //     rl.unload_texture(
+    //         thread,
+    //         model.materials()[0].maps()[MAP_METALNESS as usize]
+    //             .texture()
+    //             .clone(),
+    //     );
+    //     rl.unload_texture(
+    //         thread,
+    //         model.materials()[0].maps()[MAP_ROUGHNESS as usize]
+    //             .texture()
+    //             .clone(),
+    //     );
+    //     rl.unload_texture(
+    //         thread,
+    //         model.materials()[0].maps()[MAP_OCCLUSION as usize]
+    //             .texture()
+    //             .clone(),
+    //     );
+    //     rl.unload_texture(
+    //         thread,
+    //         model.materials()[0].maps()[MAP_IRRADIANCE as usize]
+    //             .texture()
+    //             .clone(),
+    //     );
+    //     rl.unload_texture(
+    //         thread,
+    //         model.materials()[0].maps()[MAP_PREFILTER as usize]
+    //             .texture()
+    //             .clone(),
+    //     );
+    //     rl.unload_texture(
+    //         thread,
+    //         model.materials()[0].maps()[MAP_BRDF as usize]
+    //             .texture()
+    //             .clone(),
+    //     );
+    // }
 
     //--------------------------------------------------------------------------------------
 }
