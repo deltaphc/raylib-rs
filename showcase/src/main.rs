@@ -5,7 +5,17 @@ pub mod example;
 type SampleOut = Box<dyn for<'a> FnMut(&'a mut RaylibHandle, &'a RaylibThread) -> ()>;
 type Sample = fn(&mut RaylibHandle, &RaylibThread) -> SampleOut;
 
+use std::cell::RefCell;
+thread_local! (static APP: RefCell<Option<Box<dyn FnMut() -> bool>>> = RefCell::new(None));
+
 fn main() {
+    // Set the emscripten main loop before setting up raylib so that raylib has something
+    // to configure
+    // #[cfg(target_arch = "wasm32")]
+    // unsafe {
+    //     wasm::emscripten_set_main_loop(wasm::_nothing_wasm, 0, 1);
+    // }
+
     let title = "Showcase";
     let screen_width = 800;
     let screen_height = 640;
@@ -18,7 +28,7 @@ fn main() {
 
     rl.set_exit_key(None);
 
-    let samples: &[(&std::ffi::CStr, Sample)] = &[
+    let samples: Vec<(&std::ffi::CStr, Sample)> = vec![
         (rstr!("Core2D Camera"), example::core::core_2d_camera::run),
         (
             rstr!("Core2D Camera Platformer"),
@@ -65,7 +75,7 @@ fn main() {
     let box_length = (50 * samples.len() as i32).min(500);
     let y_margin = (screen_height - box_length) / 2;
 
-    while !rl.window_should_close() {
+    let frame: Box<dyn FnMut() -> bool> = Box::new(move || {
         match &mut sample {
             None => {
                 let mut to_run = None;
@@ -96,13 +106,61 @@ fn main() {
 
             Some(ref mut run) => {
                 (*run)(&mut rl, &thread);
-                if rl.is_key_pressed(raylib::consts::KeyboardKey::KEY_ESCAPE) {
+                if rl.is_key_down(raylib::consts::KeyboardKey::KEY_BACKSPACE) {
                     sample = None;
                     rl.set_window_size(screen_width, screen_height);
                     rl.set_window_title(&thread, title);
                     list_view_active = -1;
                 }
             }
-        }
+        };
+        return rl.window_should_close();
+    });
+
+    APP.with(|app| {
+        app.borrow_mut().replace(frame);
+    });
+
+    #[cfg(not(target_arch = "wasm32"))]
+    {
+        while !update() {}
     }
+    #[cfg(target_arch = "wasm32")]
+    unsafe {
+        wasm::emscripten_set_main_loop(wasm::_update_wasm, 0, 1);
+    }
+}
+
+fn update() -> bool {
+    APP.with(|app| match *app.borrow_mut() {
+        None => false,
+        Some(ref mut frame) => frame(),
+    })
+}
+
+#[cfg(target_arch = "wasm32")]
+#[allow(dead_code)]
+mod wasm {
+    use std::os::raw::{c_int, c_uchar};
+
+    #[allow(non_camel_case_types)]
+    type em_callback_func = unsafe extern "C" fn();
+
+    extern "C" {
+        // This extern is built in by Emscripten.
+        pub fn emscripten_sample_gamepad_data();
+        pub fn emscripten_run_script_int(x: *const c_uchar) -> c_int;
+        pub fn emscripten_cancel_main_loop();
+        pub fn emscripten_set_main_loop(
+            func: em_callback_func,
+            fps: c_int,
+            simulate_infinite_loop: c_int,
+        );
+    }
+
+    pub extern "C" fn _update_wasm() {
+        super::update();
+    }
+
+    pub extern "C" fn _nothing_wasm() {}
 }

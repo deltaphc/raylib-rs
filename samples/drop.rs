@@ -23,6 +23,7 @@ fn test_shader_dropping(opt: &options::Opt) {
     };
 }
 
+
 /// Checks that model files are droppable after window is closed
 fn test_model_dropping(opt: &options::Opt) {
     let ten_millis = time::Duration::from_millis(10);

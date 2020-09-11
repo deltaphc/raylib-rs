@@ -210,11 +210,11 @@ fn load_material_pbr(
 
     #[cfg(target_arch = "wasm32")]
     unsafe {
-        mat.shader_mut() = rl
+        *mat.shader_mut() = rl
             .load_shader(
                 thread,
-                "original/models/resources/shaders/glsl330/pbr.vs",
-                "original/models/resources/shaders/glsl330/pbr.fs",
+                Some("original/models/resources/shaders/glsl330/pbr.vs"),
+                Some("original/models/resources/shaders/glsl330/pbr.fs"),
             )
             .unwrap()
             .make_weak();
