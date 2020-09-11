@@ -29,20 +29,14 @@ impl RaylibHandle {
 
         // Trust me, I have tried ALL the RUST option ergonamics. This is the only way
         // to get this to work without raylib breaking for whatever reason
-        return match (c_vs_filename, c_fs_filename) {
-            (Some(vs), Some(fs)) => unsafe {
-                Ok(Shader(ffi::LoadShader(vs.as_ptr(), fs.as_ptr())))
-            },
-            (None, Some(fs)) => unsafe {
-                Ok(Shader(ffi::LoadShader(std::ptr::null(), fs.as_ptr())))
-            },
-            (Some(vs), None) => unsafe {
-                Ok(Shader(ffi::LoadShader(vs.as_ptr(), std::ptr::null())))
-            },
-            (None, None) => unsafe {
-                Ok(Shader(ffi::LoadShader(std::ptr::null(), std::ptr::null())))
-            },
+        let shader = match (c_vs_filename, c_fs_filename) {
+            (Some(vs), Some(fs)) => unsafe { Shader(ffi::LoadShader(vs.as_ptr(), fs.as_ptr())) },
+            (None, Some(fs)) => unsafe { Shader(ffi::LoadShader(std::ptr::null(), fs.as_ptr())) },
+            (Some(vs), None) => unsafe { Shader(ffi::LoadShader(vs.as_ptr(), std::ptr::null())) },
+            (None, None) => unsafe { Shader(ffi::LoadShader(std::ptr::null(), std::ptr::null())) },
         };
+
+        return Ok(shader);
     }
 
     /// Loads shader from code strings and binds default locations.

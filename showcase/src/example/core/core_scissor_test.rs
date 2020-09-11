@@ -22,8 +22,8 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
     rl.set_window_title(thread, "raylib [core] example - scissor test");
     rl.set_window_size(screen_width, screen_height);
 
-    let mut scissorArea = rrect(0, 0, 300, 300);
-    let mut scissorMode = true;
+    let mut scissor_area = rrect(0, 0, 300, 300);
+    let mut scissor_mode = true;
 
     rl.set_target_fps(60); // Set our game to run at 60 frames-per-second
                            //--------------------------------------------------------------------------------------
@@ -34,12 +34,12 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
         // Update
         //----------------------------------------------------------------------------------
         if rl.is_key_pressed(KEY_S) {
-            scissorMode = !scissorMode;
+            scissor_mode = !scissor_mode;
         }
 
         // Centre the scissor area around the mouse position
-        scissorArea.x = rl.get_mouse_x() as f32 - scissorArea.width / 2.0;
-        scissorArea.y = rl.get_mouse_y() as f32 - scissorArea.height / 2.0;
+        scissor_area.x = rl.get_mouse_x() as f32 - scissor_area.width / 2.0;
+        scissor_area.y = rl.get_mouse_y() as f32 - scissor_area.height / 2.0;
         //----------------------------------------------------------------------------------
 
         // Draw
@@ -48,12 +48,12 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
 
         d.clear_background(Color::RAYWHITE);
 
-        if scissorMode {
+        if scissor_mode {
             let mut d = d.begin_scissor_mode(
-                scissorArea.x as i32,
-                scissorArea.y as i32,
-                scissorArea.width as i32,
-                scissorArea.height as i32,
+                scissor_area.x as i32,
+                scissor_area.y as i32,
+                scissor_area.width as i32,
+                scissor_area.height as i32,
             );
             // Draw full screen rectangle and some text
             // NOTE: Only part defined by scissor area will be rendered
@@ -88,7 +88,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
             );
         }
 
-        d.draw_rectangle_lines_ex(scissorArea, 1, Color::BLACK);
+        d.draw_rectangle_lines_ex(scissor_area, 1, Color::BLACK);
         d.draw_text("Press S to toggle scissor test", 10, 10, 20, Color::BLACK);
 
         //----------------------------------------------------------------------------------

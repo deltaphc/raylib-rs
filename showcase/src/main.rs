@@ -52,6 +52,10 @@ fn main() {
             rstr!("raylib [audio] example - music playing (streaming)"),
             example::audio::audio_music_stream::run,
         ),
+        (
+            rstr!("raylib [shaders] example - postprocessing shader"),
+            example::shaders::shaders_postprocessing::run,
+        ),
     ];
     let mut sample = None;
     let mut list_view_active = -1;

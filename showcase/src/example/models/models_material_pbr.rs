@@ -37,11 +37,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread)-> crate::SampleOut {
 
     let pbrmat = load_material_pbr(rl, thread, rcolor(255, 255, 255, 255), 1.0, 1.0);
     model.materials_mut()[0] = pbrmat;
-    // std::mem::swap(&mut model.materials_mut()[0], &mut pbrmat);
-    // unsafe {
-    //     rl.unload_material(thread, pbrmat); // get rid of default material
-    // }
-
+    
     // Create lights
     // NOTE: Lights are added to an internal lights pool automatically
     use raylib::consts::CameraMode::*;
