@@ -2,9 +2,9 @@ SHELL := /bin/bash
 
 debug:
 	cargo build --target=wasm32-unknown-emscripten
-	mkdir -p site
-	cp ../target/wasm32-unknown-emscripten/debug/deps/raylib_showcase.data site/raylib_showcase.data
-	cp ../target/wasm32-unknown-emscripten/debug/raylib_showcase.wasm site/raylib_showcase.wasm
-	cp ../target/wasm32-unknown-emscripten/debug/raylib_showcase.wasm.map site/raylib_showcase.wasm.map
-	cp ../target/wasm32-unknown-emscripten/debug/raylib-showcase.d site/raylib-showcase.d
-	cp ../target/wasm32-unknown-emscripten/debug/raylib-showcase.js site/raylib-showcase.js
+	mkdir -p ../docs
+	cp ../target/wasm32-unknown-emscripten/debug/deps/raylib_showcase.data ../docs/raylib_showcase.data
+	cp ../target/wasm32-unknown-emscripten/debug/raylib_showcase.wasm ../docs/raylib_showcase.wasm
+	cp ../target/wasm32-unknown-emscripten/debug/raylib_showcase.wasm.map ../docs/raylib_showcase.wasm.map
+	cp ../target/wasm32-unknown-emscripten/debug/raylib-showcase.d ../docs/raylib-showcase.d
+	cp ../target/wasm32-unknown-emscripten/debug/raylib-showcase.js ../docs/raylib-showcase.js
