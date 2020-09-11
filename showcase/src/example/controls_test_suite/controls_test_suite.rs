@@ -75,7 +75,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
     //Font font = LoadFontEx("fonts/rainyhearts16.ttf", 12, 0, 0);
     //GuiSetFont(font);
 
-    let mut exitWindow = false;
+    let mut _exit_window = false;
     let mut showMessageBox = false;
 
     let mut textInput = vec![0u8; 256];
@@ -101,7 +101,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
         // Update
         //----------------------------------------------------------------------------------
 
-        exitWindow = rl.window_should_close();
+        _exit_window = rl.window_should_close();
 
         if rl.is_key_pressed(KEY_ESCAPE) {
             showMessageBox = !showMessageBox;
@@ -325,7 +325,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
             if (result == 0) || (result == 2) {
                 showMessageBox = false;
             } else if result == 1 {
-                exitWindow = true;
+                _exit_window = true;
             }
         }
 

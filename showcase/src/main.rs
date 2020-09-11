@@ -40,40 +40,43 @@ fn main() {
             rstr!("raylib [textures] example - bunnymark"),
             example::textures::textures_bunnymark::run,
         ),
+        (
+            rstr!("raylib [models] example - model animation"),
+            example::models::models_animation::run,
+        ),
     ];
     let mut sample = None;
-    let mut listViewActive = -1;
-    let mut listViewFocus = -1;
-    let mut listViewScrollIndex = -1;
+    let mut list_view_active = -1;
+    let mut list_view_focus = -1;
+    let mut list_view_scroll_index = -1;
 
-    let boxLength = (50 * samples.len() as i32).min(500);
-    let yMargin = (screen_height - boxLength) / 2;
-    dbg!(boxLength);
+    let box_length = (50 * samples.len() as i32).min(500);
+    let y_margin = (screen_height - box_length) / 2;
 
     while !rl.window_should_close() {
         match &mut sample {
             None => {
-                let mut toRun = None;
+                let mut to_run = None;
                 {
                     let mut d = rl.begin_drawing(&thread);
                     d.clear_background(Color::WHITE);
 
-                    let listViewExList: Vec<_> = samples.iter().map(|(s, _)| *s).collect();
+                    let list: Vec<_> = samples.iter().map(|(s, _)| *s).collect();
 
-                    listViewActive = d.gui_list_view_ex(
-                        rrect(200.0, yMargin, 400, boxLength),
-                        listViewExList.as_slice(),
-                        &mut listViewFocus,
-                        &mut listViewScrollIndex,
-                        listViewActive,
+                    list_view_active = d.gui_list_view_ex(
+                        rrect(200.0, y_margin, 400, box_length),
+                        list.as_slice(),
+                        &mut list_view_focus,
+                        &mut list_view_scroll_index,
+                        list_view_active,
                     );
 
-                    if listViewActive >= 0 {
-                        toRun.replace(samples[listViewActive as usize].1);
+                    if list_view_active >= 0 {
+                        to_run.replace(samples[list_view_active as usize].1);
                     }
                 }
 
-                match toRun {
+                match to_run {
                     Some(run) => sample = Some(run(&mut rl, &thread)),
                     _ => {}
                 }
@@ -85,7 +88,7 @@ fn main() {
                     sample = None;
                     rl.set_window_size(screen_width, screen_height);
                     rl.set_window_title(&thread, title);
-                    listViewActive = -1;
+                    list_view_active = -1;
                 }
             }
         }

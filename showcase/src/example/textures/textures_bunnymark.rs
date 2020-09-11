@@ -40,7 +40,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
         .expect("texture missing: are you in the right directory?");
     let mut bunnies = vec![Bunny::default(); MAX_BUNNIES];
 
-    let mut bunniesCount = 0; // Bunnies counter
+    let mut bunnies_count = 0; // Bunnies counter
 
     rl.set_target_fps(60); // Set our game to run at 60 frames-per-second
                            //--------------------------------------------------------------------------------------
@@ -53,25 +53,25 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
         if rl.is_mouse_button_down(MOUSE_LEFT_BUTTON) {
             // Create more bunnies
             for _ in 0..100 {
-                if bunniesCount < MAX_BUNNIES {
-                    bunnies[bunniesCount].position = rl.get_mouse_position();
-                    bunnies[bunniesCount].speed.x =
+                if bunnies_count < MAX_BUNNIES {
+                    bunnies[bunnies_count].position = rl.get_mouse_position();
+                    bunnies[bunnies_count].speed.x =
                         get_random_value::<i32>(-250, 250) as f32 / 60.0;
-                    bunnies[bunniesCount].speed.y =
+                    bunnies[bunnies_count].speed.y =
                         get_random_value::<i32>(-250, 250) as f32 / 60.0;
-                    bunnies[bunniesCount].color = Color::new(
+                    bunnies[bunnies_count].color = Color::new(
                         get_random_value::<i32>(50, 240) as u8,
                         get_random_value::<i32>(80, 240) as u8,
                         get_random_value::<i32>(100, 240) as u8,
                         255,
                     );
-                    bunniesCount += 1;
+                    bunnies_count += 1;
                 }
             }
         }
 
         // Update bunnies
-        for i in 0..bunniesCount {
+        for i in 0..bunnies_count {
             bunnies[i].position.x += bunnies[i].speed.x;
             bunnies[i].position.y += bunnies[i].speed.y;
 
@@ -95,7 +95,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
 
         d.clear_background(Color::RAYWHITE);
 
-        for i in 0..bunniesCount {
+        for i in 0..bunnies_count {
             // NOTE: When internal batch buffer limit is reached (MAX_BATCH_ELEMENTS),
             // a draw call is launched and buffer starts being filled again;
             // before issuing a draw call, updated vertex data from internal CPU buffer is send to GPU...
@@ -112,7 +112,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
 
         d.draw_rectangle(0, 0, screen_width, 40, Color::BLACK);
         d.draw_text(
-            &format!("bunnies: {}", bunniesCount),
+            &format!("bunnies: {}", bunnies_count),
             120,
             10,
             20,
@@ -121,7 +121,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
         d.draw_text(
             &format!(
                 "batched draw calls: {}",
-                1 + bunniesCount / MAX_BATCH_ELEMENTS,
+                1 + bunnies_count / MAX_BATCH_ELEMENTS,
             ),
             320,
             10,

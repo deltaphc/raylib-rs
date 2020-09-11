@@ -67,12 +67,46 @@ impl RaylibHandle {
     pub fn load_model_from_mesh(&mut self, _: &RaylibThread, mesh: &Mesh) -> Result<Model, String> {
         let m = unsafe { ffi::LoadModelFromMesh(mesh.0) };
 
-        if m.meshes.is_null() || m.materials.is_null()
-        {
+        if m.meshes.is_null() || m.materials.is_null() {
             return Err("Could not load model from mesh".to_owned());
         }
 
         Ok(Model(m))
+    }
+
+    pub fn load_model_animations(
+        &mut self,
+        _: &RaylibThread,
+        filename: &str,
+    ) -> Result<Vec<ModelAnimation>, String> {
+        let c_filename = CString::new(filename).unwrap();
+        let mut m_size = 0;
+        let m_ptr = unsafe { ffi::LoadModelAnimations(c_filename.as_ptr(), &mut m_size) };
+        if m_size <= 0 {
+            return Err(format!("No model animations loaded from {}", filename));
+        }
+        let mut m_vec = Vec::with_capacity(m_size as usize);
+        for i in 0..m_size {
+            unsafe {
+                m_vec.push(ModelAnimation(*m_ptr.offset(i as isize)));
+            }
+        }
+        unsafe {
+            libc::free(m_ptr as *mut libc::c_void);
+        }
+        Ok(m_vec)
+    }
+
+    pub fn update_model_animation(
+        &mut self,
+        _: &RaylibThread,
+        mut model: impl AsMut<ffi::Model>,
+        anim: impl AsRef<ffi::ModelAnimation>,
+        frame: i32,
+    ) {
+        unsafe {
+            ffi::UpdateModelAnimation(*model.as_mut(), *anim.as_ref(), frame);
+        }
     }
 }
 
@@ -146,31 +180,25 @@ pub trait RaylibModel: AsRef<ffi::Model> + AsMut<ffi::Model> {
             return None;
         }
 
-        Some(
-            unsafe {
-                std::slice::from_raw_parts_mut(
-                    self.as_mut().bones as *mut BoneInfo,
-                    self.as_mut().boneCount as usize,
-                )
-            }
-        )
+        Some(unsafe {
+            std::slice::from_raw_parts_mut(
+                self.as_mut().bones as *mut BoneInfo,
+                self.as_mut().boneCount as usize,
+            )
+        })
     }
     fn bind_pose(&self) -> Option<&crate::math::Transform> {
         if self.as_ref().bindPose.is_null() {
             return None;
         }
-        Some(
-            unsafe { std::mem::transmute(self.as_ref().bindPose) }
-        )
+        Some(unsafe { std::mem::transmute(self.as_ref().bindPose) })
     }
 
     fn bind_pose_mut(&mut self) -> Option<&mut crate::math::Transform> {
         if self.as_ref().bindPose.is_null() {
             return None;
         }
-        Some(
-            unsafe { std::mem::transmute(self.as_mut().bindPose) }
-        )
+        Some(unsafe { std::mem::transmute(self.as_mut().bindPose) })
     }
 
     /// Check model animation skeleton match
@@ -420,14 +448,6 @@ impl Material {
         }
         Ok(m_vec)
     }
-
-    pub fn set_material_texture(
-        &mut self,
-        map_type: crate::consts::MaterialMapType,
-        texture: impl AsRef<ffi::Texture2D>,
-    ) {
-        unsafe { ffi::SetMaterialTexture(&mut self.0, (map_type as u32) as i32, *texture.as_ref()) }
-    }
 }
 
 impl RaylibMaterial for WeakMaterial {}
@@ -457,6 +477,16 @@ pub trait RaylibMaterial: AsRef<ffi::Material> + AsMut<ffi::Material> {
                 self.as_mut().maps as *mut MaterialMap,
                 ffi::MAX_MATERIAL_MAPS as usize,
             )
+        }
+    }
+
+    fn set_material_texture(
+        &mut self,
+        map_type: crate::consts::MaterialMapType,
+        texture: impl AsRef<ffi::Texture2D>,
+    ) {
+        unsafe {
+            ffi::SetMaterialTexture(self.as_mut(), (map_type as u32) as i32, *texture.as_ref())
         }
     }
 }
@@ -491,41 +521,36 @@ pub trait RaylibModelAnimation: AsRef<ffi::ModelAnimation> + AsMut<ffi::ModelAni
         }
     }
 
-    fn frame_poses(&self) -> &[&crate::math::Transform] {
-        unsafe {
-            std::slice::from_raw_parts(
-                self.as_ref().framePoses as *const &crate::math::Transform,
-                self.as_ref().frameCount as usize,
-            )
+    fn frame_poses(&self) -> Vec<&[crate::math::Transform]> {
+        let anim = self.as_ref();
+        let mut top = Vec::with_capacity(anim.frameCount as usize);
+
+        for i in 0..anim.frameCount {
+            top.push(unsafe {
+                std::slice::from_raw_parts(
+                    *(anim.framePoses.offset(i as isize) as *const *const crate::math::Transform),
+                    anim.boneCount as usize,
+                )
+            });
         }
+
+        top
     }
 
-    fn frame_poses_mut(&mut self) -> &mut [&mut crate::math::Transform] {
-        unsafe {
-            std::slice::from_raw_parts_mut(
-                self.as_mut().framePoses as *mut &mut crate::math::Transform,
-                self.as_mut().frameCount as usize,
-            )
-        }
-    }
+    fn frame_poses_mut(&mut self) -> Vec<&mut [crate::math::Transform]> {
+        let anim = self.as_ref();
+        let mut top = Vec::with_capacity(anim.frameCount as usize);
 
-    fn load_model_animations(filename: &str) -> Result<Vec<ModelAnimation>, String> {
-        let c_filename = CString::new(filename).unwrap();
-        let mut m_size = 0;
-        let m_ptr = unsafe { ffi::LoadModelAnimations(c_filename.as_ptr(), &mut m_size) };
-        if m_size <= 0 {
-            return Err(format!("No model animations loaded from {}", filename));
+        for i in 0..anim.frameCount {
+            top.push(unsafe {
+                std::slice::from_raw_parts_mut(
+                    *(anim.framePoses.offset(i as isize) as *mut *mut crate::math::Transform),
+                    anim.boneCount as usize,
+                )
+            });
         }
-        let mut m_vec = Vec::with_capacity(m_size as usize);
-        for i in 0..m_size {
-            unsafe {
-                m_vec.push(ModelAnimation(*m_ptr.offset(i as isize)));
-            }
-        }
-        unsafe {
-            libc::free(m_ptr as *mut libc::c_void);
-        }
-        Ok(m_vec)
+
+        top
     }
 }
 
