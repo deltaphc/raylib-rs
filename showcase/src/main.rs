@@ -44,6 +44,10 @@ fn main() {
             rstr!("raylib [models] example - model animation"),
             example::models::models_animation::run,
         ),
+        (
+            rstr!("raylib [core] example - scissor test"),
+            example::core::core_scissor_test::run,
+        ),
     ];
     let mut sample = None;
     let mut list_view_active = -1;
