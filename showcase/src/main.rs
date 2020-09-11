@@ -48,6 +48,10 @@ fn main() {
             rstr!("raylib [core] example - scissor test"),
             example::core::core_scissor_test::run,
         ),
+        (
+            rstr!("raylib [audio] example - music playing (streaming)"),
+            example::audio::audio_music_stream::run,
+        ),
     ];
     let mut sample = None;
     let mut list_view_active = -1;
