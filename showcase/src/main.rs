@@ -35,6 +35,10 @@ fn main() {
             example::core::core_2d_camera_platformer::run,
         ),
         (
+            rstr!("raylib [core] example - 3d camera first person"),
+            example::core::core_3d_camera_first_person::run,
+        ),
+        (
             rstr!("raygui - controls test suite"),
             example::controls_test_suite::controls_test_suite::run,
         ),
@@ -114,7 +118,7 @@ fn main() {
 
             Some(ref mut run) => {
                 (*run)(&mut rl, &thread);
-                if rl.is_key_down(raylib::consts::KeyboardKey::KEY_BACKSPACE) {
+                if rl.is_key_down(raylib::consts::KeyboardKey::KEY_ESCAPE) {
                     sample = None;
                     rl.set_window_size(screen_width, screen_height);
                     rl.set_window_title(&thread, title);

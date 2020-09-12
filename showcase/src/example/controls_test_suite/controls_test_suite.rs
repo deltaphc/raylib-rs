@@ -8,10 +8,10 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
     // Initialization
     //---------------------------------------------------------------------------------------
     // #[cfg(not(target_os = "macos"))] { // Macos has issues with high DPI
-        let screenWidth = 690;
-        let screenHeight = 560;
+        let screen_width = 690;
+        let screen_height = 560;
     
-        rl.set_window_size(screenWidth, screenHeight);
+        rl.set_window_size(screen_width, screen_height);
     // }
     rl.set_window_title(thread, "raygui - controls test suite");
 

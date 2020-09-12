@@ -118,7 +118,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
 
             // Draw '2D' elements in the scene (GUI)
             //-----------------------------------------------
-            // #define RLGL_CREATE_MATRIX_MANUALLY
+            // const RLGL_CREATE_MATRIX_MANUALLY
             // #if defined(RLGL_CREATE_MATRIX_MANUALLY)
             //             mat_proj = MatrixOrtho(0.0, screen_width, screen_height, 0.0, 0.0, 1.0);
             //             mat_view = MatrixIdentity();
@@ -208,7 +208,7 @@ unsafe fn draw_cube(position: Vector3, width: f32, height: f32, length: f32, col
 
     // NOTE: Be careful! Function order matters (rotate -> scale -> translate)
     ffi::rlTranslatef(position.x, position.y, position.z);
-    //rlScalef(2.0f, 2.0f, 2.0f);
+    //rlScalef(2.0, 2.0, 2.0);
     //rlRotatef(45, 0, 1, 0);
 
     ffi::rlBegin(ffi::RL_TRIANGLES as i32);
