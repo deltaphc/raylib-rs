@@ -66,6 +66,7 @@ where
     #[must_use]
     fn begin_texture_mode<'a>(
         &'a mut self,
+        _: &RaylibThread,
         framebuffer: &'a mut ffi::RenderTexture2D,
     ) -> RaylibTextureMode<Self> {
         unsafe { ffi::BeginTextureMode(*framebuffer) }

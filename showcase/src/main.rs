@@ -66,6 +66,14 @@ fn main() {
             rstr!("raylib [shaders] example - postprocessing shader"),
             example::shaders::shaders_postprocessing::run,
         ),
+        (
+            rstr!("raylib [texture] example - texture rectangle"),
+            example::textures::textures_rectangle::run,
+        ),
+        (
+            rstr!("raylib [textures] example - mouse painting"),
+            example::textures::textures_mouse_painting::run,
+        ),
     ];
     let mut sample = None;
     let mut list_view_active = -1;
@@ -121,6 +129,9 @@ fn main() {
         app.borrow_mut().replace(frame);
     });
 
+    // absolutely NONE of this is necessary. You could use a while !update() {} loop in
+    // wasm without any problems as long as you compile with ASYNCIFY.
+    // This shows you how to do it using emscripten_set_main_loop.
     #[cfg(not(target_arch = "wasm32"))]
     {
         while !update() {}

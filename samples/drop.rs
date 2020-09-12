@@ -23,7 +23,6 @@ fn test_shader_dropping(opt: &options::Opt) {
     };
 }
 
-
 /// Checks that model files are droppable after window is closed
 fn test_model_dropping(opt: &options::Opt) {
     let ten_millis = time::Duration::from_millis(10);
@@ -39,8 +38,9 @@ fn test_model_dropping(opt: &options::Opt) {
     //     Mesh::load_meshes(&thread, "static/pbr/trooper.obj").expect("couldn't load mesh");
     // };
     let _anim = {
-        let (_rl, _thread) = opt.open_window("Drop Anim");
-        ModelAnimation::load_model_animations("static/guy/guy.iqm").expect("couldn't load model");
+        let (mut rl, thread) = opt.open_window("Drop Anim");
+        rl.load_model_animations(&thread, "static/guy/guy.iqm")
+            .expect("couldn't load model");
     };
 
     thread::sleep(ten_millis);

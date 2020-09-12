@@ -69,6 +69,30 @@ impl Clone for WeakRenderTexture2D {
 impl RaylibRenderTexture2D for WeakRenderTexture2D {}
 impl RaylibRenderTexture2D for RenderTexture2D {}
 
+impl AsRef<ffi::Texture2D> for RenderTexture2D {
+    fn as_ref(&self) -> &ffi::Texture2D {
+        self.texture()
+    }
+}
+
+impl AsMut<ffi::Texture2D> for RenderTexture2D {
+    fn as_mut(&mut self) -> &mut ffi::Texture2D {
+        self.texture_mut()
+    }
+}
+
+impl AsRef<ffi::Texture2D> for WeakRenderTexture2D {
+    fn as_ref(&self) -> &ffi::Texture2D {
+        self.texture()
+    }
+}
+
+impl AsMut<ffi::Texture2D> for WeakRenderTexture2D {
+    fn as_mut(&mut self) -> &mut ffi::Texture2D {
+        self.texture_mut()
+    }
+}
+
 impl RenderTexture2D {
     pub unsafe fn make_weak(self) -> WeakRenderTexture2D {
         let m = WeakRenderTexture2D(self.0);
@@ -800,6 +824,8 @@ impl Image {
 
 impl RaylibTexture2D for WeakTexture2D {}
 impl RaylibTexture2D for Texture2D {}
+impl RaylibTexture2D for WeakRenderTexture2D {}
+impl RaylibTexture2D for RenderTexture2D {}
 
 impl Texture2D {
     pub unsafe fn make_weak(self) -> WeakTexture2D {

@@ -281,7 +281,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
 
             d.clear_background(Color::RAYWHITE);
             {
-                let mut d = d.begin_texture_mode(&mut target); // Enable drawing to texture
+                let mut d = d.begin_texture_mode(thread, &mut target); // Enable drawing to texture
 
                 d.clear_background(Color::RAYWHITE); // Clear texture background
                 {
