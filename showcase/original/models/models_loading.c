@@ -115,14 +115,14 @@ int main(void)
 
                 DrawGrid(20, 10.0f);         // Draw a grid
 
-                if (selected) DrawBoundingBox(bounds, GREEN);   // Draw selection box
+                if (selected) DrawBoundingBox(bounds, Color::GREEN);   // Draw selection box
 
             EndMode3D();
             
             DrawText("Drag & drop model to load mesh/texture.", 10, GetScreenHeight() - 20, 10, DARKGRAY);
-            if (selected) DrawText("MODEL SELECTED", GetScreenWidth() - 110, 10, 10, GREEN);
+            if (selected) DrawText("MODEL SELECTED", GetScreenWidth() - 110, 10, 10, Color::GREEN);
 
-            DrawText("(c) Castle 3D model by Alberto Cano", screenWidth - 200, screenHeight - 20, 10, GRAY);
+            DrawText("(c) Castle 3D model by Alberto Cano", screenWidth - 200, screenHeight - 20, 10, Color::GRAY);
 
             DrawFPS(10, 10);
 

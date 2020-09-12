@@ -37,12 +37,12 @@ pub fn run(rl
     {
         // Update
         //----------------------------------------------------------------------------------
-        if (IsKeyDown(KEY_SPACE))
+        if (rl.is_key_down(raylib::consts::KeyboardKey::KEY_SPACE))
             framesCounter += 8;
         else
             framesCounter++;
 
-        if (IsKeyPressed(KEY_ENTER))
+        if (IsKeyPressed(raylib::consts::KeyboardKey::KEY_ENTER))
             framesCounter = 0;
         //----------------------------------------------------------------------------------
 

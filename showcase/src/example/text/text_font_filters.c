@@ -59,17 +59,17 @@ pub fn run(rl
         fontSize += GetMouseWheelMove() * 4.0;
 
         // Choose font texture filter method
-        if (IsKeyPressed(KEY_ONE))
+        if (IsKeyPressed(raylib::consts::KeyboardKey::KEY_ONE))
         {
             SetTextureFilter(font.texture, FILTER_POINT);
             currentFontFilter = 0;
         }
-        else if (IsKeyPressed(KEY_TWO))
+        else if (IsKeyPressed(raylib::consts::KeyboardKey::KEY_TWO))
         {
             SetTextureFilter(font.texture, FILTER_BILINEAR);
             currentFontFilter = 1;
         }
-        else if (IsKeyPressed(KEY_THREE))
+        else if (IsKeyPressed(raylib::consts::KeyboardKey::KEY_THREE))
         {
             // NOTE: Trilinear filter won't be noticed on 2D drawing
             SetTextureFilter(font.texture, FILTER_TRILINEAR);
@@ -78,9 +78,9 @@ pub fn run(rl
 
         textSize = MeasureTextEx(font, msg, fontSize, 0);
 
-        if (IsKeyDown(KEY_LEFT))
+        if (rl.is_key_down(raylib::consts::KeyboardKey::KEY_LEFT))
             fontPosition.x -= 10;
-        else if (IsKeyDown(KEY_RIGHT))
+        else if (rl.is_key_down(raylib::consts::KeyboardKey::KEY_RIGHT))
             fontPosition.x += 10;
 
         // Load a dropped TTF file dynamically (at current fontSize)
@@ -105,20 +105,20 @@ pub fn run(rl
 
         d.clear_background(Color::RAYWHITE);
 
-        d.draw_text("Use mouse wheel to change font size", 20, 20, 10, GRAY);
-        d.draw_text("Use KEY_RIGHT and KEY_LEFT to move text", 20, 40, 10, GRAY);
-        d.draw_text("Use 1, 2, 3 to change texture filter", 20, 60, 10, GRAY);
+        d.draw_text("Use mouse wheel to change font size", 20, 20, 10, Color::GRAY);
+        d.draw_text("Use KEY_RIGHT and KEY_LEFT to move text", 20, 40, 10, Color::GRAY);
+        d.draw_text("Use 1, 2, 3 to change texture filter", 20, 60, 10, Color::GRAY);
         d.draw_text("Drop a new TTF font for dynamic loading", 20, 80, 10, Color::DARKGRAY);
 
         DrawTextEx(font, msg, fontPosition, fontSize, 0, Color::BLACK);
 
         // TODO: It seems texSize measurement is not accurate due to chars offsets...
-        //d.draw_rectangle_lines(fontPosition.x, fontPosition.y, textSize.x, textSize.y, RED);
+        //d.draw_rectangle_lines(fontPosition.x, fontPosition.y, textSize.x, textSize.y,Color::RED);
 
         d.draw_rectangle(0, screen_height - 80, screen_width, 80, Color::LIGHTGRAY);
         d.draw_text(FormatText("Font size: %02.02f", fontSize), 20, screen_height - 50, 10, Color::DARKGRAY);
         d.draw_text(FormatText("Text size: [%02.02f, %02.02f]", textSize.x, textSize.y), 20, screen_height - 30, 10, Color::DARKGRAY);
-        d.draw_text("CURRENT TEXTURE FILTER:", 250, 400, 20, GRAY);
+        d.draw_text("CURRENT TEXTURE FILTER:", 250, 400, 20, Color::GRAY);
 
         if (currentFontFilter == 0)
             d.draw_text("POINT", 570, 400, 20, Color::BLACK);

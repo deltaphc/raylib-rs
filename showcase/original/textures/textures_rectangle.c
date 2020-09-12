@@ -82,7 +82,7 @@ int main(void)
 
             DrawTextureRec(scarfy, frameRec, position, WHITE);  // Draw part of the texture
 
-            DrawText("(c) Scarfy sprite by Eiden Marsal", screenWidth - 200, screenHeight - 20, 10, GRAY);
+            DrawText("(c) Scarfy sprite by Eiden Marsal", screenWidth - 200, screenHeight - 20, 10, Color::GRAY);
 
         EndDrawing();
         //----------------------------------------------------------------------------------

@@ -261,9 +261,9 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
         //----------------------------------------------------------------------------------
         rl.update_camera(&mut camera); // Update camera
 
-        if rl.is_key_pressed(KEY_RIGHT) {
+        if rl.is_key_pressed(raylib::consts::KeyboardKey::KEY_RIGHT) {
             current_shader += 1;
-        } else if rl.is_key_pressed(KEY_LEFT) {
+        } else if rl.is_key_pressed(raylib::consts::KeyboardKey::KEY_LEFT) {
             current_shader -= 1;
         }
 

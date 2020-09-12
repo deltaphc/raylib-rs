@@ -57,7 +57,7 @@ pub fn run(rl
     {
         // Update
         //----------------------------------------------------------------------------------
-        if (IsKeyDown(KEY_SPACE))
+        if (rl.is_key_down(raylib::consts::KeyboardKey::KEY_SPACE))
             useTtf = true;
         else
             useTtf = false;
@@ -74,12 +74,12 @@ pub fn run(rl
         if (!useTtf)
         {
             DrawTextEx(fontBm, msg, rvec2(20.0, 100.0), fontBm.baseSize, 2, Color::MAROON);
-            d.draw_text("Using BMFont (Angelcode) imported", 20, Getscreen_height() - 30, 20, GRAY);
+            d.draw_text("Using BMFont (Angelcode) imported", 20, Getscreen_height() - 30, 20, Color::GRAY);
         }
         else
         {
             DrawTextEx(fontTtf, msg, rvec2(20.0, 100.0), fontTtf.baseSize, 2, Color::LIME);
-            d.draw_text("Using TTF font generated", 20, Getscreen_height() - 30, 20, GRAY);
+            d.draw_text("Using TTF font generated", 20, Getscreen_height() - 30, 20, Color::GRAY);
         }
 
         EndDrawing();

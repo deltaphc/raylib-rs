@@ -110,10 +110,10 @@ const MAX_GESTURE_STRINGS 20
 
         d.clear_background(Color::RAYWHITE);
 
-        d.draw_rectangleRec(touchArea, GRAY);
+        d.draw_rectangleRec(touchArea, Color::GRAY);
         d.draw_rectangle(225, 15, screen_width - 240, screen_height - 30, RAYWHITE);
 
-        d.draw_text("GESTURES TEST AREA", screen_width - 270, screen_height - 40, 20, GRAY.fade(0.5));
+        d.draw_text("GESTURES TEST AREA", screen_width - 270, screen_height - 40, 20, Color::GRAY.fade(0.5));
 
         for (int i = 0; i < gesturesCount; i++)
         {
@@ -128,8 +128,8 @@ const MAX_GESTURE_STRINGS 20
                 d.draw_text(gestureStrings[i], 35, 36 + 20 * i, 10, Color::MAROON);
         }
 
-        d.draw_rectangle_lines(10, 29, 200, screen_height - 50, GRAY);
-        d.draw_text("DETECTED GESTURES", 50, 15, 10, GRAY);
+        d.draw_rectangle_lines(10, 29, 200, screen_height - 50, Color::GRAY);
+        d.draw_text("DETECTED GESTURES", 50, 15, 10, Color::GRAY);
 
         if (currentGesture != GESTURE_NONE)
             DrawCircleV(touchPosition, 30, Color::MAROON);

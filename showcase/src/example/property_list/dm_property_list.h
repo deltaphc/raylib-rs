@@ -331,19 +331,19 @@ double GuiDMValueBox(Rectangle bounds, double value, double minValue, double max
             state = GUI_STATE_PRESSED;
             framesCounter++;
 
-            if (IsKeyPressed(KEY_RIGHT) || (IsKeyDown(KEY_RIGHT) && (framesCounter % cursorTimer == 0)))
+            if (IsKeyPressed(raylib::consts::KeyboardKey::KEY_RIGHT) || (rl.is_key_down(raylib::consts::KeyboardKey::KEY_RIGHT) && (framesCounter % cursorTimer == 0)))
             {
                 // MOVE CURSOR TO RIGHT
                 ++cursor;
                 framesCounter = 0;
             }
-            else if (IsKeyPressed(KEY_LEFT) || (IsKeyDown(KEY_LEFT) && (framesCounter % cursorTimer == 0)))
+            else if (IsKeyPressed(raylib::consts::KeyboardKey::KEY_LEFT) || (rl.is_key_down(raylib::consts::KeyboardKey::KEY_LEFT) && (framesCounter % cursorTimer == 0)))
             {
                 // MOVE CURSOR TO LEFT
                 --cursor;
                 framesCounter = 0;
             }
-            else if (IsKeyPressed(KEY_BACKSPACE) || (IsKeyDown(KEY_BACKSPACE) && (framesCounter % cursorTimer) == 0))
+            else if (IsKeyPressed(raylib::consts::KeyboardKey::KEY_BACKSPACE) || (rl.is_key_down(raylib::consts::KeyboardKey::KEY_BACKSPACE) && (framesCounter % cursorTimer) == 0))
             {
                 // HANDLE BACKSPACE
                 if (cursor > 0)
@@ -359,7 +359,7 @@ double GuiDMValueBox(Rectangle bounds, double value, double minValue, double max
                 }
                 framesCounter = 0;
             }
-            else if (IsKeyPressed(KEY_DELETE) || (IsKeyDown(KEY_DELETE) && (framesCounter % cursorTimer) == 0))
+            else if (IsKeyPressed(raylib::consts::KeyboardKey::KEY_DELETE) || (rl.is_key_down(raylib::consts::KeyboardKey::KEY_DELETE) && (framesCounter % cursorTimer) == 0))
             {
                 // HANDLE DEL
                 if (len > 0 && cursor < len && textValue[cursor] != '.')
@@ -370,22 +370,22 @@ double GuiDMValueBox(Rectangle bounds, double value, double minValue, double max
                     valueHasChanged = true;
                 }
             }
-            else if (IsKeyPressed(KEY_HOME))
+            else if (IsKeyPressed(raylib::consts::KeyboardKey::KEY_HOME))
             {
                 // MOVE CURSOR TO START
                 cursor = 0;
             }
-            else if (IsKeyPressed(KEY_END))
+            else if (IsKeyPressed(raylib::consts::KeyboardKey::KEY_END))
             {
                 // MOVE CURSOR TO END
                 cursor = len;
             }
-            else if (IsKeyDown(KEY_LEFT_CONTROL) && IsKeyPressed(KEY_C))
+            else if (rl.is_key_down(raylib::consts::KeyboardKey::KEY_LEFT_CONTROL) && IsKeyPressed(raylib::consts::KeyboardKey::KEY_C))
             {
                 // COPY
                 SetClipboardText(textValue);
             }
-            else if (IsKeyDown(KEY_LEFT_CONTROL) && IsKeyPressed(KEY_X))
+            else if (rl.is_key_down(raylib::consts::KeyboardKey::KEY_LEFT_CONTROL) && IsKeyPressed(raylib::consts::KeyboardKey::KEY_X))
             {
                 // CUT
                 SetClipboardText(textValue);
@@ -393,7 +393,7 @@ double GuiDMValueBox(Rectangle bounds, double value, double minValue, double max
                 cursor = len = 0;
                 value = 0.0; // set it to 0 and pretend the value didn't change
             }
-            else if (IsKeyDown(KEY_LEFT_CONTROL) && IsKeyPressed(KEY_V))
+            else if (rl.is_key_down(raylib::consts::KeyboardKey::KEY_LEFT_CONTROL) && IsKeyPressed(raylib::consts::KeyboardKey::KEY_V))
             {
                 // PASTE
                 const char *clip = GetClipboardText();
@@ -441,10 +441,10 @@ double GuiDMValueBox(Rectangle bounds, double value, double minValue, double max
         }
         else
         {
-            if (CheckCollisionPointRec(GetMousePosition(), bounds))
+            if (CheckCollisionPointRec(rl.get_mouse_position(), bounds))
             {
                 state = GUI_STATE_FOCUSED;
-                if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
+                if (rl.is_mouse_button_pressed(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON))
                     framesCounter = 0;
             }
         }
@@ -517,12 +517,12 @@ double GuiDMSpinner(Rectangle bounds, double value, double minValue, double maxV
     //--------------------------------------------------------------------
     if ((state != GUI_STATE_DISABLED) && !guiLocked)
     {
-        Vector2 mousePoint = GetMousePosition();
+        Vector2 mousePoint = rl.get_mouse_position();
 
         // Check spinner state
         if (CheckCollisionPointRec(mousePoint, bounds))
         {
-            if (IsMouseButtonDown(MOUSE_LEFT_BUTTON))
+            if (IsMouseButtonDown(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON))
                 state = GUI_STATE_PRESSED;
             else
                 state = GUI_STATE_FOCUSED;
@@ -623,7 +623,7 @@ void GuiDMPropertyList(Rectangle bounds, GuiDMProperty *props, int count, int *f
 
     // Update control
     //--------------------------------------------------------------------
-    Vector2 mousePos = GetMousePosition();
+    Vector2 mousePos = rl.get_mouse_position();
     // NOTE: most of the update code is actually done in the draw control section
     if ((state != GUI_STATE_DISABLED) && !guiLocked)
     {
@@ -675,7 +675,7 @@ void GuiDMPropertyList(Rectangle bounds, GuiDMProperty *props, int count, int *f
             {
                 if (CheckCollisionPointRec(mousePos, propBounds) && !guiLocked)
                 {
-                    if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
+                    if (rl.is_mouse_button_pressed(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON))
                     {
                         propState = GUI_STATE_PRESSED;
                         //d.draw_rectangleRec(propRect, Fade(GetColor(GuiGetStyle(LISTVIEW, BASE_COLOR_PRESSED)), guiAlpha));
@@ -927,9 +927,9 @@ void GuiDMPropertyList(Rectangle bounds, GuiDMProperty *props, int count, int *f
                 // support COPY/PASTE (need to do this here since GuiDMValueBox() also has COPY/PASTE so we need to overwrite it)
                 if ((propState == GUI_STATE_FOCUSED))
                 {
-                    if (IsKeyDown(KEY_LEFT_CONTROL) && IsKeyPressed(KEY_C))
+                    if (rl.is_key_down(raylib::consts::KeyboardKey::KEY_LEFT_CONTROL) && IsKeyPressed(raylib::consts::KeyboardKey::KEY_C))
                         SetClipboardText(clip);
-                    else if (IsKeyDown(KEY_LEFT_CONTROL) && IsKeyPressed(KEY_V))
+                    else if (rl.is_key_down(raylib::consts::KeyboardKey::KEY_LEFT_CONTROL) && IsKeyPressed(raylib::consts::KeyboardKey::KEY_V))
                     {
                         unsigned int a = props[p].value.vcolor.a, r = props[p].value.vcolor.r, g = props[p].value.vcolor.g, b = props[p].value.vcolor.b;
                         sscanf(GetClipboardText(), "#%02X%02X%02X%02X", &r, &g, &b, &a);

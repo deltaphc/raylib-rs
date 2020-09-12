@@ -81,7 +81,7 @@ int main()
             DrawTexture(texture, GetScreenWidth()/2 - texture.width/2, GetScreenHeight()/2 - texture.height/2 - 5, WHITE);
             DrawRectangleLines(GetScreenWidth()/2 - texture.width/2, GetScreenHeight()/2 - texture.height/2 - 5, texture.width, texture.height, BLACK);
 
-            DrawText(fileNameToLoad, 208, GetScreenHeight() - 20, 10, GRAY);
+            DrawText(fileNameToLoad, 208, GetScreenHeight() - 20, 10, Color::GRAY);
 
             // raygui: controls drawing
             //----------------------------------------------------------------------------------

@@ -83,7 +83,7 @@ const RAYGUI_IMPLEMENTATION const RAYGUI_SUPPORT_ICONS
         DrawTexture(texture, Getscreen_width() / 2 - texture.width / 2, Getscreen_height() / 2 - texture.height / 2 - 5, WHITE);
         d.draw_rectangle_lines(Getscreen_width() / 2 - texture.width / 2, Getscreen_height() / 2 - texture.height / 2 - 5, texture.width, texture.height, Color::BLACK);
 
-        d.draw_text(fileNameToLoad, 208, Getscreen_height() - 20, 10, GRAY);
+        d.draw_text(fileNameToLoad, 208, Getscreen_height() - 20, 10, Color::GRAY);
 
         // raygui: controls drawing
         //----------------------------------------------------------------------------------

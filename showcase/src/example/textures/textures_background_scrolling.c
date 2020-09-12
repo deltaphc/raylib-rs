@@ -43,7 +43,7 @@ pub fn run(rl
     {
         // Update
         //----------------------------------------------------------------------------------
-        scrollingBack -= 0.1f;
+        scrollingBack -= 0.1;
         scrollingMid -= 0.5;
         scrollingFore -= 1.0;
 
@@ -75,7 +75,7 @@ pub fn run(rl
         DrawTextureEx(foreground, (Vector2){scrollingFore, 70}, 0.0, 2.0, WHITE);
         DrawTextureEx(foreground, (Vector2){foreground.width * 2 + scrollingFore, 70}, 0.0, 2.0, WHITE);
 
-        d.draw_text("BACKGROUND SCROLLING & PARALLAX", 10, 10, 20, RED);
+        d.draw_text("BACKGROUND SCROLLING & PARALLAX", 10, 10, 20,Color::RED);
         d.draw_text("(c) Cyberpunk Street Environment by Luis Zuno (@ansimuz)", screen_width - 330, screen_height - 20, 10, RAYWHITE);
 
         EndDrawing();

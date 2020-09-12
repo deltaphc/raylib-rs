@@ -280,8 +280,8 @@ int main(int argc, char **argv)
             //------------------------------------------------------------------------------
 
             // Draw the info text
-            DrawText("These emojis have something to tell you, click each to find out!", (screenWidth - 650)/2, screenHeight - 40, 20, GRAY);
-            DrawText("Each emoji is a unicode character from a font, not a texture... Press [SPACEBAR] to refresh", (screenWidth - 484)/2, screenHeight - 16, 10, GRAY);
+            DrawText("These emojis have something to tell you, click each to find out!", (screenWidth - 650)/2, screenHeight - 40, 20, Color::GRAY);
+            DrawText("Each emoji is a unicode character from a font, not a texture... Press [SPACEBAR] to refresh", (screenWidth - 484)/2, screenHeight - 16, 10, Color::GRAY);
 
         EndDrawing();
         //----------------------------------------------------------------------------------

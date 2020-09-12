@@ -91,7 +91,7 @@ int main(void)
     Light lights[MAX_LIGHTS] = { 0 };
     lights[0] = CreateLight(LIGHT_POINT, (Vector3){ 4, 2, 4 }, Vector3Zero(), WHITE, shader);
     lights[1] = CreateLight(LIGHT_POINT, (Vector3){ 4, 2, 4 }, Vector3Zero(), RED, shader);
-    lights[2] = CreateLight(LIGHT_POINT, (Vector3){ 0, 4, 2 }, Vector3Zero(), GREEN, shader);
+    lights[2] = CreateLight(LIGHT_POINT, (Vector3){ 0, 4, 2 }, Vector3Zero(), Color::GREEN, shader);
     lights[3] = CreateLight(LIGHT_POINT, (Vector3){ 0, 4, 2 }, Vector3Zero(), BLUE, shader);
 
     SetCameraMode(camera, CAMERA_ORBITAL);  // Set an orbital camera mode
@@ -152,7 +152,7 @@ int main(void)
                 // Draw markers to show where the lights are
                 if (lights[0].enabled) { DrawSphereEx(lights[0].position, 0.2f, 8, 8, WHITE); }
                 if (lights[1].enabled) { DrawSphereEx(lights[1].position, 0.2f, 8, 8, RED); }
-                if (lights[2].enabled) { DrawSphereEx(lights[2].position, 0.2f, 8, 8, GREEN); }
+                if (lights[2].enabled) { DrawSphereEx(lights[2].position, 0.2f, 8, 8, Color::GREEN); }
                 if (lights[3].enabled) { DrawSphereEx(lights[3].position, 0.2f, 8, 8, BLUE); }
 
                 DrawGrid(10, 1.0f);

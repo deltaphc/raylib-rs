@@ -45,14 +45,14 @@ pub fn run(rl
         UpdateMusicStream(music); // Update music buffer with new stream data
 
         // Restart music playing (stop and play)
-        if (IsKeyPressed(KEY_SPACE))
+        if (IsKeyPressed(raylib::consts::KeyboardKey::KEY_SPACE))
         {
             StopMusicStream(music);
             PlayMusicStream(music);
         }
 
         // Pause/Resume music playing
-        if (IsKeyPressed(KEY_P))
+        if (IsKeyPressed(raylib::consts::KeyboardKey::KEY_P))
         {
             pause = !pause;
 
@@ -79,7 +79,7 @@ pub fn run(rl
 
         d.draw_rectangle(200, 200, 400, 12, Color::LIGHTGRAY);
         d.draw_rectangle(200, 200, (int)timePlayed, 12, Color::MAROON);
-        d.draw_rectangle_lines(200, 200, 400, 12, GRAY);
+        d.draw_rectangle_lines(200, 200, 400, 12, Color::GRAY);
 
         d.draw_text("PRESS SPACE TO RESTART MUSIC", 215, 250, 20, Color::LIGHTGRAY);
         d.draw_text("PRESS P TO PAUSE/RESUME MUSIC", 208, 280, 20, Color::LIGHTGRAY);

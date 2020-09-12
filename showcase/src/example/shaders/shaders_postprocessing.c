@@ -81,7 +81,7 @@ pub fn run(rl
     Texture2D texture = LoadTexture("resources/models/church_diffuse.png"); // Load model texture (diffuse map)
     model.materials[0].maps[MAP_DIFFUSE].texture = texture;                 // Set model diffuse texture
 
-    Vector3 position = {0.0, 0.0, 0.0}; // Set model position
+    let position = Vector3::zero(); // Set model position
 
     // Load all postpro shaders
     // NOTE 1: All postpro shader use the base vertex shader (DEFAULT_VERTEX_SHADER)
@@ -120,9 +120,9 @@ pub fn run(rl
         //----------------------------------------------------------------------------------
         rl.update_camera(&mut camera); // Update camera
 
-        if (IsKeyPressed(KEY_RIGHT))
+        if (IsKeyPressed(raylib::consts::KeyboardKey::KEY_RIGHT))
             currentShader++;
-        else if (IsKeyPressed(KEY_LEFT))
+        else if (IsKeyPressed(raylib::consts::KeyboardKey::KEY_LEFT))
             currentShader--;
 
         if (currentShader >= MAX_POSTPRO_SHADERS)
@@ -143,9 +143,9 @@ pub fn run(rl
 
         let mut d = d.begin_mode3D(&camera); // Begin 3d mode drawing
 
-        DrawModel(model, position, 0.1f, WHITE); // Draw 3d model with texture
+        DrawModel(model, position, 0.1, WHITE); // Draw 3d model with texture
 
-        DrawGrid(10, 1.0); // Draw a grid
+        d.draw_grid(10, 1.0); // Draw a grid
 
         EndMode3D(); // End 3d mode drawing, returns to orthographic 2d mode
 
@@ -162,13 +162,13 @@ pub fn run(rl
         // Draw 2d shapes and text over drawn texture
         d.draw_rectangle(0, 9, 580, 30, Fade(Color::LIGHTGRAY, 0.7f));
 
-        d.draw_text("(c) Church 3D model by Alberto Cano", screen_width - 200, screen_height - 20, 10, GRAY);
+        d.draw_text("(c) Church 3D model by Alberto Cano", screen_width - 200, screen_height - 20, 10, Color::GRAY);
 
         d.draw_text("CURRENT POSTPRO SHADER:", 10, 15, 20, Color::BLACK);
-        d.draw_text(postproShaderText[currentShader], 330, 15, 20, RED);
+        d.draw_text(postproShaderText[currentShader], 330, 15, 20,Color::RED);
         d.draw_text("< >", 540, 10, 30, DARKColor::BLUE);
 
-        DrawFPS(700, 15);
+        d.draw_fps(700, 15);
 
         EndDrawing();
         //----------------------------------------------------------------------------------

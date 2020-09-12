@@ -36,13 +36,13 @@ pub fn run(rl
     {
         // Update
         //----------------------------------------------------------------------------------
-        ballPosition = GetMousePosition();
+        ballPosition = rl.get_mouse_position();
 
-        if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
+        if (rl.is_mouse_button_pressed(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON))
             ballColor = Color::MAROON;
-        else if (IsMouseButtonPressed(MOUSE_MIDDLE_BUTTON))
+        else if (rl.is_mouse_button_pressed(raylib::consts::MouseButton::MOUSE_MIDDLE_BUTTON))
             ballColor = Color::LIME;
-        else if (IsMouseButtonPressed(MOUSE_RIGHT_BUTTON))
+        else if (rl.is_mouse_button_pressed(raylib::consts::MouseButton::MOUSE_RIGHT_BUTTON))
             ballColor = DARKColor::BLUE;
         //----------------------------------------------------------------------------------
 

@@ -41,7 +41,7 @@ const MAX_INPUT_CHARS 9
     {
         // Update
         //----------------------------------------------------------------------------------
-        if (CheckCollisionPointRec(GetMousePosition(), textBox))
+        if (CheckCollisionPointRec(rl.get_mouse_position(), textBox))
             mouseOnText = true;
         else
             mouseOnText = false;
@@ -64,7 +64,7 @@ const MAX_INPUT_CHARS 9
                 key = GetKeyPressed(); // Check next character in the queue
             }
 
-            if (IsKeyPressed(KEY_BACKSPACE))
+            if (IsKeyPressed(raylib::consts::KeyboardKey::KEY_BACKSPACE))
             {
                 letterCount--;
                 name[letterCount] = '\0';
@@ -86,11 +86,11 @@ const MAX_INPUT_CHARS 9
 
         d.clear_background(Color::RAYWHITE);
 
-        d.draw_text("PLACE MOUSE OVER INPUT BOX!", 240, 140, 20, GRAY);
+        d.draw_text("PLACE MOUSE OVER INPUT BOX!", 240, 140, 20, Color::GRAY);
 
         d.draw_rectangleRec(textBox, Color::LIGHTGRAY);
         if (mouseOnText)
-            d.draw_rectangle_lines(textBox.x, textBox.y, textBox.width, textBox.height, RED);
+            d.draw_rectangle_lines(textBox.x, textBox.y, textBox.width, textBox.height,Color::RED);
         else
             d.draw_rectangle_lines(textBox.x, textBox.y, textBox.width, textBox.height, Color::DARKGRAY);
 
@@ -104,10 +104,10 @@ const MAX_INPUT_CHARS 9
             {
                 // Draw blinking underscore char
                 if (((framesCounter / 20) % 2) == 0)
-                    d.draw_text("_", textBox.x + 8 + MeasureText(name, 40), textBox.y + 12, 40, Color::MAROON);
+                    d.draw_text("_", textBox.x + 8 + raylib::text::measure_textname, 40), textBox.y + 12, 40, Color::MAROON);
             }
             else
-                d.draw_text("Press BACKSPACE to delete chars...", 230, 300, 20, GRAY);
+                d.draw_text("Press BACKSPACE to delete chars...", 230, 300, 20, Color::GRAY);
         }
 
         EndDrawing();
@@ -123,7 +123,7 @@ const MAX_INPUT_CHARS 9
 }
 
 // Check if any key is pressed
-// NOTE: We limit keys check to keys between 32 (KEY_SPACE) and 126
+// NOTE: We limit keys check to keys between 32 (raylib::consts::KeyboardKey::KEY_SPACE) and 126
 bool IsAnyKeyPressed()
 {
     bool keyPressed = false;

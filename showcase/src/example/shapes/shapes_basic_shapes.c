@@ -46,7 +46,7 @@ pub fn run(rl
 
         DrawCircle(screen_width / 4, 120, 35, DARKColor::BLUE);
 
-        d.draw_rectangle(screen_width / 4 * 2 - 60, 100, 120, 60, RED);
+        d.draw_rectangle(screen_width / 4 * 2 - 60, 100, 120, 60,Color::RED);
         d.draw_rectangle_lines(screen_width / 4 * 2 - 40, 320, 80, 60, ORANGE); // NOTE: Uses QUADS internally, not lines
         d.draw_rectangleGradientH(screen_width / 4 * 2 - 90, 170, 180, 130, Color::MAROON, Color::GOLD);
 
@@ -56,7 +56,7 @@ pub fn run(rl
 
         DrawPoly((Vector2){screen_width / 4 * 3, 320}, 6, 80, 0, BROWN);
 
-        DrawCircleGradient(screen_width / 4, 220, 60, GREEN, Color::SKYBLUE);
+        DrawCircleGradient(screen_width / 4, 220, 60, Color::GREEN, Color::SKYBLUE);
 
         // NOTE: We draw all LINES based shapes together to optimize internal drawing,
         // this way, all LINES are rendered in a single draw pass

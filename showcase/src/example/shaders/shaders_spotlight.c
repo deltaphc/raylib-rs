@@ -171,7 +171,7 @@ pub fn run(rl
         {
             if (i == 0)
             {
-                Vector2 mp = GetMousePosition();
+                Vector2 mp = rl.get_mouse_position();
                 spots[i].pos.x = mp.x;
                 spots[i].pos.y = screen_height - mp.y;
             }
@@ -223,11 +223,11 @@ pub fn run(rl
         d.draw_rectangle(0, 0, screen_width, screen_height, WHITE);
         EndShaderMode();
 
-        DrawFPS(10, 10);
+        d.draw_fps(10, 10);
 
-        d.draw_text("Move the mouse!", 10, 30, 20, GREEN);
-        d.draw_text("Pitch Black", screen_width * .2, screen_height / 2, 20, GREEN);
-        d.draw_text("Dark", screen_width * .66, screen_height / 2, 20, GREEN);
+        d.draw_text("Move the mouse!", 10, 30, 20, Color::GREEN);
+        d.draw_text("Pitch Black", screen_width * .2, screen_height / 2, 20, Color::GREEN);
+        d.draw_text("Dark", screen_width * .66, screen_height / 2, 20, Color::GREEN);
 
         EndDrawing();
         //----------------------------------------------------------------------------------

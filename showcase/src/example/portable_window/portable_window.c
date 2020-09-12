@@ -54,9 +54,9 @@ const RAYGUI_IMPLEMENTATION
     {
         // Update
         //----------------------------------------------------------------------------------
-        mousePosition = GetMousePosition();
+        mousePosition = rl.get_mouse_position();
 
-        if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
+        if (rl.is_mouse_button_pressed(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON))
         {
             if (CheckCollisionPointRec(mousePosition, (Rectangle){0, 0, screen_width, 20}))
             {
@@ -70,7 +70,7 @@ const RAYGUI_IMPLEMENTATION
             windowPosition.x += (mousePosition.x - panOffset.x);
             windowPosition.y += (mousePosition.y - panOffset.y);
 
-            if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON))
+            if (IsMouseButtonReleased(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON))
                 dragWindow = false;
 
             SetWindowPosition(windowPosition.x, windowPosition.y);

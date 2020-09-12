@@ -47,7 +47,7 @@ pub fn run(rl
 
         d.draw_rectangle(screen_width / 2 - 40, boxPositionY, 80, 80, Color::MAROON);
 
-        d.draw_text("Use mouse wheel to move the cube up and down!", 10, 10, 20, GRAY);
+        d.draw_text("Use mouse wheel to move the cube up and down!", 10, 10, 20, Color::GRAY);
         d.draw_text(FormatText("Box position Y: %03i", boxPositionY), 10, 40, 20, Color::LIGHTGRAY);
 
         EndDrawing();

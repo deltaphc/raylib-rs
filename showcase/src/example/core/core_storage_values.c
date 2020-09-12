@@ -44,18 +44,18 @@ pub fn run(rl
     {
         // Update
         //----------------------------------------------------------------------------------
-        if (IsKeyPressed(KEY_R))
+        if (IsKeyPressed(raylib::consts::KeyboardKey::KEY_R))
         {
             score = raylib::get_random_value(1000, 2000);
             hiscore = raylib::get_random_value(2000, 4000);
         }
 
-        if (IsKeyPressed(KEY_ENTER))
+        if (IsKeyPressed(raylib::consts::KeyboardKey::KEY_ENTER))
         {
             SaveStorageValue(STORAGE_POSITION_SCORE, score);
             SaveStorageValue(STORAGE_POSITION_HISCORE, hiscore);
         }
-        else if (IsKeyPressed(KEY_SPACE))
+        else if (IsKeyPressed(raylib::consts::KeyboardKey::KEY_SPACE))
         {
             // NOTE: If requested position could not be found, value 0 is returned
             score = LoadStorageValue(STORAGE_POSITION_SCORE);

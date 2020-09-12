@@ -35,13 +35,13 @@ pub fn run(rl
     rl.set_window_title(thread, "raylib [shaders] example - raymarching shapes");
 
 
-    Camera camera = {0};
-    camera.position = rvec3(2.5, 2.5, 3.0); // Camera position
-    camera.target = rvec3(0.0, 0.0, 0.7);   // Camera looking at point
-    camera.up = rvec3(0.0, 1.0, 0.0);       // Camera up vector (rotation towards target)
-    camera.fovy = 65.0;                           // Camera field-of-view Y
+    let camera = Camera3D::perspective(
+    rvec3(2.5, 2.5, 3.0), // Camera position
+    rvec3(0.0, 0.0, 0.7),   // Camera looking at point
+    rvec3(0.0, 1.0, 0.0),       // Camera up vector (rotation towards target)
+    65.0,                           // Camera field-of-view Y
 
-    SetCameraMode(camera, CAMERA_FREE); // Set camera mode
+    rl.set_camera_mode(&camera, raylib::consts::CameraMode::CAMERA_FREE); // Set camera mode
 
     // Load raymarching shader
     // NOTE: Defining 0 (NULL) for vertex shader forces usage of internal default vertex shader

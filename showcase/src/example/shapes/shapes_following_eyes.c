@@ -44,8 +44,8 @@ screen_width
     {
         // Update
         //----------------------------------------------------------------------------------
-        irisLeftPosition = GetMousePosition();
-        irisRightPosition = GetMousePosition();
+        irisLeftPosition = rl.get_mouse_position();
+        irisRightPosition = rl.get_mouse_position();
 
         // Check not inside the left eye sclera
         if (!CheckCollisionPointCircle(irisLeftPosition, scleraLeftPosition, scleraRadius - 20))
@@ -92,7 +92,7 @@ screen_width
         DrawCircleV(irisRightPosition, irisRadius, DARKGREEN);
         DrawCircleV(irisRightPosition, 10, Color::BLACK);
 
-        DrawFPS(10, 10);
+        d.draw_fps(10, 10);
 
         EndDrawing();
         //----------------------------------------------------------------------------------

@@ -64,8 +64,8 @@ bool ColorButton(Rectangle bounds, Color color)
     bool pressed = false;
 
     // Update control
-    Vector2 mouse = GetMousePosition();
-    if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && CheckCollisionPointRec(mouse, bounds))
+    Vector2 mouse = rl.get_mouse_position();
+    if (rl.is_mouse_button_pressed(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON) && CheckCollisionPointRec(mouse, bounds))
         pressed = true;
 
     // Draw control
@@ -123,7 +123,7 @@ int main(int argc, char **argv)
     {
         // Update
         //----------------------------------------------------------------------------------
-        Vector2 mouse = GetMousePosition();
+        Vector2 mouse = rl.get_mouse_position();
 
         // Check all textboxes to get the active textboxBounds
         if (textBox01EditMode)
@@ -137,7 +137,7 @@ int main(int argc, char **argv)
 
         // Show/Hide the textboxBounds menu
         /*
-        if ((textboxActive < 2) && !showMenu && CheckCollisionPointRec(mouse, textboxBounds[textboxActive]) && IsMouseButtonPressed(MOUSE_RIGHT_BUTTON)) 
+        if ((textboxActive < 2) && !showMenu && CheckCollisionPointRec(mouse, textboxBounds[textboxActive]) && rl.is_mouse_button_pressed(raylib::consts::MouseButton::MOUSE_RIGHT_BUTTON)) 
         {
             showMenu = true;
             menuRect = (Rectangle){mouse.x, mouse.y, 80, 110};
@@ -145,7 +145,7 @@ int main(int argc, char **argv)
         */
 
         // Menu hidding logic
-        if (showMenu && IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && !CheckCollisionPointRec(mouse, menuRect))
+        if (showMenu && rl.is_mouse_button_pressed(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON) && !CheckCollisionPointRec(mouse, menuRect))
             showMenu = false;
 
         // Fonts drag & drop logic

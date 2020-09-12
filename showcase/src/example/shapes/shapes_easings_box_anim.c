@@ -112,7 +112,7 @@ pub fn run(rl
         }
 
         // Reset animation at anyscreen_width
-        if (IsKeyPressed(KEY_SPACE))
+        if (IsKeyPressed(raylib::consts::KeyboardKey::KEY_SPACE))
         {
             rec = (Rectangle){GetScreenWidth() / 2, -100, 100, 100};
             rotation = 0.0;

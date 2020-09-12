@@ -63,7 +63,7 @@ pub fn run(rl
         // Compute required framebuffer scaling
         float scale = min((float)Getscreen_width() / gamescreen_width, (float)Getscreen_height() / gamescreen_height);
 
-        if (IsKeyPressed(KEY_SPACE))
+        if (IsKeyPressed(raylib::consts::KeyboardKey::KEY_SPACE))
         {
             // Recalculate random colors for the bars
             for (int i = 0; i < 10; i++)
@@ -71,7 +71,7 @@ pub fn run(rl
         }
 
         // Update virtual mouse (clamped mouse value behind game screen)
-        Vector2 mouse = GetMousePosition();
+        Vector2 mouse = rl.get_mouse_position();
         Vector2 virtualMouse = {0};
         virtualMouse.x = (mouse.x - (Getscreen_width() - (gamescreen_width * scale)) * 0.5) / scale;
         virtualMouse.y = (mouse.y - (Getscreen_height() - (gamescreen_height * scale)) * 0.5) / scale;
@@ -93,7 +93,7 @@ pub fn run(rl
 
         d.draw_text("If executed inside a window,\nyou can resize the window,\nand see the screen scaling!", 10, 25, 20, WHITE);
 
-        d.draw_text(TextFormat("Default Mouse: [%i , %i]", (int)mouse.x, (int)mouse.y), 350, 25, 20, GREEN);
+        d.draw_text(TextFormat("Default Mouse: [%i , %i]", (int)mouse.x, (int)mouse.y), 350, 25, 20, Color::GREEN);
         d.draw_text(TextFormat("Virtual Mouse: [%i , %i]", (int)virtualMouse.x, (int)virtualMouse.y), 350, 55, 20, YELLOW);
 
         EndTextureMode();

@@ -39,12 +39,12 @@ const GLSL_VERSION 100
 
 
     // Define the camera to look into our 3d world
-    Camera camera = {0};
-    camera.position = rvec3(4.0, 4.0, 4.0);
-    camera.target = rvec3(0.0, 1.0, 1.0);
-    camera.up = rvec3(0.0, 1.0, 0.0);
-    camera.fovy = 45.0;
-    camera.type = CAMERA_PERSPECTIVE;
+    let camera = Camera3D::perspective(
+    rvec3(4.0, 4.0, 4.0),
+    rvec3(0.0, 1.0, 1.0),
+    rvec3(0.0, 1.0, 0.0),
+    45.0,
+    );
 
     Model model = LoadModel("resources/models/watermill.obj");                 // Load OBJ model
     Texture2D texture = LoadTexture("resources/models/watermill_diffuse.png"); // Load model texture
@@ -56,9 +56,9 @@ const GLSL_VERSION 100
     model.materials[0].shader = shader;                     // Set shader effect to 3d model
     model.materials[0].maps[MAP_DIFFUSE].texture = texture; // Bind texture to model
 
-    Vector3 position = {0.0, 0.0, 0.0}; // Set model position
+    let position = Vector3::zero(); // Set model position
 
-    SetCameraMode(camera, CAMERA_FREE); // Set an orbital camera mode
+    rl.set_camera_mode(&camera, raylib::consts::CameraMode::CAMERA_FREE); // Set an orbital camera mode
 
     rl.set_target_fps(60); // Set our game to run at 60 frames-per-second
     //--------------------------------------------------------------------------------------
@@ -79,15 +79,15 @@ const GLSL_VERSION 100
 
         let mut d = d.begin_mode3D(&camera);
 
-        DrawModel(model, position, 0.2f, WHITE); // Draw 3d model with texture
+        DrawModel(model, position, 0.2, WHITE); // Draw 3d model with texture
 
-        DrawGrid(10, 1.0); // Draw a grid
+        d.draw_grid(10, 1.0); // Draw a grid
 
         EndMode3D();
 
-        d.draw_text("(c) Watermill 3D model by Alberto Cano", screen_width - 210, screen_height - 20, 10, GRAY);
+        d.draw_text("(c) Watermill 3D model by Alberto Cano", screen_width - 210, screen_height - 20, 10, Color::GRAY);
 
-        DrawFPS(10, 10);
+        d.draw_fps(10, 10);
 
         EndDrawing();
         //----------------------------------------------------------------------------------

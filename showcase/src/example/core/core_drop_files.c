@@ -61,7 +61,7 @@ pub fn run(rl
                 else
                     d.draw_rectangle(0, 85 + 40 * i, screenWidth, 40, Fade(Color::LIGHTGRAY, 0.3f));
 
-                d.draw_text(droppedFiles[i], 120, 100 + 40 * i, 10, GRAY);
+                d.draw_text(droppedFiles[i], 120, 100 + 40 * i, 10, Color::GRAY);
             }
 
             d.draw_text("Drop new files...", 100, 110 + 40 * count, 20, Color::DARKGRAY);

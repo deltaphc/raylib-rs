@@ -77,7 +77,7 @@ const RLIGHTS_IMPLEMENTATION
 
     // Ambient light level
     int ambientLoc = GetShaderLocation(shader, "ambient");
-    SetShaderValue(shader, ambientLoc, (float[4]){0.2f, 0.2f, 0.2f, 1.0}, UNIFORM_VEC4);
+    SetShaderValue(shader, ambientLoc, (float[4]){0.2, 0.2, 0.2, 1.0}, UNIFORM_VEC4);
 
     float fogDensity = 0.15f;
     int fogDensityLoc = GetShaderLocation(shader, "fogDensity");
@@ -103,14 +103,14 @@ const RLIGHTS_IMPLEMENTATION
         //----------------------------------------------------------------------------------
         rl.update_camera(&mut camera); // Update camera
 
-        if (IsKeyDown(KEY_UP))
+        if (rl.is_key_down(raylib::consts::KeyboardKey::KEY_UP))
         {
             fogDensity += 0.001;
             if (fogDensity > 1.0)
                 fogDensity = 1.0;
         }
 
-        if (IsKeyDown(KEY_DOWN))
+        if (rl.is_key_down(raylib::consts::KeyboardKey::KEY_DOWN))
         {
             fogDensity -= 0.001;
             if (fogDensity < 0.0)
@@ -145,7 +145,7 @@ const RLIGHTS_IMPLEMENTATION
 
         EndMode3D();
 
-        d.draw_text(TextFormat("Use KEY_UP/KEY_DOWN to change fog density [%.2f]", fogDensity), 10, 10, 20, RAYWHITE);
+        d.draw_text(TextFormat("Use KEY_UP/KEY_DOWN to change fog density [%.2]", fogDensity), 10, 10, 20, RAYWHITE);
 
         EndDrawing();
         //----------------------------------------------------------------------------------

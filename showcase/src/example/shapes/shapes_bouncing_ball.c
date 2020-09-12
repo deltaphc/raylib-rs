@@ -40,7 +40,7 @@ pub fn run(rl
     {
         // Update
         //-----------------------------------------------------
-        if (IsKeyPressed(KEY_SPACE))
+        if (IsKeyPressed(raylib::consts::KeyboardKey::KEY_SPACE))
             pause = !pause;
 
         if (!pause)
@@ -69,9 +69,9 @@ pub fn run(rl
 
         // On pause, we draw a blinking message
         if (pause && ((framesCounter / 30) % 2))
-            d.draw_text("PAUSED", 350, 200, 30, GRAY);
+            d.draw_text("PAUSED", 350, 200, 30, Color::GRAY);
 
-        DrawFPS(10, 10);
+        d.draw_fps(10, 10);
 
         EndDrawing();
         //-----------------------------------------------------

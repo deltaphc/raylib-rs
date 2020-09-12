@@ -150,9 +150,9 @@ pub fn run(rl
     {
         // Update
         //----------------------------------------------------------------------------------
-        if (IsKeyPressed(KEY_RIGHT))
+        if (IsKeyPressed(raylib::consts::KeyboardKey::KEY_RIGHT))
             currentPalette++;
-        else if (IsKeyPressed(KEY_LEFT))
+        else if (IsKeyPressed(raylib::consts::KeyboardKey::KEY_LEFT))
             currentPalette--;
 
         if (currentPalette >= MAX_PALETTES)
@@ -184,9 +184,9 @@ pub fn run(rl
 
         d.draw_text("< >", 10, 10, 30, DARKColor::BLUE);
         d.draw_text("CURRENT PALETTE:", 60, 15, 20, RAYWHITE);
-        d.draw_text(paletteText[currentPalette], 300, 15, 20, RED);
+        d.draw_text(paletteText[currentPalette], 300, 15, 20,Color::RED);
 
-        DrawFPS(700, 15);
+        d.draw_fps(700, 15);
 
         EndDrawing();
         //----------------------------------------------------------------------------------

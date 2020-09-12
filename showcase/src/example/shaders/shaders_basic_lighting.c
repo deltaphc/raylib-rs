@@ -52,12 +52,12 @@ const RLIGHTS_IMPLEMENTATION
 
 
     // Define the camera to look into our 3d world
-    Camera camera = {0};
-    camera.position = rvec3(2.0, 2.0, 6.0); // Camera position
-    camera.target = rvec3(0.0, 0.5, 0.0);   // Camera looking at point
-    camera.up = rvec3(0.0, 1.0, 0.0);       // Camera up vector (rotation towards target)
-    camera.fovy = 45.0;                           // Camera field-of-view Y
-    camera.type = CAMERA_PERSPECTIVE;              // Camera mode type
+    let camera = Camera3D::perspective(
+    rvec3(2.0, 2.0, 6.0), // Camera position
+    rvec3(0.0, 0.5, 0.0),   // Camera looking at point
+    rvec3(0.0, 1.0, 0.0),       // Camera up vector (rotation towards target)
+    45.0,                           // Camera field-of-view Y
+    );              // Camera mode type
 
     // Load models
     Model modelA = LoadModelFromMesh(GenMeshTorus(0.4f, 1.0, 16, 32));
@@ -81,7 +81,7 @@ const RLIGHTS_IMPLEMENTATION
 
     // ambient light level
     int ambientLoc = GetShaderLocation(shader, "ambient");
-    SetShaderValue(shader, ambientLoc, (float[4]){0.2f, 0.2f, 0.2f, 1.0}, UNIFORM_VEC4);
+    SetShaderValue(shader, ambientLoc, (float[4]){0.2, 0.2, 0.2, 1.0}, UNIFORM_VEC4);
 
     float angle = 6.282f;
 
@@ -90,11 +90,11 @@ const RLIGHTS_IMPLEMENTATION
     modelB.materials[0].shader = shader;
     modelC.materials[0].shader = shader;
 
-    // Using 4 point lights, white, red, green and blue
+    // Using 4 point lights, white,Color::RED, green and blue
     Light lights[MAX_LIGHTS] = {0};
     lights[0] = CreateLight(LIGHT_POINT, (Vector3){4, 2, 4}, Vector3Zero(), WHITE, shader);
-    lights[1] = CreateLight(LIGHT_POINT, (Vector3){4, 2, 4}, Vector3Zero(), RED, shader);
-    lights[2] = CreateLight(LIGHT_POINT, (Vector3){0, 4, 2}, Vector3Zero(), GREEN, shader);
+    lights[1] = CreateLight(LIGHT_POINT, (Vector3){4, 2, 4}, Vector3Zero(),Color::RED, shader);
+    lights[2] = CreateLight(LIGHT_POINT, (Vector3){0, 4, 2}, Vector3Zero(), Color::GREEN, shader);
     lights[3] = CreateLight(LIGHT_POINT, (Vector3){0, 4, 2}, Vector3Zero(), Color::BLUE, shader);
 
     SetCameraMode(camera, CAMERA_ORBITAL); // Set an orbital camera mode
@@ -107,19 +107,19 @@ const RLIGHTS_IMPLEMENTATION
     {
         // Update
         //----------------------------------------------------------------------------------
-        if (IsKeyPressed(KEY_W))
+        if (IsKeyPressed(raylib::consts::KeyboardKey::KEY_W))
         {
             lights[0].enabled = !lights[0].enabled;
         }
-        if (IsKeyPressed(KEY_R))
+        if (IsKeyPressed(raylib::consts::KeyboardKey::KEY_R))
         {
             lights[1].enabled = !lights[1].enabled;
         }
-        if (IsKeyPressed(KEY_G))
+        if (IsKeyPressed(raylib::consts::KeyboardKey::KEY_G))
         {
             lights[2].enabled = !lights[2].enabled;
         }
-        if (IsKeyPressed(KEY_B))
+        if (IsKeyPressed(raylib::consts::KeyboardKey::KEY_B))
         {
             lights[3].enabled = !lights[3].enabled;
         }
@@ -132,8 +132,8 @@ const RLIGHTS_IMPLEMENTATION
         lights[0].position.z = sinf(angle) * 4.0;
         lights[1].position.x = cosf(-angle * 0.6f) * 4.0;
         lights[1].position.z = sinf(-angle * 0.6f) * 4.0;
-        lights[2].position.y = cosf(angle * 0.2f) * 4.0;
-        lights[2].position.z = sinf(angle * 0.2f) * 4.0;
+        lights[2].position.y = cosf(angle * 0.2) * 4.0;
+        lights[2].position.z = sinf(angle * 0.2) * 4.0;
         lights[3].position.y = cosf(-angle * 0.35f) * 4.0;
         lights[3].position.z = sinf(-angle * 0.35f) * 4.0;
 
@@ -167,26 +167,26 @@ const RLIGHTS_IMPLEMENTATION
         // Draw markers to show where the lights are
         if (lights[0].enabled)
         {
-            DrawSphereEx(lights[0].position, 0.2f, 8, 8, WHITE);
+            DrawSphereEx(lights[0].position, 0.2, 8, 8, WHITE);
         }
         if (lights[1].enabled)
         {
-            DrawSphereEx(lights[1].position, 0.2f, 8, 8, RED);
+            DrawSphereEx(lights[1].position, 0.2, 8, 8,Color::RED);
         }
         if (lights[2].enabled)
         {
-            DrawSphereEx(lights[2].position, 0.2f, 8, 8, GREEN);
+            DrawSphereEx(lights[2].position, 0.2, 8, 8, Color::GREEN);
         }
         if (lights[3].enabled)
         {
-            DrawSphereEx(lights[3].position, 0.2f, 8, 8, Color::BLUE);
+            DrawSphereEx(lights[3].position, 0.2, 8, 8, Color::BLUE);
         }
 
-        DrawGrid(10, 1.0);
+        d.draw_grid(10, 1.0);
 
         EndMode3D();
 
-        DrawFPS(10, 10);
+        d.draw_fps(10, 10);
 
         d.draw_text("Use keys RGBW to toggle lights", 10, 30, 20, Color::DARKGRAY);
 

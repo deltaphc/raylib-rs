@@ -80,7 +80,7 @@ const RECS_WIDTH 50 const RECS_HEIGHT 50
                 rotation = EaseLinearIn(framesCounter, 0.0, 360.0, PLAY_TIME_IN_FRAMES);
             }
         }
-        else if ((state == 1) && IsKeyPressed(KEY_SPACE))
+        else if ((state == 1) && IsKeyPressed(raylib::consts::KeyboardKey::KEY_SPACE))
         {
             // When animation has finished, press space to restart
             framesCounter = 0;
@@ -105,11 +105,11 @@ const RECS_WIDTH 50 const RECS_HEIGHT 50
         {
             for (int i = 0; i < MAX_RECS_X * MAX_RECS_Y; i++)
             {
-                d.draw_rectanglePro(recs[i], (Vector2){recs[i].width / 2, recs[i].height / 2}, rotation, RED);
+                d.draw_rectanglePro(recs[i], (Vector2){recs[i].width / 2, recs[i].height / 2}, rotation,Color::RED);
             }
         }
         else if (state == 1)
-            d.draw_text("PRESS [SPACE] TO PLAY AGAIN!", 240, 200, 20, GRAY);
+            d.draw_text("PRESS [SPACE] TO PLAY AGAIN!", 240, 200, 20, Color::GRAY);
 
         EndDrawing();
         //----------------------------------------------------------------------------------

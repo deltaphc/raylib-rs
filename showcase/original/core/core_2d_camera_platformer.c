@@ -55,10 +55,10 @@ int main(void)
     player.canJump = false;
     EnvItem envItems[] = {
         {{ 0, 0, 1000, 400 }, 0, LIGHTGRAY },
-        {{ 0, 400, 1000, 200 }, 1, GRAY },
-        {{ 300, 200, 400, 10 }, 1, GRAY },
-        {{ 250, 300, 100, 10 }, 1, GRAY },
-        {{ 650, 300, 100, 10 }, 1, GRAY }
+        {{ 0, 400, 1000, 200 }, 1, Color::GRAY },
+        {{ 300, 200, 400, 10 }, 1, Color::GRAY },
+        {{ 250, 300, 100, 10 }, 1, Color::GRAY },
+        {{ 650, 300, 100, 10 }, 1, Color::GRAY }
     };
     
     int envItemsLength = sizeof(envItems)/sizeof(envItems[0]);

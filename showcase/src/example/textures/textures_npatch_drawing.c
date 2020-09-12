@@ -59,7 +59,7 @@ pub fn run(rl
     {
         // Update
         //----------------------------------------------------------------------------------
-        mousePosition = GetMousePosition();
+        mousePosition = rl.get_mouse_position();
 
         // Resize the n-patches based on mouse position
         dstRec1.width = mousePosition.x - dstRec1.x;

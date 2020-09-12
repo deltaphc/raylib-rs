@@ -29,9 +29,9 @@ const MAX_COLORS_COUNT 23 // Number of colors available
 
     // Colours to choose from
     Color colors[MAX_COLORS_COUNT] = {
-        RAYWHITE, YELLOW, Color::GOLD, ORANGE, PINK, RED, Color::MAROON, GREEN, Color::LIME, DARKGREEN,
+        RAYWHITE, YELLOW, Color::GOLD, ORANGE, PINK,Color::RED, Color::MAROON, Color::GREEN, Color::LIME, DARKGREEN,
         Color::SKYBLUE, Color::BLUE, DARKColor::BLUE, PURPLE, VIOLET, DARKPURPLE, BEIGE, BROWN, DARKBROWN,
-        Color::LIGHTGRAY, GRAY, Color::DARKGRAY, Color::BLACK};
+        Color::LIGHTGRAY, Color::GRAY, Color::DARKGRAY, Color::BLACK};
 
     // Define colorsRecs data (for every rectangle)
     Rectangle colorsRecs[MAX_COLORS_COUNT] = {0};
@@ -70,12 +70,12 @@ const MAX_COLORS_COUNT 23 // Number of colors available
     {
         // Update
         //----------------------------------------------------------------------------------
-        Vector2 mousePos = GetMousePosition();
+        Vector2 mousePos = rl.get_mouse_position();
 
         // Move between colors with keys
-        if (IsKeyPressed(KEY_RIGHT))
+        if (IsKeyPressed(raylib::consts::KeyboardKey::KEY_RIGHT))
             colorSelected++;
-        else if (IsKeyPressed(KEY_LEFT))
+        else if (IsKeyPressed(raylib::consts::KeyboardKey::KEY_LEFT))
             colorSelected--;
 
         if (colorSelected >= MAX_COLORS_COUNT)
@@ -95,7 +95,7 @@ const MAX_COLORS_COUNT 23 // Number of colors available
                 colorMouseHover = -1;
         }
 
-        if ((colorMouseHover >= 0) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
+        if ((colorMouseHover >= 0) && rl.is_mouse_button_pressed(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON))
         {
             colorSelected = colorMouseHover;
             colorSelectedPrev = colorSelected;
@@ -108,7 +108,7 @@ const MAX_COLORS_COUNT 23 // Number of colors available
         if (brushSize > 50)
             brushSize = 50;
 
-        if (IsKeyPressed(KEY_C))
+        if (IsKeyPressed(raylib::consts::KeyboardKey::KEY_C))
         {
             // Clear render texture to clear color
             BeginTextureMode(target);
@@ -116,7 +116,7 @@ const MAX_COLORS_COUNT 23 // Number of colors available
             EndTextureMode();
         }
 
-        if (IsMouseButtonDown(MOUSE_LEFT_BUTTON) || (GetGestureDetected() == GESTURE_DRAG))
+        if (IsMouseButtonDown(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON) || (GetGestureDetected() == GESTURE_DRAG))
         {
             // Paint circle into render texture
             // NOTE: To avoid discontinuous circles, we could store
@@ -127,7 +127,7 @@ const MAX_COLORS_COUNT 23 // Number of colors available
             EndTextureMode();
         }
 
-        if (IsMouseButtonDown(MOUSE_RIGHT_BUTTON))
+        if (IsMouseButtonDown(raylib::consts::MouseButton::MOUSE_RIGHT_BUTTON))
         {
             colorSelected = 0;
 
@@ -148,7 +148,7 @@ const MAX_COLORS_COUNT 23 // Number of colors available
 
         // Image saving logic
         // NOTE: Saving painted texture to a default named image
-        if ((btnSaveMouseHover && IsMouseButtonReleased(MOUSE_LEFT_BUTTON)) || IsKeyPressed(KEY_S))
+        if ((btnSaveMouseHover && IsMouseButtonReleased(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON)) || IsKeyPressed(raylib::consts::KeyboardKey::KEY_S))
         {
             Image image = GetTextureData(target.texture);
             ImageFlipVertical(&image);
@@ -181,8 +181,8 @@ const MAX_COLORS_COUNT 23 // Number of colors available
         // Draw drawing circle for reference
         if (mousePos.y > 50)
         {
-            if (IsMouseButtonDown(MOUSE_RIGHT_BUTTON))
-                DrawCircleLines(mousePos.x, mousePos.y, brushSize, GRAY);
+            if (IsMouseButtonDown(raylib::consts::MouseButton::MOUSE_RIGHT_BUTTON))
+                DrawCircleLines(mousePos.x, mousePos.y, brushSize, Color::GRAY);
             else
                 DrawCircle(GetMouseX(), GetMouseY(), brushSize, colors[colorSelected]);
         }
@@ -204,8 +204,8 @@ const MAX_COLORS_COUNT 23 // Number of colors available
                              2, Color::BLACK);
 
         // Draw save image button
-        d.draw_rectangle_linesEx(btnSaveRec, 2, btnSaveMouseHover ? RED : Color::BLACK);
-        d.draw_text("SAVE!", 755, 20, 10, btnSaveMouseHover ? RED : Color::BLACK);
+        d.draw_rectangle_linesEx(btnSaveRec, 2, btnSaveMouseHover ?Color::RED : Color::BLACK);
+        d.draw_text("SAVE!", 755, 20, 10, btnSaveMouseHover ?Color::RED : Color::BLACK);
 
         // Draw save image message
         if (showSaveMessage)

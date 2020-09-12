@@ -40,8 +40,8 @@ pub fn run(rl
 
     InitAudioDevice(); // Initialize audio device
 
-    Color colors[14] = {ORANGE, RED, Color::GOLD, Color::LIME, Color::BLUE, VIOLET, BROWN, Color::LIGHTGRAY, PINK,
-                        YELLOW, GREEN, Color::SKYBLUE, PURPLE, BEIGE};
+    Color colors[14] = {ORANGE,Color::RED, Color::GOLD, Color::LIME, Color::BLUE, VIOLET, BROWN, Color::LIGHTGRAY, PINK,
+                        YELLOW, Color::GREEN, Color::SKYBLUE, PURPLE, BEIGE};
 
     // Creates ome circles for visual effect
     CircleWave circles[MAX_CIRCLES] = {0};
@@ -74,14 +74,14 @@ pub fn run(rl
         UpdateMusicStream(music); // Update music buffer with new stream data
 
         // Restart music playing (stop and play)
-        if (IsKeyPressed(KEY_SPACE))
+        if (IsKeyPressed(raylib::consts::KeyboardKey::KEY_SPACE))
         {
             StopMusicStream(music);
             PlayMusicStream(music);
         }
 
         // Pause/Resume music playing
-        if (IsKeyPressed(KEY_P))
+        if (IsKeyPressed(raylib::consts::KeyboardKey::KEY_P))
         {
             pause = !pause;
 
@@ -129,7 +129,7 @@ pub fn run(rl
         // Draw time bar
         d.draw_rectangle(20, screen_height - 20 - 12, screen_width - 40, 12, Color::LIGHTGRAY);
         d.draw_rectangle(20, screen_height - 20 - 12, (int)timePlayed, 12, Color::MAROON);
-        d.draw_rectangle_lines(20, screen_height - 20 - 12, screen_width - 40, 12, GRAY);
+        d.draw_rectangle_lines(20, screen_height - 20 - 12, screen_width - 40, 12, Color::GRAY);
 
         EndDrawing();
         //----------------------------------------------------------------------------------

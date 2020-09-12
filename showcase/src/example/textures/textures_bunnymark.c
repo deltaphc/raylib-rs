@@ -55,14 +55,14 @@ pub fn run(rl
     {
         // Update
         //----------------------------------------------------------------------------------
-        if (IsMouseButtonDown(MOUSE_LEFT_BUTTON))
+        if (IsMouseButtonDown(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON))
         {
             // Create more bunnies
             for (int i = 0; i < 100; i++)
             {
                 if (bunniesCount < MAX_BUNNIES)
                 {
-                    bunnies[bunniesCount].position = GetMousePosition();
+                    bunnies[bunniesCount].position = rl.get_mouse_position();
                     bunnies[bunniesCount].speed.x = (float)raylib::get_random_value(-250, 250) / 60.0;
                     bunnies[bunniesCount].speed.y = (float)raylib::get_random_value(-250, 250) / 60.0;
                     bunnies[bunniesCount].color = (Color){raylib::get_random_value(50, 240),
@@ -106,10 +106,10 @@ pub fn run(rl
         }
 
         d.draw_rectangle(0, 0, screen_width, 40, Color::BLACK);
-        d.draw_text(FormatText("bunnies: %i", bunniesCount), 120, 10, 20, GREEN);
+        d.draw_text(FormatText("bunnies: %i", bunniesCount), 120, 10, 20, Color::GREEN);
         d.draw_text(FormatText("batched draw calls: %i", 1 + bunniesCount / MAX_BATCH_ELEMENTS), 320, 10, 20, Color::MAROON);
 
-        DrawFPS(10, 10);
+        d.draw_fps(10, 10);
 
         EndDrawing();
         //----------------------------------------------------------------------------------

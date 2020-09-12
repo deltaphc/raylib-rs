@@ -92,51 +92,51 @@ pub fn run(rl
         // Update
         //----------------------------------------------------------------------------------
         // Press [1 - 6] to reset c to a point of interest
-        if (IsKeyPressed(KEY_ONE) ||
-            IsKeyPressed(KEY_TWO) ||
-            IsKeyPressed(KEY_THREE) ||
-            IsKeyPressed(KEY_FOUR) ||
-            IsKeyPressed(KEY_FIVE) ||
-            IsKeyPressed(KEY_SIX))
+        if (IsKeyPressed(raylib::consts::KeyboardKey::KEY_ONE) ||
+            IsKeyPressed(raylib::consts::KeyboardKey::KEY_TWO) ||
+            IsKeyPressed(raylib::consts::KeyboardKey::KEY_THREE) ||
+            IsKeyPressed(raylib::consts::KeyboardKey::KEY_FOUR) ||
+            IsKeyPressed(raylib::consts::KeyboardKey::KEY_FIVE) ||
+            IsKeyPressed(raylib::consts::KeyboardKey::KEY_SIX))
         {
-            if (IsKeyPressed(KEY_ONE))
+            if (IsKeyPressed(raylib::consts::KeyboardKey::KEY_ONE))
                 c[0] = POINTS_OF_INTEREST[0][0], c[1] = POINTS_OF_INTEREST[0][1];
-            else if (IsKeyPressed(KEY_TWO))
+            else if (IsKeyPressed(raylib::consts::KeyboardKey::KEY_TWO))
                 c[0] = POINTS_OF_INTEREST[1][0], c[1] = POINTS_OF_INTEREST[1][1];
-            else if (IsKeyPressed(KEY_THREE))
+            else if (IsKeyPressed(raylib::consts::KeyboardKey::KEY_THREE))
                 c[0] = POINTS_OF_INTEREST[2][0], c[1] = POINTS_OF_INTEREST[2][1];
-            else if (IsKeyPressed(KEY_FOUR))
+            else if (IsKeyPressed(raylib::consts::KeyboardKey::KEY_FOUR))
                 c[0] = POINTS_OF_INTEREST[3][0], c[1] = POINTS_OF_INTEREST[3][1];
-            else if (IsKeyPressed(KEY_FIVE))
+            else if (IsKeyPressed(raylib::consts::KeyboardKey::KEY_FIVE))
                 c[0] = POINTS_OF_INTEREST[4][0], c[1] = POINTS_OF_INTEREST[4][1];
-            else if (IsKeyPressed(KEY_SIX))
+            else if (IsKeyPressed(raylib::consts::KeyboardKey::KEY_SIX))
                 c[0] = POINTS_OF_INTEREST[5][0], c[1] = POINTS_OF_INTEREST[5][1];
 
             SetShaderValue(shader, cLoc, c, UNIFORM_VEC2);
         }
 
-        if (IsKeyPressed(KEY_SPACE))
+        if (IsKeyPressed(raylib::consts::KeyboardKey::KEY_SPACE))
             pause = !pause; // Pause animation (c change)
-        if (IsKeyPressed(KEY_F1))
+        if (IsKeyPressed(raylib::consts::KeyboardKey::KEY_F1))
             showControls = !showControls; // Toggle whether or not to show controls
 
         if (!pause)
         {
-            if (IsKeyPressed(KEY_RIGHT))
+            if (IsKeyPressed(raylib::consts::KeyboardKey::KEY_RIGHT))
                 incrementSpeed++;
-            else if (IsKeyPressed(KEY_LEFT))
+            else if (IsKeyPressed(raylib::consts::KeyboardKey::KEY_LEFT))
                 incrementSpeed--;
 
             // TODO: The idea is to zoom and move around with mouse
             // Probably offset movement should be proportional to zoom level
-            if (IsMouseButtonDown(MOUSE_LEFT_BUTTON) || IsMouseButtonDown(MOUSE_RIGHT_BUTTON))
+            if (IsMouseButtonDown(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON) || IsMouseButtonDown(raylib::consts::MouseButton::MOUSE_RIGHT_BUTTON))
             {
-                if (IsMouseButtonDown(MOUSE_LEFT_BUTTON))
+                if (IsMouseButtonDown(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON))
                     zoom += zoom * 0.003f;
-                if (IsMouseButtonDown(MOUSE_RIGHT_BUTTON))
+                if (IsMouseButtonDown(raylib::consts::MouseButton::MOUSE_RIGHT_BUTTON))
                     zoom -= zoom * 0.003f;
 
-                Vector2 mousePos = GetMousePosition();
+                Vector2 mousePos = rl.get_mouse_position();
 
                 offsetSpeed.x = mousePos.x - (float)screen_width / 2;
                 offsetSpeed.y = mousePos.y - (float)screen_height / 2;

@@ -36,12 +36,12 @@
 *
 *   Copyright (c) 2001 Robert Penner. All rights reserved.
 *
-*   Redistribution and use in source and binary forms, with or without modification, 
+*  Color::REDistribution and use in source and binary forms, with or without modification, 
 *   are permitted provided that the following conditions are met:
 *
-*       - Redistributions of source code must retain the above copyright notice, 
+*       -Color::REDistributions of source code must retain the above copyright notice, 
 *         this list of conditions and the following disclaimer.
-*       - Redistributions in binary form must reproduce the above copyright notice, 
+*       -Color::REDistributions in binary form must reproduce the above copyright notice, 
 *         this list of conditions and the following disclaimer in the documentation 
 *         and/or other materials provided with the distribution.
 *       - Neither the name of the author nor the names of contributors may be used 
@@ -66,7 +66,7 @@
 *   will the authors be held liable for any damages arising from the use of this software.
 *
 *   Permission is granted to anyone to use this software for any purpose, including commercial
-*   applications, and to alter it and redistribute it freely, subject to the following restrictions:
+*   applications, and to alter it andColor::REDistribute it freely, subject to the following restrictions:
 *
 *     1. The origin of this software must not be misrepresented; you must not claim that you
 *     wrote the original software. If you use this software in a product, an acknowledgment

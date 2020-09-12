@@ -69,7 +69,7 @@ const RAYGUI_IMPLEMENTATION
 
         d.draw_text(FormatText("MODE: %s", (segments >= 4) ? "MANUAL" : "AUTO"), 600, 200, 10, (segments >= 4) ? Color::MAROON : Color::DARKGRAY);
 
-        DrawFPS(10, 10);
+        d.draw_fps(10, 10);
 
         EndDrawing();
         //----------------------------------------------------------------------------------

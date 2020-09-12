@@ -101,8 +101,8 @@ int main(void)
                                237 - (GetGamepadAxisMovement(GAMEPAD_PLAYER1, GAMEPAD_AXIS_RIGHT_Y)*20), 25, BLACK);
 
                     // Draw axis: left-right triggers
-                    DrawRectangle(170, 30, 15, 70, GRAY);
-                    DrawRectangle(604, 30, 15, 70, GRAY);
+                    DrawRectangle(170, 30, 15, 70, Color::GRAY);
+                    DrawRectangle(604, 30, 15, 70, Color::GRAY);
                     DrawRectangle(170, 30, 15, (((1.0f + GetGamepadAxisMovement(GAMEPAD_PLAYER1, GAMEPAD_AXIS_LEFT_TRIGGER))/2.0f)*70), RED);
                     DrawRectangle(604, 30, 15, (((1.0f + GetGamepadAxisMovement(GAMEPAD_PLAYER1, GAMEPAD_AXIS_RIGHT_TRIGGER))/2.0f)*70), RED);
 
@@ -149,14 +149,14 @@ int main(void)
                                255 + (GetGamepadAxisMovement(GAMEPAD_PLAYER1, GAMEPAD_AXIS_RIGHT_Y)*20), 25, BLACK);
 
                     // Draw axis: left-right triggers
-                    DrawRectangle(169, 48, 15, 70, GRAY);
-                    DrawRectangle(611, 48, 15, 70, GRAY);
+                    DrawRectangle(169, 48, 15, 70, Color::GRAY);
+                    DrawRectangle(611, 48, 15, 70, Color::GRAY);
                     DrawRectangle(169, 48, 15, (((1.0f - GetGamepadAxisMovement(GAMEPAD_PLAYER1, GAMEPAD_AXIS_LEFT_TRIGGER))/2.0f)*70), RED);
                     DrawRectangle(611, 48, 15, (((1.0f - GetGamepadAxisMovement(GAMEPAD_PLAYER1, GAMEPAD_AXIS_RIGHT_TRIGGER))/2.0f)*70), RED);
                 }
                 else
                 {
-                    DrawText("- GENERIC GAMEPAD -", 280, 180, 20, GRAY);
+                    DrawText("- GENERIC GAMEPAD -", 280, 180, 20, Color::GRAY);
 
                     // TODO: Draw generic gamepad
                 }
@@ -169,11 +169,11 @@ int main(void)
                 }
 
                 if (GetGamepadButtonPressed() != -1) DrawText(FormatText("DETECTED BUTTON: %i", GetGamepadButtonPressed()), 10, 430, 10, RED);
-                else DrawText("DETECTED BUTTON: NONE", 10, 430, 10, GRAY);
+                else DrawText("DETECTED BUTTON: NONE", 10, 430, 10, Color::GRAY);
             }
             else
             {
-                DrawText("GP1: NOT DETECTED", 10, 10, 10, GRAY);
+                DrawText("GP1: NOT DETECTED", 10, 10, 10, Color::GRAY);
 
                 DrawTexture(texXboxPad, 0, 0, LIGHTGRAY);
             }

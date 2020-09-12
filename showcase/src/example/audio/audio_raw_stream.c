@@ -71,9 +71,9 @@ const MAX_SAMPLES 512 const MAX_SAMPLES_PER_UPDATE 4096
         //----------------------------------------------------------------------------------
 
         // Sample mouse input.
-        mousePosition = GetMousePosition();
+        mousePosition = rl.get_mouse_position();
 
-        if (IsMouseButtonDown(MOUSE_LEFT_BUTTON))
+        if (IsMouseButtonDown(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON))
         {
             float fp = (float)(mousePosition.y);
             frequency = 40.0 + (float)(fp);
@@ -139,7 +139,7 @@ const MAX_SAMPLES 512 const MAX_SAMPLES_PER_UPDATE 4096
 
         d.clear_background(Color::RAYWHITE);
 
-        d.draw_text(FormatText("sine frequency: %i", (int)frequency), Getscreen_width() - 220, 10, 20, RED);
+        d.draw_text(FormatText("sine frequency: %i", (int)frequency), Getscreen_width() - 220, 10, 20,Color::RED);
         d.draw_text("click mouse button to change frequency", 10, 10, 20, Color::DARKGRAY);
 
         // Draw the current buffer state proportionate to the screen
@@ -148,7 +148,7 @@ const MAX_SAMPLES 512 const MAX_SAMPLES_PER_UPDATE 4096
             position.x = i;
             position.y = 250 + 50 * data[i * MAX_SAMPLES / screen_width] / 32000;
 
-            DrawPixelV(position, RED);
+            DrawPixelV(position,Color::RED);
         }
 
         EndDrawing();

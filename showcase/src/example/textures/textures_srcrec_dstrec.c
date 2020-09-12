@@ -67,10 +67,10 @@ pub fn run(rl
         // rotation defines the texture rotation (using origin as rotation point)
         DrawTexturePro(scarfy, sourceRec, destRec, origin, (float)rotation, WHITE);
 
-        DrawLine((int)destRec.x, 0, (int)destRec.x, screen_height, GRAY);
-        DrawLine(0, (int)destRec.y, screen_width, (int)destRec.y, GRAY);
+        DrawLine((int)destRec.x, 0, (int)destRec.x, screen_height, Color::GRAY);
+        DrawLine(0, (int)destRec.y, screen_width, (int)destRec.y, Color::GRAY);
 
-        d.draw_text("(c) Scarfy sprite by Eiden Marsal", screen_width - 200, screen_height - 20, 10, GRAY);
+        d.draw_text("(c) Scarfy sprite by Eiden Marsal", screen_width - 200, screen_height - 20, 10, Color::GRAY);
 
         EndDrawing();
         //----------------------------------------------------------------------------------

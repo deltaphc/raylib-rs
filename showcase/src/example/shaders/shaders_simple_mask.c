@@ -42,12 +42,12 @@ pub fn run(rl
 
 
     // Define the camera to look into our 3d world
-    Camera camera = {0};
-    camera.position = rvec3(0.0, 1.0, 2.0);
-    camera.target = rvec3(0.0, 0.0, 0.0);
-    camera.up = rvec3(0.0, 1.0, 0.0);
-    camera.fovy = 45.0;
-    camera.type = CAMERA_PERSPECTIVE;
+    let camera = Camera3D::perspective(
+    rvec3(0.0, 1.0, 2.0),
+    rvec3(0.0, 0.0, 0.0),
+    rvec3(0.0, 1.0, 0.0),
+    45.0,
+    );
 
     // Define our three models to show the shader on
     Mesh torus = GenMeshTorus(.3, 1, 16, 32);
@@ -119,14 +119,14 @@ pub fn run(rl
         DrawModel(model1, (Vector3){0.5, 0, 0}, 1, WHITE);
         DrawModelEx(model2, (Vector3){-.5, 0, 0}, (Vector3){1, 1, 0}, 50, (Vector3){1, 1, 1}, WHITE);
         DrawModel(model3, (Vector3){0, 0, -1.5}, 1, WHITE);
-        DrawGrid(10, 1.0); // Draw a grid
+        d.draw_grid(10, 1.0); // Draw a grid
 
         EndMode3D();
 
-        d.draw_rectangle(16, 698, MeasureText(FormatText("Frame: %i", framesCounter), 20) + 8, 42, Color::BLUE);
+        d.draw_rectangle(16, 698, raylib::text::measure_textFormatText("Frame: %i", framesCounter), 20) + 8, 42, Color::BLUE);
         d.draw_text(FormatText("Frame: %i", framesCounter), 20, 700, 20, WHITE);
 
-        DrawFPS(10, 10);
+        d.draw_fps(10, 10);
 
         EndDrawing();
         //----------------------------------------------------------------------------------

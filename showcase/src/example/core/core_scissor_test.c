@@ -38,7 +38,7 @@ pub fn run(rl
     {
         // Update
         //----------------------------------------------------------------------------------
-        if (IsKeyPressed(KEY_S))
+        if (IsKeyPressed(raylib::consts::KeyboardKey::KEY_S))
             scissorMode = !scissorMode;
 
         // Centre the scissor area around the mouse position
@@ -57,7 +57,7 @@ pub fn run(rl
 
         // Draw full screen rectangle and some text
         // NOTE: Only part defined by scissor area will be rendered
-        d.draw_rectangle(0, 0, Getscreen_width(), Getscreen_height(), RED);
+        d.draw_rectangle(0, 0, Getscreen_width(), Getscreen_height(),Color::RED);
         d.draw_text("Move the mouse around to reveal this text!", 190, 200, 20, Color::LIGHTGRAY);
 
         if (scissorMode)

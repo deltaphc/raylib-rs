@@ -55,10 +55,10 @@ tempor incididunt ut labore et dolore magna aliqua. Nec ullamcorper sit amet ris
     {
         // Update
         //----------------------------------------------------------------------------------
-        if (IsKeyPressed(KEY_SPACE))
+        if (IsKeyPressed(raylib::consts::KeyboardKey::KEY_SPACE))
             wordWrap = !wordWrap;
 
-        Vector2 mouse = GetMousePosition();
+        Vector2 mouse = rl.get_mouse_position();
 
         // Check if the mouse is inside the container and toggle border color
         if (CheckCollisionPointRec(mouse, container))
@@ -69,7 +69,7 @@ tempor incididunt ut labore et dolore magna aliqua. Nec ullamcorper sit amet ris
         // Container resizing logic
         if (resizing)
         {
-            if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON))
+            if (IsMouseButtonReleased(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON))
                 resizing = false;
 
             int width = container.width + (mouse.x - lastMouse.x);
@@ -81,7 +81,7 @@ tempor incididunt ut labore et dolore magna aliqua. Nec ullamcorper sit amet ris
         else
         {
             // Check if we're resizing
-            if (IsMouseButtonDown(MOUSE_LEFT_BUTTON) && CheckCollisionPointRec(mouse, resizer))
+            if (IsMouseButtonDown(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON) && CheckCollisionPointRec(mouse, resizer))
                 resizing = true;
         }
 
@@ -103,21 +103,21 @@ tempor incididunt ut labore et dolore magna aliqua. Nec ullamcorper sit amet ris
         // Draw text in container (add some padding)
         DrawTextRec(font, text,
                     (Rectangle){container.x + 4, container.y + 4, container.width - 4, container.height - 4},
-                    20.0, 2.0, wordWrap, GRAY);
+                    20.0, 2.0, wordWrap, Color::GRAY);
 
         d.draw_rectangleRec(resizer, borderColor); // Draw the resize box
 
         // Draw bottom info
-        d.draw_rectangle(0, screen_height - 54, screen_width, 54, GRAY);
+        d.draw_rectangle(0, screen_height - 54, screen_width, 54, Color::GRAY);
         d.draw_rectangleRec((Rectangle){382, screen_height - 34, 12, 12}, Color::MAROON);
 
         d.draw_text("Word Wrap: ", 313, screen_height - 115, 20, Color::BLACK);
         if (wordWrap)
-            d.draw_text("ON", 447, screen_height - 115, 20, RED);
+            d.draw_text("ON", 447, screen_height - 115, 20,Color::RED);
         else
             d.draw_text("OFF", 447, screen_height - 115, 20, Color::BLACK);
 
-        d.draw_text("Press [SPACE] to toggle word wrap", 218, screen_height - 86, 20, GRAY);
+        d.draw_text("Press [SPACE] to toggle word wrap", 218, screen_height - 86, 20, Color::GRAY);
 
         d.draw_text("Click hold & drag the    to resize the container", 155, screen_height - 38, 20, RAYWHITE);
 

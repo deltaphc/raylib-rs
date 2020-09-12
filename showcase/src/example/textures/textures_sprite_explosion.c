@@ -55,9 +55,9 @@ const NUM_FRAMES 8 const NUM_LINES 6
         //----------------------------------------------------------------------------------
 
         // Check for mouse button pressed and activate explosion (if not active)
-        if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && !active)
+        if (rl.is_mouse_button_pressed(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON) && !active)
         {
-            position = GetMousePosition();
+            position = rl.get_mouse_position();
             active = true;
 
             position.x -= frameWidth / 2;

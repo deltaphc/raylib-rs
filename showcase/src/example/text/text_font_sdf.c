@@ -79,7 +79,7 @@ const GLSL_VERSION 100
         if (fontSize < 6)
             fontSize = 6;
 
-        if (IsKeyDown(KEY_SPACE))
+        if (rl.is_key_down(raylib::consts::KeyboardKey::KEY_SPACE))
             currentFont = 1;
         else
             currentFont = 0;
@@ -115,9 +115,9 @@ const GLSL_VERSION 100
         }
 
         if (currentFont == 1)
-            d.draw_text("SDF!", 320, 20, 80, RED);
+            d.draw_text("SDF!", 320, 20, 80,Color::RED);
         else
-            d.draw_text("default font", 315, 40, 30, GRAY);
+            d.draw_text("default font", 315, 40, 30, Color::GRAY);
 
         d.draw_text("FONT SIZE: 16.0", Getscreen_width() - 240, 20, 20, Color::DARKGRAY);
         d.draw_text(FormatText("RENDER SIZE: %02.02f", fontSize), Getscreen_width() - 240, 50, 20, Color::DARKGRAY);

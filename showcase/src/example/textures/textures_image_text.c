@@ -31,7 +31,7 @@ pub fn run(rl
     Font font = LoadFontEx("resources/KAISG.ttf", 64, 0, 0);
 
     // Draw over image using custom font
-    ImageDrawTextEx(&parrots, rvec2(20.0, 20.0), font, "[Parrots font drawing]", (float)font.baseSize, 0.0, RED);
+    ImageDrawTextEx(&parrots, rvec2(20.0, 20.0), font, "[Parrots font drawing]", (float)font.baseSize, 0.0,Color::RED);
 
     Texture2D texture = LoadTextureFromImage(parrots); // Image converted to texture, uploaded to GPU memory (VRAM)
     UnloadImage(parrots);                              // Once image has been converted to texture and uploaded to VRAM, it can be unloaded from RAM
@@ -48,7 +48,7 @@ pub fn run(rl
     {
         // Update
         //----------------------------------------------------------------------------------
-        if (IsKeyDown(KEY_SPACE))
+        if (rl.is_key_down(raylib::consts::KeyboardKey::KEY_SPACE))
             showFont = true;
         else
             showFont = false;

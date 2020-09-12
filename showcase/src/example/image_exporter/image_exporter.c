@@ -132,8 +132,8 @@ const RAYGUI_IMPLEMENTATION const RAYGUI_SUPPORT_RICONS
         if (imageLoaded)
         {
             imageScale += (float)GetMouseWheelMove() * 0.05f; // Image scale control
-            if (imageScale <= 0.1f)
-                imageScale = 0.1f;
+            if (imageScale <= 0.1)
+                imageScale = 0.1;
             else if (imageScale >= 5)
                 imageScale = 5;
 
@@ -153,8 +153,8 @@ const RAYGUI_IMPLEMENTATION const RAYGUI_SUPPORT_RICONS
         {
             DrawTextureEx(texture, (Vector2){screen_width / 2 - (float)texture.width * imageScale / 2, screen_height / 2 - (float)texture.height * imageScale / 2}, 0.0, imageScale, WHITE);
 
-            d.draw_rectangle_linesEx(imageRec, 1, CheckCollisionPointRec(GetMousePosition(), imageRec) ? RED : Color::DARKGRAY);
-            d.draw_text(FormatText("SCALE: %.2f%%", imageScale * 100.0), 20, screen_height - 40, 20, GetColor(GuiGetStyle(DEFAULT, LINE_COLOR)));
+            d.draw_rectangle_linesEx(imageRec, 1, CheckCollisionPointRec(rl.get_mouse_position(), imageRec) ?Color::RED : Color::DARKGRAY);
+            d.draw_text(FormatText("SCALE: %.2%%", imageScale * 100.0), 20, screen_height - 40, 20, GetColor(GuiGetStyle(DEFAULT, LINE_COLOR)));
         }
         else
         {
@@ -187,7 +187,7 @@ const RAYGUI_IMPLEMENTATION const RAYGUI_SUPPORT_RICONS
             btnExport = false;
 
         if (btnExport)
-            d.draw_text("Image exported!", 20, screen_height - 20, 20, RED);
+            d.draw_text("Image exported!", 20, screen_height - 20, 20,Color::RED);
         //-----------------------------------------------------------------------------
 
         EndDrawing();

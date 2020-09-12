@@ -63,7 +63,7 @@ pub fn run(rl
         {
         case STATE_WAITING:
         {
-            if (IsKeyPressed(KEY_ENTER))
+            if (IsKeyPressed(raylib::consts::KeyboardKey::KEY_ENTER))
             {
                 int error = pthread_create(&threadId, NULL, &LoadDataThread, NULL);
                 if (error != 0)
@@ -87,7 +87,7 @@ pub fn run(rl
         break;
         case STATE_FINISHED:
         {
-            if (IsKeyPressed(KEY_ENTER))
+            if (IsKeyPressed(raylib::consts::KeyboardKey::KEY_ENTER))
             {
                 // Reset everything to launch again
                 atomic_store(&dataLoaded, false);
@@ -122,7 +122,7 @@ pub fn run(rl
         case STATE_FINISHED:
         {
             d.draw_rectangle(150, 200, 500, 60, Color::LIME);
-            d.draw_text("DATA LOADED!", 250, 210, 40, GREEN);
+            d.draw_text("DATA LOADED!", 250, 210, 40, Color::GREEN);
         }
         break;
         default:

@@ -198,18 +198,18 @@ int main(int argc, char **argv)
         // Update
         //----------------------------------------------------------------------------------
         // Add a new set of emojis when SPACE is pressed
-        if (IsKeyPressed(KEY_SPACE))
+        if (IsKeyPressed(raylib::consts::KeyboardKey::KEY_SPACE))
             RandomizeEmoji();
 
         // Set the selected emoji and copy its text to clipboard
-        if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && (hovered != -1) && (hovered != selected))
+        if (rl.is_mouse_button_pressed(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON) && (hovered != -1) && (hovered != selected))
         {
             selected = hovered;
             selectedPos = hoveredPos;
             SetClipboardText(messages[emoji[selected].message].text);
         }
 
-        Vector2 mouse = GetMousePosition();
+        Vector2 mouse = rl.get_mouse_position();
         Vector2 pos = {28.8f, 10.0};
         hovered = -1;
         //----------------------------------------------------------------------------------
@@ -315,8 +315,8 @@ int main(int argc, char **argv)
         //------------------------------------------------------------------------------
 
         // Draw the info text
-        d.draw_text("These emojis have something to tell you, click each to find out!", (screen_width - 650) / 2, screen_height - 40, 20, GRAY);
-        d.draw_text("Each emoji is a unicode character from a font, not a texture... Press [SPACEBAR] to refresh", (screen_width - 484) / 2, screen_height - 16, 10, GRAY);
+        d.draw_text("These emojis have something to tell you, click each to find out!", (screen_width - 650) / 2, screen_height - 40, 20, Color::GRAY);
+        d.draw_text("Each emoji is a unicode character from a font, not a texture... Press [SPACEBAR] to refresh", (screen_width - 484) / 2, screen_height - 16, 10, Color::GRAY);
 
         EndDrawing();
         //----------------------------------------------------------------------------------

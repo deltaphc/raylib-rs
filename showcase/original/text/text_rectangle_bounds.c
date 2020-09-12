@@ -93,19 +93,19 @@ tempor incididunt ut labore et dolore magna aliqua. Nec ullamcorper sit amet ris
             // Draw text in container (add some padding)
             DrawTextRec(font, text,
                        (Rectangle){ container.x + 4, container.y + 4, container.width - 4, container.height - 4 },
-                       20.0f, 2.0f, wordWrap, GRAY);
+                       20.0f, 2.0f, wordWrap, Color::GRAY);
 
             DrawRectangleRec(resizer, borderColor);         // Draw the resize box
 
             // Draw bottom info
-            DrawRectangle(0, screenHeight - 54, screenWidth, 54, GRAY);
+            DrawRectangle(0, screenHeight - 54, screenWidth, 54, Color::GRAY);
             DrawRectangleRec((Rectangle){ 382, screenHeight - 34, 12, 12 }, MAROON);
             
             DrawText("Word Wrap: ", 313, screenHeight-115, 20, BLACK);
             if (wordWrap) DrawText("ON", 447, screenHeight - 115, 20, RED);
             else DrawText("OFF", 447, screenHeight - 115, 20, BLACK);
             
-            DrawText("Press [SPACE] to toggle word wrap", 218, screenHeight - 86, 20, GRAY);
+            DrawText("Press [SPACE] to toggle word wrap", 218, screenHeight - 86, 20, Color::GRAY);
 
             DrawText("Click hold & drag the    to resize the container", 155, screenHeight - 38, 20, RAYWHITE);
             

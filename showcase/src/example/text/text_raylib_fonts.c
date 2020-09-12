@@ -64,7 +64,7 @@ const MAX_FONTS 8
     positions[4].y += 2;
     positions[7].y -= 8;
 
-    Color colors[MAX_FONTS] = {Color::MAROON, ORANGE, DARKGREEN, DARKColor::BLUE, DARKPURPLE, Color::LIME, Color::GOLD, RED};
+    Color colors[MAX_FONTS] = {Color::MAROON, ORANGE, DARKGREEN, DARKColor::BLUE, DARKPURPLE, Color::LIME, Color::GOLD,Color::RED};
 
     rl.set_target_fps(60); // Set our game to run at 60 frames-per-second
     //--------------------------------------------------------------------------------------

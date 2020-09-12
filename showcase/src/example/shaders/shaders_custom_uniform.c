@@ -41,18 +41,18 @@ pub fn run(rl
 
 
     // Define the camera to look into our 3d world
-    Camera camera = {0};
-    camera.position = rvec3(8.0, 8.0, 8.0);
-    camera.target = rvec3(0.0, 1.5, 0.0);
-    camera.up = rvec3(0.0, 1.0, 0.0);
-    camera.fovy = 45.0;
-    camera.type = CAMERA_PERSPECTIVE;
+    let camera = Camera3D::perspective(
+    rvec3(8.0, 8.0, 8.0),
+    rvec3(0.0, 1.5, 0.0),
+    rvec3(0.0, 1.0, 0.0),
+    45.0,
+    );
 
     Model model = LoadModel("resources/models/barracks.obj");                 // Load OBJ model
     Texture2D texture = LoadTexture("resources/models/barracks_diffuse.png"); // Load model texture (diffuse map)
     model.materials[0].maps[MAP_DIFFUSE].texture = texture;                   // Set model diffuse texture
 
-    Vector3 position = {0.0, 0.0, 0.0}; // Set model position
+    let position = Vector3::zero(); // Set model position
 
     // Load postprocessing shader
     // NOTE: Defining 0 (NULL) for vertex shader forces usage of internal default vertex shader
@@ -78,7 +78,7 @@ pub fn run(rl
     {
         // Update
         //----------------------------------------------------------------------------------
-        Vector2 mousePosition = GetMousePosition();
+        Vector2 mousePosition = rl.get_mouse_position();
 
         swirlCenter[0] = mousePosition.x;
         swirlCenter[1] = screen_height - mousePosition.y;
@@ -103,11 +103,11 @@ pub fn run(rl
 
         DrawModel(model, position, 0.5, WHITE); // Draw 3d model with texture
 
-        DrawGrid(10, 1.0); // Draw a grid
+        d.draw_grid(10, 1.0); // Draw a grid
 
         EndMode3D(); // End 3d mode drawing, returns to orthographic 2d mode
 
-        d.draw_text("TEXT DRAWN IN RENDER TEXTURE", 200, 10, 30, RED);
+        d.draw_text("TEXT DRAWN IN RENDER TEXTURE", 200, 10, 30,Color::RED);
 
         EndTextureMode(); // End drawing to texture (now we have a texture available for next passes)
 
@@ -119,9 +119,9 @@ pub fn run(rl
         EndShaderMode();
 
         // Draw some 2d text over drawn texture
-        d.draw_text("(c) Barracks 3D model by Alberto Cano", screen_width - 220, screen_height - 20, 10, GRAY);
+        d.draw_text("(c) Barracks 3D model by Alberto Cano", screen_width - 220, screen_height - 20, 10, Color::GRAY);
 
-        DrawFPS(10, 10);
+        d.draw_fps(10, 10);
 
         EndDrawing();
         //----------------------------------------------------------------------------------

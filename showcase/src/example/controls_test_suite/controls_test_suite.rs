@@ -103,11 +103,11 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
 
         _exit_window = rl.window_should_close();
 
-        if rl.is_key_pressed(KEY_ESCAPE) {
+        if rl.is_key_pressed(raylib::consts::KeyboardKey::KEY_ESCAPE) {
             showMessageBox = !showMessageBox;
         }
 
-        if rl.is_key_down(KEY_LEFT_CONTROL) && rl.is_key_pressed(KEY_S) {
+        if rl.is_key_down(raylib::consts::KeyboardKey::KEY_LEFT_CONTROL) && rl.is_key_pressed(raylib::consts::KeyboardKey::KEY_S) {
             showTextInputBox = true;
         }
 

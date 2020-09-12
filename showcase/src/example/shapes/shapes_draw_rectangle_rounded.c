@@ -28,7 +28,7 @@ const RAYGUI_IMPLEMENTATION
     rl.set_window_title(thread, "raylib [shapes] example - draw rectangle rounded");
 
 
-    float roundness = 0.2f;
+    float roundness = 0.2;
     int width = 200;
     int height = 100;
     int segments = 0;
@@ -80,7 +80,7 @@ const RAYGUI_IMPLEMENTATION
 
         d.draw_text(FormatText("MODE: %s", (segments >= 4) ? "MANUAL" : "AUTO"), 640, 280, 10, (segments >= 4) ? Color::MAROON : Color::DARKGRAY);
 
-        DrawFPS(10, 10);
+        d.draw_fps(10, 10);
 
         EndDrawing();
         //----------------------------------------------------------------------------------

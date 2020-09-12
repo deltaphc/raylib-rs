@@ -98,7 +98,7 @@ int main(void)
             }
 
             DrawRectangle(0, 0, screenWidth, 40, BLACK);
-            DrawText(FormatText("bunnies: %i", bunniesCount), 120, 10, 20, GREEN);
+            DrawText(FormatText("bunnies: %i", bunniesCount), 120, 10, 20, Color::GREEN);
             DrawText(FormatText("batched draw calls: %i", 1 + bunniesCount/MAX_BATCH_ELEMENTS), 320, 10, 20, MAROON);
 
             DrawFPS(10, 10);

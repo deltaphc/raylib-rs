@@ -56,9 +56,9 @@ const MAX_FRAME_SPEED 15 const MIN_FRAME_SPEED 1
             frameRec.x = (float)currentFrame * (float)scarfy.width / 6;
         }
 
-        if (IsKeyPressed(KEY_RIGHT))
+        if (IsKeyPressed(raylib::consts::KeyboardKey::KEY_RIGHT))
             framesSpeed++;
-        else if (IsKeyPressed(KEY_LEFT))
+        else if (IsKeyPressed(raylib::consts::KeyboardKey::KEY_LEFT))
             framesSpeed--;
 
         if (framesSpeed > MAX_FRAME_SPEED)
@@ -75,7 +75,7 @@ const MAX_FRAME_SPEED 15 const MIN_FRAME_SPEED 1
 
         DrawTexture(scarfy, 15, 40, WHITE);
         d.draw_rectangle_lines(15, 40, scarfy.width, scarfy.height, Color::LIME);
-        d.draw_rectangle_lines(15 + frameRec.x, 40 + frameRec.y, frameRec.width, frameRec.height, RED);
+        d.draw_rectangle_lines(15 + frameRec.x, 40 + frameRec.y, frameRec.width, frameRec.height,Color::RED);
 
         d.draw_text("FRAME SPEED: ", 165, 210, 10, Color::DARKGRAY);
         d.draw_text(FormatText("%02i FPS", framesSpeed), 575, 210, 10, Color::DARKGRAY);
@@ -84,13 +84,13 @@ const MAX_FRAME_SPEED 15 const MIN_FRAME_SPEED 1
         for (int i = 0; i < MAX_FRAME_SPEED; i++)
         {
             if (i < framesSpeed)
-                d.draw_rectangle(250 + 21 * i, 205, 20, 20, RED);
+                d.draw_rectangle(250 + 21 * i, 205, 20, 20,Color::RED);
             d.draw_rectangle_lines(250 + 21 * i, 205, 20, 20, Color::MAROON);
         }
 
         DrawTextureRec(scarfy, frameRec, position, WHITE); // Draw part of the texture
 
-        d.draw_text("(c) Scarfy sprite by Eiden Marsal", screen_width - 200, screen_height - 20, 10, GRAY);
+        d.draw_text("(c) Scarfy sprite by Eiden Marsal", screen_width - 200, screen_height - 20, 10, Color::GRAY);
 
         EndDrawing();
         //----------------------------------------------------------------------------------

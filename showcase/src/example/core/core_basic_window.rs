@@ -4,7 +4,7 @@
 *
 *   Welcome to raylib!
 *
-*   To test examples in Notepad++, provided with default raylib installer package, 
+*   To test examples in Notepad++, provided with default raylib installer package,
 *   just press F6 and run [raylib_compile_execute] script, it will compile and execute.
 *   Note that compiled executable is placed in the same folder as .c file
 *
@@ -22,11 +22,7 @@
 
 use raylib::prelude::*;
 
-pub fn run(rl
-           : &mut RaylibHandle, thread
-           : &RaylibThread)
-    ->crate::SampleOut
-{
+pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
     // Initialization
     //--------------------------------------------------------------------------------------
     let screen_width = 800;
@@ -35,12 +31,12 @@ pub fn run(rl
     rl.set_window_size(screen_width, screen_height);
     rl.set_window_title(thread, "raylib [core] example - basic window");
 
-
     rl.set_target_fps(60); // Set our game to run at 60 frames-per-second
-    //--------------------------------------------------------------------------------------
+                           //--------------------------------------------------------------------------------------
 
     // Main game loop
-    return Box::new(move |rl: &mut RaylibHandle, thread: &RaylibThread| -> () // Detect window close button or ESC key
+    return Box::new(
+        move |rl: &mut RaylibHandle, thread: &RaylibThread| -> () // Detect window close button or ESC key
     {
         // Update
         //----------------------------------------------------------------------------------
@@ -55,14 +51,6 @@ pub fn run(rl
 
         d.draw_text("Congrats! You created your first window!", 190, 200, 20, Color::LIGHTGRAY);
 
-        EndDrawing();
-        //----------------------------------------------------------------------------------
-    }
-
-    // De-Initialization
-    //--------------------------------------------------------------------------------------
-    CloseWindow(); // Close window and OpenGL context
-    //--------------------------------------------------------------------------------------
-
-    return 0;
+    },
+    );
 }

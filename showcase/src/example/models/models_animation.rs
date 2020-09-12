@@ -69,7 +69,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
         rl.update_camera(&mut camera);
 
         // Play animation when spacebar is held down
-        if rl.is_key_down(KEY_SPACE) {
+        if rl.is_key_down(raylib::consts::KeyboardKey::KEY_SPACE) {
             anim_frame_counter += 1;
             rl.update_model_animation(thread, &mut model, &anims[0], anim_frame_counter);
             if anim_frame_counter >= anims[0].frameCount {

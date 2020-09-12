@@ -79,7 +79,7 @@ pub fn run(rl
             boxCollision = GetCollisionRec(boxA, boxB);
 
         // Pause Box A movement
-        if (IsKeyPressed(KEY_SPACE))
+        if (IsKeyPressed(raylib::consts::KeyboardKey::KEY_SPACE))
             pause = !pause;
         //-----------------------------------------------------
 
@@ -89,7 +89,7 @@ pub fn run(rl
 
         d.clear_background(Color::RAYWHITE);
 
-        d.draw_rectangle(0, 0, screen_width, screenUpperLimit, collision ? RED : Color::BLACK);
+        d.draw_rectangle(0, 0, screen_width, screenUpperLimit, collision ?Color::RED : Color::BLACK);
 
         d.draw_rectangleRec(boxA, Color::GOLD);
         d.draw_rectangleRec(boxB, Color::BLUE);
@@ -100,13 +100,13 @@ pub fn run(rl
             d.draw_rectangleRec(boxCollision, Color::LIME);
 
             // Draw collision message
-            d.draw_text("COLLISION!", Getscreen_width() / 2 - MeasureText("COLLISION!", 20) / 2, screenUpperLimit / 2 - 10, 20, Color::BLACK);
+            d.draw_text("COLLISION!", Getscreen_width() / 2 - raylib::text::measure_text("COLLISION!", 20) / 2, screenUpperLimit / 2 - 10, 20, Color::BLACK);
 
             // Draw collision area
             d.draw_text(FormatText("Collision Area: %i", (int)boxCollision.width * (int)boxCollision.height), Getscreen_width() / 2 - 100, screenUpperLimit + 10, 20, Color::BLACK);
         }
 
-        DrawFPS(10, 10);
+        d.draw_fps(10, 10);
 
         EndDrawing();
         //-----------------------------------------------------

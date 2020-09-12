@@ -39,6 +39,26 @@ fn main() {
             example::core::core_3d_camera_first_person::run,
         ),
         (
+            rstr!("raylib [core] example - 3d camera free"),
+            example::core::core_3d_camera_free::run,
+        ),
+        (
+            rstr!("raylib [core] example - 3d camera mode"),
+            example::core::core_3d_camera_mode::run,
+        ),
+        (
+            rstr!("raylib [core] example - 3d picking"),
+            example::core::core_3d_picking::run,
+        ),
+        (
+            rstr!("raylib [core] example - basic window"),
+            example::core::core_basic_window::run,
+        ),
+        (
+            rstr!("raylib [core] example - custom logging"),
+            example::core::core_custom_logging::run,
+        ),
+        (
             rstr!("raygui - controls test suite"),
             example::controls_test_suite::controls_test_suite::run,
         ),

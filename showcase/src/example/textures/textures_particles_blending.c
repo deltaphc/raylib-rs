@@ -77,7 +77,7 @@ pub fn run(rl
             {
                 mouseTail[i].active = true;
                 mouseTail[i].alpha = 1.0;
-                mouseTail[i].position = GetMousePosition();
+                mouseTail[i].position = rl.get_mouse_position();
                 i = MAX_PARTICLES;
             }
         }
@@ -96,7 +96,7 @@ pub fn run(rl
             }
         }
 
-        if (IsKeyPressed(KEY_SPACE))
+        if (IsKeyPressed(raylib::consts::KeyboardKey::KEY_SPACE))
         {
             if (blending == BLEND_ALPHA)
                 blending = BLEND_ADDITIVE;

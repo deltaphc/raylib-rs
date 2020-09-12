@@ -108,7 +108,7 @@ int main(void)
                     int jj = (((j + 1) < vertexCount) ? (j + 1) : 0);   // Get next vertex or first to close the shape
                     Vector2 vertexB = GetPhysicsShapeVertex(body, jj);
 
-                    DrawLineV(vertexA, vertexB, GREEN);     // Draw a line between two vertex positions
+                    DrawLineV(vertexA, vertexB, Color::GREEN);     // Draw a line between two vertex positions
                 }
             }
 

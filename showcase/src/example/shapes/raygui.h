@@ -76,23 +76,23 @@
 *       2.3 (29-Apr-2019) Added rIcons auxiliar library and support for it, multiple controls reviewed
 *                         Refactor all controls drawing mechanism to use control state
 *       2.2 (05-Feb-2019) Added GuiScrollBar(), GuiScrollPanel(), reviewed GuiListView(), removed Gui*Ex() controls
-*       2.1 (26-Dec-2018) Redesign of GuiCheckBox(), GuiComboBox(), GuiDropdownBox(), GuiToggleGroup() > Use combined text string
-*                         Complete redesign of style system (breaking change)
+*       2.1 (26-Dec-2018)Color::REDesign of GuiCheckBox(), GuiComboBox(), GuiDropdownBox(), GuiToggleGroup() > Use combined text string
+*                         CompleteColor::REDesign of style system (breaking change)
 *       2.0 (08-Nov-2018) Support controls guiLock and custom fonts, reviewed GuiComboBox(), GuiListView()...
 *       1.9 (09-Oct-2018) Controls review: GuiGrid(), GuiTextBox(), GuiTextBoxMulti(), GuiValueBox()...
-*       1.8 (01-May-2018) Lot of rework and redesign to align with rGuiStyler and rGuiLayout
+*       1.8 (01-May-2018) Lot of rework andColor::REDesign to align with rGuiStyler and rGuiLayout
 *       1.5 (21-Jun-2017) Working in an improved styles system
 *       1.4 (15-Jun-2017) Rewritten all GUI functions (removed useless ones)
-*       1.3 (12-Jun-2017) Redesigned styles system
+*       1.3 (12-Jun-2017)Color::REDesigned styles system
 *       1.1 (01-Jun-2017) Complete review of the library
 *       1.0 (07-Jun-2016) Converted to header-only by Ramon Santamaria.
 *       0.9 (07-Mar-2016) Reviewed and tested by Albert Martos, Ian Eito, Sergio Martinez and Ramon Santamaria.
 *       0.8 (27-Aug-2015) Initial release. Implemented by Kevin Gato, Daniel Nicolás and Ramon Santamaria.
 *
 *   CONTRIBUTORS:
-*       Ramon Santamaria:   Supervision, review, redesign, update and maintenance...
+*       Ramon Santamaria:   Supervision, review,Color::REDesign, update and maintenance...
 *       Vlad Adrian:        Complete rewrite of GuiTextBox() to support extended features (2019)
-*       Sergio Martinez:    Review, testing (2015) and redesign of multiple controls (2018)
+*       Sergio Martinez:    Review, testing (2015) andColor::REDesign of multiple controls (2018)
 *       Adria Arranz:       Testing and Implementation of additional controls (2018)
 *       Jordi Jorba:        Testing and Implementation of additional controls (2018)
 *       Albert Martos:      Review and testing of the library (2015)
@@ -109,7 +109,7 @@
 *   will the authors be held liable for any damages arising from the use of this software.
 *
 *   Permission is granted to anyone to use this software for any purpose, including commercial
-*   applications, and to alter it and redistribute it freely, subject to the following restrictions:
+*   applications, and to alter it andColor::REDistribute it freely, subject to the following restrictions:
 *
 *     1. The origin of this software must not be misrepresented; you must not claim that you
 *     wrote the original software. If you use this software in a product, an acknowledgment
@@ -565,13 +565,13 @@ static GuiTextBoxState guiTextBoxState = {.cursor = -1, .start = 0, .index = 0, 
 
 // Input required functions
 //-------------------------------------------------------------------------------
-static Vector2 GetMousePosition(void);
+static Vector2 rl.get_mouse_position(void);
 static int GetMouseWheelMove(void);
 static bool IsMouseButtonDown(int button);
-static bool IsMouseButtonPressed(int button);
+static bool rl.is_mouse_button_pressed(int button);
 static bool IsMouseButtonReleased(int button);
 
-static bool IsKeyDown(int key);
+static bool rl.is_key_down(int key);
 static bool IsKeyPressed(int key);
 static int GetKeyPressed(void); // -- GuiTextBox(), GuiTextBoxMulti(), GuiValueBox()
 //-------------------------------------------------------------------------------
@@ -1040,29 +1040,29 @@ RAYGUIDEF Rectangle GuiScrollPanel(Rectangle bounds, Rectangle content, Vector2 
     //--------------------------------------------------------------------
     if ((state != GUI_STATE_DISABLED) && !guiLocked)
     {
-        Vector2 mousePoint = GetMousePosition();
+        Vector2 mousePoint = rl.get_mouse_position();
 
         // Check button state
         if (CheckCollisionPointRec(mousePoint, bounds))
         {
-            if (IsMouseButtonDown(MOUSE_LEFT_BUTTON))
+            if (IsMouseButtonDown(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON))
                 state = GUI_STATE_PRESSED;
             else
                 state = GUI_STATE_FOCUSED;
 
             if (hasHorizontalScrollBar)
             {
-                if (IsKeyDown(KEY_RIGHT))
+                if (rl.is_key_down(raylib::consts::KeyboardKey::KEY_RIGHT))
                     scrollPos.x -= GuiGetStyle(SCROLLBAR, SCROLL_SPEED);
-                if (IsKeyDown(KEY_LEFT))
+                if (rl.is_key_down(raylib::consts::KeyboardKey::KEY_LEFT))
                     scrollPos.x += GuiGetStyle(SCROLLBAR, SCROLL_SPEED);
             }
 
             if (hasVerticalScrollBar)
             {
-                if (IsKeyDown(KEY_DOWN))
+                if (rl.is_key_down(raylib::consts::KeyboardKey::KEY_DOWN))
                     scrollPos.y -= GuiGetStyle(SCROLLBAR, SCROLL_SPEED);
-                if (IsKeyDown(KEY_UP))
+                if (rl.is_key_down(raylib::consts::KeyboardKey::KEY_UP))
                     scrollPos.y += GuiGetStyle(SCROLLBAR, SCROLL_SPEED);
             }
 
@@ -1153,17 +1153,17 @@ RAYGUIDEF bool GuiButton(Rectangle bounds, const char *text)
     //--------------------------------------------------------------------
     if ((state != GUI_STATE_DISABLED) && !guiLocked)
     {
-        Vector2 mousePoint = GetMousePosition();
+        Vector2 mousePoint = rl.get_mouse_position();
 
         // Check button state
         if (CheckCollisionPointRec(mousePoint, bounds))
         {
-            if (IsMouseButtonDown(MOUSE_LEFT_BUTTON))
+            if (IsMouseButtonDown(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON))
                 state = GUI_STATE_PRESSED;
             else
                 state = GUI_STATE_FOCUSED;
 
-            if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON))
+            if (IsMouseButtonReleased(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON))
                 pressed = true;
         }
     }
@@ -1190,17 +1190,17 @@ RAYGUIDEF bool GuiLabelButton(Rectangle bounds, const char *text)
     //--------------------------------------------------------------------
     if ((state != GUI_STATE_DISABLED) && !guiLocked)
     {
-        Vector2 mousePoint = GetMousePosition();
+        Vector2 mousePoint = rl.get_mouse_position();
 
         // Check checkbox state
         if (CheckCollisionPointRec(mousePoint, bounds))
         {
-            if (IsMouseButtonDown(MOUSE_LEFT_BUTTON))
+            if (IsMouseButtonDown(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON))
                 state = GUI_STATE_PRESSED;
             else
                 state = GUI_STATE_FOCUSED;
 
-            if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON))
+            if (IsMouseButtonReleased(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON))
                 pressed = true;
         }
     }
@@ -1230,14 +1230,14 @@ RAYGUIDEF bool GuiImageButtonEx(Rectangle bounds, Texture2D texture, Rectangle t
     //--------------------------------------------------------------------
     if ((state != GUI_STATE_DISABLED) && !guiLocked)
     {
-        Vector2 mousePoint = GetMousePosition();
+        Vector2 mousePoint = rl.get_mouse_position();
 
         // Check button state
         if (CheckCollisionPointRec(mousePoint, bounds))
         {
-            if (IsMouseButtonDown(MOUSE_LEFT_BUTTON))
+            if (IsMouseButtonDown(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON))
                 state = GUI_STATE_PRESSED;
-            else if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON))
+            else if (IsMouseButtonReleased(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON))
                 clicked = true;
             else
                 state = GUI_STATE_FOCUSED;
@@ -1268,14 +1268,14 @@ RAYGUIDEF bool GuiToggle(Rectangle bounds, const char *text, bool active)
     //--------------------------------------------------------------------
     if ((state != GUI_STATE_DISABLED) && !guiLocked)
     {
-        Vector2 mousePoint = GetMousePosition();
+        Vector2 mousePoint = rl.get_mouse_position();
 
         // Check toggle button state
         if (CheckCollisionPointRec(mousePoint, bounds))
         {
-            if (IsMouseButtonDown(MOUSE_LEFT_BUTTON))
+            if (IsMouseButtonDown(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON))
                 state = GUI_STATE_PRESSED;
-            else if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON))
+            else if (IsMouseButtonReleased(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON))
             {
                 state = GUI_STATE_NORMAL;
                 active = !active;
@@ -1354,17 +1354,17 @@ RAYGUIDEF bool GuiCheckBox(Rectangle bounds, const char *text, bool checked)
     //--------------------------------------------------------------------
     if ((state != GUI_STATE_DISABLED) && !guiLocked)
     {
-        Vector2 mousePoint = GetMousePosition();
+        Vector2 mousePoint = rl.get_mouse_position();
 
         // Check checkbox state
         if (CheckCollisionPointRec(mousePoint, RAYGUI_CLITERAL(Rectangle){bounds.x, bounds.y, bounds.width + textBounds.width + GuiGetStyle(CHECKBOX, CHECK_TEXT_PADDING), bounds.height}))
         {
-            if (IsMouseButtonDown(MOUSE_LEFT_BUTTON))
+            if (IsMouseButtonDown(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON))
                 state = GUI_STATE_PRESSED;
             else
                 state = GUI_STATE_FOCUSED;
 
-            if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON))
+            if (IsMouseButtonReleased(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON))
                 checked = !checked;
         }
     }
@@ -1410,19 +1410,19 @@ RAYGUIDEF int GuiComboBox(Rectangle bounds, const char *text, int active)
     //--------------------------------------------------------------------
     if ((state != GUI_STATE_DISABLED) && !guiLocked)
     {
-        Vector2 mousePoint = GetMousePosition();
+        Vector2 mousePoint = rl.get_mouse_position();
 
         if (CheckCollisionPointRec(mousePoint, bounds) ||
             CheckCollisionPointRec(mousePoint, selector))
         {
-            if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
+            if (rl.is_mouse_button_pressed(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON))
             {
                 active += 1;
                 if (active >= elementsCount)
                     active = 0;
             }
 
-            if (IsMouseButtonDown(MOUSE_LEFT_BUTTON))
+            if (IsMouseButtonDown(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON))
                 state = GUI_STATE_PRESSED;
             else
                 state = GUI_STATE_FOCUSED;
@@ -1478,7 +1478,7 @@ RAYGUIDEF bool GuiDropdownBox(Rectangle bounds, const char *text, int *active, b
 
     if ((state != GUI_STATE_DISABLED) && !guiLocked)
     {
-        Vector2 mousePoint = GetMousePosition();
+        Vector2 mousePoint = rl.get_mouse_position();
 
         if (editMode)
             state = GUI_STATE_PRESSED;
@@ -1487,10 +1487,10 @@ RAYGUIDEF bool GuiDropdownBox(Rectangle bounds, const char *text, int *active, b
         {
             if (CheckCollisionPointRec(mousePoint, closeBounds))
             {
-                if (IsMouseButtonDown(MOUSE_LEFT_BUTTON))
+                if (IsMouseButtonDown(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON))
                     state = GUI_STATE_PRESSED;
 
-                if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
+                if (rl.is_mouse_button_pressed(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON))
                     pressed = true;
                 else
                     state = GUI_STATE_FOCUSED;
@@ -1500,12 +1500,12 @@ RAYGUIDEF bool GuiDropdownBox(Rectangle bounds, const char *text, int *active, b
         {
             if (CheckCollisionPointRec(mousePoint, closeBounds))
             {
-                if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
+                if (rl.is_mouse_button_pressed(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON))
                     pressed = true;
             }
             else if (!CheckCollisionPointRec(mousePoint, openBounds))
             {
-                if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON) || IsMouseButtonReleased(MOUSE_LEFT_BUTTON))
+                if (rl.is_mouse_button_pressed(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON) || IsMouseButtonReleased(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON))
                     pressed = true;
             }
         }
@@ -1602,7 +1602,7 @@ const
     RAYGUIDEF bool
     GuiSpinner(Rectangle bounds, int *value, int minValue, int maxValue, bool editMode)
 {
-#define GUI_SPINNER_HOLD_SPEED 0.2f // Min 200ms delay
+#define GUI_SPINNER_HOLD_SPEED 0.2 // Min 200ms delay
 
     static float timer = 0.0;
 
@@ -1617,7 +1617,7 @@ const
 
     // Update control
     //--------------------------------------------------------------------
-    Vector2 mouse = GetMousePosition();
+    Vector2 mouse = rl.get_mouse_position();
     if (tempValue < minValue)
         tempValue = minValue;
     if (tempValue > maxValue)
@@ -1628,7 +1628,7 @@ const
         if (!active)
         {
             // This becomes the active textbox when mouse is pressed or held inside bounds
-            if ((IsMouseButtonPressed(MOUSE_LEFT_BUTTON) || IsMouseButtonDown(MOUSE_LEFT_BUTTON)) &&
+            if ((rl.is_mouse_button_pressed(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON) || IsMouseButtonDown(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON)) &&
                 CheckCollisionPointRec(mouse, bounds))
             {
                 GuiTextBoxSetActive(bounds);
@@ -1639,7 +1639,7 @@ const
 
     // Reset timer when one of the buttons is clicked (without this, holding the button down will not behave correctly)
     if ((CheckCollisionPointRec(mouse, leftButtonBound) || CheckCollisionPointRec(mouse, rightButtonBound)) &&
-        IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
+        rl.is_mouse_button_pressed(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON))
     {
         timer = time;
     }
@@ -1666,7 +1666,7 @@ const
     icon = (char *)GuiIconText(RICON_ARROW_LEFT_FILL, NULL);
 #endif
     if (GuiButton(leftButtonBound, icon) || // NOTE: also decrease value when the button is held down
-        (IsMouseButtonDown(MOUSE_LEFT_BUTTON) &&
+        (IsMouseButtonDown(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON) &&
          CheckCollisionPointRec(mouse, leftButtonBound) &&
          (time - timer) > GUI_SPINNER_HOLD_SPEED))
     {
@@ -1678,7 +1678,7 @@ const
     icon = (char *)GuiIconText(RICON_ARROW_RIGHT_FILL, NULL);
 #endif
     if (GuiButton(rightButtonBound, icon) || // NOTE: also increase value when the button is held down
-        (IsMouseButtonDown(MOUSE_LEFT_BUTTON) &&
+        (IsMouseButtonDown(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON) &&
          CheckCollisionPointRec(mouse, rightButtonBound) &&
          (time - timer) > GUI_SPINNER_HOLD_SPEED))
     {
@@ -1771,7 +1771,7 @@ static int GuiMeasureTextBox(const char *text, int length, Rectangle rec, int *p
             {
                 // Check if the mouse pointer is inside the glyph rect
                 Rectangle grec = {rec.x + textOffsetX - 1, rec.y, glyphWidth, (font.baseSize + font.baseSize / 2) * scaleFactor - 1};
-                Vector2 mouse = GetMousePosition();
+                Vector2 mouse = rl.get_mouse_position();
 
                 if (CheckCollisionPointRec(mouse, grec))
                 {
@@ -2229,7 +2229,7 @@ RAYGUIDEF bool GuiTextBox(Rectangle bounds, char *text, int textSize, bool editM
     //--------------------------------------------------------------------
     if ((state != GUI_STATE_DISABLED) && !guiLocked)
     {
-        const Vector2 mousePoint = GetMousePosition();
+        const Vector2 mousePoint = rl.get_mouse_position();
 
         if (editMode)
         {
@@ -2238,14 +2238,14 @@ RAYGUIDEF bool GuiTextBox(Rectangle bounds, char *text, int textSize, bool editM
             if (!active)
             {
                 if (CheckCollisionPointRec(mousePoint, bounds) &&
-                    (IsMouseButtonPressed(MOUSE_LEFT_BUTTON) || IsMouseButtonPressed(MOUSE_RIGHT_BUTTON)))
+                    (rl.is_mouse_button_pressed(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON) || rl.is_mouse_button_pressed(raylib::consts::MouseButton::MOUSE_RIGHT_BUTTON)))
                 {
                     // Hurray!!! we just became the active textbox
                     active = true;
                     GuiTextBoxSetActive(bounds);
                 }
             }
-            else if (!CheckCollisionPointRec(mousePoint, bounds) && IsMouseButtonPressed(MOUSE_RIGHT_BUTTON))
+            else if (!CheckCollisionPointRec(mousePoint, bounds) && rl.is_mouse_button_pressed(raylib::consts::MouseButton::MOUSE_RIGHT_BUTTON))
             {
                 // When active and the right mouse is clicked outside the textbox we should deactivate it
                 GuiTextBoxSetActive(RAYGUI_CLITERAL(Rectangle){0, 0, -1, -1}); // Set a dummy rect as the active textbox bounds
@@ -2307,10 +2307,10 @@ RAYGUIDEF bool GuiTextBox(Rectangle bounds, char *text, int textSize, bool editM
                 // * DEL delete character or selection after cursor
                 // * BACKSPACE delete character or selection before cursor
                 // TODO: Add more shortcuts (insert mode, select word, moveto/select prev/next word ...)
-                if (IsKeyPressed(KEY_RIGHT) ||
-                    (IsKeyDown(KEY_RIGHT) && (framesCounter % GUI_TEXTBOX_CURSOR_SPEED_MODIFIER == 0)))
+                if (IsKeyPressed(raylib::consts::KeyboardKey::KEY_RIGHT) ||
+                    (rl.is_key_down(raylib::consts::KeyboardKey::KEY_RIGHT) && (framesCounter % GUI_TEXTBOX_CURSOR_SPEED_MODIFIER == 0)))
                 {
-                    if (IsKeyDown(KEY_LEFT_SHIFT))
+                    if (rl.is_key_down(raylib::consts::KeyboardKey::KEY_LEFT_SHIFT))
                     {
                         // Selecting
                         if (guiTextBoxState.select == -1)
@@ -2340,9 +2340,9 @@ RAYGUIDEF bool GuiTextBox(Rectangle bounds, char *text, int textSize, bool editM
 
                     framesCounter = 0;
                 }
-                else if (IsKeyPressed(KEY_LEFT) || (IsKeyDown(KEY_LEFT) && (framesCounter % GUI_TEXTBOX_CURSOR_SPEED_MODIFIER == 0)))
+                else if (IsKeyPressed(raylib::consts::KeyboardKey::KEY_LEFT) || (rl.is_key_down(raylib::consts::KeyboardKey::KEY_LEFT) && (framesCounter % GUI_TEXTBOX_CURSOR_SPEED_MODIFIER == 0)))
                 {
-                    if (IsKeyDown(KEY_LEFT_SHIFT))
+                    if (rl.is_key_down(raylib::consts::KeyboardKey::KEY_LEFT_SHIFT))
                     {
                         // Selecting
                         if (guiTextBoxState.select == -1)
@@ -2377,17 +2377,17 @@ RAYGUIDEF bool GuiTextBox(Rectangle bounds, char *text, int textSize, bool editM
 
                     framesCounter = 0;
                 }
-                else if (IsKeyPressed(KEY_BACKSPACE) || (IsKeyDown(KEY_BACKSPACE) && (framesCounter % GUI_TEXTBOX_CURSOR_SPEED_MODIFIER) == 0))
+                else if (IsKeyPressed(raylib::consts::KeyboardKey::KEY_BACKSPACE) || (rl.is_key_down(raylib::consts::KeyboardKey::KEY_BACKSPACE) && (framesCounter % GUI_TEXTBOX_CURSOR_SPEED_MODIFIER) == 0))
                 {
                     GuiTextBoxDelete(text, length, true);
                 }
-                else if (IsKeyPressed(KEY_DELETE) || (IsKeyDown(KEY_DELETE) && (framesCounter % GUI_TEXTBOX_CURSOR_SPEED_MODIFIER) == 0))
+                else if (IsKeyPressed(raylib::consts::KeyboardKey::KEY_DELETE) || (rl.is_key_down(raylib::consts::KeyboardKey::KEY_DELETE) && (framesCounter % GUI_TEXTBOX_CURSOR_SPEED_MODIFIER) == 0))
                 {
                     GuiTextBoxDelete(text, length, false);
                 }
-                else if (IsKeyPressed(KEY_HOME))
+                else if (IsKeyPressed(raylib::consts::KeyboardKey::KEY_HOME))
                 {
-                    if (IsKeyDown(KEY_LEFT_SHIFT))
+                    if (rl.is_key_down(raylib::consts::KeyboardKey::KEY_LEFT_SHIFT))
                     {
                         // Select from start of text to cursor
                         if ((guiTextBoxState.select > guiTextBoxState.cursor) ||
@@ -2403,11 +2403,11 @@ RAYGUIDEF bool GuiTextBox(Rectangle bounds, char *text, int textSize, bool editM
                     guiTextBoxState.cursor = guiTextBoxState.start = guiTextBoxState.index = 0;
                     framesCounter = 0;
                 }
-                else if (IsKeyPressed(KEY_END))
+                else if (IsKeyPressed(raylib::consts::KeyboardKey::KEY_END))
                 {
                     int max = GuiCountCodepointsUntilNewline(text);
 
-                    if (IsKeyDown(KEY_LEFT_SHIFT))
+                    if (rl.is_key_down(raylib::consts::KeyboardKey::KEY_LEFT_SHIFT))
                     {
                         if ((guiTextBoxState.select == -1) && (guiTextBoxState.cursor != max))
                         {
@@ -2423,27 +2423,27 @@ RAYGUIDEF bool GuiTextBox(Rectangle bounds, char *text, int textSize, bool editM
                     guiTextBoxState.index = GuiMeasureTextBoxRev(text, len, textRec, &pos);
                     guiTextBoxState.start = guiTextBoxState.cursor - pos + 1;
                 }
-                else if (IsKeyDown(KEY_LEFT_CONTROL) && IsKeyPressed(KEY_A))
+                else if (rl.is_key_down(raylib::consts::KeyboardKey::KEY_LEFT_CONTROL) && IsKeyPressed(raylib::consts::KeyboardKey::KEY_A))
                 {
                     // `CTRL + A` Select all
                     GuiTextBoxSelectAll(text);
                 }
-                else if (IsKeyDown(KEY_LEFT_CONTROL) && IsKeyPressed(KEY_C))
+                else if (rl.is_key_down(raylib::consts::KeyboardKey::KEY_LEFT_CONTROL) && IsKeyPressed(raylib::consts::KeyboardKey::KEY_C))
                 {
                     // `CTRL + C` Copy selected text to clipboard
                     GuiTextBoxCopy(text);
                 }
-                else if (IsKeyDown(KEY_LEFT_CONTROL) && IsKeyPressed(KEY_X))
+                else if (rl.is_key_down(raylib::consts::KeyboardKey::KEY_LEFT_CONTROL) && IsKeyPressed(raylib::consts::KeyboardKey::KEY_X))
                 {
                     // `CTRL + X` Cut selected text
                     GuiTextBoxCut(text);
                 }
-                else if (IsKeyDown(KEY_LEFT_CONTROL) && IsKeyPressed(KEY_V))
+                else if (rl.is_key_down(raylib::consts::KeyboardKey::KEY_LEFT_CONTROL) && IsKeyPressed(raylib::consts::KeyboardKey::KEY_V))
                 {
                     // `CTRL + V` Paste clipboard text
                     GuiTextBoxPaste(text, textSize);
                 }
-                else if (IsKeyPressed(KEY_ENTER))
+                else if (IsKeyPressed(raylib::consts::KeyboardKey::KEY_ENTER))
                 {
                     pressed = true;
                 }
@@ -2493,7 +2493,7 @@ RAYGUIDEF bool GuiTextBox(Rectangle bounds, char *text, int textSize, bool editM
                 // -------------
                 if (CheckCollisionPointRec(mousePoint, bounds))
                 {
-                    if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
+                    if (rl.is_mouse_button_pressed(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON))
                     {
                         if (CheckCollisionPointRec(mousePoint, textRec))
                         {
@@ -2511,7 +2511,7 @@ RAYGUIDEF bool GuiTextBox(Rectangle bounds, char *text, int textSize, bool editM
                             guiTextBoxState.select = -1;
                         }
                     }
-                    else if (IsMouseButtonDown(MOUSE_LEFT_BUTTON))
+                    else if (IsMouseButtonDown(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON))
                     {
                         int cursor = guiTextBoxState.cursor - guiTextBoxState.start;
                         bool move = false;
@@ -2588,11 +2588,11 @@ RAYGUIDEF bool GuiTextBox(Rectangle bounds, char *text, int textSize, bool editM
             if (CheckCollisionPointRec(mousePoint, bounds))
             {
                 state = GUI_STATE_FOCUSED;
-                if (IsMouseButtonPressed(0))
+                if (rl.is_mouse_button_pressed(0))
                     pressed = true;
             }
 
-            if (active && IsKeyDown(KEY_LEFT_CONTROL) && IsKeyPressed(KEY_C))
+            if (active && rl.is_key_down(raylib::consts::KeyboardKey::KEY_LEFT_CONTROL) && IsKeyPressed(raylib::consts::KeyboardKey::KEY_C))
             {
                 // If active copy all text to clipboard even when disabled
 
@@ -2716,7 +2716,7 @@ RAYGUIDEF bool GuiValueBox(Rectangle bounds, int *value, int minValue, int maxVa
     //--------------------------------------------------------------------
     if ((state != GUI_STATE_DISABLED) && !guiLocked)
     {
-        Vector2 mousePoint = GetMousePosition();
+        Vector2 mousePoint = rl.get_mouse_position();
 
         bool valueHasChanged = false;
 
@@ -2747,7 +2747,7 @@ RAYGUIDEF bool GuiValueBox(Rectangle bounds, int *value, int minValue, int maxVa
             // Delete text
             if (keyCount > 0)
             {
-                if (IsKeyPressed(KEY_BACKSPACE))
+                if (IsKeyPressed(raylib::consts::KeyboardKey::KEY_BACKSPACE))
                 {
                     keyCount--;
                     text[keyCount] = '\0';
@@ -2756,7 +2756,7 @@ RAYGUIDEF bool GuiValueBox(Rectangle bounds, int *value, int minValue, int maxVa
                         keyCount = 0;
                     valueHasChanged = true;
                 }
-                else if (IsKeyDown(KEY_BACKSPACE))
+                else if (rl.is_key_down(raylib::consts::KeyboardKey::KEY_BACKSPACE))
                 {
                     if ((framesCounter > TEXTEDIT_CURSOR_BLINK_FRAMES) && (framesCounter % 2) == 0)
                         keyCount--;
@@ -2783,13 +2783,13 @@ RAYGUIDEF bool GuiValueBox(Rectangle bounds, int *value, int minValue, int maxVa
             if (CheckCollisionPointRec(mousePoint, bounds))
             {
                 state = GUI_STATE_FOCUSED;
-                if (IsMouseButtonPressed(0))
+                if (rl.is_mouse_button_pressed(0))
                     pressed = true;
             }
         }
         else
         {
-            if (IsKeyPressed(KEY_ENTER) || (!CheckCollisionPointRec(mousePoint, bounds) && IsMouseButtonPressed(0)))
+            if (IsKeyPressed(raylib::consts::KeyboardKey::KEY_ENTER) || (!CheckCollisionPointRec(mousePoint, bounds) && rl.is_mouse_button_pressed(0)))
                 pressed = true;
         }
 
@@ -2834,7 +2834,7 @@ RAYGUIDEF bool GuiTextBox(Rectangle bounds, char *text, int textSize, bool editM
     //--------------------------------------------------------------------
     if ((state != GUI_STATE_DISABLED) && !guiLocked)
     {
-        Vector2 mousePoint = GetMousePosition();
+        Vector2 mousePoint = rl.get_mouse_position();
 
         if (editMode)
         {
@@ -2864,7 +2864,7 @@ RAYGUIDEF bool GuiTextBox(Rectangle bounds, char *text, int textSize, bool editM
             // Delete text
             if (keyCount > 0)
             {
-                if (IsKeyPressed(KEY_BACKSPACE))
+                if (IsKeyPressed(raylib::consts::KeyboardKey::KEY_BACKSPACE))
                 {
                     keyCount--;
                     text[keyCount] = '\0';
@@ -2872,7 +2872,7 @@ RAYGUIDEF bool GuiTextBox(Rectangle bounds, char *text, int textSize, bool editM
                     if (keyCount < 0)
                         keyCount = 0;
                 }
-                else if (IsKeyDown(KEY_BACKSPACE))
+                else if (rl.is_key_down(raylib::consts::KeyboardKey::KEY_BACKSPACE))
                 {
                     if ((framesCounter > TEXTEDIT_CURSOR_BLINK_FRAMES) && (framesCounter % 2) == 0)
                         keyCount--;
@@ -2888,13 +2888,13 @@ RAYGUIDEF bool GuiTextBox(Rectangle bounds, char *text, int textSize, bool editM
             if (CheckCollisionPointRec(mousePoint, bounds))
             {
                 state = GUI_STATE_FOCUSED;
-                if (IsMouseButtonPressed(0))
+                if (rl.is_mouse_button_pressed(0))
                     pressed = true;
             }
         }
         else
         {
-            if (IsKeyPressed(KEY_ENTER) || (!CheckCollisionPointRec(mousePoint, bounds) && IsMouseButtonPressed(0)))
+            if (IsKeyPressed(raylib::consts::KeyboardKey::KEY_ENTER) || (!CheckCollisionPointRec(mousePoint, bounds) && rl.is_mouse_button_pressed(0)))
                 pressed = true;
         }
 
@@ -2943,7 +2943,7 @@ RAYGUIDEF bool GuiTextBoxMulti(Rectangle bounds, char *text, int textSize, bool 
     //--------------------------------------------------------------------
     if ((state != GUI_STATE_DISABLED) && !guiLocked)
     {
-        Vector2 mousePoint = GetMousePosition();
+        Vector2 mousePoint = rl.get_mouse_position();
 
         if (editMode)
         {
@@ -2964,7 +2964,7 @@ RAYGUIDEF bool GuiTextBoxMulti(Rectangle bounds, char *text, int textSize, bool 
 
                 if (MeasureTextEx(guiFont, text, GuiGetStyle(DEFAULT, TEXT_SIZE), 1).y < (maxHeight - GuiGetStyle(DEFAULT, TEXT_SIZE)))
                 {
-                    if (IsKeyPressed(KEY_ENTER))
+                    if (IsKeyPressed(raylib::consts::KeyboardKey::KEY_ENTER))
                     {
                         text[keyCount] = '\n';
                         keyCount++;
@@ -2992,7 +2992,7 @@ RAYGUIDEF bool GuiTextBoxMulti(Rectangle bounds, char *text, int textSize, bool 
             // Delete text
             if (keyCount > 0)
             {
-                if (IsKeyPressed(KEY_BACKSPACE))
+                if (IsKeyPressed(raylib::consts::KeyboardKey::KEY_BACKSPACE))
                 {
                     keyCount--;
                     text[keyCount] = '\0';
@@ -3001,7 +3001,7 @@ RAYGUIDEF bool GuiTextBoxMulti(Rectangle bounds, char *text, int textSize, bool 
                         keyCount = 0;
                     textHasChange = true;
                 }
-                else if (IsKeyDown(KEY_BACKSPACE))
+                else if (rl.is_key_down(raylib::consts::KeyboardKey::KEY_BACKSPACE))
                 {
                     if ((framesCounter > TEXTEDIT_CURSOR_BLINK_FRAMES) && (framesCounter % 2) == 0)
                         keyCount--;
@@ -3082,13 +3082,13 @@ RAYGUIDEF bool GuiTextBoxMulti(Rectangle bounds, char *text, int textSize, bool 
             if (CheckCollisionPointRec(mousePoint, bounds))
             {
                 state = GUI_STATE_FOCUSED;
-                if (IsMouseButtonPressed(0))
+                if (rl.is_mouse_button_pressed(0))
                     pressed = true;
             }
         }
         else
         {
-            if (!CheckCollisionPointRec(mousePoint, bounds) && IsMouseButtonPressed(0))
+            if (!CheckCollisionPointRec(mousePoint, bounds) && rl.is_mouse_button_pressed(0))
                 pressed = true;
         }
 
@@ -3168,11 +3168,11 @@ RAYGUIDEF float GuiSliderPro(Rectangle bounds, const char *text, float value, fl
     //--------------------------------------------------------------------
     if ((state != GUI_STATE_DISABLED) && !guiLocked)
     {
-        Vector2 mousePoint = GetMousePosition();
+        Vector2 mousePoint = rl.get_mouse_position();
 
         if (CheckCollisionPointRec(mousePoint, bounds))
         {
-            if (IsMouseButtonDown(MOUSE_LEFT_BUTTON))
+            if (IsMouseButtonDown(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON))
             {
                 state = GUI_STATE_PRESSED;
 
@@ -3298,12 +3298,12 @@ RAYGUIDEF void GuiDummyRec(Rectangle bounds, const char *text)
     //--------------------------------------------------------------------
     if ((state != GUI_STATE_DISABLED) && !guiLocked)
     {
-        Vector2 mousePoint = GetMousePosition();
+        Vector2 mousePoint = rl.get_mouse_position();
 
         // Check button state
         if (CheckCollisionPointRec(mousePoint, bounds))
         {
-            if (IsMouseButtonDown(MOUSE_LEFT_BUTTON))
+            if (IsMouseButtonDown(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON))
                 state = GUI_STATE_PRESSED;
             else
                 state = GUI_STATE_FOCUSED;
@@ -3371,7 +3371,7 @@ RAYGUIDEF int GuiScrollBar(Rectangle bounds, int value, int minValue, int maxVal
     //--------------------------------------------------------------------
     if ((state != GUI_STATE_DISABLED) && !guiLocked)
     {
-        Vector2 mousePoint = GetMousePosition();
+        Vector2 mousePoint = rl.get_mouse_position();
 
         if (CheckCollisionPointRec(mousePoint, bounds))
         {
@@ -3382,7 +3382,7 @@ RAYGUIDEF int GuiScrollBar(Rectangle bounds, int value, int minValue, int maxVal
             if (wheel != 0)
                 value += wheel;
 
-            if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
+            if (rl.is_mouse_button_pressed(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON))
             {
                 if (CheckCollisionPointRec(mousePoint, arrowUpLeft))
                     value -= range / GuiGetStyle(SCROLLBAR, SCROLL_SPEED);
@@ -3391,7 +3391,7 @@ RAYGUIDEF int GuiScrollBar(Rectangle bounds, int value, int minValue, int maxVal
 
                 state = GUI_STATE_PRESSED;
             }
-            else if (IsMouseButtonDown(MOUSE_LEFT_BUTTON))
+            else if (IsMouseButtonDown(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON))
             {
                 if (!isVertical)
                 {
@@ -3481,19 +3481,19 @@ static bool GuiListElement(Rectangle bounds, const char *text, bool active, bool
     //--------------------------------------------------------------------
     if ((state != GUI_STATE_DISABLED) && !guiLocked)
     {
-        Vector2 mousePoint = GetMousePosition();
+        Vector2 mousePoint = rl.get_mouse_position();
 
         if (CheckCollisionPointRec(mousePoint, bounds))
         {
             if (!active)
             {
-                if (IsMouseButtonDown(MOUSE_LEFT_BUTTON))
+                if (IsMouseButtonDown(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON))
                     state = GUI_STATE_PRESSED;
                 else
                     state = GUI_STATE_FOCUSED;
             }
 
-            if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON))
+            if (IsMouseButtonReleased(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON))
                 active = !active;
         }
     }
@@ -3617,14 +3617,14 @@ RAYGUIDEF bool GuiListViewEx(Rectangle bounds, const char **text, int count, int
 
     if ((state != GUI_STATE_DISABLED) && !guiLocked) // && !guiLocked
     {
-        Vector2 mousePoint = GetMousePosition();
+        Vector2 mousePoint = rl.get_mouse_position();
 
         if (editMode)
         {
             state = GUI_STATE_PRESSED;
 
             // Change active with keys
-            if (IsKeyPressed(KEY_UP))
+            if (IsKeyPressed(raylib::consts::KeyboardKey::KEY_UP))
             {
                 if (auxActive > 0)
                 {
@@ -3635,7 +3635,7 @@ RAYGUIDEF bool GuiListViewEx(Rectangle bounds, const char **text, int count, int
 
                 pressedKey = true;
             }
-            else if (IsKeyPressed(KEY_DOWN))
+            else if (IsKeyPressed(raylib::consts::KeyboardKey::KEY_DOWN))
             {
                 if (auxActive < count - 1)
                 {
@@ -3686,7 +3686,7 @@ RAYGUIDEF bool GuiListViewEx(Rectangle bounds, const char **text, int count, int
             if (CheckCollisionPointRec(mousePoint, viewArea))
             {
                 state = GUI_STATE_FOCUSED;
-                if (IsMouseButtonPressed(0))
+                if (rl.is_mouse_button_pressed(0))
                     pressed = true;
 
                 startIndex -= GetMouseWheelMove();
@@ -3705,7 +3705,7 @@ RAYGUIDEF bool GuiListViewEx(Rectangle bounds, const char **text, int count, int
         {
             if (!CheckCollisionPointRec(mousePoint, viewArea))
             {
-                if (IsMouseButtonPressed(0) || (GetMouseWheelMove() != 0))
+                if (rl.is_mouse_button_pressed(0) || (GetMouseWheelMove() != 0))
                     pressed = true;
             }
         }
@@ -3754,7 +3754,7 @@ RAYGUIDEF bool GuiListViewEx(Rectangle bounds, const char **text, int count, int
         GuiSetStyle(SCROLLBAR, SLIDER_SIZE, slider);       // Reset slider size to default
 
         // FIXME: Quick hack to make this thing work, think of a better way
-        if (scrollIndex != NULL && CheckCollisionPointRec(GetMousePosition(), scrollBarRect) && IsMouseButtonDown(MOUSE_LEFT_BUTTON))
+        if (scrollIndex != NULL && CheckCollisionPointRec(rl.get_mouse_position(), scrollBarRect) && IsMouseButtonDown(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON))
         {
             startIndex = index;
             if (startIndex < 0)
@@ -3887,11 +3887,11 @@ RAYGUIDEF Color GuiColorPanelEx(Rectangle bounds, Color color, float hue)
     //--------------------------------------------------------------------
     if ((state != GUI_STATE_DISABLED) && !guiLocked)
     {
-        Vector2 mousePoint = GetMousePosition();
+        Vector2 mousePoint = rl.get_mouse_position();
 
         if (CheckCollisionPointRec(mousePoint, bounds))
         {
-            if (IsMouseButtonDown(MOUSE_LEFT_BUTTON))
+            if (IsMouseButtonDown(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON))
             {
                 state = GUI_STATE_PRESSED;
                 pickerSelector = mousePoint;
@@ -3930,7 +3930,7 @@ RAYGUIDEF Color GuiColorPanelEx(Rectangle bounds, Color color, float hue)
         d.draw_rectangle(pickerSelector.x - GuiGetStyle(COLORPICKER, COLOR_SELECTOR_SIZE) / 2, pickerSelector.y - GuiGetStyle(COLORPICKER, COLOR_SELECTOR_SIZE) / 2, GuiGetStyle(COLORPICKER, COLOR_SELECTOR_SIZE), GuiGetStyle(COLORPICKER, COLOR_SELECTOR_SIZE), Fade(colWhite, guiAlpha));
     }
     else
-        const d.draw_rectangleGradientEx(bounds, Fade(Fade(GetColor(GuiGetStyle(COLORPICKER, BASE_COLOR_DISABLED)), 0.1f), guiAlpha), Fade(Fade(colBlack, 0.6f), guiAlpha), Fade(Fade(colBlack, 0.6f), guiAlpha), Fade(Fade(GetColor(GuiGetStyle(COLORPICKER, BORDER_COLOR_DISABLED)), 0.6f), guiAlpha));
+        const d.draw_rectangleGradientEx(bounds, Fade(Fade(GetColor(GuiGetStyle(COLORPICKER, BASE_COLOR_DISABLED)), 0.1), guiAlpha), Fade(Fade(colBlack, 0.6f), guiAlpha), Fade(Fade(colBlack, 0.6f), guiAlpha), Fade(Fade(GetColor(GuiGetStyle(COLORPICKER, BORDER_COLOR_DISABLED)), 0.6f), guiAlpha));
 }
 
 d.draw_rectangle_linesEx(bounds, 1, Fade(GetColor(GuiGetStyle(COLORPICKER, BORDER + state * 3)), guiAlpha));
@@ -3957,12 +3957,12 @@ RAYGUIDEF float GuiColorBarAlpha(Rectangle bounds, float alpha)
     //--------------------------------------------------------------------
     if ((state != GUI_STATE_DISABLED) && !guiLocked)
     {
-        Vector2 mousePoint = GetMousePosition();
+        Vector2 mousePoint = rl.get_mouse_position();
 
         if (CheckCollisionPointRec(mousePoint, bounds) ||
             CheckCollisionPointRec(mousePoint, selector))
         {
-            if (IsMouseButtonDown(MOUSE_LEFT_BUTTON))
+            if (IsMouseButtonDown(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON))
             {
                 state = GUI_STATE_PRESSED;
                 selector.x = mousePoint.x - selector.width / 2;
@@ -4003,7 +4003,7 @@ RAYGUIDEF float GuiColorBarAlpha(Rectangle bounds, float alpha)
         d.draw_rectangleGradientEx(bounds, RAYGUI_CLITERAL(Color){255, 255, 255, 0}, RAYGUI_CLITERAL(Color){255, 255, 255, 0}, Fade(RAYGUI_CLITERAL(Color){0, 0, 0, 255}, guiAlpha), Fade(RAYGUI_CLITERAL(Color){0, 0, 0, 255}, guiAlpha));
     }
     else
-        d.draw_rectangleGradientEx(bounds, Fade(GetColor(GuiGetStyle(COLORPICKER, BASE_COLOR_DISABLED)), 0.1f), Fade(GetColor(GuiGetStyle(COLORPICKER, BASE_COLOR_DISABLED)), 0.1f), Fade(GetColor(GuiGetStyle(COLORPICKER, BORDER_COLOR_DISABLED)), guiAlpha), Fade(GetColor(GuiGetStyle(COLORPICKER, BORDER_COLOR_DISABLED)), guiAlpha));
+        d.draw_rectangleGradientEx(bounds, Fade(GetColor(GuiGetStyle(COLORPICKER, BASE_COLOR_DISABLED)), 0.1), Fade(GetColor(GuiGetStyle(COLORPICKER, BASE_COLOR_DISABLED)), 0.1), Fade(GetColor(GuiGetStyle(COLORPICKER, BORDER_COLOR_DISABLED)), guiAlpha), Fade(GetColor(GuiGetStyle(COLORPICKER, BORDER_COLOR_DISABLED)), guiAlpha));
 
     d.draw_rectangle_linesEx(bounds, 1, Fade(GetColor(GuiGetStyle(COLORPICKER, BORDER + state * 3)), guiAlpha));
 
@@ -4025,12 +4025,12 @@ RAYGUIDEF float GuiColorBarHue(Rectangle bounds, float hue)
     //--------------------------------------------------------------------
     if ((state != GUI_STATE_DISABLED) && !guiLocked)
     {
-        Vector2 mousePoint = GetMousePosition();
+        Vector2 mousePoint = rl.get_mouse_position();
 
         if (CheckCollisionPointRec(mousePoint, bounds) ||
             CheckCollisionPointRec(mousePoint, selector))
         {
-            if (IsMouseButtonDown(MOUSE_LEFT_BUTTON))
+            if (IsMouseButtonDown(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON))
             {
                 state = GUI_STATE_PRESSED;
                 selector.y = mousePoint.y - selector.height / 2;
@@ -4044,12 +4044,12 @@ RAYGUIDEF float GuiColorBarHue(Rectangle bounds, float hue)
             else
                 state = GUI_STATE_FOCUSED;
 
-            /*if (IsKeyDown(KEY_UP))
+            /*if (rl.is_key_down(raylib::consts::KeyboardKey::KEY_UP))
             {
                 hue -= 2.0;
                 if (hue <= 0.0) hue = 0.0;
             }
-            else if (IsKeyDown(KEY_DOWN))
+            else if (rl.is_key_down(raylib::consts::KeyboardKey::KEY_DOWN))
             {
                 hue += 2.0;
                 if (hue >= 360.0) hue = 360.0;
@@ -4071,7 +4071,7 @@ RAYGUIDEF float GuiColorBarHue(Rectangle bounds, float hue)
         d.draw_rectangleGradientV(bounds.x + GuiGetStyle(COLORPICKER, BAR_SELECTOR_PADDING) / 2, bounds.y + 5 * ((int)bounds.height / 6) + GuiGetStyle(COLORPICKER, BAR_SELECTOR_PADDING) / 2, bounds.width - GuiGetStyle(COLORPICKER, BAR_SELECTOR_PADDING), (int)bounds.height / 6 - GuiGetStyle(COLORPICKER, BAR_SELECTOR_PADDING), Fade(RAYGUI_CLITERAL(Color){255, 0, 255, 255}, guiAlpha), Fade(RAYGUI_CLITERAL(Color){255, 0, 0, 255}, guiAlpha));
     }
     else
-        d.draw_rectangleGradientV(bounds.x, bounds.y, bounds.width, bounds.height, Fade(Fade(GetColor(GuiGetStyle(COLORPICKER, BASE_COLOR_DISABLED)), 0.1f), guiAlpha), Fade(GetColor(GuiGetStyle(COLORPICKER, BORDER_COLOR_DISABLED)), guiAlpha));
+        d.draw_rectangleGradientV(bounds.x, bounds.y, bounds.width, bounds.height, Fade(Fade(GetColor(GuiGetStyle(COLORPICKER, BASE_COLOR_DISABLED)), 0.1), guiAlpha), Fade(GetColor(GuiGetStyle(COLORPICKER, BORDER_COLOR_DISABLED)), guiAlpha));
 
     d.draw_rectangle_linesEx(bounds, 1, Fade(GetColor(GuiGetStyle(COLORPICKER, BORDER + state * 3)), guiAlpha));
 
@@ -4178,7 +4178,7 @@ RAYGUIDEF Vector2 GuiGrid(Rectangle bounds, float spacing, int subdivs)
 #define GRID_COLOR_ALPHA 0.15f // Grid lines alpha amount
 
     GuiControlState state = guiState;
-    Vector2 mousePoint = GetMousePosition();
+    Vector2 mousePoint = rl.get_mouse_position();
     Vector2 currentCell = {-1, -1};
 
     int linesV = ((int)(bounds.width / spacing) + 1) * subdivs;

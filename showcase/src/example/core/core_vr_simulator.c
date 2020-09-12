@@ -64,14 +64,14 @@ const GLSL_VERSION 100
     SetVrConfiguration(hmd, distortion); // Set Vr device parameters for stereo rendering
 
     // Define the camera to look into our 3d world
-    Camera camera = {0};
-    camera.position = rvec3(5.0, 2.0, 5.0); // Camera position
-    camera.target = rvec3(0.0, 2.0, 0.0);   // Camera looking at point
-    camera.up = rvec3(0.0, 1.0, 0.0);       // Camera up vector (rotation towards target)
-    camera.fovy = 60.0;                           // Camera field-of-view Y
-    camera.type = CAMERA_PERSPECTIVE;              // Camera type
+    let camera = Camera3D::perspective(
+    rvec3(5.0, 2.0, 5.0), // Camera position
+    rvec3(0.0, 2.0, 0.0),   // Camera looking at point
+    rvec3(0.0, 1.0, 0.0),       // Camera up vector (rotation towards target)
+    60.0,                           // Camera field-of-view Y
+    );              // Camera type
 
-    Vector3 cubePosition = {0.0, 0.0, 0.0};
+    let cubePosition = Vector3::zero();
 
     rl.set_camera_mode(&camera, raylib::consts::CameraMode::CAMERA_FIRST_PERSON); // Set first person camera mode
 
@@ -85,7 +85,7 @@ const GLSL_VERSION 100
         //----------------------------------------------------------------------------------
         rl.update_camera(&mut camera); // Update camera (simulator mode)
 
-        if (IsKeyPressed(KEY_SPACE))
+        if (IsKeyPressed(raylib::consts::KeyboardKey::KEY_SPACE))
             ToggleVrMode(); // Toggle VR mode
         //----------------------------------------------------------------------------------
 
@@ -99,16 +99,16 @@ const GLSL_VERSION 100
 
         let mut d = d.begin_mode3D(&camera);
 
-        d.draw_cube(cubePosition, 2.0, 2.0, 2.0, RED);
+        d.draw_cube(cubePosition, 2.0, 2.0, 2.0,Color::RED);
         d.draw_cube_wires(cubePosition, 2.0, 2.0, 2.0, Color::MAROON);
 
-        DrawGrid(40, 1.0);
+        d.draw_grid(40, 1.0);
 
         EndMode3D();
 
         EndVrDrawing();
 
-        DrawFPS(10, 10);
+        d.draw_fps(10, 10);
 
         EndDrawing();
         //----------------------------------------------------------------------------------

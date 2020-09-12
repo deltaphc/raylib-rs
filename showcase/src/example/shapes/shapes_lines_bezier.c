@@ -37,10 +37,10 @@ pub fn run(rl
     {
         // Update
         //----------------------------------------------------------------------------------
-        if (IsMouseButtonDown(MOUSE_LEFT_BUTTON))
-            start = GetMousePosition();
-        else if (IsMouseButtonDown(MOUSE_RIGHT_BUTTON))
-            end = GetMousePosition();
+        if (IsMouseButtonDown(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON))
+            start = rl.get_mouse_position();
+        else if (IsMouseButtonDown(raylib::consts::MouseButton::MOUSE_RIGHT_BUTTON))
+            end = rl.get_mouse_position();
         //----------------------------------------------------------------------------------
 
         // Draw
@@ -49,9 +49,9 @@ pub fn run(rl
 
         d.clear_background(Color::RAYWHITE);
 
-        d.draw_text("USE MOUSE LEFT-RIGHT CLICK to DEFINE LINE START and END POINTS", 15, 20, 20, GRAY);
+        d.draw_text("USE MOUSE LEFT-RIGHT CLICK to DEFINE LINE START and END POINTS", 15, 20, 20, Color::GRAY);
 
-        DrawLineBezier(start, end, 2.0, RED);
+        DrawLineBezier(start, end, 2.0,Color::RED);
 
         EndDrawing();
         //----------------------------------------------------------------------------------

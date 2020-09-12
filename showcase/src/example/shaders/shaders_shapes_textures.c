@@ -64,25 +64,25 @@ pub fn run(rl
 
         // Start drawing with default shader
 
-        d.draw_text("USING DEFAULT SHADER", 20, 40, 10, RED);
+        d.draw_text("USING DEFAULT SHADER", 20, 40, 10,Color::RED);
 
         DrawCircle(80, 120, 35, DARKColor::BLUE);
-        DrawCircleGradient(80, 220, 60, GREEN, Color::SKYBLUE);
+        DrawCircleGradient(80, 220, 60, Color::GREEN, Color::SKYBLUE);
         DrawCircleLines(80, 340, 80, DARKColor::BLUE);
 
         // Activate our custom shader to be applied on next shapes/textures drawings
         BeginShaderMode(shader);
 
-        d.draw_text("USING CUSTOM SHADER", 190, 40, 10, RED);
+        d.draw_text("USING CUSTOM SHADER", 190, 40, 10,Color::RED);
 
-        d.draw_rectangle(250 - 60, 90, 120, 60, RED);
+        d.draw_rectangle(250 - 60, 90, 120, 60,Color::RED);
         d.draw_rectangleGradientH(250 - 90, 170, 180, 130, Color::MAROON, Color::GOLD);
         d.draw_rectangle_lines(250 - 40, 320, 80, 60, ORANGE);
 
         // Activate our default shader for next drawings
         EndShaderMode();
 
-        d.draw_text("USING DEFAULT SHADER", 370, 40, 10, RED);
+        d.draw_text("USING DEFAULT SHADER", 370, 40, 10,Color::RED);
 
         DrawTriangle((Vector2){430, 80},
                      (Vector2){430 - 60, 150},
@@ -102,7 +102,7 @@ pub fn run(rl
         // Activate our default shader for next drawings
         EndShaderMode();
 
-        d.draw_text("(c) Fudesumi sprite by Eiden Marsal", 380, screen_height - 20, 10, GRAY);
+        d.draw_text("(c) Fudesumi sprite by Eiden Marsal", 380, screen_height - 20, 10, Color::GRAY);
 
         EndDrawing();
         //----------------------------------------------------------------------------------

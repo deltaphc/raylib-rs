@@ -69,13 +69,13 @@ const XBOX360_NAME_ID "Xbox 360 Controller" const PS3_NAME_ID "PLAYSTATION(R)3 C
 
                 // Draw buttons: xbox home
                 if (IsGamepadButtonDown(GAMEPAD_PLAYER1, GAMEPAD_BUTTON_MIDDLE))
-                    DrawCircle(394, 89, 19, RED);
+                    DrawCircle(394, 89, 19,Color::RED);
 
                 // Draw buttons: basic
                 if (IsGamepadButtonDown(GAMEPAD_PLAYER1, GAMEPAD_BUTTON_MIDDLE_RIGHT))
-                    DrawCircle(436, 150, 9, RED);
+                    DrawCircle(436, 150, 9,Color::RED);
                 if (IsGamepadButtonDown(GAMEPAD_PLAYER1, GAMEPAD_BUTTON_MIDDLE_LEFT))
-                    DrawCircle(352, 150, 9, RED);
+                    DrawCircle(352, 150, 9,Color::RED);
                 if (IsGamepadButtonDown(GAMEPAD_PLAYER1, GAMEPAD_BUTTON_RIGHT_FACE_LEFT))
                     DrawCircle(501, 151, 15, Color::BLUE);
                 if (IsGamepadButtonDown(GAMEPAD_PLAYER1, GAMEPAD_BUTTON_RIGHT_FACE_DOWN))
@@ -89,19 +89,19 @@ const XBOX360_NAME_ID "Xbox 360 Controller" const PS3_NAME_ID "PLAYSTATION(R)3 C
                 d.draw_rectangle(317, 202, 19, 71, Color::BLACK);
                 d.draw_rectangle(293, 228, 69, 19, Color::BLACK);
                 if (IsGamepadButtonDown(GAMEPAD_PLAYER1, GAMEPAD_BUTTON_LEFT_FACE_UP))
-                    d.draw_rectangle(317, 202, 19, 26, RED);
+                    d.draw_rectangle(317, 202, 19, 26,Color::RED);
                 if (IsGamepadButtonDown(GAMEPAD_PLAYER1, GAMEPAD_BUTTON_LEFT_FACE_DOWN))
-                    d.draw_rectangle(317, 202 + 45, 19, 26, RED);
+                    d.draw_rectangle(317, 202 + 45, 19, 26,Color::RED);
                 if (IsGamepadButtonDown(GAMEPAD_PLAYER1, GAMEPAD_BUTTON_LEFT_FACE_LEFT))
-                    d.draw_rectangle(292, 228, 25, 19, RED);
+                    d.draw_rectangle(292, 228, 25, 19,Color::RED);
                 if (IsGamepadButtonDown(GAMEPAD_PLAYER1, GAMEPAD_BUTTON_LEFT_FACE_RIGHT))
-                    d.draw_rectangle(292 + 44, 228, 26, 19, RED);
+                    d.draw_rectangle(292 + 44, 228, 26, 19,Color::RED);
 
                 // Draw buttons: left-right back
                 if (IsGamepadButtonDown(GAMEPAD_PLAYER1, GAMEPAD_BUTTON_LEFT_TRIGGER_1))
-                    DrawCircle(259, 61, 20, RED);
+                    DrawCircle(259, 61, 20,Color::RED);
                 if (IsGamepadButtonDown(GAMEPAD_PLAYER1, GAMEPAD_BUTTON_RIGHT_TRIGGER_1))
-                    DrawCircle(536, 61, 20, RED);
+                    DrawCircle(536, 61, 20,Color::RED);
 
                 // Draw axis: left joystick
                 DrawCircle(259, 152, 39, Color::BLACK);
@@ -116,10 +116,10 @@ const XBOX360_NAME_ID "Xbox 360 Controller" const PS3_NAME_ID "PLAYSTATION(R)3 C
                            237 - (GetGamepadAxisMovement(GAMEPAD_PLAYER1, GAMEPAD_AXIS_RIGHT_Y) * 20), 25, Color::BLACK);
 
                 // Draw axis: left-right triggers
-                d.draw_rectangle(170, 30, 15, 70, GRAY);
-                d.draw_rectangle(604, 30, 15, 70, GRAY);
-                d.draw_rectangle(170, 30, 15, (((1.0 + GetGamepadAxisMovement(GAMEPAD_PLAYER1, GAMEPAD_AXIS_LEFT_TRIGGER)) / 2.0) * 70), RED);
-                d.draw_rectangle(604, 30, 15, (((1.0 + GetGamepadAxisMovement(GAMEPAD_PLAYER1, GAMEPAD_AXIS_RIGHT_TRIGGER)) / 2.0) * 70), RED);
+                d.draw_rectangle(170, 30, 15, 70, Color::GRAY);
+                d.draw_rectangle(604, 30, 15, 70, Color::GRAY);
+                d.draw_rectangle(170, 30, 15, (((1.0 + GetGamepadAxisMovement(GAMEPAD_PLAYER1, GAMEPAD_AXIS_LEFT_TRIGGER)) / 2.0) * 70),Color::RED);
+                d.draw_rectangle(604, 30, 15, (((1.0 + GetGamepadAxisMovement(GAMEPAD_PLAYER1, GAMEPAD_AXIS_RIGHT_TRIGGER)) / 2.0) * 70),Color::RED);
 
                 //d.draw_text(FormatText("Xbox axis LT: %02.02f", GetGamepadAxisMovement(GAMEPAD_PLAYER1, GAMEPAD_AXIS_LEFT_TRIGGER)), 10, 40, 10, Color::BLACK);
                 //d.draw_text(FormatText("Xbox axis RT: %02.02f", GetGamepadAxisMovement(GAMEPAD_PLAYER1, GAMEPAD_AXIS_RIGHT_TRIGGER)), 10, 60, 10, Color::BLACK);
@@ -130,17 +130,17 @@ const XBOX360_NAME_ID "Xbox 360 Controller" const PS3_NAME_ID "PLAYSTATION(R)3 C
 
                 // Draw buttons: ps
                 if (IsGamepadButtonDown(GAMEPAD_PLAYER1, GAMEPAD_BUTTON_MIDDLE))
-                    DrawCircle(396, 222, 13, RED);
+                    DrawCircle(396, 222, 13,Color::RED);
 
                 // Draw buttons: basic
                 if (IsGamepadButtonDown(GAMEPAD_PLAYER1, GAMEPAD_BUTTON_MIDDLE_LEFT))
-                    d.draw_rectangle(328, 170, 32, 13, RED);
+                    d.draw_rectangle(328, 170, 32, 13,Color::RED);
                 if (IsGamepadButtonDown(GAMEPAD_PLAYER1, GAMEPAD_BUTTON_MIDDLE_RIGHT))
-                    DrawTriangle(rvec2(436, 168), rvec2(436, 185), rvec2(464, 177), RED);
+                    DrawTriangle(rvec2(436, 168), rvec2(436, 185), rvec2(464, 177),Color::RED);
                 if (IsGamepadButtonDown(GAMEPAD_PLAYER1, GAMEPAD_BUTTON_RIGHT_FACE_UP))
                     DrawCircle(557, 144, 13, Color::LIME);
                 if (IsGamepadButtonDown(GAMEPAD_PLAYER1, GAMEPAD_BUTTON_RIGHT_FACE_RIGHT))
-                    DrawCircle(586, 173, 13, RED);
+                    DrawCircle(586, 173, 13,Color::RED);
                 if (IsGamepadButtonDown(GAMEPAD_PLAYER1, GAMEPAD_BUTTON_RIGHT_FACE_DOWN))
                     DrawCircle(557, 203, 13, VIOLET);
                 if (IsGamepadButtonDown(GAMEPAD_PLAYER1, GAMEPAD_BUTTON_RIGHT_FACE_LEFT))
@@ -150,19 +150,19 @@ const XBOX360_NAME_ID "Xbox 360 Controller" const PS3_NAME_ID "PLAYSTATION(R)3 C
                 d.draw_rectangle(225, 132, 24, 84, Color::BLACK);
                 d.draw_rectangle(195, 161, 84, 25, Color::BLACK);
                 if (IsGamepadButtonDown(GAMEPAD_PLAYER1, GAMEPAD_BUTTON_LEFT_FACE_UP))
-                    d.draw_rectangle(225, 132, 24, 29, RED);
+                    d.draw_rectangle(225, 132, 24, 29,Color::RED);
                 if (IsGamepadButtonDown(GAMEPAD_PLAYER1, GAMEPAD_BUTTON_LEFT_FACE_DOWN))
-                    d.draw_rectangle(225, 132 + 54, 24, 30, RED);
+                    d.draw_rectangle(225, 132 + 54, 24, 30,Color::RED);
                 if (IsGamepadButtonDown(GAMEPAD_PLAYER1, GAMEPAD_BUTTON_LEFT_FACE_LEFT))
-                    d.draw_rectangle(195, 161, 30, 25, RED);
+                    d.draw_rectangle(195, 161, 30, 25,Color::RED);
                 if (IsGamepadButtonDown(GAMEPAD_PLAYER1, GAMEPAD_BUTTON_LEFT_FACE_RIGHT))
-                    d.draw_rectangle(195 + 54, 161, 30, 25, RED);
+                    d.draw_rectangle(195 + 54, 161, 30, 25,Color::RED);
 
                 // Draw buttons: left-right back buttons
                 if (IsGamepadButtonDown(GAMEPAD_PLAYER1, GAMEPAD_BUTTON_LEFT_TRIGGER_1))
-                    DrawCircle(239, 82, 20, RED);
+                    DrawCircle(239, 82, 20,Color::RED);
                 if (IsGamepadButtonDown(GAMEPAD_PLAYER1, GAMEPAD_BUTTON_RIGHT_TRIGGER_1))
-                    DrawCircle(557, 82, 20, RED);
+                    DrawCircle(557, 82, 20,Color::RED);
 
                 // Draw axis: left joystick
                 DrawCircle(319, 255, 35, Color::BLACK);
@@ -177,14 +177,14 @@ const XBOX360_NAME_ID "Xbox 360 Controller" const PS3_NAME_ID "PLAYSTATION(R)3 C
                            255 + (GetGamepadAxisMovement(GAMEPAD_PLAYER1, GAMEPAD_AXIS_RIGHT_Y) * 20), 25, Color::BLACK);
 
                 // Draw axis: left-right triggers
-                d.draw_rectangle(169, 48, 15, 70, GRAY);
-                d.draw_rectangle(611, 48, 15, 70, GRAY);
-                d.draw_rectangle(169, 48, 15, (((1.0 - GetGamepadAxisMovement(GAMEPAD_PLAYER1, GAMEPAD_AXIS_LEFT_TRIGGER)) / 2.0) * 70), RED);
-                d.draw_rectangle(611, 48, 15, (((1.0 - GetGamepadAxisMovement(GAMEPAD_PLAYER1, GAMEPAD_AXIS_RIGHT_TRIGGER)) / 2.0) * 70), RED);
+                d.draw_rectangle(169, 48, 15, 70, Color::GRAY);
+                d.draw_rectangle(611, 48, 15, 70, Color::GRAY);
+                d.draw_rectangle(169, 48, 15, (((1.0 - GetGamepadAxisMovement(GAMEPAD_PLAYER1, GAMEPAD_AXIS_LEFT_TRIGGER)) / 2.0) * 70),Color::RED);
+                d.draw_rectangle(611, 48, 15, (((1.0 - GetGamepadAxisMovement(GAMEPAD_PLAYER1, GAMEPAD_AXIS_RIGHT_TRIGGER)) / 2.0) * 70),Color::RED);
             }
             else
             {
-                d.draw_text("- GENERIC GAMEPAD -", 280, 180, 20, GRAY);
+                d.draw_text("- GENERIC GAMEPAD -", 280, 180, 20, Color::GRAY);
 
                 // TODO: Draw generic gamepad
             }
@@ -197,13 +197,13 @@ const XBOX360_NAME_ID "Xbox 360 Controller" const PS3_NAME_ID "PLAYSTATION(R)3 C
             }
 
             if (GetGamepadButtonPressed() != -1)
-                d.draw_text(FormatText("DETECTED BUTTON: %i", GetGamepadButtonPressed()), 10, 430, 10, RED);
+                d.draw_text(FormatText("DETECTED BUTTON: %i", GetGamepadButtonPressed()), 10, 430, 10,Color::RED);
             else
-                d.draw_text("DETECTED BUTTON: NONE", 10, 430, 10, GRAY);
+                d.draw_text("DETECTED BUTTON: NONE", 10, 430, 10, Color::GRAY);
         }
         else
         {
-            d.draw_text("GP1: NOT DETECTED", 10, 10, 10, GRAY);
+            d.draw_text("GP1: NOT DETECTED", 10, 10, 10, Color::GRAY);
 
             DrawTexture(texXboxPad, 0, 0, Color::LIGHTGRAY);
         }

@@ -24,7 +24,7 @@
 *   will the authors be held liable for any damages arising from the use of this software.
 *
 *   Permission is granted to anyone to use this software for any purpose, including commercial
-*   applications, and to alter it and redistribute it freely, subject to the following restrictions:
+*   applications, and to alter it andColor::REDistribute it freely, subject to the following restrictions:
 *
 *     1. The origin of this software must not be misrepresented; you must not claim that you
 *     wrote the original software. If you use this software in a product, an acknowledgment
@@ -265,7 +265,7 @@ void GuiFileDialog(GuiFileDialogState *state)
         d.draw_rectangle(0, 0, Getscreen_width(), Getscreen_height(), Fade(GetColor(GuiGetStyle(DEFAULT, BACKGROUND_COLOR)), 0.85f));
         state->fileDialogActive = !GuiWindowBox((Rectangle){state->position.x + 0, state->position.y + 0, winWidth, winHeight}, "#198#LuaJIT | Select File Dialog");
 
-        if (GuiButton((Rectangle){state->position.x + winWidth - 50, state->position.y + 35, 40, 25}, "< ..")) // || IsKeyReleased(KEY_DPAD_Y))
+        if (GuiButton((Rectangle){state->position.x + winWidth - 50, state->position.y + 35, 40, 25}, "< ..")) // || IsKeyReleased(raylib::consts::KeyboardKey::KEY_DPAD_Y))
         {
             // Move dir path one level up
             strcpy(state->dirPathText, GetPrevDirectoryPath(state->dirPathText));
@@ -313,7 +313,7 @@ void GuiFileDialog(GuiFileDialogState *state)
         GuiSetStyle(LISTVIEW, LIST_ITEMS_HEIGHT, prevElementsHeight);
 
         if ((state->filesListActive >= 0) && (state->filesListActive != state->prevFilesListActive))
-        //&& (IsMouseButtonPressed(MOUSE_LEFT_BUTTON) || IsKeyPressed(KEY_ENTER) || IsKeyPressed(KEY_DPAD_A)))
+        //&& (rl.is_mouse_button_pressed(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON) || IsKeyPressed(raylib::consts::KeyboardKey::KEY_ENTER) || IsKeyPressed(raylib::consts::KeyboardKey::KEY_DPAD_A)))
         {
             strcpy(state->fileNameText, state->dirFiles[state->filesListActive]);
 
@@ -378,7 +378,7 @@ void GuiFileDialog(GuiFileDialogState *state)
                                                          25 + 30
 #endif
                                              },
-                                             "Select"); // || IsKeyPressed(KEY_ENTER) || IsKeyPressed(KEY_DPAD_A);
+                                             "Select"); // || IsKeyPressed(raylib::consts::KeyboardKey::KEY_ENTER) || IsKeyPressed(raylib::consts::KeyboardKey::KEY_DPAD_A);
 
         if (state->SelectFilePressed)
             state->fileDialogActive = false;
@@ -567,7 +567,7 @@ static int GuiListViewFiles(Rectangle bounds, FileInfo *files, int count, int *f
     //--------------------------------------------------------------------
     if ((state != GUI_STATE_DISABLED) && !guiLocked)
     {
-        Vector2 mousePoint = GetMousePosition();
+        Vector2 mousePoint = rl.get_mouse_position();
 
         // Check mouse inside list view
         if (CheckCollisionPointRec(mousePoint, bounds))
@@ -580,7 +580,7 @@ static int GuiListViewFiles(Rectangle bounds, FileInfo *files, int count, int *f
                 if (CheckCollisionPointRec(mousePoint, itemBounds))
                 {
                     itemFocused = startIndex + i;
-                    if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
+                    if (rl.is_mouse_button_pressed(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON))
                         itemSelected = startIndex + i;
                     break;
                 }

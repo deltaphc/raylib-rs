@@ -63,7 +63,7 @@ int main(int argc, char **argv)
     {
         // Update
         //----------------------------------------------------------------------------------
-        Vector2 mouse = GetMousePosition();
+        Vector2 mouse = rl.get_mouse_position();
 
         // Fonts drag & drop logic
         if (IsFileDropped())
@@ -142,7 +142,7 @@ bool GuiTextEditor(Rectangle bounds, char *text, int textSize, bool editMode)
     //--------------------------------------------------------------------
     if ((state != GUI_STATE_DISABLED) && !guiLocked)
     {
-        Vector2 mousePoint = GetMousePosition();
+        Vector2 mousePoint = rl.get_mouse_position();
 
         if (editMode)
         {
@@ -154,14 +154,14 @@ bool GuiTextEditor(Rectangle bounds, char *text, int textSize, bool editMode)
             // Characters selection logic
             if (selectStartCp != -1)
             {
-                if (IsKeyDown(KEY_LEFT_SHIFT) && IsKeyPressed(KEY_RIGHT))
+                if (rl.is_key_down(raylib::consts::KeyboardKey::KEY_LEFT_SHIFT) && IsKeyPressed(raylib::consts::KeyboardKey::KEY_RIGHT))
                 {
                     selectLengthCp++;
                     if (selectLengthCp >= (codepointCount - selectStartCp))
                         selectLengthCp = codepointCount - selectStartCp;
                 }
 
-                if (IsKeyDown(KEY_LEFT_SHIFT) && IsKeyPressed(KEY_LEFT))
+                if (rl.is_key_down(raylib::consts::KeyboardKey::KEY_LEFT_SHIFT) && IsKeyPressed(raylib::consts::KeyboardKey::KEY_LEFT))
                 {
                     selectLengthCp--;
                     if (selectLengthCp < 0)
@@ -174,7 +174,7 @@ bool GuiTextEditor(Rectangle bounds, char *text, int textSize, bool editMode)
             // TODO: On key pressed, place new character in cursor position
 
             // Exit edit mode logic
-            if (IsKeyPressed(KEY_ENTER) || (!CheckCollisionPointRec(mousePoint, bounds) && IsMouseButtonPressed(0)))
+            if (IsKeyPressed(raylib::consts::KeyboardKey::KEY_ENTER) || (!CheckCollisionPointRec(mousePoint, bounds) && rl.is_mouse_button_pressed(0)))
                 pressed = true;
         }
         else
@@ -182,7 +182,7 @@ bool GuiTextEditor(Rectangle bounds, char *text, int textSize, bool editMode)
             if (CheckCollisionPointRec(mousePoint, bounds))
             {
                 state = GUI_STATE_FOCUSED;
-                if (IsMouseButtonPressed(0))
+                if (rl.is_mouse_button_pressed(0))
                     pressed = true;
             }
         }
@@ -242,7 +242,7 @@ bool GuiTextEditor(Rectangle bounds, char *text, int textSize, bool editMode)
         // Check selected codepoint
         if (editMode)
         {
-            if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && CheckCollisionPointRec(GetMousePosition(), rec))
+            if (rl.is_mouse_button_pressed(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON) && CheckCollisionPointRec(rl.get_mouse_position(), rec))
             {
                 cursor = rec;
                 cursorCodepoint = cp;
@@ -253,7 +253,7 @@ bool GuiTextEditor(Rectangle bounds, char *text, int textSize, bool editMode)
             }
 
             // On mouse left button down allow text selection
-            if ((selectStartCp != -1) && IsMouseButtonDown(MOUSE_LEFT_BUTTON) && CheckCollisionPointRec(GetMousePosition(), rec))
+            if ((selectStartCp != -1) && IsMouseButtonDown(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON) && CheckCollisionPointRec(rl.get_mouse_position(), rec))
             {
                 if (cp >= selectStartCp)
                     selectLengthCp = cp - selectStartCp;

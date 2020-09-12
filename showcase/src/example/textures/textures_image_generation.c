@@ -25,10 +25,10 @@ const NUM_TEXTURES 7 // Currently we have 7 generation algorithms
     rl.set_window_title(thread, "raylib [textures] example - procedural images generation");
 
 
-    Image verticalGradient = GenImageGradientV(screen_width, screen_height, RED, Color::BLUE);
-    Image horizontalGradient = GenImageGradientH(screen_width, screen_height, RED, Color::BLUE);
+    Image verticalGradient = GenImageGradientV(screen_width, screen_height,Color::RED, Color::BLUE);
+    Image horizontalGradient = GenImageGradientH(screen_width, screen_height,Color::RED, Color::BLUE);
     Image radialGradient = GenImageGradientRadial(screen_width, screen_height, 0.0, WHITE, Color::BLACK);
-    Image checked = GenImageChecked(screen_width, screen_height, 32, 32, RED, Color::BLUE);
+    Image checked = GenImageChecked(screen_width, screen_height, 32, 32,Color::RED, Color::BLUE);
     Image whiteNoise = GenImageWhiteNoise(screen_width, screen_height, 0.5);
     Image perlinNoise = GenImagePerlinNoise(screen_width, screen_height, 50, 50, 4.0);
     Image cellular = GenImageCellular(screen_width, screen_height, 32);
@@ -62,7 +62,7 @@ const NUM_TEXTURES 7 // Currently we have 7 generation algorithms
     {
         // Update
         //----------------------------------------------------------------------------------
-        if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON) || IsKeyPressed(KEY_RIGHT))
+        if (rl.is_mouse_button_pressed(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON) || IsKeyPressed(raylib::consts::KeyboardKey::KEY_RIGHT))
         {
             currentTexture = (currentTexture + 1) % NUM_TEXTURES; // Cycle between the textures
         }
@@ -95,7 +95,7 @@ const NUM_TEXTURES 7 // Currently we have 7 generation algorithms
             d.draw_text("CHECKED", 680, 10, 20, RAYWHITE);
             break;
         case 4:
-            d.draw_text("WHITE NOISE", 640, 10, 20, RED);
+            d.draw_text("WHITE NOISE", 640, 10, 20,Color::RED);
             break;
         case 5:
             d.draw_text("PERLIN NOISE", 630, 10, 20, RAYWHITE);

@@ -69,7 +69,7 @@ int main(void)
 
             ClearBackground(RAYWHITE);
 
-            DrawText("Scale rectangle dragging from bottom-right corner!", 10, 10, 20, GRAY);
+            DrawText("Scale rectangle dragging from bottom-right corner!", 10, 10, 20, Color::GRAY);
 
             DrawRectangleRec(rec, Fade(GREEN, 0.5f));
 

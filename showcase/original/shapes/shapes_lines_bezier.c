@@ -42,7 +42,7 @@ int main(void)
 
             ClearBackground(RAYWHITE);
 
-            DrawText("USE MOUSE LEFT-RIGHT CLICK to DEFINE LINE START and END POINTS", 15, 20, 20, GRAY);
+            DrawText("USE MOUSE LEFT-RIGHT CLICK to DEFINE LINE START and END POINTS", 15, 20, 20, Color::GRAY);
 
             DrawLineBezier(start, end, 2.0f, RED);
 

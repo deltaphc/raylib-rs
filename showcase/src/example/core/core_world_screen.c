@@ -26,17 +26,17 @@ pub fn run(rl
 
 
     // Define the camera to look into our 3d world
-    Camera camera = {0};
-    camera.position = rvec3(10.0, 10.0, 10.0);
-    camera.target = rvec3(0.0, 0.0, 0.0);
-    camera.up = rvec3(0.0, 1.0, 0.0);
-    camera.fovy = 45.0;
-    camera.type = CAMERA_PERSPECTIVE;
+    let camera = Camera3D::perspective(
+    rvec3(10.0, 10.0, 10.0),
+    rvec3(0.0, 0.0, 0.0),
+    rvec3(0.0, 1.0, 0.0),
+    45.0,
+    );
 
-    Vector3 cubePosition = {0.0, 0.0, 0.0};
+    let cubePosition = Vector3::zero();
     Vector2 cubeScreenPosition = {0.0, 0.0};
 
-    SetCameraMode(camera, CAMERA_FREE); // Set a free camera mode
+    rl.set_camera_mode(&camera, raylib::consts::CameraMode::CAMERA_FREE); // Set a free camera mode
 
     rl.set_target_fps(60); // Set our game to run at 60 frames-per-second
     //--------------------------------------------------------------------------------------
@@ -60,15 +60,15 @@ pub fn run(rl
 
         let mut d = d.begin_mode3D(&camera);
 
-        d.draw_cube(cubePosition, 2.0, 2.0, 2.0, RED);
+        d.draw_cube(cubePosition, 2.0, 2.0, 2.0,Color::RED);
         d.draw_cube_wires(cubePosition, 2.0, 2.0, 2.0, Color::MAROON);
 
-        DrawGrid(10, 1.0);
+        d.draw_grid(10, 1.0);
 
         EndMode3D();
 
-        d.draw_text("Enemy: 100 / 100", cubeScreenPosition.x - MeasureText("Enemy: 100/100", 20) / 2, cubeScreenPosition.y, 20, Color::BLACK);
-        d.draw_text("Text is always on top of the cube", (screen_width - MeasureText("Text is always on top of the cube", 20)) / 2, 25, 20, GRAY);
+        d.draw_text("Enemy: 100 / 100", cubeScreenPosition.x - raylib::text::measure_text("Enemy: 100/100", 20) / 2, cubeScreenPosition.y, 20, Color::BLACK);
+        d.draw_text("Text is always on top of the cube", (screen_width - raylib::text::measure_text("Text is always on top of the cube", 20)) / 2, 25, 20, Color::GRAY);
 
         EndDrawing();
         //----------------------------------------------------------------------------------

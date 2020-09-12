@@ -66,7 +66,7 @@ int main()
 
         d.clear_background(Color::RAYWHITE);
 
-        d.draw_text(TextFormat("[%f, %f]", panelScroll.x, panelScroll.y), 4, 4, 20, RED);
+        d.draw_text(TextFormat("[%f, %f]", panelScroll.x, panelScroll.y), 4, 4, 20,Color::RED);
 
         Rectangle view = GuiScrollPanel(panelRec, panelContentRec, &panelScroll);
 
@@ -75,7 +75,7 @@ int main()
         EndScissorMode();
 
         if (showContentArea)
-            d.draw_rectangle(panelRec.x + panelScroll.x, panelRec.y + panelScroll.y, panelContentRec.width, panelContentRec.height, RED.fade(0.1));
+            d.draw_rectangle(panelRec.x + panelScroll.x, panelRec.y + panelScroll.y, panelContentRec.width, panelContentRec.height,Color::RED.fade(0.1));
 
         DrawStyleEditControls();
 

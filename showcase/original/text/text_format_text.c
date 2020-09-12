@@ -43,7 +43,7 @@ int main(void)
 
             DrawText(FormatText("Score: %08i", score), 200, 80, 20, RED);
 
-            DrawText(FormatText("HiScore: %08i", hiscore), 200, 120, 20, GREEN);
+            DrawText(FormatText("HiScore: %08i", hiscore), 200, 120, 20, Color::GREEN);
 
             DrawText(FormatText("Lives: %02i", lives), 200, 160, 40, BLUE);
 

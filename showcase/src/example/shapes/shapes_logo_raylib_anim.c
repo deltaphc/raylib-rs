@@ -152,7 +152,7 @@ pub fn run(rl
         }
         else if (state == 4)
         {
-            d.draw_text("[R] REPLAY", 340, 200, 20, GRAY);
+            d.draw_text("[R] REPLAY", 340, 200, 20, Color::GRAY);
         }
 
         EndDrawing();

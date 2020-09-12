@@ -56,7 +56,7 @@ pub fn run(rl
 
         DrawTexture(texture, screen_width / 2 - texture.width / 2, screen_height / 2 - texture.height / 2, WHITE);
 
-        d.draw_text("this IS a texture loaded from an image!", 300, 370, 10, GRAY);
+        d.draw_text("this IS a texture loaded from an image!", 300, 370, 10, Color::GRAY);
 
         EndDrawing();
         //----------------------------------------------------------------------------------

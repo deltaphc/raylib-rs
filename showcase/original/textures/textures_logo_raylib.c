@@ -40,7 +40,7 @@ int main(void)
 
             DrawTexture(texture, screenWidth/2 - texture.width/2, screenHeight/2 - texture.height/2, WHITE);
 
-            DrawText("this IS a texture!", 360, 370, 10, GRAY);
+            DrawText("this IS a texture!", 360, 370, 10, Color::GRAY);
 
         EndDrawing();
         //----------------------------------------------------------------------------------

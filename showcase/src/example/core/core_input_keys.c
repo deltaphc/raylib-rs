@@ -35,13 +35,13 @@ pub fn run(rl
     {
         // Update
         //----------------------------------------------------------------------------------
-        if (IsKeyDown(KEY_RIGHT))
+        if (rl.is_key_down(raylib::consts::KeyboardKey::KEY_RIGHT))
             ballPosition.x += 2.0;
-        if (IsKeyDown(KEY_LEFT))
+        if (rl.is_key_down(raylib::consts::KeyboardKey::KEY_LEFT))
             ballPosition.x -= 2.0;
-        if (IsKeyDown(KEY_UP))
+        if (rl.is_key_down(raylib::consts::KeyboardKey::KEY_UP))
             ballPosition.y -= 2.0;
-        if (IsKeyDown(KEY_DOWN))
+        if (rl.is_key_down(raylib::consts::KeyboardKey::KEY_DOWN))
             ballPosition.y += 2.0;
         //----------------------------------------------------------------------------------
 

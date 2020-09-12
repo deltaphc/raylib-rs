@@ -46,9 +46,9 @@ pub fn run(rl
 
         d.clear_background(Color::RAYWHITE);
 
-        d.draw_text(FormatText("Score: %08i", score), 200, 80, 20, RED);
+        d.draw_text(FormatText("Score: %08i", score), 200, 80, 20,Color::RED);
 
-        d.draw_text(FormatText("HiScore: %08i", hiscore), 200, 120, 20, GREEN);
+        d.draw_text(FormatText("HiScore: %08i", hiscore), 200, 120, 20, Color::GREEN);
 
         d.draw_text(FormatText("Lives: %02i", lives), 200, 160, 40, Color::BLUE);
 

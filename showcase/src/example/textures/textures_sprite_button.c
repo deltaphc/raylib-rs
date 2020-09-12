@@ -50,18 +50,18 @@ const NUM_FRAMES 3 // Number of frames (rectangles) for the button sprite textur
     {
         // Update
         //----------------------------------------------------------------------------------
-        mousePoint = GetMousePosition();
+        mousePoint = rl.get_mouse_position();
         btnAction = false;
 
         // Check button state
         if (CheckCollisionPointRec(mousePoint, btnBounds))
         {
-            if (IsMouseButtonDown(MOUSE_LEFT_BUTTON))
+            if (IsMouseButtonDown(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON))
                 btnState = 2;
             else
                 btnState = 1;
 
-            if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON))
+            if (IsMouseButtonReleased(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON))
                 btnAction = true;
         }
         else

@@ -30,7 +30,7 @@ const NUM_PROCESSES 8
 
 static const char *processText[] = {
     "NO PROCESSING",
-    "COLOR GRAYSCALE",
+    "COLOR Color::GRAYSCALE",
     "COLOR TINT",
     "COLOR INVERT",
     "COLOR CONTRAST",
@@ -71,14 +71,14 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut
     {
         // Update
         //----------------------------------------------------------------------------------
-        if (IsKeyPressed(KEY_DOWN))
+        if (IsKeyPressed(raylib::consts::KeyboardKey::KEY_DOWN))
         {
             currentProcess++;
             if (currentProcess > 7)
                 currentProcess = 0;
             textureReload = true;
         }
-        else if (IsKeyPressed(KEY_UP))
+        else if (IsKeyPressed(raylib::consts::KeyboardKey::KEY_UP))
         {
             currentProcess--;
             if (currentProcess < 0)
@@ -100,7 +100,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut
                 ImageColorGrayscale(&image);
                 break;
             case COLOR_TINT:
-                ImageColorTint(&image, GREEN);
+                ImageColorTint(&image, Color::GREEN);
                 break;
             case COLOR_INVERT:
                 ImageColorInvert(&image);
@@ -141,8 +141,8 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut
         for (int i = 0; i < NUM_PROCESSES; i++)
         {
             d.draw_rectangleRec(selectRecs[i], (i == currentProcess) ? Color::SKYBLUE : Color::LIGHTGRAY);
-            d.draw_rectangle_lines((int)selectRecs[i].x, (int)selectRecs[i].y, (int)selectRecs[i].width, (int)selectRecs[i].height, (i == currentProcess) ? Color::BLUE : GRAY);
-            d.draw_text(processText[i], (int)(selectRecs[i].x + selectRecs[i].width / 2 - MeasureText(processText[i], 10) / 2), (int)selectRecs[i].y + 11, 10, (i == currentProcess) ? DARKColor::BLUE : Color::DARKGRAY);
+            d.draw_rectangle_lines((int)selectRecs[i].x, (int)selectRecs[i].y, (int)selectRecs[i].width, (int)selectRecs[i].height, (i == currentProcess) ? Color::BLUE : Color::GRAY);
+            d.draw_text(processText[i], (int)(selectRecs[i].x + selectRecs[i].width / 2 - raylib::text::measure_textprocessText[i], 10) / 2), (int)selectRecs[i].y + 11, 10, (i == currentProcess) ? DARKColor::BLUE : Color::DARKGRAY);
         }
 
         DrawTexture(texture, screen_width - texture.width - 60, screen_height / 2 - texture.height / 2, WHITE);

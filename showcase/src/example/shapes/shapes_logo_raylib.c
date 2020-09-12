@@ -46,7 +46,7 @@ pub fn run(rl
         d.draw_rectangle(screen_width / 2 - 112, screen_height / 2 - 112, 224, 224, RAYWHITE);
         d.draw_text("raylib", screen_width / 2 - 44, screen_height / 2 + 48, 50, Color::BLACK);
 
-        d.draw_text("this is NOT a texture!", 350, 370, 10, GRAY);
+        d.draw_text("this is NOT a texture!", 350, 370, 10, Color::GRAY);
 
         EndDrawing();
         //----------------------------------------------------------------------------------
