@@ -45,7 +45,7 @@ pub fn run(rl
 
     // Load raymarching shader
     // NOTE: Defining 0 (NULL) for vertex shader forces usage of internal default vertex shader
-    Shader shader = LoadShader(0, FormatText("resources/shaders/glsl%i/raymarching.fs", GLSL_VERSION));
+    Shader shader = LoadShader(0, &format!("resources/shaders/glsl{}/raymarching.fs", GLSL_VERSION));
 
     // Get shader locations for required uniforms
     int viewEyeLoc = GetShaderLocation(shader, "viewEye");
@@ -66,10 +66,10 @@ pub fn run(rl
     {
         // Check if screen is resized
         //----------------------------------------------------------------------------------
-        if (IsWindowResized())
+        if IsWindowResized()
         {
-            screen_width = Getscreen_width();
-            screen_height = Getscreen_height();
+            screen_width = rl.get_screen_width();
+            screen_height = rl.get_screen_height();
             float resolution[2] = {(float)screen_width, (float)screen_height};
             SetShaderValue(shader, resolutionLoc, resolution, UNIFORM_VEC2);
         }
@@ -99,7 +99,7 @@ pub fn run(rl
         // We only draw a white full-screen rectangle,
         // frame is generated in shader using raymarching
         BeginShaderMode(shader);
-        d.draw_rectangle(0, 0, screen_width, screen_height, WHITE);
+        d.draw_rectangle(0, 0, screen_width, screen_height, Color::WHITE);
         EndShaderMode();
 
         d.draw_text("(c) Raymarching shader by Iñigo Quilez. MIT License.", screen_width - 280, screen_height - 20, 10, Color::BLACK);

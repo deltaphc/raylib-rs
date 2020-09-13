@@ -302,11 +302,11 @@ double GuiDMValueBox(Rectangle bounds, double value, double minValue, double max
     GuiControlState state = GuiGetState();
 
     // Make sure value is in range
-    if (maxValue != minValue)
+    if maxValue != minValue
     {
-        if (value < minValue)
+        if value < minValue
             value = minValue;
-        if (value > maxValue)
+        if value > maxValue
             value = maxValue;
     }
 
@@ -318,39 +318,39 @@ double GuiDMValueBox(Rectangle bounds, double value, double minValue, double max
 
     // Update control
     //--------------------------------------------------------------------
-    if ((state != GUI_STATE_DISABLED) && !guiLocked)
+    if (state != GUI_STATE_DISABLED) && !guiLocked
     {
-        if (editMode)
+        if editMode
         {
             // Make sure cursor position is correct
-            if (cursor > len)
+            if cursor > len
                 cursor = len;
-            if (cursor < 0)
+            if cursor < 0
                 cursor = 0;
 
             state = GUI_STATE_PRESSED;
             framesCounter++;
 
-            if (IsKeyPressed(raylib::consts::KeyboardKey::KEY_RIGHT) || (rl.is_key_down(raylib::consts::KeyboardKey::KEY_RIGHT) && (framesCounter % cursorTimer == 0)))
+            if rl.is_key_pressed(raylib::consts::KeyboardKey::KEY_RIGHT) || (rl.is_key_down(raylib::consts::KeyboardKey::KEY_RIGHT) && (framesCounter % cursorTimer == 0))
             {
                 // MOVE CURSOR TO RIGHT
                 ++cursor;
                 framesCounter = 0;
             }
-            else if (IsKeyPressed(raylib::consts::KeyboardKey::KEY_LEFT) || (rl.is_key_down(raylib::consts::KeyboardKey::KEY_LEFT) && (framesCounter % cursorTimer == 0)))
+            else if rl.is_key_pressed(raylib::consts::KeyboardKey::KEY_LEFT) || (rl.is_key_down(raylib::consts::KeyboardKey::KEY_LEFT) && (framesCounter % cursorTimer == 0))
             {
                 // MOVE CURSOR TO LEFT
                 --cursor;
                 framesCounter = 0;
             }
-            else if (IsKeyPressed(raylib::consts::KeyboardKey::KEY_BACKSPACE) || (rl.is_key_down(raylib::consts::KeyboardKey::KEY_BACKSPACE) && (framesCounter % cursorTimer) == 0))
+            else if rl.is_key_pressed(raylib::consts::KeyboardKey::KEY_BACKSPACE) || (rl.is_key_down(raylib::consts::KeyboardKey::KEY_BACKSPACE) && (framesCounter % cursorTimer) == 0)
             {
                 // HANDLE BACKSPACE
-                if (cursor > 0)
+                if cursor > 0
                 {
-                    if (textValue[cursor - 1] != '.')
+                    if textValue[cursor - 1] != '.'
                     {
-                        if (cursor < len)
+                        if cursor < len
                             memmove(&textValue[cursor - 1], &textValue[cursor], len - cursor);
                         textValue[len - 1] = '\0';
                         valueHasChanged = true;
@@ -359,10 +359,10 @@ double GuiDMValueBox(Rectangle bounds, double value, double minValue, double max
                 }
                 framesCounter = 0;
             }
-            else if (IsKeyPressed(raylib::consts::KeyboardKey::KEY_DELETE) || (rl.is_key_down(raylib::consts::KeyboardKey::KEY_DELETE) && (framesCounter % cursorTimer) == 0))
+            else if rl.is_key_pressed(raylib::consts::KeyboardKey::KEY_DELETE) || (rl.is_key_down(raylib::consts::KeyboardKey::KEY_DELETE) && (framesCounter % cursorTimer) == 0)
             {
                 // HANDLE DEL
-                if (len > 0 && cursor < len && textValue[cursor] != '.')
+                if len > 0 && cursor < len && textValue[cursor] != '.'
                 {
                     memmove(&textValue[cursor], &textValue[cursor + 1], len - cursor);
                     textValue[len] = '\0';
@@ -370,22 +370,22 @@ double GuiDMValueBox(Rectangle bounds, double value, double minValue, double max
                     valueHasChanged = true;
                 }
             }
-            else if (IsKeyPressed(raylib::consts::KeyboardKey::KEY_HOME))
+            else if rl.is_key_pressed(raylib::consts::KeyboardKey::KEY_HOME)
             {
                 // MOVE CURSOR TO START
                 cursor = 0;
             }
-            else if (IsKeyPressed(raylib::consts::KeyboardKey::KEY_END))
+            else if rl.is_key_pressed(raylib::consts::KeyboardKey::KEY_END)
             {
                 // MOVE CURSOR TO END
                 cursor = len;
             }
-            else if (rl.is_key_down(raylib::consts::KeyboardKey::KEY_LEFT_CONTROL) && IsKeyPressed(raylib::consts::KeyboardKey::KEY_C))
+            else if rl.is_key_down(raylib::consts::KeyboardKey::KEY_LEFT_CONTROL) && rl.is_key_pressed(raylib::consts::KeyboardKey::KEY_C)
             {
                 // COPY
                 SetClipboardText(textValue);
             }
-            else if (rl.is_key_down(raylib::consts::KeyboardKey::KEY_LEFT_CONTROL) && IsKeyPressed(raylib::consts::KeyboardKey::KEY_X))
+            else if rl.is_key_down(raylib::consts::KeyboardKey::KEY_LEFT_CONTROL) && rl.is_key_pressed(raylib::consts::KeyboardKey::KEY_X)
             {
                 // CUT
                 SetClipboardText(textValue);
@@ -393,7 +393,7 @@ double GuiDMValueBox(Rectangle bounds, double value, double minValue, double max
                 cursor = len = 0;
                 value = 0.0; // set it to 0 and pretend the value didn't change
             }
-            else if (rl.is_key_down(raylib::consts::KeyboardKey::KEY_LEFT_CONTROL) && IsKeyPressed(raylib::consts::KeyboardKey::KEY_V))
+            else if rl.is_key_down(raylib::consts::KeyboardKey::KEY_LEFT_CONTROL) && rl.is_key_pressed(raylib::consts::KeyboardKey::KEY_V)
             {
                 // PASTE
                 const char *clip = GetClipboardText();
@@ -408,9 +408,9 @@ double GuiDMValueBox(Rectangle bounds, double value, double minValue, double max
             {
                 // HANDLE KEY PRESS
                 int key = GetKeyPressed();
-                if (((len < maxChars) && (key >= 48) && (key <= 57)) || (key == 46) || (key == 45)) // only allow 0..9, minus(-) and dot(.)
+                if ((len < maxChars) && (key >= 48) && (key <= 57)) || (key == 46) || (key == 45)) // only allow 0..9, minus(-) and dot(.
                 {
-                    if (precision != 0 && cursor < len)
+                    if precision != 0 && cursor < len
                     { // when we have decimals we can't insert at the end
                         memmove(&textValue[cursor], &textValue[cursor - 1], len + 1 - cursor);
                         textValue[len + 1] = '\0';
@@ -419,10 +419,10 @@ double GuiDMValueBox(Rectangle bounds, double value, double minValue, double max
                         const valueHasChanged = true;
                         const
                     }
-                    else if (precision == 0)
+                    else if precision == 0
                         const
                         {
-                            const if (cursor < len)
+                            const if cursor < len
                                 memmove(&textValue[cursor], &textValue[cursor - 1], len + 1 - cursor);
                             len += 1;
                             const textValue[len + 1] = '\0';
@@ -434,17 +434,17 @@ double GuiDMValueBox(Rectangle bounds, double value, double minValue, double max
             }
 
             // Make sure cursor position is correct
-            if (cursor > len)
+            if cursor > len
                 cursor = len;
-            if (cursor < 0)
+            if cursor < 0
                 cursor = 0;
         }
         else
         {
-            if (CheckCollisionPointRec(rl.get_mouse_position(), bounds))
+            if CheckCollisionPointRec(rl.get_mouse_position(), bounds)
             {
                 state = GUI_STATE_FOCUSED;
-                if (rl.is_mouse_button_pressed(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON))
+                if rl.is_mouse_button_pressed(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON)
                     framesCounter = 0;
             }
         }
@@ -459,20 +459,20 @@ double GuiDMValueBox(Rectangle bounds, double value, double minValue, double max
                             bounds.width - 2 * (GuiGetStyle(VALUEBOX, BORDER_WIDTH) + textPadding), bounds.height - 2 * GuiGetStyle(VALUEBOX, BORDER_WIDTH)};
 
     int textWidth = GetTextWidth(textValue);
-    if (textWidth > textBounds.width)
+    if textWidth > textBounds.width
         textBounds.width = textWidth;
 
-    if (state == GUI_STATE_PRESSED)
+    if state == GUI_STATE_PRESSED
     {
         d.draw_rectangle(bounds.x + GuiGetStyle(VALUEBOX, BORDER_WIDTH), bounds.y + GuiGetStyle(VALUEBOX, BORDER_WIDTH), bounds.width - 2 * GuiGetStyle(VALUEBOX, BORDER_WIDTH), bounds.height - 2 * GuiGetStyle(VALUEBOX, BORDER_WIDTH), Fade(GetColor(GuiGetStyle(VALUEBOX, BASE_COLOR_PRESSED)), guiAlpha));
 
         // Draw blinking cursor
         // NOTE: ValueBox internal text is always centered
-        if (editMode && ((framesCounter / 20) % 2 == 0))
+        if editMode && ((framesCounter / 20) % 2 == 0)
         {
             // Measure text until the cursor
             int textWidthCursor = -2;
-            if (cursor > 0)
+            if cursor > 0
             {
                 char c = textValue[cursor];
                 textValue[cursor] = '\0';
@@ -483,7 +483,7 @@ double GuiDMValueBox(Rectangle bounds, double value, double minValue, double max
             d.draw_rectangle(bounds.x + textWidthCursor + (int)((bounds.width - textWidth - textPadding) / 2.0) + 2, bounds.y + 2 * GuiGetStyle(VALUEBOX, BORDER_WIDTH), 1, bounds.height - 4 * GuiGetStyle(VALUEBOX, BORDER_WIDTH), Fade(GetColor(GuiGetStyle(VALUEBOX, BORDER_COLOR_PRESSED)), guiAlpha));
         }
     }
-    else if (state == GUI_STATE_DISABLED)
+    else if state == GUI_STATE_DISABLED
     {
         d.draw_rectangle(bounds.x + GuiGetStyle(VALUEBOX, BORDER_WIDTH), bounds.y + GuiGetStyle(VALUEBOX, BORDER_WIDTH), bounds.width - 2 * GuiGetStyle(VALUEBOX, BORDER_WIDTH), bounds.height - 2 * GuiGetStyle(VALUEBOX, BORDER_WIDTH), Fade(GetColor(GuiGetStyle(VALUEBOX, BASE_COLOR_DISABLED)), guiAlpha));
     }
@@ -493,11 +493,11 @@ double GuiDMValueBox(Rectangle bounds, double value, double minValue, double max
     value = valueHasChanged ? strtod(textValue, NULL) : value;
 
     // Make sure value is in range
-    if (maxValue != minValue)
+    if maxValue != minValue
     {
-        if (value < minValue)
+        if value < minValue
             value = minValue;
-        if (value > maxValue)
+        if value > maxValue
             value = maxValue;
     }
 
@@ -510,19 +510,19 @@ double GuiDMSpinner(Rectangle bounds, double value, double minValue, double maxV
 
     Rectangle spinner = {bounds.x + GuiGetStyle(SPINNER, SPIN_BUTTON_WIDTH) + GuiGetStyle(SPINNER, SPIN_BUTTON_PADDING), bounds.y,
                          bounds.width - 2 * (GuiGetStyle(SPINNER, SPIN_BUTTON_WIDTH) + GuiGetStyle(SPINNER, SPIN_BUTTON_PADDING)), bounds.height};
-    Rectangle leftButtonBound = {(float)bounds.x, (float)bounds.y, (float)GuiGetStyle(SPINNER, SPIN_BUTTON_WIDTH), (float)bounds.height};
-    Rectangle rightButtonBound = {(float)bounds.x + bounds.width - GuiGetStyle(SPINNER, SPIN_BUTTON_WIDTH), (float)bounds.y, (float)GuiGetStyle(SPINNER, SPIN_BUTTON_WIDTH), (float)bounds.height};
+    let leftButtonBound  = rrect((float)bounds.x, (float)bounds.y,  (float)GuiGetStyle(SPINNER,  SPIN_BUTTON_WIDTH),  (float)bounds.height);
+    let rightButtonBound  = rrect((float)bounds.x + bounds.width - GuiGetStyle(SPINNER, SPIN_BUTTON_WIDTH), (float)bounds.y,  (float)GuiGetStyle(SPINNER,  SPIN_BUTTON_WIDTH),  (float)bounds.height);
 
     // Update control
     //--------------------------------------------------------------------
-    if ((state != GUI_STATE_DISABLED) && !guiLocked)
+    if (state != GUI_STATE_DISABLED) && !guiLocked
     {
         Vector2 mousePoint = rl.get_mouse_position();
 
         // Check spinner state
-        if (CheckCollisionPointRec(mousePoint, bounds))
+        if CheckCollisionPointRec(mousePoint, bounds)
         {
-            if (IsMouseButtonDown(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON))
+            if rl.is_mouse_button_down(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON)
                 state = GUI_STATE_PRESSED;
             else
                 state = GUI_STATE_FOCUSED;
@@ -540,14 +540,14 @@ double GuiDMSpinner(Rectangle bounds, double value, double minValue, double maxV
     GuiSetStyle(BUTTON, TEXT_ALIGNMENT, GUI_TEXT_ALIGN_CENTER);
 
 #if defined(RAYGUI_SUPPORT_ICONS)
-    if (GuiButton(leftButtonBound, GuiIconText(RICON_ARROW_LEFT_FILL, NULL)))
+    if GuiButton(leftButtonBound, GuiIconText(RICON_ARROW_LEFT_FILL, NULL))
         value -= step;
-    if (GuiButton(rightButtonBound, GuiIconText(RICON_ARROW_RIGHT_FILL, NULL)))
+    if GuiButton(rightButtonBound, GuiIconText(RICON_ARROW_RIGHT_FILL, NULL))
         value += step;
 #else
-    if (GuiButton(leftButtonBound, "<"))
+    if GuiButton(leftButtonBound, "<")
         value -= step;
-    if (GuiButton(rightButtonBound, ">"))
+    if GuiButton(rightButtonBound, ">")
         value += step;
 #endif
 
@@ -588,11 +588,11 @@ void GuiDMPropertyList(Rectangle bounds, GuiDMProperty *props, int count, int *f
     {
         // Calculate height of this property (properties can occupy 1 or more slots)
         int height = GuiGetStyle(LISTVIEW, LIST_ITEMS_HEIGHT);
-        if (props[p].type < (sizeof(propSlots) / sizeof(propSlots[0])))
+        if props[p].type < (sizeof(propSlots) / sizeof(propSlots[0]))
         {
-            if (!PROP_CHECK_FLAG(&props[p], GUI_PFLAG_COLLAPSED))
+            if !PROP_CHECK_FLAG(&props[p], GUI_PFLAG_COLLAPSED)
                 height = propSlots[props[p].type] * GuiGetStyle(LISTVIEW, LIST_ITEMS_HEIGHT);
-            if (props[p].type == GUI_PROP_SECTION && (PROP_CHECK_FLAG(&props[p], GUI_PFLAG_COLLAPSED)))
+            if props[p].type == GUI_PROP_SECTION && (PROP_CHECK_FLAG(&props[p], GUI_PFLAG_COLLAPSED))
                 p += props[p].value.vsection; // skip slots for collapsed section
         }
         absoluteBounds.height += height + 1;
@@ -600,7 +600,7 @@ void GuiDMPropertyList(Rectangle bounds, GuiDMProperty *props, int count, int *f
 
     // Check if we need a scrollbar and adjust bounds when necesary
     bool useScrollBar = absoluteBounds.height > bounds.height - 2 * GuiGetStyle(DEFAULT, BORDER_WIDTH) ? true : false;
-    if (!useScrollBar && scroll != 0)
+    if !useScrollBar && scroll != 0
         scroll = 0; // make sure scroll is 0 when there's no scrollbar
 
     Rectangle scrollBarBounds = {bounds.x + GuiGetStyle(LISTVIEW, BORDER_WIDTH), bounds.y + GuiGetStyle(LISTVIEW, BORDER_WIDTH),
@@ -610,9 +610,9 @@ void GuiDMPropertyList(Rectangle bounds, GuiDMProperty *props, int count, int *f
     absoluteBounds.y = bounds.y + GuiGetStyle(LISTVIEW, LIST_ITEMS_PADDING) + GuiGetStyle(DEFAULT, BORDER_WIDTH) + scroll;
     absoluteBounds.width = bounds.width - 2 * (GuiGetStyle(LISTVIEW, LIST_ITEMS_PADDING) + GuiGetStyle(DEFAULT, BORDER_WIDTH));
 
-    if (useScrollBar)
+    if useScrollBar
     {
-        if (GuiGetStyle(LISTVIEW, SCROLLBAR_SIDE) == SCROLLBAR_LEFT_SIDE)
+        if GuiGetStyle(LISTVIEW, SCROLLBAR_SIDE) == SCROLLBAR_LEFT_SIDE
             absoluteBounds.x += GuiGetStyle(LISTVIEW, SCROLLBAR_WIDTH); // scrollbar is on the LEFT, adjust bounds
         else
             scrollBarBounds.x = bounds.x + bounds.width - GuiGetStyle(LISTVIEW, BORDER_WIDTH) - GuiGetStyle(LISTVIEW, SCROLLBAR_WIDTH); // scrollbar is on the RIGHT
@@ -625,18 +625,18 @@ void GuiDMPropertyList(Rectangle bounds, GuiDMProperty *props, int count, int *f
     //--------------------------------------------------------------------
     Vector2 mousePos = rl.get_mouse_position();
     // NOTE: most of the update code is actually done in the draw control section
-    if ((state != GUI_STATE_DISABLED) && !guiLocked)
+    if (state != GUI_STATE_DISABLED) && !guiLocked
     {
-        if (!CheckCollisionPointRec(mousePos, bounds))
+        if !CheckCollisionPointRec(mousePos, bounds)
         {
             propFocused = -1;
         }
 
-        if (useScrollBar)
+        if useScrollBar
         {
-            int wheelMove = GetMouseWheelMove();
+            int wheelMove = rl.get_mouse_wheel_move();
             scroll += wheelMove * count;
-            if (-scroll > maxScroll)
+            if -scroll > maxScroll
                 scroll = -maxScroll;
         }
     }
@@ -644,7 +644,7 @@ void GuiDMPropertyList(Rectangle bounds, GuiDMProperty *props, int count, int *f
 
     // Draw control
     //--------------------------------------------------------------------
-    d.draw_rectangleRec(bounds, Fade(GetColor(GuiGetStyle(DEFAULT, BACKGROUND_COLOR)), guiAlpha));                                            // Draw background
+    d.draw_rectangle_rec(bounds, Fade(GetColor(GuiGetStyle(DEFAULT, BACKGROUND_COLOR)), guiAlpha));                                            // Draw background
     d.draw_rectangle_linesEx(bounds, GuiGetStyle(DEFAULT, BORDER_WIDTH), Fade(GetColor(GuiGetStyle(LISTVIEW, BORDER + state * 3)), guiAlpha)); // Draw border
 
     BeginScissorMode(absoluteBounds.x, bounds.y + GuiGetStyle(DEFAULT, BORDER_WIDTH), absoluteBounds.width, bounds.height - 2 * GuiGetStyle(DEFAULT, BORDER_WIDTH));
@@ -652,40 +652,40 @@ void GuiDMPropertyList(Rectangle bounds, GuiDMProperty *props, int count, int *f
     for (int p = 0; p < count; ++p)
     {
         int height = GuiGetStyle(LISTVIEW, LIST_ITEMS_HEIGHT);
-        if (props[p].type < (sizeof(propSlots) / sizeof(propSlots[0])) && !PROP_CHECK_FLAG(&props[p], GUI_PFLAG_COLLAPSED))
+        if props[p].type < (sizeof(propSlots) / sizeof(propSlots[0])) && !PROP_CHECK_FLAG(&props[p], GUI_PFLAG_COLLAPSED)
             height = propSlots[props[p].type] * GuiGetStyle(LISTVIEW, LIST_ITEMS_HEIGHT); // get property height based on how many slots it occupies
 
         // Even with scissor mode on, draw only properties that we can see (comment out both BeginScissorMode() / EndScissorMode() to see this)
-        if (absoluteBounds.y + currentHeight + height >= bounds.y && absoluteBounds.y + currentHeight <= bounds.y + bounds.height)
+        if absoluteBounds.y + currentHeight + height >= bounds.y && absoluteBounds.y + currentHeight <= bounds.y + bounds.height
         {
-            Rectangle propBounds = {absoluteBounds.x, absoluteBounds.y + currentHeight, absoluteBounds.width, height};
-            Color textColor = Fade(GetColor(GuiGetStyle(LISTVIEW, TEXT_COLOR_NORMAL)), guiAlpha);
+            let propBounds  = rrect(absoluteBounds.x,  absoluteBounds.y + currentHeight,  absoluteBounds.width,  height);
+            let textColor = Fade(GetColor(GuiGetStyle(LISTVIEW, TEXT_COLOR_NORMAL)), guiAlpha);
             int propState = GUI_STATE_NORMAL;
 
             // Get the state of this property and do some initial drawing
-            if (PROP_CHECK_FLAG(&props[p], GUI_PFLAG_DISABLED))
+            if PROP_CHECK_FLAG(&props[p], GUI_PFLAG_DISABLED)
             {
                 propState = GUI_STATE_DISABLED;
                 propBounds.height += 1;
-                d.draw_rectangleRec(propBounds, Fade(GetColor(GuiGetStyle(LISTVIEW, BASE_COLOR_DISABLED)), guiAlpha));
+                d.draw_rectangle_rec(propBounds, Fade(GetColor(GuiGetStyle(LISTVIEW, BASE_COLOR_DISABLED)), guiAlpha));
                 propBounds.height -= 1;
                 textColor = Fade(GetColor(GuiGetStyle(LISTVIEW, TEXT_COLOR_DISABLED)), guiAlpha);
             }
             else
             {
-                if (CheckCollisionPointRec(mousePos, propBounds) && !guiLocked)
+                if CheckCollisionPointRec(mousePos, propBounds) && !guiLocked
                 {
-                    if (rl.is_mouse_button_pressed(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON))
+                    if rl.is_mouse_button_pressed(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON)
                     {
                         propState = GUI_STATE_PRESSED;
-                        //d.draw_rectangleRec(propRect, Fade(GetColor(GuiGetStyle(LISTVIEW, BASE_COLOR_PRESSED)), guiAlpha));
+                        //d.draw_rectangle_rec(propRect, Fade(GetColor(GuiGetStyle(LISTVIEW, BASE_COLOR_PRESSED)), guiAlpha));
                         textColor = Fade(GetColor(GuiGetStyle(LISTVIEW, TEXT_COLOR_PRESSED)), guiAlpha);
                     }
                     else
                     {
                         propState = GUI_STATE_FOCUSED;
                         propFocused = p;
-                        //d.draw_rectangleRec(propRect, Fade(GetColor(GuiGetStyle(LISTVIEW, BASE_COLOR_FOCUSED)), guiAlpha));
+                        //d.draw_rectangle_rec(propRect, Fade(GetColor(GuiGetStyle(LISTVIEW, BASE_COLOR_FOCUSED)), guiAlpha));
                         textColor = Fade(GetColor(GuiGetStyle(LISTVIEW, TEXT_COLOR_FOCUSED)), guiAlpha);
                     }
                 }
@@ -693,57 +693,57 @@ void GuiDMPropertyList(Rectangle bounds, GuiDMProperty *props, int count, int *f
                     propState = GUI_STATE_NORMAL;
             }
 
-            if (propState == GUI_STATE_DISABLED)
+            if propState == GUI_STATE_DISABLED
                 GuiSetState(propState);
             switch (props[p].type)
             {
             case GUI_PROP_BOOL:
             {
                 // draw property name
-                Guid.draw_text(props[p].name, (Rectangle){propBounds.x + PROPERTY_PADDING, propBounds.y, propBounds.width / 2 - PROPERTY_PADDING, GuiGetStyle(LISTVIEW, LIST_ITEMS_HEIGHT)}, GUI_TEXT_ALIGN_LEFT, textColor);
-                if (propState == GUI_STATE_PRESSED)
+                Guid.draw_text(props[p].name, rrect(propBounds.x + PROPERTY_PADDING, propBounds.y, propBounds.width / 2 - PROPERTY_PADDING, GuiGetStyle(LISTVIEW, LIST_ITEMS_HEIGHT)), GUI_TEXT_ALIGN_LEFT, textColor);
+                if propState == GUI_STATE_PRESSED
                     props[p].value.vbool = !props[p].value.vbool; // toggle the property value when clicked
 
                 // draw property value
                 const bool locked = guiLocked;
                 GuiLock(); // lock the checkbox since we changed the value manually
-                GuiCheckBox((Rectangle){propBounds.x + propBounds.width / 2, propBounds.y + height / 4, height / 2, height / 2}, props[p].value.vbool ? "Yes" : "No", props[p].value.vbool);
-                if (!locked)
+                GuiCheckBox(rrect(propBounds.x + propBounds.width / 2, propBounds.y + height / 4, height / 2, height / 2), props[p].value.vbool ? "Yes" : "No", props[p].value.vbool);
+                if !locked
                     GuiUnlock(); // only unlock when needed
             }
             break;
 
             case GUI_PROP_INT:
                 // draw property name
-                Guid.draw_text(props[p].name, (Rectangle){propBounds.x + PROPERTY_PADDING, propBounds.y, propBounds.width / 2 - PROPERTY_PADDING, GuiGetStyle(LISTVIEW, LIST_ITEMS_HEIGHT)}, GUI_TEXT_ALIGN_LEFT, textColor);
+                Guid.draw_text(props[p].name, rrect(propBounds.x + PROPERTY_PADDING, propBounds.y, propBounds.width / 2 - PROPERTY_PADDING, GuiGetStyle(LISTVIEW, LIST_ITEMS_HEIGHT)), GUI_TEXT_ALIGN_LEFT, textColor);
                 // draw property value
-                props[p].value.vint.val = GuiDMSpinner((Rectangle){propBounds.x + propBounds.width / 2, propBounds.y + 1, propBounds.width / 2, GuiGetStyle(LISTVIEW, LIST_ITEMS_HEIGHT) - 2},
+                props[p].value.vint.val = GuiDMSpinner(rrect(propBounds.x + propBounds.width / 2, propBounds.y + 1, propBounds.width / 2, GuiGetStyle(LISTVIEW, LIST_ITEMS_HEIGHT) - 2),
                                                        props[p].value.vint.val, props[p].value.vint.min, props[p].value.vint.max, props[p].value.vint.step, 0, (propState == GUI_STATE_FOCUSED));
                 break;
 
             case GUI_PROP_FLOAT:
                 // draw property name
-                Guid.draw_text(props[p].name, (Rectangle){propBounds.x + PROPERTY_PADDING, propBounds.y, propBounds.width / 2 - PROPERTY_PADDING, GuiGetStyle(LISTVIEW, LIST_ITEMS_HEIGHT)}, GUI_TEXT_ALIGN_LEFT, textColor);
+                Guid.draw_text(props[p].name, rrect(propBounds.x + PROPERTY_PADDING, propBounds.y, propBounds.width / 2 - PROPERTY_PADDING, GuiGetStyle(LISTVIEW, LIST_ITEMS_HEIGHT)), GUI_TEXT_ALIGN_LEFT, textColor);
                 // draw property value
-                props[p].value.vfloat.val = GuiDMSpinner((Rectangle){propBounds.x + propBounds.width / 2, propBounds.y + 1, propBounds.width / 2, GuiGetStyle(LISTVIEW, LIST_ITEMS_HEIGHT) - 2},
+                props[p].value.vfloat.val = GuiDMSpinner(rrect(propBounds.x + propBounds.width / 2, propBounds.y + 1, propBounds.width / 2, GuiGetStyle(LISTVIEW, LIST_ITEMS_HEIGHT) - 2),
                                                          props[p].value.vfloat.val, props[p].value.vfloat.min, props[p].value.vfloat.max, props[p].value.vfloat.step, props[p].value.vfloat.precision, (propState == GUI_STATE_FOCUSED));
                 break;
 
             case GUI_PROP_TEXT:
             {
-                Rectangle titleBounds = {propBounds.x, propBounds.y, propBounds.width, GuiGetStyle(LISTVIEW, LIST_ITEMS_HEIGHT)};
+                let titleBounds  = rrect(propBounds.x, propBounds.y,  propBounds.width,  GuiGetStyle(LISTVIEW,  LIST_ITEMS_HEIGHT));
                 // Collapse/Expand property on click
-                if ((propState == GUI_STATE_PRESSED) && CheckCollisionPointRec(mousePos, titleBounds))
+                if (propState == GUI_STATE_PRESSED) && CheckCollisionPointRec(mousePos, titleBounds)
                     PROP_TOGGLE_FLAG(&props[p], GUI_PFLAG_COLLAPSED);
 
                 // draw property name
                 Guid.draw_text(PROP_CHECK_FLAG(&props[p], GUI_PFLAG_COLLAPSED) ? PROPERTY_COLLAPSED_ICON : PROPERTY_EXPANDED_ICON, titleBounds, GUI_TEXT_ALIGN_LEFT, textColor);
-                Guid.draw_text(props[p].name, (Rectangle){propBounds.x + PROPERTY_ICON_SIZE + PROPERTY_PADDING, propBounds.y, propBounds.width - PROPERTY_ICON_SIZE - PROPERTY_PADDING, GuiGetStyle(LISTVIEW, LIST_ITEMS_HEIGHT)}, GUI_TEXT_ALIGN_LEFT, textColor);
-                Guid.draw_text(TextFormat("%i/%i", strlen(props[p].value.vtext.val), props[p].value.vtext.size), (Rectangle){propBounds.x + propBounds.width / 2, propBounds.y + 1, propBounds.width / 2, GuiGetStyle(LISTVIEW, LIST_ITEMS_HEIGHT) - 2}, GUI_TEXT_ALIGN_LEFT, textColor);
+                Guid.draw_text(props[p].name, rrect(propBounds.x + PROPERTY_ICON_SIZE + PROPERTY_PADDING, propBounds.y, propBounds.width - PROPERTY_ICON_SIZE - PROPERTY_PADDING, GuiGetStyle(LISTVIEW, LIST_ITEMS_HEIGHT)), GUI_TEXT_ALIGN_LEFT, textColor);
+                Guid.draw_text(&format!("{}/{}", strlen(props[p].value.vtext.val), props[p].value.vtext.size), rrect(propBounds.x + propBounds.width / 2, propBounds.y + 1, propBounds.width / 2, GuiGetStyle(LISTVIEW, LIST_ITEMS_HEIGHT) - 2), GUI_TEXT_ALIGN_LEFT, textColor);
 
                 // draw property value
-                if (!PROP_CHECK_FLAG(&props[p], GUI_PFLAG_COLLAPSED))
-                    GuiTextBox((Rectangle){propBounds.x, propBounds.y + GuiGetStyle(LISTVIEW, LIST_ITEMS_HEIGHT) + 1, propBounds.width, GuiGetStyle(LISTVIEW, LIST_ITEMS_HEIGHT) - 2}, props[p].value.vtext.val, props[p].value.vtext.size, (propState == GUI_STATE_FOCUSED));
+                if !PROP_CHECK_FLAG(&props[p], GUI_PFLAG_COLLAPSED)
+                    GuiTextBox(rrect(propBounds.x, propBounds.y + GuiGetStyle(LISTVIEW, LIST_ITEMS_HEIGHT) + 1, propBounds.width, GuiGetStyle(LISTVIEW, LIST_ITEMS_HEIGHT) - 2), props[p].value.vtext.val, props[p].value.vtext.size, (propState == GUI_STATE_FOCUSED));
             }
             break;
 
@@ -751,9 +751,9 @@ void GuiDMPropertyList(Rectangle bounds, GuiDMProperty *props, int count, int *f
             {
                 // TODO: Create a custom dropdownbox control instead of using the raygui combobox
                 // draw property name
-                Guid.draw_text(props[p].name, (Rectangle){propBounds.x + PROPERTY_PADDING, propBounds.y, propBounds.width / 2 - PROPERTY_PADDING, GuiGetStyle(LISTVIEW, LIST_ITEMS_HEIGHT)}, GUI_TEXT_ALIGN_LEFT, textColor);
+                Guid.draw_text(props[p].name, rrect(propBounds.x + PROPERTY_PADDING, propBounds.y, propBounds.width / 2 - PROPERTY_PADDING, GuiGetStyle(LISTVIEW, LIST_ITEMS_HEIGHT)), GUI_TEXT_ALIGN_LEFT, textColor);
                 // draw property value
-                props[p].value.vselect.active = GuiComboBox((Rectangle){propBounds.x + propBounds.width / 2, propBounds.y + 1, propBounds.width / 2, GuiGetStyle(LISTVIEW, LIST_ITEMS_HEIGHT) - 2},
+                props[p].value.vselect.active = GuiComboBox(rrect(propBounds.x + propBounds.width / 2, propBounds.y + 1, propBounds.width / 2, GuiGetStyle(LISTVIEW, LIST_ITEMS_HEIGHT) - 2),
                                                             props[p].value.vselect.val, props[p].value.vselect.active);
             }
             break;
@@ -762,30 +762,30 @@ void GuiDMPropertyList(Rectangle bounds, GuiDMProperty *props, int count, int *f
             case GUI_PROP_VECTOR3:
             case GUI_PROP_VECTOR4:
             {
-                Rectangle titleBounds = {propBounds.x, propBounds.y, propBounds.width, GuiGetStyle(LISTVIEW, LIST_ITEMS_HEIGHT)};
+                let titleBounds  = rrect(propBounds.x, propBounds.y,  propBounds.width,  GuiGetStyle(LISTVIEW,  LIST_ITEMS_HEIGHT));
                 // Collapse/Expand property on click
-                if ((propState == GUI_STATE_PRESSED) && CheckCollisionPointRec(mousePos, titleBounds))
+                if (propState == GUI_STATE_PRESSED) && CheckCollisionPointRec(mousePos, titleBounds)
                     PROP_TOGGLE_FLAG(&props[p], GUI_PFLAG_COLLAPSED);
 
                 const char *fmt = "";
-                if (props[p].type == GUI_PROP_VECTOR2)
-                    fmt = TextFormat("[%.0, %.0]", props[p].value.v2.x, props[p].value.v2.y);
-                else if (props[p].type == GUI_PROP_VECTOR3)
-                    fmt = TextFormat("[%.0, %.0, %.0]", props[p].value.v3.x, props[p].value.v3.y, props[p].value.v3.z);
+                if props[p].type == GUI_PROP_VECTOR2
+                    fmt = &format!("[%.0, %.0]", props[p].value.v2.x, props[p].value.v2.y);
+                else if props[p].type == GUI_PROP_VECTOR3
+                    fmt = &format!("[%.0, %.0, %.0]", props[p].value.v3.x, props[p].value.v3.y, props[p].value.v3.z);
                 else
-                    fmt = TextFormat("[%.0, %.0, %.0, %.0]", props[p].value.v4.x, props[p].value.v4.y, props[p].value.v4.z, props[p].value.v4.w);
+                    fmt = &format!("[%.0, %.0, %.0, %.0]", props[p].value.v4.x, props[p].value.v4.y, props[p].value.v4.z, props[p].value.v4.w);
 
                 // draw property name
                 Guid.draw_text(PROP_CHECK_FLAG(&props[p], GUI_PFLAG_COLLAPSED) ? PROPERTY_COLLAPSED_ICON : PROPERTY_EXPANDED_ICON, titleBounds, GUI_TEXT_ALIGN_LEFT, textColor);
-                Guid.draw_text(props[p].name, (Rectangle){propBounds.x + PROPERTY_ICON_SIZE + PROPERTY_PADDING, propBounds.y, propBounds.width - PROPERTY_ICON_SIZE - PROPERTY_PADDING, GuiGetStyle(LISTVIEW, LIST_ITEMS_HEIGHT)}, GUI_TEXT_ALIGN_LEFT, textColor);
-                Guid.draw_text(fmt, (Rectangle){propBounds.x + propBounds.width / 2, propBounds.y + 1, propBounds.width / 2, GuiGetStyle(LISTVIEW, LIST_ITEMS_HEIGHT) - 2}, GUI_TEXT_ALIGN_LEFT, textColor);
+                Guid.draw_text(props[p].name, rrect(propBounds.x + PROPERTY_ICON_SIZE + PROPERTY_PADDING, propBounds.y, propBounds.width - PROPERTY_ICON_SIZE - PROPERTY_PADDING, GuiGetStyle(LISTVIEW, LIST_ITEMS_HEIGHT)), GUI_TEXT_ALIGN_LEFT, textColor);
+                Guid.draw_text(fmt, rrect(propBounds.x + propBounds.width / 2, propBounds.y + 1, propBounds.width / 2, GuiGetStyle(LISTVIEW, LIST_ITEMS_HEIGHT) - 2), GUI_TEXT_ALIGN_LEFT, textColor);
 
                 // draw X, Y, Z, W values (only when expanded)
-                if (!PROP_CHECK_FLAG(&props[p], GUI_PFLAG_COLLAPSED))
+                if !PROP_CHECK_FLAG(&props[p], GUI_PFLAG_COLLAPSED)
                 {
-                    Rectangle slotBounds = {propBounds.x, propBounds.y + GuiGetStyle(LISTVIEW, LIST_ITEMS_HEIGHT) + 1, propBounds.width, GuiGetStyle(LISTVIEW, LIST_ITEMS_HEIGHT) - 2};
-                    Rectangle lblBounds = {propBounds.x + PROPERTY_PADDING, slotBounds.y, GetTextWidth("A"), slotBounds.height};
-                    Rectangle valBounds = {lblBounds.x + lblBounds.width + PROPERTY_PADDING, slotBounds.y, propBounds.width - lblBounds.width - 2 * PROPERTY_PADDING, slotBounds.height};
+                    let slotBounds  = rrect(propBounds.x, propBounds.y + GuiGetStyle(LISTVIEW, LIST_ITEMS_HEIGHT) + 1,  propBounds.width,  GuiGetStyle(LISTVIEW,  LIST_ITEMS_HEIGHT) - 2);
+                    let lblBounds  = rrect(propBounds.x + PROPERTY_PADDING,  slotBounds.y,  GetTextWidth("A"),  slotBounds.height);
+                    let valBounds  = rrect(lblBounds.x + lblBounds.width + PROPERTY_PADDING,  slotBounds.y,  propBounds.width - lblBounds.width - 2 * PROPERTY_PADDING,  slotBounds.height);
                     Guid.draw_text("X", lblBounds, GUI_TEXT_ALIGN_LEFT, textColor);
                     props[p].value.v2.x = GuiDMSpinner(valBounds, props[p].value.v2.x, 0.0, 0.0, 1.0, PROPERTY_DECIMAL_DIGITS, (propState == GUI_STATE_FOCUSED) && CheckCollisionPointRec(mousePos, slotBounds));
                     slotBounds.y += GuiGetStyle(LISTVIEW, LIST_ITEMS_HEIGHT);
@@ -794,7 +794,7 @@ void GuiDMPropertyList(Rectangle bounds, GuiDMProperty *props, int count, int *f
                     props[p].value.v2.y = GuiDMSpinner(valBounds, props[p].value.v2.y, 0.0, 0.0, 1.0, PROPERTY_DECIMAL_DIGITS, (propState == GUI_STATE_FOCUSED) && CheckCollisionPointRec(mousePos, slotBounds));
                     slotBounds.y += GuiGetStyle(LISTVIEW, LIST_ITEMS_HEIGHT);
                     lblBounds.y = valBounds.y = slotBounds.y;
-                    if (props[p].type >= GUI_PROP_VECTOR3)
+                    if props[p].type >= GUI_PROP_VECTOR3
                     {
                         Guid.draw_text("Z", lblBounds, GUI_TEXT_ALIGN_LEFT, textColor);
                         props[p].value.v3.z = GuiDMSpinner(valBounds, props[p].value.v3.z, 0.0, 0.0, 1.0, PROPERTY_DECIMAL_DIGITS, (propState == GUI_STATE_FOCUSED) && CheckCollisionPointRec(mousePos, slotBounds));
@@ -802,7 +802,7 @@ void GuiDMPropertyList(Rectangle bounds, GuiDMProperty *props, int count, int *f
                         lblBounds.y = valBounds.y = slotBounds.y;
                     }
 
-                    if (props[p].type >= GUI_PROP_VECTOR4)
+                    if props[p].type >= GUI_PROP_VECTOR4
                     {
                         Guid.draw_text("W", lblBounds, GUI_TEXT_ALIGN_LEFT, textColor);
                         props[p].value.v4.w = GuiDMSpinner(valBounds, props[p].value.v4.w, 0.0, 0.0, 1.0, PROPERTY_DECIMAL_DIGITS, (propState == GUI_STATE_FOCUSED) && CheckCollisionPointRec(mousePos, slotBounds));
@@ -813,23 +813,23 @@ void GuiDMPropertyList(Rectangle bounds, GuiDMProperty *props, int count, int *f
 
             case GUI_PROP_RECT:
             {
-                Rectangle titleBounds = {propBounds.x, propBounds.y, propBounds.width, GuiGetStyle(LISTVIEW, LIST_ITEMS_HEIGHT)};
+                let titleBounds  = rrect(propBounds.x, propBounds.y,  propBounds.width,  GuiGetStyle(LISTVIEW,  LIST_ITEMS_HEIGHT));
                 // Collapse/Expand property on click
-                if ((propState == GUI_STATE_PRESSED) && CheckCollisionPointRec(mousePos, titleBounds))
+                if (propState == GUI_STATE_PRESSED) && CheckCollisionPointRec(mousePos, titleBounds)
                     PROP_TOGGLE_FLAG(&props[p], GUI_PFLAG_COLLAPSED);
 
                 // draw property name
                 Guid.draw_text(PROP_CHECK_FLAG(&props[p], GUI_PFLAG_COLLAPSED) ? PROPERTY_COLLAPSED_ICON : PROPERTY_EXPANDED_ICON, titleBounds, GUI_TEXT_ALIGN_LEFT, textColor);
-                Guid.draw_text(props[p].name, (Rectangle){propBounds.x + PROPERTY_ICON_SIZE + PROPERTY_PADDING, propBounds.y, propBounds.width - PROPERTY_ICON_SIZE - PROPERTY_PADDING, GuiGetStyle(LISTVIEW, LIST_ITEMS_HEIGHT)}, GUI_TEXT_ALIGN_LEFT, textColor);
-                Guid.draw_text(TextFormat("[%.0, %.0, %.0, %.0]", props[p].value.vrect.x, props[p].value.vrect.y, props[p].value.vrect.width, props[p].value.vrect.height),
-                            (Rectangle){propBounds.x + propBounds.width / 2, propBounds.y + 1, propBounds.width / 2, GuiGetStyle(LISTVIEW, LIST_ITEMS_HEIGHT) - 2}, GUI_TEXT_ALIGN_LEFT, textColor);
+                Guid.draw_text(props[p].name, rrect(propBounds.x + PROPERTY_ICON_SIZE + PROPERTY_PADDING, propBounds.y, propBounds.width - PROPERTY_ICON_SIZE - PROPERTY_PADDING, GuiGetStyle(LISTVIEW, LIST_ITEMS_HEIGHT)), GUI_TEXT_ALIGN_LEFT, textColor);
+                Guid.draw_text(&format!("[%.0, %.0, %.0, %.0]", props[p].value.vrect.x, props[p].value.vrect.y, props[p].value.vrect.width, props[p].value.vrect.height),
+                            rrect(propBounds.x + propBounds.width / 2, propBounds.y + 1, propBounds.width / 2, GuiGetStyle(LISTVIEW, LIST_ITEMS_HEIGHT) - 2), GUI_TEXT_ALIGN_LEFT, textColor);
 
                 // draw X, Y, Width, Height values (only when expanded)
-                if (!PROP_CHECK_FLAG(&props[p], GUI_PFLAG_COLLAPSED))
+                if !PROP_CHECK_FLAG(&props[p], GUI_PFLAG_COLLAPSED)
                 {
-                    Rectangle slotBounds = {propBounds.x, propBounds.y + GuiGetStyle(LISTVIEW, LIST_ITEMS_HEIGHT) + 1, propBounds.width, GuiGetStyle(LISTVIEW, LIST_ITEMS_HEIGHT) - 2};
-                    Rectangle lblBounds = {propBounds.x + PROPERTY_PADDING, slotBounds.y, GetTextWidth("Height"), slotBounds.height};
-                    Rectangle valBounds = {lblBounds.x + lblBounds.width + PROPERTY_PADDING, slotBounds.y, propBounds.width - lblBounds.width - 2 * PROPERTY_PADDING, slotBounds.height};
+                    let slotBounds  = rrect(propBounds.x, propBounds.y + GuiGetStyle(LISTVIEW, LIST_ITEMS_HEIGHT) + 1,  propBounds.width,  GuiGetStyle(LISTVIEW,  LIST_ITEMS_HEIGHT) - 2);
+                    let lblBounds  = rrect(propBounds.x + PROPERTY_PADDING,  slotBounds.y,  GetTextWidth("Height"),  slotBounds.height);
+                    let valBounds  = rrect(lblBounds.x + lblBounds.width + PROPERTY_PADDING,  slotBounds.y,  propBounds.width - lblBounds.width - 2 * PROPERTY_PADDING,  slotBounds.height);
                     Guid.draw_text("X", lblBounds, GUI_TEXT_ALIGN_LEFT, textColor);
                     props[p].value.vrect.x = GuiDMSpinner(valBounds, props[p].value.vrect.x, 0.0, 0.0, 1.0, 0, (propState == GUI_STATE_FOCUSED) && CheckCollisionPointRec(mousePos, slotBounds));
                     slotBounds.y += GuiGetStyle(LISTVIEW, LIST_ITEMS_HEIGHT);
@@ -850,29 +850,29 @@ void GuiDMPropertyList(Rectangle bounds, GuiDMProperty *props, int count, int *f
 
             case GUI_PROP_COLOR:
             {
-                Rectangle titleBounds = {propBounds.x, propBounds.y, propBounds.width, GuiGetStyle(LISTVIEW, LIST_ITEMS_HEIGHT)};
+                let titleBounds  = rrect(propBounds.x, propBounds.y,  propBounds.width,  GuiGetStyle(LISTVIEW,  LIST_ITEMS_HEIGHT));
                 // Collapse/Expand property on click
-                if ((propState == GUI_STATE_PRESSED) && CheckCollisionPointRec(mousePos, titleBounds))
+                if (propState == GUI_STATE_PRESSED) && CheckCollisionPointRec(mousePos, titleBounds)
                     PROP_TOGGLE_FLAG(&props[p], GUI_PFLAG_COLLAPSED);
 
                 // draw property name
                 Guid.draw_text(PROP_CHECK_FLAG(&props[p], GUI_PFLAG_COLLAPSED) ? PROPERTY_COLLAPSED_ICON : PROPERTY_EXPANDED_ICON, titleBounds, GUI_TEXT_ALIGN_LEFT, textColor);
-                Guid.draw_text(props[p].name, (Rectangle){propBounds.x + PROPERTY_ICON_SIZE + PROPERTY_PADDING, propBounds.y + 1, propBounds.width - PROPERTY_ICON_SIZE - PROPERTY_PADDING, GuiGetStyle(LISTVIEW, LIST_ITEMS_HEIGHT) - 2}, GUI_TEXT_ALIGN_LEFT, textColor);
-                DrawLineEx((Vector2){propBounds.x + propBounds.width / 2, propBounds.y + GuiGetStyle(LISTVIEW, LIST_ITEMS_HEIGHT) - 5}, (Vector2){propBounds.x + propBounds.width, propBounds.y + GuiGetStyle(LISTVIEW, LIST_ITEMS_HEIGHT) - 5}, 6.0, props[p].value.vcolor);
-                const char *fmt = TextFormat("#%02X%02X%02X%02X", props[p].value.vcolor.r, props[p].value.vcolor.g, props[p].value.vcolor.b, props[p].value.vcolor.a);
+                Guid.draw_text(props[p].name, rrect(propBounds.x + PROPERTY_ICON_SIZE + PROPERTY_PADDING, propBounds.y + 1, propBounds.width - PROPERTY_ICON_SIZE - PROPERTY_PADDING, GuiGetStyle(LISTVIEW, LIST_ITEMS_HEIGHT) - 2), GUI_TEXT_ALIGN_LEFT, textColor);
+                DrawLineEx(rvec2(propBounds.x + propBounds.width / 2, propBounds.y + GuiGetStyle(LISTVIEW,  LIST_ITEMS_HEIGHT) - 5), rvec2(propBounds.x + propBounds.width, propBounds.y + GuiGetStyle(LISTVIEW,  LIST_ITEMS_HEIGHT) - 5), 6.0, props[p].value.vcolor);
+                const char *fmt = &format!("#%02X%02X%02X%02X", props[p].value.vcolor.r, props[p].value.vcolor.g, props[p].value.vcolor.b, props[p].value.vcolor.a);
                 char clip[10] = "\0";
-                memcpy(clip, fmt, 10 * sizeof(char)); // copy to temporary buffer since we can't be sure when TextFormat() will be called again and our text will be overwritten
-                Guid.draw_text(fmt, (Rectangle){propBounds.x + propBounds.width / 2, propBounds.y + 1, propBounds.width / 2, GuiGetStyle(LISTVIEW, LIST_ITEMS_HEIGHT) - 2}, GUI_TEXT_ALIGN_LEFT, textColor);
+                memcpy(clip, fmt, 10 * sizeof(char)); // copy to temporary buffer since we can't be sure when &format!() will be called again and our text will be overwritten
+                Guid.draw_text(fmt, rrect(propBounds.x + propBounds.width / 2, propBounds.y + 1, propBounds.width / 2, GuiGetStyle(LISTVIEW, LIST_ITEMS_HEIGHT) - 2), GUI_TEXT_ALIGN_LEFT, textColor);
 
                 // draw R, G, B, A values (only when expanded)
-                if (!PROP_CHECK_FLAG(&props[p], GUI_PFLAG_COLLAPSED))
+                if !PROP_CHECK_FLAG(&props[p], GUI_PFLAG_COLLAPSED)
                 {
-                    Rectangle slotBounds = {propBounds.x, propBounds.y + GuiGetStyle(LISTVIEW, LIST_ITEMS_HEIGHT) + 1, propBounds.width, GuiGetStyle(LISTVIEW, LIST_ITEMS_HEIGHT) - 2};
-                    Rectangle lblBounds = {propBounds.x + PROPERTY_PADDING, slotBounds.y, GetTextWidth("A"), slotBounds.height};
-                    Rectangle valBounds = {lblBounds.x + lblBounds.width + PROPERTY_PADDING, slotBounds.y, GetTextWidth("000000"), slotBounds.height};
-                    Rectangle sbarBounds = {valBounds.x + valBounds.width + PROPERTY_PADDING, slotBounds.y, slotBounds.width - 3 * PROPERTY_PADDING - lblBounds.width - valBounds.width, slotBounds.height};
+                    let slotBounds  = rrect(propBounds.x, propBounds.y + GuiGetStyle(LISTVIEW, LIST_ITEMS_HEIGHT) + 1,  propBounds.width,  GuiGetStyle(LISTVIEW,  LIST_ITEMS_HEIGHT) - 2);
+                    let lblBounds  = rrect(propBounds.x + PROPERTY_PADDING,  slotBounds.y,  GetTextWidth("A"),  slotBounds.height);
+                    let valBounds  = rrect(lblBounds.x + lblBounds.width + PROPERTY_PADDING,  slotBounds.y,  GetTextWidth("000000"),  slotBounds.height);
+                    let sbarBounds  = rrect(valBounds.x + valBounds.width + PROPERTY_PADDING,  slotBounds.y,  slotBounds.width - 3 * PROPERTY_PADDING - lblBounds.width - valBounds.width,  slotBounds.height);
 
-                    if (sbarBounds.width <= GuiGetStyle(LISTVIEW, LIST_ITEMS_HEIGHT) - 2)
+                    if sbarBounds.width <= GuiGetStyle(LISTVIEW, LIST_ITEMS_HEIGHT) - 2
                         valBounds.width = propBounds.width - lblBounds.width - 2 * PROPERTY_PADDING; // hide slider when no space
                     // save current scrollbar style
                     int tmpSliderPadding = GuiGetStyle(SCROLLBAR, SCROLL_SLIDER_PADDING);
@@ -880,7 +880,7 @@ void GuiDMPropertyList(Rectangle bounds, GuiDMProperty *props, int count, int *f
                     int tmpBorder = GuiGetStyle(SCROLLBAR, BORDER_WIDTH);
                     int tmpSliderSize = GuiGetStyle(SCROLLBAR, SCROLL_SLIDER_SIZE);
                     int tmpArrows = GuiGetStyle(SCROLLBAR, ARROWS_VISIBLE);
-                    Color tmpBG1 = GetColor(GuiGetStyle(DEFAULT, BORDER_COLOR_DISABLED));
+                    let tmpBG1 = GetColor(GuiGetStyle(DEFAULT, BORDER_COLOR_DISABLED));
                     // set a custom scrollbar style
                     GuiSetStyle(SCROLLBAR, SCROLL_SLIDER_PADDING, 3);
                     GuiSetStyle(SCROLLBAR, SCROLL_PADDING, 10);
@@ -891,28 +891,28 @@ void GuiDMPropertyList(Rectangle bounds, GuiDMProperty *props, int count, int *f
 
                     Guid.draw_text("R", lblBounds, GUI_TEXT_ALIGN_LEFT, textColor);
                     props[p].value.vcolor.r = GuiDMValueBox(valBounds, props[p].value.vcolor.r, 0.0, 255.0, 0, (propState == GUI_STATE_FOCUSED) && CheckCollisionPointRec(mousePos, slotBounds));
-                    if (sbarBounds.width > GuiGetStyle(LISTVIEW, LIST_ITEMS_HEIGHT) - 2)
+                    if sbarBounds.width > GuiGetStyle(LISTVIEW, LIST_ITEMS_HEIGHT) - 2
                         props[p].value.vcolor.r = GuiScrollBar(sbarBounds, props[p].value.vcolor.r, 0, 255);
                     slotBounds.y += GuiGetStyle(LISTVIEW, LIST_ITEMS_HEIGHT);
                     lblBounds.y = valBounds.y = sbarBounds.y = slotBounds.y;
 
                     Guid.draw_text("G", lblBounds, GUI_TEXT_ALIGN_LEFT, textColor);
                     props[p].value.vcolor.g = GuiDMValueBox(valBounds, props[p].value.vcolor.g, 0.0, 255.0, 0, (propState == GUI_STATE_FOCUSED) && CheckCollisionPointRec(mousePos, slotBounds));
-                    if (sbarBounds.width > GuiGetStyle(LISTVIEW, LIST_ITEMS_HEIGHT) - 2)
+                    if sbarBounds.width > GuiGetStyle(LISTVIEW, LIST_ITEMS_HEIGHT) - 2
                         props[p].value.vcolor.g = GuiScrollBar(sbarBounds, props[p].value.vcolor.g, 0, 255);
                     slotBounds.y += GuiGetStyle(LISTVIEW, LIST_ITEMS_HEIGHT);
                     lblBounds.y = valBounds.y = sbarBounds.y = slotBounds.y;
 
                     Guid.draw_text("B", lblBounds, GUI_TEXT_ALIGN_LEFT, textColor);
                     props[p].value.vcolor.b = GuiDMValueBox(valBounds, props[p].value.vcolor.b, 0.0, 255.0, 0, (propState == GUI_STATE_FOCUSED) && CheckCollisionPointRec(mousePos, slotBounds));
-                    if (sbarBounds.width > GuiGetStyle(LISTVIEW, LIST_ITEMS_HEIGHT) - 2)
+                    if sbarBounds.width > GuiGetStyle(LISTVIEW, LIST_ITEMS_HEIGHT) - 2
                         props[p].value.vcolor.b = GuiScrollBar(sbarBounds, props[p].value.vcolor.b, 0, 255);
                     slotBounds.y += GuiGetStyle(LISTVIEW, LIST_ITEMS_HEIGHT);
                     lblBounds.y = valBounds.y = sbarBounds.y = slotBounds.y;
 
                     Guid.draw_text("A", lblBounds, GUI_TEXT_ALIGN_LEFT, textColor);
                     props[p].value.vcolor.a = GuiDMValueBox(valBounds, props[p].value.vcolor.a, 0.0, 255.0, 0, (propState == GUI_STATE_FOCUSED) && CheckCollisionPointRec(mousePos, slotBounds));
-                    if (sbarBounds.width > GuiGetStyle(LISTVIEW, LIST_ITEMS_HEIGHT) - 2)
+                    if sbarBounds.width > GuiGetStyle(LISTVIEW, LIST_ITEMS_HEIGHT) - 2
                         props[p].value.vcolor.a = GuiScrollBar(sbarBounds, props[p].value.vcolor.a, 0, 255);
 
                     // load saved scrollbar style
@@ -925,11 +925,11 @@ void GuiDMPropertyList(Rectangle bounds, GuiDMProperty *props, int count, int *f
                 }
 
                 // support COPY/PASTE (need to do this here since GuiDMValueBox() also has COPY/PASTE so we need to overwrite it)
-                if ((propState == GUI_STATE_FOCUSED))
+                if (propState == GUI_STATE_FOCUSED)
                 {
-                    if (rl.is_key_down(raylib::consts::KeyboardKey::KEY_LEFT_CONTROL) && IsKeyPressed(raylib::consts::KeyboardKey::KEY_C))
+                    if rl.is_key_down(raylib::consts::KeyboardKey::KEY_LEFT_CONTROL) && rl.is_key_pressed(raylib::consts::KeyboardKey::KEY_C)
                         SetClipboardText(clip);
-                    else if (rl.is_key_down(raylib::consts::KeyboardKey::KEY_LEFT_CONTROL) && IsKeyPressed(raylib::consts::KeyboardKey::KEY_V))
+                    else if rl.is_key_down(raylib::consts::KeyboardKey::KEY_LEFT_CONTROL) && rl.is_key_pressed(raylib::consts::KeyboardKey::KEY_V)
                     {
                         unsigned int a = props[p].value.vcolor.a, r = props[p].value.vcolor.r, g = props[p].value.vcolor.g, b = props[p].value.vcolor.b;
                         sscanf(GetClipboardText(), "#%02X%02X%02X%02X", &r, &g, &b, &a);
@@ -944,20 +944,20 @@ void GuiDMPropertyList(Rectangle bounds, GuiDMProperty *props, int count, int *f
 
             case GUI_PROP_SECTION:
             {
-                Rectangle titleBounds = {propBounds.x, propBounds.y, propBounds.width, GuiGetStyle(LISTVIEW, LIST_ITEMS_HEIGHT)};
+                let titleBounds  = rrect(propBounds.x, propBounds.y,  propBounds.width,  GuiGetStyle(LISTVIEW,  LIST_ITEMS_HEIGHT));
                 // Collapse/Expand section on click
-                if ((propState == GUI_STATE_PRESSED) && CheckCollisionPointRec(mousePos, titleBounds))
+                if (propState == GUI_STATE_PRESSED) && CheckCollisionPointRec(mousePos, titleBounds)
                     PROP_TOGGLE_FLAG(&props[p], GUI_PFLAG_COLLAPSED);
 
-                if (!PROP_CHECK_FLAG(&props[p], GUI_PFLAG_COLLAPSED))
+                if !PROP_CHECK_FLAG(&props[p], GUI_PFLAG_COLLAPSED)
                 {
                     Guid.draw_text(PROPERTY_EXPANDED_ICON, titleBounds, GUI_TEXT_ALIGN_LEFT, textColor);
-                    Guid.draw_text(props[p].name, (Rectangle){propBounds.x + PROPERTY_ICON_SIZE + PROPERTY_PADDING, propBounds.y, propBounds.width - PROPERTY_ICON_SIZE - PROPERTY_PADDING, GuiGetStyle(LISTVIEW, LIST_ITEMS_HEIGHT)}, GUI_TEXT_ALIGN_CENTER, textColor);
+                    Guid.draw_text(props[p].name, rrect(propBounds.x + PROPERTY_ICON_SIZE + PROPERTY_PADDING, propBounds.y, propBounds.width - PROPERTY_ICON_SIZE - PROPERTY_PADDING, GuiGetStyle(LISTVIEW, LIST_ITEMS_HEIGHT)), GUI_TEXT_ALIGN_CENTER, textColor);
                 }
                 else
                 {
                     Guid.draw_text(PROPERTY_COLLAPSED_ICON, titleBounds, GUI_TEXT_ALIGN_LEFT, textColor);
-                    Guid.draw_text(TextFormat("%s [%i]", props[p].name, props[p].value.vsection), (Rectangle){propBounds.x + PROPERTY_ICON_SIZE + PROPERTY_PADDING, propBounds.y, propBounds.width - PROPERTY_ICON_SIZE - PROPERTY_PADDING, GuiGetStyle(LISTVIEW, LIST_ITEMS_HEIGHT)}, GUI_TEXT_ALIGN_CENTER, textColor);
+                    Guid.draw_text(&format!("%s [{}]", props[p].name, props[p].value.vsection), rrect(propBounds.x + PROPERTY_ICON_SIZE + PROPERTY_PADDING, propBounds.y, propBounds.width - PROPERTY_ICON_SIZE - PROPERTY_PADDING, GuiGetStyle(LISTVIEW, LIST_ITEMS_HEIGHT)), GUI_TEXT_ALIGN_CENTER, textColor);
                 }
             }
             break;
@@ -966,9 +966,9 @@ void GuiDMPropertyList(Rectangle bounds, GuiDMProperty *props, int count, int *f
             default:
             {
                 // draw property name
-                Guid.draw_text(props[p].name, (Rectangle){propBounds.x + PROPERTY_PADDING, propBounds.y, propBounds.width / 2 - PROPERTY_PADDING, GuiGetStyle(LISTVIEW, LIST_ITEMS_HEIGHT)}, GUI_TEXT_ALIGN_LEFT, textColor);
+                Guid.draw_text(props[p].name, rrect(propBounds.x + PROPERTY_PADDING, propBounds.y, propBounds.width / 2 - PROPERTY_PADDING, GuiGetStyle(LISTVIEW, LIST_ITEMS_HEIGHT)), GUI_TEXT_ALIGN_LEFT, textColor);
                 // draw property type
-                Guid.draw_text(TextFormat("TYPE %i", props[p].type), (Rectangle){propBounds.x + propBounds.width / 2, propBounds.y + 1, propBounds.width / 2, GuiGetStyle(LISTVIEW, LIST_ITEMS_HEIGHT) - 2}, GUI_TEXT_ALIGN_LEFT, textColor);
+                Guid.draw_text(&format!("TYPE {}", props[p].type), rrect(propBounds.x + propBounds.width / 2, propBounds.y + 1, propBounds.width / 2, GuiGetStyle(LISTVIEW, LIST_ITEMS_HEIGHT) - 2), GUI_TEXT_ALIGN_LEFT, textColor);
             }
             break;
 
@@ -980,31 +980,31 @@ void GuiDMPropertyList(Rectangle bounds, GuiDMProperty *props, int count, int *f
         currentHeight += height + 1;
 
         // Skip collapsed section. Don't put this code inside the switch !!
-        if (props[p].type == GUI_PROP_SECTION && (PROP_CHECK_FLAG(&props[p], GUI_PFLAG_COLLAPSED)))
+        if props[p].type == GUI_PROP_SECTION && (PROP_CHECK_FLAG(&props[p], GUI_PFLAG_COLLAPSED))
             p += props[p].value.vsection;
     } // end for
     EndScissorMode();
 
-    if (useScrollBar)
+    if useScrollBar
     {
         scroll = -GuiScrollBar(scrollBarBounds, -scroll, 0, maxScroll);
         *scrollIndex = scroll;
     }
     //--------------------------------------------------------------------
 
-    if (focus != NULL)
+    if focus != NULL
         *focus = propFocused;
 }
 
 bool GuiDMSaveProperties(const char *file, GuiDMProperty *props, int count)
 {
-    if (file == NULL || props == NULL)
+    if file == NULL || props == NULL
         return false;
-    if (count == 0)
+    if count == 0
         return true;
 
     FILE *f = fopen(file, "w");
-    if (f == NULL)
+    if f == NULL
         return false;
 
     // write header
@@ -1026,51 +1026,51 @@ bool GuiDMSaveProperties(const char *file, GuiDMProperty *props, int count)
         switch (props[p].type)
         {
         case GUI_PROP_BOOL:
-            fprintf(f, "b  %s %i %i\n", props[p].name, (int)props[p].flags, (int)props[p].value.vbool);
+            fprintf(f, "b  %s {} {}\n", props[p].name, (int)props[p].flags, (int)props[p].value.vbool);
             break;
 
         case GUI_PROP_INT:
-            fprintf(f, "i  %s %i %i %i %i %i\n", props[p].name, (int)props[p].flags, props[p].value.vint.val, props[p].value.vint.min,
+            fprintf(f, "i  %s {} {} {} {} {}\n", props[p].name, (int)props[p].flags, props[p].value.vint.val, props[p].value.vint.min,
                     props[p].value.vint.max, props[p].value.vint.step);
             break;
 
         case GUI_PROP_FLOAT:
-            fprintf(f, "f  %s %i %f %f %f %f %i\n", props[p].name, (int)props[p].flags, props[p].value.vfloat.val, props[p].value.vfloat.min,
+            fprintf(f, "f  %s {} %f %f %f %f {}\n", props[p].name, (int)props[p].flags, props[p].value.vfloat.val, props[p].value.vfloat.min,
                     props[p].value.vfloat.max, props[p].value.vfloat.step, props[p].value.vfloat.precision);
             break;
 
         case GUI_PROP_TEXT:
-            fprintf(f, "t  %s %i %s %i\n", props[p].name, (int)props[p].flags, props[p].value.vtext.val, props[p].value.vtext.size);
+            fprintf(f, "t  %s {} %s {}\n", props[p].name, (int)props[p].flags, props[p].value.vtext.val, props[p].value.vtext.size);
             break;
 
         case GUI_PROP_SELECT:
-            fprintf(f, "l  %s %i %s %i\n", props[p].name, (int)props[p].flags, props[p].value.vselect.val, props[p].value.vselect.active);
+            fprintf(f, "l  %s {} %s {}\n", props[p].name, (int)props[p].flags, props[p].value.vselect.val, props[p].value.vselect.active);
             break;
 
         case GUI_PROP_SECTION:
-            fprintf(f, "g  %s %i %i\n", props[p].name, (int)props[p].flags, props[p].value.vsection);
+            fprintf(f, "g  %s {} {}\n", props[p].name, (int)props[p].flags, props[p].value.vsection);
             break;
 
         case GUI_PROP_VECTOR2:
-            fprintf(f, "v2 %s %i %f %f\n", props[p].name, (int)props[p].flags, props[p].value.v2.x, props[p].value.v2.y);
+            fprintf(f, "v2 %s {} %f %f\n", props[p].name, (int)props[p].flags, props[p].value.v2.x, props[p].value.v2.y);
             break;
 
         case GUI_PROP_VECTOR3:
-            fprintf(f, "v3 %s %i %f %f %f\n", props[p].name, (int)props[p].flags, props[p].value.v3.x, props[p].value.v3.y, props[p].value.v3.z);
+            fprintf(f, "v3 %s {} %f %f %f\n", props[p].name, (int)props[p].flags, props[p].value.v3.x, props[p].value.v3.y, props[p].value.v3.z);
             break;
 
         case GUI_PROP_VECTOR4:
-            fprintf(f, "v4 %s %i %f %f %f %f\n", props[p].name, (int)props[p].flags, props[p].value.v4.x, props[p].value.v4.y,
+            fprintf(f, "v4 %s {} %f %f %f %f\n", props[p].name, (int)props[p].flags, props[p].value.v4.x, props[p].value.v4.y,
                     props[p].value.v4.z, props[p].value.v4.w);
             break;
 
         case GUI_PROP_RECT:
-            fprintf(f, "r  %s %i %i %i %i %i\n", props[p].name, (int)props[p].flags, (int)props[p].value.vrect.x, (int)props[p].value.vrect.y,
+            fprintf(f, "r  %s {} {} {} {} {}\n", props[p].name, (int)props[p].flags, (int)props[p].value.vrect.x, (int)props[p].value.vrect.y,
                     (int)props[p].value.vrect.width, (int)props[p].value.vrect.height);
             break;
 
         case GUI_PROP_COLOR:
-            fprintf(f, "c  %s %i %i %i %i %i\n", props[p].name, (int)props[p].flags, props[p].value.vcolor.r, props[p].value.vcolor.g,
+            fprintf(f, "c  %s {} {} {} {} {}\n", props[p].name, (int)props[p].flags, props[p].value.vcolor.r, props[p].value.vcolor.g,
                     props[p].value.vcolor.b, props[p].value.vcolor.a);
             break;
         }

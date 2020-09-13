@@ -27,7 +27,7 @@ const NUM_TEXTURES 7 // Currently we have 7 generation algorithms
 
     Image verticalGradient = GenImageGradientV(screen_width, screen_height,Color::RED, Color::BLUE);
     Image horizontalGradient = GenImageGradientH(screen_width, screen_height,Color::RED, Color::BLUE);
-    Image radialGradient = GenImageGradientRadial(screen_width, screen_height, 0.0, WHITE, Color::BLACK);
+    Image radialGradient = GenImageGradientRadial(screen_width, screen_height, 0.0, Color::WHITE, Color::BLACK);
     Image checked = GenImageChecked(screen_width, screen_height, 32, 32,Color::RED, Color::BLUE);
     Image whiteNoise = GenImageWhiteNoise(screen_width, screen_height, 0.5);
     Image perlinNoise = GenImagePerlinNoise(screen_width, screen_height, 50, 50, 4.0);
@@ -62,7 +62,7 @@ const NUM_TEXTURES 7 // Currently we have 7 generation algorithms
     {
         // Update
         //----------------------------------------------------------------------------------
-        if (rl.is_mouse_button_pressed(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON) || IsKeyPressed(raylib::consts::KeyboardKey::KEY_RIGHT))
+        if rl.is_mouse_button_pressed(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON) || rl.is_key_pressed(raylib::consts::KeyboardKey::KEY_RIGHT)
         {
             currentTexture = (currentTexture + 1) % NUM_TEXTURES; // Cycle between the textures
         }
@@ -74,34 +74,34 @@ const NUM_TEXTURES 7 // Currently we have 7 generation algorithms
 
         d.clear_background(Color::RAYWHITE);
 
-        DrawTexture(textures[currentTexture], 0, 0, WHITE);
+        d.draw_texture(textures[currentTexture], 0, 0, Color::WHITE);
 
         d.draw_rectangle(30, 400, 325, 30, Color::SKYBLUE.fade(0.5));
-        d.draw_rectangle_lines(30, 400, 325, 30, WHITE.fade(0.5));
-        d.draw_text("MOUSE LEFT BUTTON to CYCLE PROCEDURAL TEXTURES", 40, 410, 10, WHITE);
+        d.draw_rectangle_lines(30, 400, 325, 30, Color::WHITE.fade(0.5));
+        d.draw_text("MOUSE LEFT BUTTON to CYCLE PROCEDURAL TEXTURES", 40, 410, 10, Color::WHITE);
 
         switch (currentTexture)
         {
         case 0:
-            d.draw_text("VERTICAL GRADIENT", 560, 10, 20, RAYWHITE);
+            d.draw_text("VERTICAL GRADIENT", 560, 10, 20, Color::RAYWHITE);
             break;
         case 1:
-            d.draw_text("HORIZONTAL GRADIENT", 540, 10, 20, RAYWHITE);
+            d.draw_text("HORIZONTAL GRADIENT", 540, 10, 20, Color::RAYWHITE);
             break;
         case 2:
             d.draw_text("RADIAL GRADIENT", 580, 10, 20, Color::LIGHTGRAY);
             break;
         case 3:
-            d.draw_text("CHECKED", 680, 10, 20, RAYWHITE);
+            d.draw_text("CHECKED", 680, 10, 20, Color::RAYWHITE);
             break;
         case 4:
             d.draw_text("WHITE NOISE", 640, 10, 20,Color::RED);
             break;
         case 5:
-            d.draw_text("PERLIN NOISE", 630, 10, 20, RAYWHITE);
+            d.draw_text("PERLIN NOISE", 630, 10, 20, Color::RAYWHITE);
             break;
         case 6:
-            d.draw_text("CELLULAR", 670, 10, 20, RAYWHITE);
+            d.draw_text("CELLULAR", 670, 10, 20, Color::RAYWHITE);
             break;
         default:
             break;

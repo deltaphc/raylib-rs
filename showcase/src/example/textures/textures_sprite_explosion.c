@@ -31,7 +31,7 @@ const NUM_FRAMES 8 const NUM_LINES 6
     Sound fxBoom = LoadSound("resources/boom.wav");
 
     // Load explosion texture
-    Texture2D explosion = LoadTexture("resources/explosion.png");
+    let explosion = rl.load_texture(thread, "resources/explosion.png");
 
     // Init variables for animation
     int frameWidth = explosion.width / NUM_FRAMES;  // Sprite one frame rectangle width
@@ -39,8 +39,8 @@ const NUM_FRAMES 8 const NUM_LINES 6
     int currentFrame = 0;
     int currentLine = 0;
 
-    Rectangle frameRec = {0, 0, frameWidth, frameHeight};
-    Vector2 position = {0.0, 0.0};
+    let frameRec  = rrect(0,  0,  frameWidth,  frameHeight);
+    let position = rvec2(0.0, 0.0);
 
     bool active = false;
     int framesCounter = 0;
@@ -55,7 +55,7 @@ const NUM_FRAMES 8 const NUM_LINES 6
         //----------------------------------------------------------------------------------
 
         // Check for mouse button pressed and activate explosion (if not active)
-        if (rl.is_mouse_button_pressed(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON) && !active)
+        if rl.is_mouse_button_pressed(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON) && !active
         {
             position = rl.get_mouse_position();
             active = true;
@@ -67,20 +67,20 @@ const NUM_FRAMES 8 const NUM_LINES 6
         }
 
         // Compute explosion animation frames
-        if (active)
+        if active
         {
             framesCounter++;
 
-            if (framesCounter > 2)
+            if framesCounter > 2
             {
                 currentFrame++;
 
-                if (currentFrame >= NUM_FRAMES)
+                if currentFrame >= NUM_FRAMES
                 {
                     currentFrame = 0;
                     currentLine++;
 
-                    if (currentLine >= NUM_LINES)
+                    if currentLine >= NUM_LINES
                     {
                         currentLine = 0;
                         active = false;
@@ -102,8 +102,8 @@ const NUM_FRAMES 8 const NUM_LINES 6
         d.clear_background(Color::RAYWHITE);
 
         // Draw explosion required frame rectangle
-        if (active)
-            DrawTextureRec(explosion, frameRec, position, WHITE);
+        if active
+            DrawTextureRec(explosion, frameRec, position, Color::WHITE);
 
         EndDrawing();
         //----------------------------------------------------------------------------------

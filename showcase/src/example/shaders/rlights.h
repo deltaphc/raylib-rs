@@ -122,7 +122,7 @@ Light CreateLight(int type, Vector3 position, Vector3 target, Color color, Shade
 {
     Light light = {0};
 
-    if (lightsCount < MAX_LIGHTS)
+    if lightsCount < MAX_LIGHTS
     {
         light.enabled = true;
         light.type = type;

@@ -30,20 +30,20 @@ pub fn run(rl
     // NOTE: Textures MUST be loaded after Window initialization (OpenGL context is required)
 
     Image cat = LoadImage("resources/cat.png");      // Load image in CPU memory (RAM)
-    ImageCrop(&cat, (Rectangle){100, 10, 280, 380}); // Crop an image piece
+    ImageCrop(&cat, rrect(100, 10, 280, 380)); // Crop an image piece
     ImageFlipHorizontal(&cat);                       // Flip cropped image horizontally
     ImageResize(&cat, 150, 200);                     // Resize flipped-cropped image
 
     Image parrots = LoadImage("resources/parrots.png"); // Load image in CPU memory (RAM)
 
     // Draw one image over the other with a scaling of 1.5
-    ImageDraw(&parrots, cat, (Rectangle){0, 0, cat.width, cat.height}, (Rectangle){30, 40, cat.width * 1.5, cat.height * 1.5}, WHITE);
-    ImageCrop(&parrots, (Rectangle){0, 50, parrots.width, parrots.height - 100}); // Crop resulting image
+    ImageDraw(&parrots, cat, rrect(0, 0, cat.width, cat.height), rrect(30, 40, cat.width * 1.5, cat.height * 1.5), Color::WHITE);
+    ImageCrop(&parrots, rrect(0, 50, parrots.width, parrots.height - 100)); // Crop resulting image
 
     // Draw on the image with a few image draw methods
-    ImageDrawPixel(&parrots, 10, 10, RAYWHITE);
-    ImageDrawCircle(&parrots, 10, 10, 5, RAYWHITE);
-    Imaged.draw_rectangle(&parrots, 5, 20, 10, 10, RAYWHITE);
+    ImageDrawPixel(&parrots, 10, 10, Color::RAYWHITE);
+    Imaged.draw_circle(&parrots, 10, 10, 5, Color::RAYWHITE);
+    Imaged.draw_rectangle(&parrots, 5, 20, 10, 10, Color::RAYWHITE);
 
     UnloadImage(cat); // Unload image from RAM
 
@@ -51,7 +51,7 @@ pub fn run(rl
     Font font = LoadFont("resources/custom_jupiter_crash.png");
 
     // Draw over image using custom font
-    ImageDrawTextEx(&parrots, rvec2(300, 230), font, "PARROTS & CAT", font.baseSize, -2, WHITE);
+    ImageDrawTextEx(&parrots, rvec2(300, 230), font, "PARROTS & CAT", font.baseSize, -2, Color::WHITE);
 
     UnloadFont(font); // Unload custom spritefont (already drawn used on image)
 
@@ -75,7 +75,7 @@ pub fn run(rl
 
         d.clear_background(Color::RAYWHITE);
 
-        DrawTexture(texture, screen_width / 2 - texture.width / 2, screen_height / 2 - texture.height / 2 - 40, WHITE);
+        d.draw_texture(texture, screen_width / 2 - texture.width / 2, screen_height / 2 - texture.height / 2 - 40, Color::WHITE);
         d.draw_rectangle_lines(screen_width / 2 - texture.width / 2, screen_height / 2 - texture.height / 2 - 40, texture.width, texture.height, Color::DARKGRAY);
 
         d.draw_text("We are drawing only one texture from various images composed!", 240, 350, 10, Color::DARKGRAY);

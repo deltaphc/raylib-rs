@@ -41,10 +41,10 @@ pub fn run(rl
 
 
     // Load texture texture to apply shaders
-    Texture2D texture = LoadTexture("resources/space.png");
+    let texture = rl.load_texture(thread, "resources/space.png");
 
     // Load shader and setup location points and values
-    Shader shader = LoadShader(0, FormatText("resources/shaders/glsl%i/wave.fs", GLSL_VERSION));
+    Shader shader = LoadShader(0, &format!("resources/shaders/glsl{}/wave.fs", GLSL_VERSION));
 
     int secondsLoc = GetShaderLocation(shader, "secondes");
     int freqXLoc = GetShaderLocation(shader, "freqX");
@@ -62,7 +62,7 @@ pub fn run(rl
     float speedX = 8.0;
     float speedY = 8.0;
 
-    float screenSize[2] = {(float)Getscreen_width(), (float)Getscreen_height()};
+    float screenSize[2] = {(float)rl.get_screen_width(), (float)rl.get_screen_height()};
     SetShaderValue(shader, GetShaderLocation(shader, "size"), &screenSize, UNIFORM_VEC2);
     SetShaderValue(shader, freqXLoc, &freqX, UNIFORM_FLOAT);
     SetShaderValue(shader, freqYLoc, &freqY, UNIFORM_FLOAT);
@@ -94,8 +94,8 @@ pub fn run(rl
 
         BeginShaderMode(shader);
 
-        DrawTexture(texture, 0, 0, WHITE);
-        DrawTexture(texture, texture.width, 0, WHITE);
+        d.draw_texture(texture, 0, 0, Color::WHITE);
+        d.draw_texture(texture, texture.width, 0, Color::WHITE);
 
         EndShaderMode();
 

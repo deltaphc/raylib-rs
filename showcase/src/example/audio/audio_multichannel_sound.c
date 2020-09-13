@@ -42,9 +42,9 @@ pub fn run(rl
     {
         // Update
         //----------------------------------------------------------------------------------
-        if (IsKeyPressed(raylib::consts::KeyboardKey::KEY_ENTER))
+        if rl.is_key_pressed(raylib::consts::KeyboardKey::KEY_ENTER)
             PlaySoundMulti(fxWav); // Play a new wav sound instance
-        if (IsKeyPressed(raylib::consts::KeyboardKey::KEY_SPACE))
+        if rl.is_key_pressed(raylib::consts::KeyboardKey::KEY_SPACE)
             PlaySoundMulti(fxOgg); // Play a new ogg sound instance
         //----------------------------------------------------------------------------------
 
@@ -58,7 +58,7 @@ pub fn run(rl
         d.draw_text("Press SPACE to play new ogg instance!", 200, 120, 20, Color::LIGHTGRAY);
         d.draw_text("Press ENTER to play new wav instance!", 200, 180, 20, Color::LIGHTGRAY);
 
-        d.draw_text(FormatText("CONCURRENT SOUNDS PLAYING: %02i", GetSoundsPlaying()), 220, 280, 20,Color::RED);
+        d.draw_text(&format!("CONCURRENT SOUNDS PLAYING: {:02}", GetSoundsPlaying()), 220, 280, 20,Color::RED);
 
         EndDrawing();
         //----------------------------------------------------------------------------------

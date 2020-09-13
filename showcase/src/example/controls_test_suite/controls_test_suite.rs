@@ -357,7 +357,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
                 textInputFileName[..textInput.len()].clone_from_slice(&textInput);
             }
 
-            if (result == 0) || (result == 1) || (result == 2) {
+            if( result == 0) || (result == 1) || (result == 2) {
                 showTextInputBox = false;
                 textInput[0] = b'\0';
             }

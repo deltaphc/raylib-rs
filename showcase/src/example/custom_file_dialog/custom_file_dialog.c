@@ -60,12 +60,12 @@ const RAYGUI_IMPLEMENTATION const RAYGUI_SUPPORT_ICONS
         //----------------------------------------------------------------------------------
         exitWindow = WindowShouldClose();
 
-        if (fileDialogState.SelectFilePressed)
+        if fileDialogState.SelectFilePressed
         {
             // Load image file (if supported extension)
-            if (IsFileExtension(fileDialogState.fileNameText, ".png"))
+            if IsFileExtension(fileDialogState.fileNameText, ".png")
             {
-                strcpy(fileNameToLoad, TextFormat("%s/%s", fileDialogState.dirPathText, fileDialogState.fileNameText));
+                strcpy(fileNameToLoad, &format!("%s/%s", fileDialogState.dirPathText, fileDialogState.fileNameText));
                 UnloadTexture(texture);
                 texture = LoadTexture(fileNameToLoad);
             }
@@ -80,17 +80,17 @@ const RAYGUI_IMPLEMENTATION const RAYGUI_SUPPORT_ICONS
 
         ClearBackground(GetColor(GuiGetStyle(DEFAULT, BACKGROUND_COLOR)));
 
-        DrawTexture(texture, Getscreen_width() / 2 - texture.width / 2, Getscreen_height() / 2 - texture.height / 2 - 5, WHITE);
-        d.draw_rectangle_lines(Getscreen_width() / 2 - texture.width / 2, Getscreen_height() / 2 - texture.height / 2 - 5, texture.width, texture.height, Color::BLACK);
+        d.draw_texture(texture, rl.get_screen_width() / 2 - texture.width / 2, rl.get_screen_height() / 2 - texture.height / 2 - 5, Color::WHITE);
+        d.draw_rectangle_lines(rl.get_screen_width() / 2 - texture.width / 2, rl.get_screen_height() / 2 - texture.height / 2 - 5, texture.width, texture.height, Color::BLACK);
 
-        d.draw_text(fileNameToLoad, 208, Getscreen_height() - 20, 10, Color::GRAY);
+        d.draw_text(fileNameToLoad, 208, rl.get_screen_height() - 20, 10, Color::GRAY);
 
         // raygui: controls drawing
         //----------------------------------------------------------------------------------
-        if (fileDialogState.fileDialogActive)
+        if fileDialogState.fileDialogActive
             GuiLock();
 
-        if (GuiButton((Rectangle){20, 20, 140, 30}, GuiIconText(RICON_FILE_OPEN, "Open Image")))
+        if GuiButton(rrect(20, 20, 140, 30), GuiIconText(RICON_FILE_OPEN, "Open Image"))
             fileDialogState.fileDialogActive = true;
 
         GuiUnlock();

@@ -27,7 +27,7 @@ const MOUSE_SCALE_MARK_SIZE 12
     rl.set_window_title(thread, "raylib [shapes] example - rectangle scaling mouse");
 
 
-    Rectangle rec = {100, 100, 200, 80};
+    let rec  = rrect(100,  100,  200,  80);
 
     Vector2 mousePosition = {0};
 
@@ -44,29 +44,29 @@ const MOUSE_SCALE_MARK_SIZE 12
         //----------------------------------------------------------------------------------
         mousePosition = rl.get_mouse_position();
 
-        if (CheckCollisionPointRec(mousePosition, rec) &&
-            CheckCollisionPointRec(mousePosition, (Rectangle){rec.x + rec.width - MOUSE_SCALE_MARK_SIZE, rec.y + rec.height - MOUSE_SCALE_MARK_SIZE, MOUSE_SCALE_MARK_SIZE, MOUSE_SCALE_MARK_SIZE}))
+        if CheckCollisionPointRec(mousePosition, rec &&
+            CheckCollisionPointRec(mousePosition, rrect(rec.x + rec.width - MOUSE_SCALE_MARK_SIZE, rec.y + rec.height - MOUSE_SCALE_MARK_SIZE, MOUSE_SCALE_MARK_SIZE, MOUSE_SCALE_MARK_SIZE)))
         {
             mouseScaleReady = true;
-            if (rl.is_mouse_button_pressed(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON))
+            if rl.is_mouse_button_pressed(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON)
                 mouseScaleMode = true;
         }
         else
             mouseScaleReady = false;
 
-        if (mouseScaleMode)
+        if mouseScaleMode
         {
             mouseScaleReady = true;
 
             rec.width = (mousePosition.x - rec.x);
             rec.height = (mousePosition.y - rec.y);
 
-            if (rec.width < MOUSE_SCALE_MARK_SIZE)
+            if rec.width < MOUSE_SCALE_MARK_SIZE
                 rec.width = MOUSE_SCALE_MARK_SIZE;
-            if (rec.height < MOUSE_SCALE_MARK_SIZE)
+            if rec.height < MOUSE_SCALE_MARK_SIZE
                 rec.height = MOUSE_SCALE_MARK_SIZE;
 
-            if (IsMouseButtonReleased(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON))
+            if IsMouseButtonReleased(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON)
                 mouseScaleMode = false;
         }
         //----------------------------------------------------------------------------------
@@ -79,14 +79,14 @@ const MOUSE_SCALE_MARK_SIZE 12
 
         d.draw_text("Scale rectangle dragging from bottom-right corner!", 10, 10, 20, Color::GRAY);
 
-        d.draw_rectangleRec(rec, Color::GREEN.fade(0.5));
+        d.draw_rectangle_rec(rec, Color::GREEN.fade(0.5));
 
-        if (mouseScaleReady)
+        if mouseScaleReady
         {
             d.draw_rectangle_linesEx(rec, 1,Color::RED);
-            DrawTriangle((Vector2){rec.x + rec.width - MOUSE_SCALE_MARK_SIZE, rec.y + rec.height},
-                         (Vector2){rec.x + rec.width, rec.y + rec.height},
-                         (Vector2){rec.x + rec.width, rec.y + rec.height - MOUSE_SCALE_MARK_SIZE},Color::RED);
+            d.draw_triangle(rvec2(rec.x + rec.width - MOUSE_SCALE_MARK_SIZE,  rec.y + rec.height),
+                         rvec2(rec.x + rec.width,  rec.y + rec.height),
+                         rvec2(rec.x + rec.width,  rec.y + rec.height - MOUSE_SCALE_MARK_SIZE),Color::RED);
         }
 
         EndDrawing();

@@ -41,7 +41,7 @@ pub fn run(rl
 
 
     // Load bunny texture
-    Texture2D texBunny = LoadTexture("resources/wabbit_alpha.png");
+    let texBunny = rl.load_texture(thread, "resources/wabbit_alpha.png");
 
     Bunny *bunnies = (Bunny *)malloc(MAX_BUNNIES * sizeof(Bunny)); // Bunnies array
 
@@ -55,12 +55,12 @@ pub fn run(rl
     {
         // Update
         //----------------------------------------------------------------------------------
-        if (IsMouseButtonDown(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON))
+        if rl.is_mouse_button_down(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON)
         {
             // Create more bunnies
             for (int i = 0; i < 100; i++)
             {
-                if (bunniesCount < MAX_BUNNIES)
+                if bunniesCount < MAX_BUNNIES
                 {
                     bunnies[bunniesCount].position = rl.get_mouse_position();
                     bunnies[bunniesCount].speed.x = (float)raylib::get_random_value(-250, 250) / 60.0;
@@ -79,10 +79,10 @@ pub fn run(rl
             bunnies[i].position.x += bunnies[i].speed.x;
             bunnies[i].position.y += bunnies[i].speed.y;
 
-            if (((bunnies[i].position.x + texBunny.width / 2) > Getscreen_width()) ||
+            if ((bunnies[i].position.x + texBunny.width / 2) > rl.get_screen_width() ||
                 ((bunnies[i].position.x + texBunny.width / 2) < 0))
                 bunnies[i].speed.x *= -1;
-            if (((bunnies[i].position.y + texBunny.height / 2) > Getscreen_height()) ||
+            if ((bunnies[i].position.y + texBunny.height / 2) > rl.get_screen_height() ||
                 ((bunnies[i].position.y + texBunny.height / 2 - 40) < 0))
                 bunnies[i].speed.y *= -1;
         }
@@ -102,12 +102,12 @@ pub fn run(rl
             // Process of sending data is costly and it could happen that GPU data has not been completely
             // processed for drawing while new data is tried to be sent (updating current in-use buffers)
             // it could generates a stall and consequently a frame drop, limiting the number of drawn bunnies
-            DrawTexture(texBunny, bunnies[i].position.x, bunnies[i].position.y, bunnies[i].color);
+            d.draw_texture(texBunny, bunnies[i].position.x, bunnies[i].position.y, bunnies[i].color);
         }
 
         d.draw_rectangle(0, 0, screen_width, 40, Color::BLACK);
-        d.draw_text(FormatText("bunnies: %i", bunniesCount), 120, 10, 20, Color::GREEN);
-        d.draw_text(FormatText("batched draw calls: %i", 1 + bunniesCount / MAX_BATCH_ELEMENTS), 320, 10, 20, Color::MAROON);
+        d.draw_text(&format!("bunnies: {}", bunniesCount), 120, 10, 20, Color::GREEN);
+        d.draw_text(&format!("batched draw calls: {}", 1 + bunniesCount / MAX_BATCH_ELEMENTS), 320, 10, 20, Color::MAROON);
 
         d.draw_fps(10, 10);
 

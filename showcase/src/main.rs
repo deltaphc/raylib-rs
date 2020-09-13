@@ -1,3 +1,5 @@
+#![allow(non_snake_case)]
+
 pub use raylib::prelude::*;
 
 pub mod example;
@@ -7,6 +9,8 @@ type Sample = fn(&mut RaylibHandle, &RaylibThread) -> SampleOut;
 
 use std::cell::RefCell;
 thread_local! (static APP: RefCell<Option<Box<dyn FnMut() -> bool>>> = RefCell::new(None));
+
+pub const EXIT_KEY: raylib::consts::KeyboardKey = raylib::consts::KeyboardKey::KEY_ESCAPE;
 
 fn main() {
     // Set the emscripten main loop before setting up raylib so that raylib has something
@@ -22,6 +26,7 @@ fn main() {
     let (mut rl, thread) = raylib::init()
         .size(screen_width, screen_height)
         .title(title)
+        .resizable()
         .vsync()
         .msaa_4x()
         .build();
@@ -58,6 +63,51 @@ fn main() {
             rstr!("raylib [core] example - custom logging"),
             example::core::core_custom_logging::run,
         ),
+        (
+            rstr!("raylib [core] example - drop files"),
+            example::core::core_drop_files::run,
+        ),
+        (
+            rstr!("raylib [core] example - gamepad input"),
+            example::core::core_input_gamepad::run,
+        ),
+        (
+            rstr!("raylib [core] example - input gestures"),
+            example::core::core_input_gestures::run,
+        ),
+        (
+            rstr!("raylib [core] example - keyboard input"),
+            example::core::core_input_keys::run,
+        ),
+        (
+            rstr!("raylib [core] example - input mouse wheel"),
+            example::core::core_input_mouse_wheel::run,
+        ),
+        (
+            rstr!("raylib [core] example - mouse input"),
+            example::core::core_input_mouse::run,
+        ),
+        (
+            rstr!("raylib [core] example - input multitouch"),
+            example::core::core_input_multitouch::run,
+        ),
+        (
+            rstr!("raylib [core] example - generate random values"),
+            example::core::core_random_values::run,
+        ),
+        (
+            rstr!("raylib [core] example - window scale letterbox"),
+            example::core::core_window_letterbox::run,
+        ),
+        (
+            rstr!("raylib [core] example - core world screen"),
+            example::core::core_world_screen::run,
+        ),
+        // VR is Buggy AF. Take a look at it
+        // (
+        //     rstr!("raylib [core] example - vr simulator"),
+        //     example::core::core_vr_simulator::run,
+        // ),
         (
             rstr!("raygui - controls test suite"),
             example::controls_test_suite::controls_test_suite::run,
@@ -138,7 +188,7 @@ fn main() {
 
             Some(ref mut run) => {
                 (*run)(&mut rl, &thread);
-                if rl.is_key_down(raylib::consts::KeyboardKey::KEY_ESCAPE) {
+                if rl.is_key_down(EXIT_KEY) {
                     sample = None;
                     rl.set_window_size(screen_width, screen_height);
                     rl.set_window_title(&thread, title);

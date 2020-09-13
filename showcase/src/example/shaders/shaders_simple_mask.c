@@ -61,7 +61,7 @@ pub fn run(rl
     Model model3 = LoadModelFromMesh(sphere);
 
     // Load the shader
-    Shader shader = LoadShader(0, FormatText("resources/shaders/glsl%i/mask.fs", GLSL_VERSION));
+    Shader shader = LoadShader(0, &format!("resources/shaders/glsl{}/mask.fs", GLSL_VERSION));
 
     // Load and apply the diffuse texture (colour map)
     Texture texDiffuse = LoadTexture("resources/plasma.png");
@@ -112,19 +112,19 @@ pub fn run(rl
         //----------------------------------------------------------------------------------
         let mut d = rl.begin_drawing(thread);
 
-        d.clear_background(Color::DARKColor::BLUE);
+        d.clear_background(Color::Color::DARKBLUE);
 
         let mut d = d.begin_mode3D(&camera);
 
-        DrawModel(model1, (Vector3){0.5, 0, 0}, 1, WHITE);
-        DrawModelEx(model2, (Vector3){-.5, 0, 0}, (Vector3){1, 1, 0}, 50, (Vector3){1, 1, 1}, WHITE);
-        DrawModel(model3, (Vector3){0, 0, -1.5}, 1, WHITE);
+        DrawModel(model1, rvec3(0.5, 0,  0), 1, Color::WHITE);
+        DrawModelEx(model2, rvec3(-.5, 0,  0), rvec3(1, 1,  0), 50, rvec3(1, 1,  1), Color::WHITE);
+        DrawModel(model3, rvec3(0, 0,  -1.5), 1, Color::WHITE);
         d.draw_grid(10, 1.0); // Draw a grid
 
         EndMode3D();
 
-        d.draw_rectangle(16, 698, raylib::text::measure_textFormatText("Frame: %i", framesCounter), 20) + 8, 42, Color::BLUE);
-        d.draw_text(FormatText("Frame: %i", framesCounter), 20, 700, 20, WHITE);
+        d.draw_rectangle(16, 698, raylib::text::measure_text&format!("Frame: {}", framesCounter), 20) + 8, 42, Color::BLUE);
+        d.draw_text(&format!("Frame: {}", framesCounter), 20, 700, 20, Color::WHITE);
 
         d.draw_fps(10, 10);
 

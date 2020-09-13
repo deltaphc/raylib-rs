@@ -46,13 +46,13 @@ pub fn run(rl
 
         d.clear_background(Color::RAYWHITE);
 
-        d.draw_text(FormatText("Score: %08i", score), 200, 80, 20,Color::RED);
+        d.draw_text(&format!("Score: {:08}", score), 200, 80, 20,Color::RED);
 
-        d.draw_text(FormatText("HiScore: %08i", hiscore), 200, 120, 20, Color::GREEN);
+        d.draw_text(&format!("HiScore: {:08}", hiscore), 200, 120, 20, Color::GREEN);
 
-        d.draw_text(FormatText("Lives: %02i", lives), 200, 160, 40, Color::BLUE);
+        d.draw_text(&format!("Lives: {:02}", lives), 200, 160, 40, Color::BLUE);
 
-        d.draw_text(FormatText("Elapsed Time: %02.02f ms", GetFrameTime() * 1000), 200, 220, 20, Color::BLACK);
+        d.draw_text(&format!("Elapsed Time: %02.02f ms", GetFrameTime() * 1000), 200, 220, 20, Color::BLACK);
 
         EndDrawing();
         //----------------------------------------------------------------------------------

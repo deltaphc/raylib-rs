@@ -27,9 +27,9 @@ pub fn run(rl
 
     // NOTE: Be careful, background width must be equal or bigger than screen width
     // if not, texture should be draw more than two times for scrolling effect
-    Texture2D background = LoadTexture("resources/cyberpunk_street_background.png");
-    Texture2D midground = LoadTexture("resources/cyberpunk_street_midground.png");
-    Texture2D foreground = LoadTexture("resources/cyberpunk_street_foreground.png");
+    let background = rl.load_texture(thread, "resources/cyberpunk_street_background.png");
+    let midground = rl.load_texture(thread, "resources/cyberpunk_street_midground.png");
+    let foreground = rl.load_texture(thread, "resources/cyberpunk_street_foreground.png");
 
     float scrollingBack = 0.0;
     float scrollingMid = 0.0;
@@ -48,11 +48,11 @@ pub fn run(rl
         scrollingFore -= 1.0;
 
         // NOTE: Texture is scaled twice its size, so it sould be considered on scrolling
-        if (scrollingBack <= -background.width * 2)
+        if scrollingBack <= -background.width * 2
             scrollingBack = 0;
-        if (scrollingMid <= -midground.width * 2)
+        if scrollingMid <= -midground.width * 2
             scrollingMid = 0;
-        if (scrollingFore <= -foreground.width * 2)
+        if scrollingFore <= -foreground.width * 2
             scrollingFore = 0;
         //----------------------------------------------------------------------------------
 
@@ -64,19 +64,19 @@ pub fn run(rl
 
         // Draw background image twice
         // NOTE: Texture is scaled twice its size
-        DrawTextureEx(background, (Vector2){scrollingBack, 20}, 0.0, 2.0, WHITE);
-        DrawTextureEx(background, (Vector2){background.width * 2 + scrollingBack, 20}, 0.0, 2.0, WHITE);
+        DrawTextureEx(background, rvec2(scrollingBack,  20), 0.0, 2.0, Color::WHITE);
+        DrawTextureEx(background, rvec2(background.width * 2 + scrollingBack,  20), 0.0, 2.0, Color::WHITE);
 
         // Draw midground image twice
-        DrawTextureEx(midground, (Vector2){scrollingMid, 20}, 0.0, 2.0, WHITE);
-        DrawTextureEx(midground, (Vector2){midground.width * 2 + scrollingMid, 20}, 0.0, 2.0, WHITE);
+        DrawTextureEx(midground, rvec2(scrollingMid,  20), 0.0, 2.0, Color::WHITE);
+        DrawTextureEx(midground, rvec2(midground.width * 2 + scrollingMid,  20), 0.0, 2.0, Color::WHITE);
 
         // Draw foreground image twice
-        DrawTextureEx(foreground, (Vector2){scrollingFore, 70}, 0.0, 2.0, WHITE);
-        DrawTextureEx(foreground, (Vector2){foreground.width * 2 + scrollingFore, 70}, 0.0, 2.0, WHITE);
+        DrawTextureEx(foreground, rvec2(scrollingFore,  70), 0.0, 2.0, Color::WHITE);
+        DrawTextureEx(foreground, rvec2(foreground.width * 2 + scrollingFore,  70), 0.0, 2.0, Color::WHITE);
 
         d.draw_text("BACKGROUND SCROLLING & PARALLAX", 10, 10, 20,Color::RED);
-        d.draw_text("(c) Cyberpunk Street Environment by Luis Zuno (@ansimuz)", screen_width - 330, screen_height - 20, 10, RAYWHITE);
+        d.draw_text("(c) Cyberpunk Street Environment by Luis Zuno (@ansimuz)", screen_width - 330, screen_height - 20, 10, Color::RAYWHITE);
 
         EndDrawing();
         //----------------------------------------------------------------------------------

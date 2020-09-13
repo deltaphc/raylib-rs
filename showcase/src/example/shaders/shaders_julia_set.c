@@ -51,7 +51,7 @@ pub fn run(rl
 
     // Load julia set shader
     // NOTE: Defining 0 (NULL) for vertex shader forces usage of internal default vertex shader
-    Shader shader = LoadShader(0, FormatText("resources/shaders/glsl%i/julia_set.fs", GLSL_VERSION));
+    Shader shader = LoadShader(0, &format!("resources/shaders/glsl{}/julia_set.fs", GLSL_VERSION));
 
     // c constant to use in z^2 + c
     float c[2] = {POINTS_OF_INTEREST[0][0], POINTS_OF_INTEREST[0][1]};
@@ -60,7 +60,7 @@ pub fn run(rl
     float offset[2] = {-(float)screen_width / 2, -(float)screen_height / 2};
     float zoom = 1.0;
 
-    Vector2 offsetSpeed = {0.0, 0.0};
+    let offsetSpeed = rvec2(0.0, 0.0);
 
     // Get variable (uniform) locations on the shader to connect with the program
     // NOTE: If uniform variable could not be found in the shader, function returns -1
@@ -92,48 +92,48 @@ pub fn run(rl
         // Update
         //----------------------------------------------------------------------------------
         // Press [1 - 6] to reset c to a point of interest
-        if (IsKeyPressed(raylib::consts::KeyboardKey::KEY_ONE) ||
-            IsKeyPressed(raylib::consts::KeyboardKey::KEY_TWO) ||
-            IsKeyPressed(raylib::consts::KeyboardKey::KEY_THREE) ||
-            IsKeyPressed(raylib::consts::KeyboardKey::KEY_FOUR) ||
-            IsKeyPressed(raylib::consts::KeyboardKey::KEY_FIVE) ||
-            IsKeyPressed(raylib::consts::KeyboardKey::KEY_SIX))
+        if rl.is_key_pressed(raylib::consts::KeyboardKey::KEY_ONE ||
+            rl.is_key_pressed(raylib::consts::KeyboardKey::KEY_TWO) ||
+            rl.is_key_pressed(raylib::consts::KeyboardKey::KEY_THREE) ||
+            rl.is_key_pressed(raylib::consts::KeyboardKey::KEY_FOUR) ||
+            rl.is_key_pressed(raylib::consts::KeyboardKey::KEY_FIVE) ||
+            rl.is_key_pressed(raylib::consts::KeyboardKey::KEY_SIX))
         {
-            if (IsKeyPressed(raylib::consts::KeyboardKey::KEY_ONE))
+            if rl.is_key_pressed(raylib::consts::KeyboardKey::KEY_ONE)
                 c[0] = POINTS_OF_INTEREST[0][0], c[1] = POINTS_OF_INTEREST[0][1];
-            else if (IsKeyPressed(raylib::consts::KeyboardKey::KEY_TWO))
+            else if rl.is_key_pressed(raylib::consts::KeyboardKey::KEY_TWO)
                 c[0] = POINTS_OF_INTEREST[1][0], c[1] = POINTS_OF_INTEREST[1][1];
-            else if (IsKeyPressed(raylib::consts::KeyboardKey::KEY_THREE))
+            else if rl.is_key_pressed(raylib::consts::KeyboardKey::KEY_THREE)
                 c[0] = POINTS_OF_INTEREST[2][0], c[1] = POINTS_OF_INTEREST[2][1];
-            else if (IsKeyPressed(raylib::consts::KeyboardKey::KEY_FOUR))
+            else if rl.is_key_pressed(raylib::consts::KeyboardKey::KEY_FOUR)
                 c[0] = POINTS_OF_INTEREST[3][0], c[1] = POINTS_OF_INTEREST[3][1];
-            else if (IsKeyPressed(raylib::consts::KeyboardKey::KEY_FIVE))
+            else if rl.is_key_pressed(raylib::consts::KeyboardKey::KEY_FIVE)
                 c[0] = POINTS_OF_INTEREST[4][0], c[1] = POINTS_OF_INTEREST[4][1];
-            else if (IsKeyPressed(raylib::consts::KeyboardKey::KEY_SIX))
+            else if rl.is_key_pressed(raylib::consts::KeyboardKey::KEY_SIX)
                 c[0] = POINTS_OF_INTEREST[5][0], c[1] = POINTS_OF_INTEREST[5][1];
 
             SetShaderValue(shader, cLoc, c, UNIFORM_VEC2);
         }
 
-        if (IsKeyPressed(raylib::consts::KeyboardKey::KEY_SPACE))
+        if rl.is_key_pressed(raylib::consts::KeyboardKey::KEY_SPACE)
             pause = !pause; // Pause animation (c change)
-        if (IsKeyPressed(raylib::consts::KeyboardKey::KEY_F1))
+        if rl.is_key_pressed(raylib::consts::KeyboardKey::KEY_F1)
             showControls = !showControls; // Toggle whether or not to show controls
 
-        if (!pause)
+        if !pause
         {
-            if (IsKeyPressed(raylib::consts::KeyboardKey::KEY_RIGHT))
+            if rl.is_key_pressed(raylib::consts::KeyboardKey::KEY_RIGHT)
                 incrementSpeed++;
-            else if (IsKeyPressed(raylib::consts::KeyboardKey::KEY_LEFT))
+            else if rl.is_key_pressed(raylib::consts::KeyboardKey::KEY_LEFT)
                 incrementSpeed--;
 
             // TODO: The idea is to zoom and move around with mouse
             // Probably offset movement should be proportional to zoom level
-            if (IsMouseButtonDown(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON) || IsMouseButtonDown(raylib::consts::MouseButton::MOUSE_RIGHT_BUTTON))
+            if rl.is_mouse_button_down(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON) || rl.is_mouse_button_down(raylib::consts::MouseButton::MOUSE_RIGHT_BUTTON)
             {
-                if (IsMouseButtonDown(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON))
+                if rl.is_mouse_button_down(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON)
                     zoom += zoom * 0.003f;
-                if (IsMouseButtonDown(raylib::consts::MouseButton::MOUSE_RIGHT_BUTTON))
+                if rl.is_mouse_button_down(raylib::consts::MouseButton::MOUSE_RIGHT_BUTTON)
                     zoom -= zoom * 0.003f;
 
                 Vector2 mousePos = rl.get_mouse_position();
@@ -167,29 +167,29 @@ pub fn run(rl
         d.clear_background(Color::BLACK); // Clear the screen of the previous frame.
 
         // Using a render texture to draw Julia set
-        BeginTextureMode(target); // Enable drawing to texture
+        let mut d = d.begin_texture_mode(thread, &target); // Enable drawing to texture
         d.clear_background(Color::BLACK);   // Clear the render texture
 
         // Draw a rectangle in shader mode to be used as shader canvas
         // NOTE: Rectangle uses font white character texture coordinates,
         // so shader can not be applied here directly because input vertexTexCoord
         // do not represent full screen coordinates (space where want to apply shader)
-        d.draw_rectangle(0, 0, Getscreen_width(), Getscreen_height(), Color::BLACK);
+        d.draw_rectangle(0, 0, rl.get_screen_width(), rl.get_screen_height(), Color::BLACK);
         EndTextureMode();
 
         // Draw the saved texture and rendered julia set with shader
         // NOTE: We do not invert texture on Y, already considered inside shader
         BeginShaderMode(shader);
-        DrawTexture(target.texture, 0, 0, WHITE);
+        d.draw_texture(target.texture, 0, 0, Color::WHITE);
         EndShaderMode();
 
-        if (showControls)
+        if showControls
         {
-            d.draw_text("Press Mouse buttons right/left to zoom in/out and move", 10, 15, 10, RAYWHITE);
-            d.draw_text("Press KEY_F1 to toggle these controls", 10, 30, 10, RAYWHITE);
-            d.draw_text("Press KEYS [1 - 6] to change point of interest", 10, 45, 10, RAYWHITE);
-            d.draw_text("Press KEY_LEFT | KEY_RIGHT to change speed", 10, 60, 10, RAYWHITE);
-            d.draw_text("Press KEY_SPACE to pause movement animation", 10, 75, 10, RAYWHITE);
+            d.draw_text("Press Mouse buttons right/left to zoom in/out and move", 10, 15, 10, Color::RAYWHITE);
+            d.draw_text("Press KEY_F1 to toggle these controls", 10, 30, 10, Color::RAYWHITE);
+            d.draw_text("Press KEYS [1 - 6] to change point of interest", 10, 45, 10, Color::RAYWHITE);
+            d.draw_text("Press KEY_LEFT | KEY_RIGHT to change speed", 10, 60, 10, Color::RAYWHITE);
+            d.draw_text("Press KEY_SPACE to pause movement animation", 10, 75, 10, Color::RAYWHITE);
         }
 
         EndDrawing();

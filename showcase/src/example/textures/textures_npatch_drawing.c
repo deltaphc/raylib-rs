@@ -30,26 +30,26 @@ pub fn run(rl
 
 
     // NOTE: Textures MUST be loaded after Window initialization (OpenGL context is required)
-    Texture2D nPatchTexture = LoadTexture("resources/ninepatch_button.png");
+    let nPatchTexture = rl.load_texture(thread, "resources/ninepatch_button.png");
 
     Vector2 mousePosition = {0};
-    Vector2 origin = {0.0, 0.0};
+    let origin = rvec2(0.0, 0.0);
 
     // Position and size of the n-patches
-    Rectangle dstRec1 = {480.0, 160.0, 32.0, 32.0};
-    Rectangle dstRec2 = {160.0, 160.0, 32.0, 32.0};
-    Rectangle dstRecH = {160.0, 93.0, 32.0, 32.0};
-    Rectangle dstRecV = {92.0, 160.0, 32.0, 32.0};
+    let dstRec1  = rrect(480.0,  160.0,  32.0,  32.0);
+    let dstRec2  = rrect(160.0,  160.0,  32.0,  32.0);
+    let dstRecH  = rrect(160.0,  93.0,  32.0,  32.0);
+    let dstRecV  = rrect(92.0,  160.0,  32.0,  32.0);
 
     // A 9-patch (NPT_9PATCH) changes its sizes in both axis
-    NPatchInfo ninePatchInfo1 = {(Rectangle){0.0, 0.0, 64.0, 64.0}, 12, 40, 12, 12, NPT_9PATCH};
-    NPatchInfo ninePatchInfo2 = {(Rectangle){0.0, 128.0, 64.0, 64.0}, 16, 16, 16, 16, NPT_9PATCH};
+    NPatchInfo ninePatchInfo1 = {rrect(0.0, 0.0, 64.0, 64.0), 12, 40, 12, 12, NPT_9PATCH};
+    NPatchInfo ninePatchInfo2 = {rrect(0.0, 128.0, 64.0, 64.0), 16, 16, 16, 16, NPT_9PATCH};
 
     // A horizontal 3-patch (NPT_3PATCH_HORIZONTAL) changes its sizes along the x axis only
-    NPatchInfo h3PatchInfo = {(Rectangle){0.0, 64.0, 64.0, 64.0}, 8, 8, 8, 8, NPT_3PATCH_HORIZONTAL};
+    NPatchInfo h3PatchInfo = {rrect(0.0, 64.0, 64.0, 64.0), 8, 8, 8, 8, NPT_3PATCH_HORIZONTAL};
 
     // A vertical 3-patch (NPT_3PATCH_VERTICAL) changes its sizes along the y axis only
-    NPatchInfo v3PatchInfo = {(Rectangle){0.0, 192.0, 64.0, 64.0}, 6, 6, 6, 6, NPT_3PATCH_VERTICAL};
+    NPatchInfo v3PatchInfo = {rrect(0.0, 192.0, 64.0, 64.0), 6, 6, 6, 6, NPT_3PATCH_VERTICAL};
 
     rl.set_target_fps(60);
     //---------------------------------------------------------------------------------------
@@ -70,21 +70,21 @@ pub fn run(rl
         dstRecV.height = mousePosition.y - dstRecV.y;
 
         // Set a minimum width and/or height
-        if (dstRec1.width < 1.0)
+        if dstRec1.width < 1.0
             dstRec1.width = 1.0;
-        if (dstRec1.width > 300.0)
+        if dstRec1.width > 300.0
             dstRec1.width = 300.0;
-        if (dstRec1.height < 1.0)
+        if dstRec1.height < 1.0
             dstRec1.height = 1.0;
-        if (dstRec2.width < 1.0)
+        if dstRec2.width < 1.0
             dstRec2.width = 1.0;
-        if (dstRec2.width > 300.0)
+        if dstRec2.width > 300.0
             dstRec2.width = 300.0;
-        if (dstRec2.height < 1.0)
+        if dstRec2.height < 1.0
             dstRec2.height = 1.0;
-        if (dstRecH.width < 1.0)
+        if dstRecH.width < 1.0
             dstRecH.width = 1.0;
-        if (dstRecV.height < 1.0)
+        if dstRecV.height < 1.0
             dstRecV.height = 1.0;
         //----------------------------------------------------------------------------------
 
@@ -95,14 +95,14 @@ pub fn run(rl
         d.clear_background(Color::RAYWHITE);
 
         // Draw the n-patches
-        DrawTextureNPatch(nPatchTexture, ninePatchInfo2, dstRec2, origin, 0.0, WHITE);
-        DrawTextureNPatch(nPatchTexture, ninePatchInfo1, dstRec1, origin, 0.0, WHITE);
-        DrawTextureNPatch(nPatchTexture, h3PatchInfo, dstRecH, origin, 0.0, WHITE);
-        DrawTextureNPatch(nPatchTexture, v3PatchInfo, dstRecV, origin, 0.0, WHITE);
+        DrawTextureNPatch(nPatchTexture, ninePatchInfo2, dstRec2, origin, 0.0, Color::WHITE);
+        DrawTextureNPatch(nPatchTexture, ninePatchInfo1, dstRec1, origin, 0.0, Color::WHITE);
+        DrawTextureNPatch(nPatchTexture, h3PatchInfo, dstRecH, origin, 0.0, Color::WHITE);
+        DrawTextureNPatch(nPatchTexture, v3PatchInfo, dstRecV, origin, 0.0, Color::WHITE);
 
         // Draw the source texture
         d.draw_rectangle_lines(5, 88, 74, 266, Color::BLUE);
-        DrawTexture(nPatchTexture, 10, 93, WHITE);
+        d.draw_texture(nPatchTexture, 10, 93, Color::WHITE);
         d.draw_text("TEXTURE", 15, 360, 10, Color::DARKGRAY);
 
         d.draw_text("Move the mouse to stretch or shrink the n-patches", 10, 20, 20, Color::DARKGRAY);

@@ -49,14 +49,14 @@ pub fn run(rl
     );
 
     Model model = LoadModel("resources/models/barracks.obj");                 // Load OBJ model
-    Texture2D texture = LoadTexture("resources/models/barracks_diffuse.png"); // Load model texture (diffuse map)
+    let texture = rl.load_texture(thread, "resources/models/barracks_diffuse.png"); // Load model texture (diffuse map)
     model.materials[0].maps[MAP_DIFFUSE].texture = texture;                   // Set model diffuse texture
 
     let position = Vector3::zero(); // Set model position
 
     // Load postprocessing shader
     // NOTE: Defining 0 (NULL) for vertex shader forces usage of internal default vertex shader
-    Shader shader = LoadShader(0, FormatText("resources/shaders/glsl%i/swirl.fs", GLSL_VERSION));
+    Shader shader = LoadShader(0, &format!("resources/shaders/glsl{}/swirl.fs", GLSL_VERSION));
 
     // Get variable (uniform) location on the shader to connect with the program
     // NOTE: If uniform variable could not be found in the shader, function returns -1
@@ -95,13 +95,13 @@ pub fn run(rl
 
         d.clear_background(Color::RAYWHITE);
 
-        BeginTextureMode(target); // Enable drawing to texture
+        let mut d = d.begin_texture_mode(thread, &target); // Enable drawing to texture
 
         d.clear_background(Color::RAYWHITE); // Clear texture background
 
         let mut d = d.begin_mode3D(&camera); // Begin 3d mode drawing
 
-        DrawModel(model, position, 0.5, WHITE); // Draw 3d model with texture
+        DrawModel(model, position, 0.5, Color::WHITE); // Draw 3d model with texture
 
         d.draw_grid(10, 1.0); // Draw a grid
 
@@ -114,7 +114,7 @@ pub fn run(rl
         BeginShaderMode(shader);
 
         // NOTE: Render texture must be y-flipped due to default OpenGL coordinates (left-bottom)
-        DrawTextureRec(target.texture, (Rectangle){0, 0, target.texture.width, -target.texture.height}, (Vector2){0, 0}, WHITE);
+        DrawTextureRec(target.texture, rrect(0, 0, target.texture.width, -target.texture.height), rvec2(0,  0), Color::WHITE);
 
         EndShaderMode();
 

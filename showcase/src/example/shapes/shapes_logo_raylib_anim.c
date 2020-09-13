@@ -48,56 +48,56 @@ pub fn run(rl
     {
         // Update
         //----------------------------------------------------------------------------------
-        if (state == 0) // State 0: Small box blinking
+        if state == 0 // State 0: Small box blinking
         {
             framesCounter++;
 
-            if (framesCounter == 120)
+            if framesCounter == 120
             {
                 state = 1;
                 framesCounter = 0; // Reset counter... will be used later...
             }
         }
-        else if (state == 1) // State 1: Top and left bars growing
+        else if state == 1 // State 1: Top and left bars growing
         {
             topSideRecWidth += 4;
             leftSideRecHeight += 4;
 
-            if (topSideRecWidth == 256)
+            if topSideRecWidth == 256
                 state = 2;
         }
-        else if (state == 2) // State 2: Bottom and right bars growing
+        else if state == 2 // State 2: Bottom and right bars growing
         {
             bottomSideRecWidth += 4;
             rightSideRecHeight += 4;
 
-            if (bottomSideRecWidth == 256)
+            if bottomSideRecWidth == 256
                 state = 3;
         }
-        else if (state == 3) // State 3: Letters appearing (one by one)
+        else if state == 3) // State 3: Letters appearing (one by one
         {
             framesCounter++;
 
-            if (framesCounter / 12) // Every 12 frames, one more letter!
+            if framesCounter / 12 // Every 12 frames, one more letter!
             {
                 lettersCount++;
                 framesCounter = 0;
             }
 
-            if (lettersCount >= 10) // When all letters have appeared, just fade out everything
+            if lettersCount >= 10 // When all letters have appeared, just fade out everything
             {
                 alpha -= 0.02f;
 
-                if (alpha <= 0.0)
+                if alpha <= 0.0
                 {
                     alpha = 0.0;
                     state = 4;
                 }
             }
         }
-        else if (state == 4) // State 4: Reset and Replay
+        else if state == 4 // State 4: Reset and Replay
         {
-            if (IsKeyPressed('R'))
+            if rl.is_key_pressed('R')
             {
                 framesCounter = 0;
                 lettersCount = 0;
@@ -120,17 +120,17 @@ pub fn run(rl
 
         d.clear_background(Color::RAYWHITE);
 
-        if (state == 0)
+        if state == 0
         {
-            if ((framesCounter / 15) % 2)
+            if (framesCounter / 15) % 2
                 d.draw_rectangle(logoPositionX, logoPositionY, 16, 16, Color::BLACK);
         }
-        else if (state == 1)
+        else if state == 1
         {
             d.draw_rectangle(logoPositionX, logoPositionY, topSideRecWidth, 16, Color::BLACK);
             d.draw_rectangle(logoPositionX, logoPositionY, 16, leftSideRecHeight, Color::BLACK);
         }
-        else if (state == 2)
+        else if state == 2
         {
             d.draw_rectangle(logoPositionX, logoPositionY, topSideRecWidth, 16, Color::BLACK);
             d.draw_rectangle(logoPositionX, logoPositionY, 16, leftSideRecHeight, Color::BLACK);
@@ -138,7 +138,7 @@ pub fn run(rl
             d.draw_rectangle(logoPositionX + 240, logoPositionY, 16, rightSideRecHeight, Color::BLACK);
             d.draw_rectangle(logoPositionX, logoPositionY + 240, bottomSideRecWidth, 16, Color::BLACK);
         }
-        else if (state == 3)
+        else if state == 3
         {
             d.draw_rectangle(logoPositionX, logoPositionY, topSideRecWidth, 16, Fade(BLACK, alpha));
             d.draw_rectangle(logoPositionX, logoPositionY + 16, 16, leftSideRecHeight - 32, Fade(BLACK, alpha));
@@ -150,7 +150,7 @@ pub fn run(rl
 
             d.draw_text(TextSubtext("raylib", 0, lettersCount), screen_width / 2 - 44, screen_height / 2 + 48, 50, Fade(BLACK, alpha));
         }
-        else if (state == 4)
+        else if state == 4
         {
             d.draw_text("[R] REPLAY", 340, 200, 20, Color::GRAY);
         }

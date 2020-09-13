@@ -28,19 +28,19 @@ const NUM_FRAMES 3 // Number of frames (rectangles) for the button sprite textur
     InitAudioDevice(); // Initialize audio device
 
     Sound fxButton = LoadSound("resources/buttonfx.wav");   // Load button sound
-    Texture2D button = LoadTexture("resources/button.png"); // Load button texture
+    let button = rl.load_texture(thread, "resources/button.png"); // Load button texture
 
     // Define frame rectangle for drawing
     int frameHeight = button.height / NUM_FRAMES;
-    Rectangle sourceRec = {0, 0, button.width, frameHeight};
+    let sourceRec  = rrect(0,  0,  button.width,  frameHeight);
 
     // Define button bounds on screen
-    Rectangle btnBounds = {screen_width / 2 - button.width / 2, screen_height / 2 - button.height / NUM_FRAMES / 2, button.width, frameHeight};
+    let btnBounds  = rrect(screen_width / 2 - button.width / 2,  screen_height / 2 - button.height / NUM_FRAMES / 2,  button.width,  frameHeight);
 
     int btnState = 0;       // Button state: 0-NORMAL, 1-MOUSE_HOVER, 2-PRESSED
     bool btnAction = false; // Button action should be activated
 
-    Vector2 mousePoint = {0.0, 0.0};
+    let mousePoint = rvec2(0.0, 0.0);
 
     rl.set_target_fps(60);
     //--------------------------------------------------------------------------------------
@@ -54,20 +54,20 @@ const NUM_FRAMES 3 // Number of frames (rectangles) for the button sprite textur
         btnAction = false;
 
         // Check button state
-        if (CheckCollisionPointRec(mousePoint, btnBounds))
+        if CheckCollisionPointRec(mousePoint, btnBounds)
         {
-            if (IsMouseButtonDown(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON))
+            if rl.is_mouse_button_down(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON)
                 btnState = 2;
             else
                 btnState = 1;
 
-            if (IsMouseButtonReleased(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON))
+            if IsMouseButtonReleased(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON)
                 btnAction = true;
         }
         else
             btnState = 0;
 
-        if (btnAction)
+        if btnAction
         {
             PlaySound(fxButton);
 
@@ -84,7 +84,7 @@ const NUM_FRAMES 3 // Number of frames (rectangles) for the button sprite textur
 
         d.clear_background(Color::RAYWHITE);
 
-        DrawTextureRec(button, sourceRec, (Vector2){btnBounds.x, btnBounds.y}, WHITE); // Draw button frame
+        DrawTextureRec(button, sourceRec, rvec2(btnBounds.x,  btnBounds.y), Color::WHITE); // Draw button frame
 
         EndDrawing();
         //----------------------------------------------------------------------------------

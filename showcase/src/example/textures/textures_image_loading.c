@@ -49,7 +49,7 @@ pub fn run(rl
 
         d.clear_background(Color::RAYWHITE);
 
-        DrawTexture(texture, screen_width / 2 - texture.width / 2, screen_height / 2 - texture.height / 2, WHITE);
+        d.draw_texture(texture, screen_width / 2 - texture.width / 2, screen_height / 2 - texture.height / 2, Color::WHITE);
 
         d.draw_text("this IS a texture loaded from an image!", 300, 370, 10, Color::GRAY);
 

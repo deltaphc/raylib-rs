@@ -70,8 +70,8 @@ const RLIGHTS_IMPLEMENTATION
     modelC.materials[0].maps[MAP_DIFFUSE].texture = texture;
 
     // Load shader and set up some uniforms
-    Shader shader = LoadShader(FormatText("resources/shaders/glsl%i/base_lighting.vs", GLSL_VERSION),
-                               FormatText("resources/shaders/glsl%i/fog.fs", GLSL_VERSION));
+    Shader shader = LoadShader(&format!("resources/shaders/glsl{}/base_lighting.vs", GLSL_VERSION),
+                               &format!("resources/shaders/glsl{}/fog.fs", GLSL_VERSION));
     shader.locs[LOC_MATRIX_MODEL] = GetShaderLocation(shader, "matModel");
     shader.locs[LOC_VECTOR_VIEW] = GetShaderLocation(shader, "viewPos");
 
@@ -89,7 +89,7 @@ const RLIGHTS_IMPLEMENTATION
     modelC.materials[0].shader = shader;
 
     // Using just 1 point lights
-    CreateLight(LIGHT_POINT, (Vector3){0, 2, 6}, Vector3Zero(), WHITE, shader);
+    CreateLight(LIGHT_POINT, rvec3(0, 2,  6), Vector3Zero(), Color::WHITE, shader);
 
     SetCameraMode(camera, CAMERA_ORBITAL); // Set an orbital camera mode
 
@@ -103,17 +103,17 @@ const RLIGHTS_IMPLEMENTATION
         //----------------------------------------------------------------------------------
         rl.update_camera(&mut camera); // Update camera
 
-        if (rl.is_key_down(raylib::consts::KeyboardKey::KEY_UP))
+        if rl.is_key_down(raylib::consts::KeyboardKey::KEY_UP)
         {
             fogDensity += 0.001;
-            if (fogDensity > 1.0)
+            if fogDensity > 1.0
                 fogDensity = 1.0;
         }
 
-        if (rl.is_key_down(raylib::consts::KeyboardKey::KEY_DOWN))
+        if rl.is_key_down(raylib::consts::KeyboardKey::KEY_DOWN)
         {
             fogDensity -= 0.001;
-            if (fogDensity < 0.0)
+            if fogDensity < 0.0
                 fogDensity = 0.0;
         }
 
@@ -136,16 +136,16 @@ const RLIGHTS_IMPLEMENTATION
         let mut d = d.begin_mode3D(&camera);
 
         // Draw the three models
-        DrawModel(modelA, Vector3Zero(), 1.0, WHITE);
-        DrawModel(modelB, (Vector3){-2.6, 0, 0}, 1.0, WHITE);
-        DrawModel(modelC, (Vector3){2.6, 0, 0}, 1.0, WHITE);
+        DrawModel(modelA, Vector3Zero(), 1.0, Color::WHITE);
+        DrawModel(modelB, rvec3(-2.6, 0,  0), 1.0, Color::WHITE);
+        DrawModel(modelC, rvec3(2.6, 0,  0), 1.0, Color::WHITE);
 
         for (int i = -20; i < 20; i += 2)
-            DrawModel(modelA, (Vector3){i, 0, 2}, 1.0, WHITE);
+            DrawModel(modelA, rvec3(i, 0,  2), 1.0, Color::WHITE);
 
         EndMode3D();
 
-        d.draw_text(TextFormat("Use KEY_UP/KEY_DOWN to change fog density [%.2]", fogDensity), 10, 10, 20, RAYWHITE);
+        d.draw_text(&format!("Use KEY_UP/KEY_DOWN to change fog density [%.2]", fogDensity), 10, 10, 20, Color::RAYWHITE);
 
         EndDrawing();
         //----------------------------------------------------------------------------------

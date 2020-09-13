@@ -60,7 +60,7 @@ const RECS_WIDTH 50 const RECS_HEIGHT 50
     {
         // Update
         //----------------------------------------------------------------------------------
-        if (state == 0)
+        if state == 0
         {
             framesCounter++;
 
@@ -69,18 +69,18 @@ const RECS_WIDTH 50 const RECS_HEIGHT 50
                 recs[i].height = EaseCircOut(framesCounter, RECS_HEIGHT, -RECS_HEIGHT, PLAY_TIME_IN_FRAMES);
                 recs[i].width = EaseCircOut(framesCounter, RECS_WIDTH, -RECS_WIDTH, PLAY_TIME_IN_FRAMES);
 
-                if (recs[i].height < 0)
+                if recs[i].height < 0
                     recs[i].height = 0;
-                if (recs[i].width < 0)
+                if recs[i].width < 0
                     recs[i].width = 0;
 
-                if ((recs[i].height == 0) && (recs[i].width == 0))
+                if (recs[i].height == 0) && (recs[i].width == 0)
                     state = 1; // Finish playing
 
                 rotation = EaseLinearIn(framesCounter, 0.0, 360.0, PLAY_TIME_IN_FRAMES);
             }
         }
-        else if ((state == 1) && IsKeyPressed(raylib::consts::KeyboardKey::KEY_SPACE))
+        else if (state == 1) && rl.is_key_pressed(raylib::consts::KeyboardKey::KEY_SPACE)
         {
             // When animation has finished, press space to restart
             framesCounter = 0;
@@ -101,14 +101,14 @@ const RECS_WIDTH 50 const RECS_HEIGHT 50
 
         d.clear_background(Color::RAYWHITE);
 
-        if (state == 0)
+        if state == 0
         {
             for (int i = 0; i < MAX_RECS_X * MAX_RECS_Y; i++)
             {
-                d.draw_rectanglePro(recs[i], (Vector2){recs[i].width / 2, recs[i].height / 2}, rotation,Color::RED);
+                d.draw_rectanglePro(recs[i], rvec2(recs[i].width / 2,  recs[i].height / 2), rotation,Color::RED);
             }
         }
-        else if (state == 1)
+        else if state == 1
             d.draw_text("PRESS [SPACE] TO PLAY AGAIN!", 240, 200, 20, Color::GRAY);
 
         EndDrawing();

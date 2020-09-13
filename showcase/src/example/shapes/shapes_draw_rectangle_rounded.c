@@ -46,7 +46,7 @@ const RAYGUI_IMPLEMENTATION
     {
         // Update
         //----------------------------------------------------------------------------------
-        Rectangle rec = {(Getscreen_width() - width - 250) / 2, (Getscreen_height() - height) / 2, width, height};
+        let rec  = rrect((rl.get_screen_width() - width - 250) / 2,  (rl.get_screen_height() - height) / 2,  width,  height);
         //----------------------------------------------------------------------------------
 
         // Draw
@@ -55,30 +55,30 @@ const RAYGUI_IMPLEMENTATION
 
         d.clear_background(Color::RAYWHITE);
 
-        DrawLine(560, 0, 560, Getscreen_height(), Fade(Color::LIGHTGRAY, 0.6f));
-        d.draw_rectangle(560, 0, Getscreen_width() - 500, Getscreen_height(), Fade(Color::LIGHTGRAY, 0.3f));
+        DrawLine(560, 0, 560, rl.get_screen_height(), Fade(Color::LIGHTGRAY, 0.6f));
+        d.draw_rectangle(560, 0, rl.get_screen_width() - 500, rl.get_screen_height(), Fade(Color::LIGHTGRAY, 0.3));
 
-        if (drawRect)
-            d.draw_rectangleRec(rec, Color::GOLD.fade(0.6));
-        if (drawRoundedRect)
+        if drawRect
+            d.draw_rectangle_rec(rec, Color::GOLD.fade(0.6));
+        if drawRoundedRect
             d.draw_rectangleRounded(rec, roundness, segments, Color::MAROON.fade(0.2));
-        if (drawRoundedLines)
+        if drawRoundedLines
             d.draw_rectangleRoundedLines(rec, roundness, segments, lineThick, Color::MAROON.fade(0.4));
 
         // Draw GUI controls
         //------------------------------------------------------------------------------
-        width = GuiSliderBar((Rectangle){640, 40, 105, 20}, "Width", width, 0, Getscreen_width() - 300, true);
-        height = GuiSliderBar((Rectangle){640, 70, 105, 20}, "Height", height, 0, Getscreen_height() - 50, true);
-        roundness = GuiSliderBar((Rectangle){640, 140, 105, 20}, "Roundness", roundness, 0.0, 1.0, true);
-        lineThick = GuiSliderBar((Rectangle){640, 170, 105, 20}, "Thickness", lineThick, 0, 20, true);
-        segments = GuiSliderBar((Rectangle){640, 240, 105, 20}, "Segments", segments, 0, 60, true);
+        width = GuiSliderBar(rrect(640, 40, 105, 20), "Width", width, 0, rl.get_screen_width() - 300, true);
+        height = GuiSliderBar(rrect(640, 70, 105, 20), "Height", height, 0, rl.get_screen_height() - 50, true);
+        roundness = GuiSliderBar(rrect(640, 140, 105, 20), "Roundness", roundness, 0.0, 1.0, true);
+        lineThick = GuiSliderBar(rrect(640, 170, 105, 20), "Thickness", lineThick, 0, 20, true);
+        segments = GuiSliderBar(rrect(640, 240, 105, 20), "Segments", segments, 0, 60, true);
 
-        drawRoundedRect = GuiCheckBox((Rectangle){640, 320, 20, 20}, "DrawRoundedRect", drawRoundedRect);
-        drawRoundedLines = GuiCheckBox((Rectangle){640, 350, 20, 20}, "DrawRoundedLines", drawRoundedLines);
-        drawRect = GuiCheckBox((Rectangle){640, 380, 20, 20}, "DrawRect", drawRect);
+        drawRoundedRect = GuiCheckBox(rrect(640, 320, 20, 20), "DrawRoundedRect", drawRoundedRect);
+        drawRoundedLines = GuiCheckBox(rrect(640, 350, 20, 20), "DrawRoundedLines", drawRoundedLines);
+        drawRect = GuiCheckBox(rrect(640, 380, 20, 20), "DrawRect", drawRect);
         //------------------------------------------------------------------------------
 
-        d.draw_text(FormatText("MODE: %s", (segments >= 4) ? "MANUAL" : "AUTO"), 640, 280, 10, (segments >= 4) ? Color::MAROON : Color::DARKGRAY);
+        d.draw_text(&format!("MODE: %s", (segments >= 4) ? "MANUAL" : "AUTO"), 640, 280, 10, (segments >= 4) ? Color::MAROON : Color::DARKGRAY);
 
         d.draw_fps(10, 10);
 

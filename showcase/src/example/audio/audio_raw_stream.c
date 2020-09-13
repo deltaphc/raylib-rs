@@ -45,7 +45,7 @@ const MAX_SAMPLES 512 const MAX_SAMPLES_PER_UPDATE 4096
     PlayAudioStream(stream); // Start processing stream buffer (no data loaded currently)
 
     // Position read in to determine next frequency
-    Vector2 mousePosition = {-100.0, -100.0};
+    let mousePosition = rvec2(-100.0, -100.0);
 
     // Cycles per second (hz)
     float frequency = 440.0;
@@ -59,7 +59,7 @@ const MAX_SAMPLES 512 const MAX_SAMPLES_PER_UPDATE 4096
     // Computed size in samples of the sine wave
     int waveLength = 1;
 
-    Vector2 position = {0, 0};
+    let position = rvec2(0, 0);
 
     SetTargetFPS(30); // Set our game to run at 30 frames-per-second
     //--------------------------------------------------------------------------------------
@@ -73,7 +73,7 @@ const MAX_SAMPLES 512 const MAX_SAMPLES_PER_UPDATE 4096
         // Sample mouse input.
         mousePosition = rl.get_mouse_position();
 
-        if (IsMouseButtonDown(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON))
+        if rl.is_mouse_button_down(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON)
         {
             float fp = (float)(mousePosition.y);
             frequency = 40.0 + (float)(fp);
@@ -81,14 +81,14 @@ const MAX_SAMPLES 512 const MAX_SAMPLES_PER_UPDATE 4096
 
         // Rewrite the sine wave.
         // Compute two cycles to allow the buffer padding, simplifying any modulation, resampling, etc.
-        if (frequency != oldFrequency)
+        if frequency != oldFrequency
         {
             // Compute wavelength. Limit size in both directions.
             int oldWavelength = waveLength;
             waveLength = (int)(22050 / frequency);
-            if (waveLength > MAX_SAMPLES / 2)
+            if waveLength > MAX_SAMPLES / 2
                 waveLength = MAX_SAMPLES / 2;
-            if (waveLength < 1)
+            if waveLength < 1
                 waveLength = 1;
 
             // Write sine wave.
@@ -103,7 +103,7 @@ const MAX_SAMPLES 512 const MAX_SAMPLES_PER_UPDATE 4096
         }
 
         // Refill audio stream if required
-        if (IsAudioStreamProcessed(stream))
+        if IsAudioStreamProcessed(stream)
         {
             // Synthesize a buffer that is exactly the requested size
             int writeCursor = 0;
@@ -116,7 +116,7 @@ const MAX_SAMPLES 512 const MAX_SAMPLES_PER_UPDATE 4096
                 // Limit to the maximum readable size
                 int readLength = waveLength - readCursor;
 
-                if (writeLength > readLength)
+                if writeLength > readLength
                     writeLength = readLength;
 
                 // Write the slice
@@ -139,7 +139,7 @@ const MAX_SAMPLES 512 const MAX_SAMPLES_PER_UPDATE 4096
 
         d.clear_background(Color::RAYWHITE);
 
-        d.draw_text(FormatText("sine frequency: %i", (int)frequency), Getscreen_width() - 220, 10, 20,Color::RED);
+        d.draw_text(&format!("sine frequency: {}", (int)frequency), rl.get_screen_width() - 220, 10, 20,Color::RED);
         d.draw_text("click mouse button to change frequency", 10, 10, 20, Color::DARKGRAY);
 
         // Draw the current buffer state proportionate to the screen

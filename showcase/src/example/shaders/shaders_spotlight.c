@@ -97,7 +97,7 @@ pub fn run(rl
     int frameCounter = 0;
 
     // Use default vert shader
-    Shader spotShader = LoadShader(0, FormatText("resources/shaders/glsl%i/spotlight.fs", GLSL_VERSION));
+    Shader spotShader = LoadShader(0, &format!("resources/shaders/glsl{}/spotlight.fs", GLSL_VERSION));
 
     // Get the locations of spots in the shader
     Spot spots[MAXSPOT];
@@ -125,7 +125,7 @@ pub fn run(rl
     // a pitch black half and a dimly lit half.
     {
         unsigned int wLoc = GetShaderLocation(spotShader, "screen_width");
-        float sw = (float)Getscreen_width();
+        float sw = (float)rl.get_screen_width();
         SetShaderValue(spotShader, wLoc, &sw, UNIFORM_FLOAT);
     }
 
@@ -136,7 +136,7 @@ pub fn run(rl
 
         spots[i].pos.x = raylib::get_random_value(64, screen_width - 64);
         spots[i].pos.y = raylib::get_random_value(64, screen_height - 64);
-        spots[i].vel = (Vector2){0, 0};
+        spots[i].vel = rvec2(0,  0);
 
         while ((fabs(spots[i].vel.x) + fabs(spots[i].vel.y)) < 2)
         {
@@ -169,7 +169,7 @@ pub fn run(rl
         // Update the spots, send them to the shader
         for (int i = 0; i < MAXSPOT; i++)
         {
-            if (i == 0)
+            if i == 0
             {
                 Vector2 mp = rl.get_mouse_position();
                 spots[i].pos.x = mp.x;
@@ -180,13 +180,13 @@ pub fn run(rl
                 spots[i].pos.x += spots[i].vel.x;
                 spots[i].pos.y += spots[i].vel.y;
 
-                if (spots[i].pos.x < 64)
+                if spots[i].pos.x < 64
                     spots[i].vel.x = -spots[i].vel.x;
-                if (spots[i].pos.x > screen_width - 64)
+                if spots[i].pos.x > screen_width - 64
                     spots[i].vel.x = -spots[i].vel.x;
-                if (spots[i].pos.y < 64)
+                if spots[i].pos.y < 64
                     spots[i].vel.y = -spots[i].vel.y;
-                if (spots[i].pos.y > screen_height - 64)
+                if spots[i].pos.y > screen_height - 64
                     spots[i].vel.y = -spots[i].vel.y;
             }
 
@@ -197,21 +197,21 @@ pub fn run(rl
         //----------------------------------------------------------------------------------
         let mut d = rl.begin_drawing(thread);
 
-        d.clear_background(Color::DARKColor::BLUE);
+        d.clear_background(Color::Color::DARKBLUE);
 
         // Draw stars and bobs
         for (int n = 0; n < numStars; n++)
         {
             // Single pixel is just too small these days!
-            d.draw_rectangle(stars[n].pos.x, stars[n].pos.y, 2, 2, WHITE);
+            d.draw_rectangle(stars[n].pos.x, stars[n].pos.y, 2, 2, Color::WHITE);
         }
 
         for (int i = 0; i < 16; i++)
         {
-            DrawTexture(texRay,
+            d.draw_texture(texRay,
                         (screen_width / 2.0) + cos((frameCounter + i * 8) / 51.45f) * (screen_width / 2.2) - 32,
                         (screen_height / 2.0) + sin((frameCounter + i * 8) / 17.87f) * (screen_height / 4.2),
-                        WHITE);
+                        Color::WHITE);
         }
 
         // Draw spot lights
@@ -220,7 +220,7 @@ pub fn run(rl
         // a render texture of the full screen used to do screen
         // scaling (slight adjustment to shader would be required
         // to actually pay attention to the colour!)
-        d.draw_rectangle(0, 0, screen_width, screen_height, WHITE);
+        d.draw_rectangle(0, 0, screen_width, screen_height, Color::WHITE);
         EndShaderMode();
 
         d.draw_fps(10, 10);
@@ -245,7 +245,7 @@ pub fn run(rl
 
 void ResetStar(Star *s)
 {
-    s->pos = (Vector2){Getscreen_width() / 2.0, Getscreen_height() / 2.0};
+    s->pos = rvec2(rl.get_screen_width() / 2.0,  rl.get_screen_height() / 2.0);
 
     do
     {
@@ -254,15 +254,15 @@ void ResetStar(Star *s)
 
     } while (!(fabs(s->vel.x) + fabs(s->vel.y) > 1));
 
-    s->pos = Vector2Add(s->pos, Vector2MultiplyV(s->vel, (Vector2){8, 8}));
+    s->pos = Vector2Add(s->pos, Vector2MultiplyV(s->vel, rvec2(8,  8)));
 }
 
 void UpdateStar(Star *s)
 {
     s->pos = Vector2Add(s->pos, s->vel);
 
-    if (s->pos.x < 0 || s->pos.x > Getscreen_width() ||
-        s->pos.y < 0 || s->pos.y > Getscreen_height())
+    if s->pos.x < 0 || s->pos.x > rl.get_screen_width( ||
+        s->pos.y < 0 || s->pos.y > rl.get_screen_height())
     {
         ResetStar(s);
     }

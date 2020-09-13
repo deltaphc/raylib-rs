@@ -78,7 +78,7 @@ pub fn run(rl
     Camera camera = {{2.0, 3.0, 2.0}, {0.0, 1.0, 0.0}, {0.0, 1.0, 0.0}, 45.0, 0};
 
     Model model = LoadModel("resources/models/church.obj");                 // Load OBJ model
-    Texture2D texture = LoadTexture("resources/models/church_diffuse.png"); // Load model texture (diffuse map)
+    let texture = rl.load_texture(thread, "resources/models/church_diffuse.png"); // Load model texture (diffuse map)
     model.materials[0].maps[MAP_DIFFUSE].texture = texture;                 // Set model diffuse texture
 
     let position = Vector3::zero(); // Set model position
@@ -89,18 +89,18 @@ pub fn run(rl
     Shader shaders[MAX_POSTPRO_SHADERS] = {0};
 
     // NOTE: Defining 0 (NULL) for vertex shader forces usage of internal default vertex shader
-    shaders[FX_GRAYSCALE] = LoadShader(0, FormatText("resources/shaders/glsl%i/grayscale.fs", GLSL_VERSION));
-    shaders[FX_POSTERIZATION] = LoadShader(0, FormatText("resources/shaders/glsl%i/posterization.fs", GLSL_VERSION));
-    shaders[FX_DREAM_VISION] = LoadShader(0, FormatText("resources/shaders/glsl%i/dream_vision.fs", GLSL_VERSION));
-    shaders[FX_PIXELIZER] = LoadShader(0, FormatText("resources/shaders/glsl%i/pixelizer.fs", GLSL_VERSION));
-    shaders[FX_CROSS_HATCHING] = LoadShader(0, FormatText("resources/shaders/glsl%i/cross_hatching.fs", GLSL_VERSION));
-    shaders[FX_CROSS_STITCHING] = LoadShader(0, FormatText("resources/shaders/glsl%i/cross_stitching.fs", GLSL_VERSION));
-    shaders[FX_PREDATOR_VIEW] = LoadShader(0, FormatText("resources/shaders/glsl%i/predator.fs", GLSL_VERSION));
-    shaders[FX_SCANLINES] = LoadShader(0, FormatText("resources/shaders/glsl%i/scanlines.fs", GLSL_VERSION));
-    shaders[FX_FISHEYE] = LoadShader(0, FormatText("resources/shaders/glsl%i/fisheye.fs", GLSL_VERSION));
-    shaders[FX_SOBEL] = LoadShader(0, FormatText("resources/shaders/glsl%i/sobel.fs", GLSL_VERSION));
-    shaders[FX_BLOOM] = LoadShader(0, FormatText("resources/shaders/glsl%i/bloom.fs", GLSL_VERSION));
-    shaders[FX_BLUR] = LoadShader(0, FormatText("resources/shaders/glsl%i/blur.fs", GLSL_VERSION));
+    shaders[FX_GRAYSCALE] = LoadShader(0, &format!("resources/shaders/glsl{}/grayscale.fs", GLSL_VERSION));
+    shaders[FX_POSTERIZATION] = LoadShader(0, &format!("resources/shaders/glsl{}/posterization.fs", GLSL_VERSION));
+    shaders[FX_DREAM_VISION] = LoadShader(0, &format!("resources/shaders/glsl{}/dream_vision.fs", GLSL_VERSION));
+    shaders[FX_PIXELIZER] = LoadShader(0, &format!("resources/shaders/glsl{}/pixelizer.fs", GLSL_VERSION));
+    shaders[FX_CROSS_HATCHING] = LoadShader(0, &format!("resources/shaders/glsl{}/cross_hatching.fs", GLSL_VERSION));
+    shaders[FX_CROSS_STITCHING] = LoadShader(0, &format!("resources/shaders/glsl{}/cross_stitching.fs", GLSL_VERSION));
+    shaders[FX_PREDATOR_VIEW] = LoadShader(0, &format!("resources/shaders/glsl{}/predator.fs", GLSL_VERSION));
+    shaders[FX_SCANLINES] = LoadShader(0, &format!("resources/shaders/glsl{}/scanlines.fs", GLSL_VERSION));
+    shaders[FX_FISHEYE] = LoadShader(0, &format!("resources/shaders/glsl{}/fisheye.fs", GLSL_VERSION));
+    shaders[FX_SOBEL] = LoadShader(0, &format!("resources/shaders/glsl{}/sobel.fs", GLSL_VERSION));
+    shaders[FX_BLOOM] = LoadShader(0, &format!("resources/shaders/glsl{}/bloom.fs", GLSL_VERSION));
+    shaders[FX_BLUR] = LoadShader(0, &format!("resources/shaders/glsl{}/blur.fs", GLSL_VERSION));
 
     int currentShader = FX_GRAYSCALE;
 
@@ -120,14 +120,14 @@ pub fn run(rl
         //----------------------------------------------------------------------------------
         rl.update_camera(&mut camera); // Update camera
 
-        if (IsKeyPressed(raylib::consts::KeyboardKey::KEY_RIGHT))
+        if rl.is_key_pressed(raylib::consts::KeyboardKey::KEY_RIGHT)
             currentShader++;
-        else if (IsKeyPressed(raylib::consts::KeyboardKey::KEY_LEFT))
+        else if rl.is_key_pressed(raylib::consts::KeyboardKey::KEY_LEFT)
             currentShader--;
 
-        if (currentShader >= MAX_POSTPRO_SHADERS)
+        if currentShader >= MAX_POSTPRO_SHADERS
             currentShader = 0;
-        else if (currentShader < 0)
+        else if currentShader < 0
             currentShader = MAX_POSTPRO_SHADERS - 1;
         //----------------------------------------------------------------------------------
 
@@ -137,13 +137,13 @@ pub fn run(rl
 
         d.clear_background(Color::RAYWHITE);
 
-        BeginTextureMode(target); // Enable drawing to texture
+        let mut d = d.begin_texture_mode(thread, &target); // Enable drawing to texture
 
         d.clear_background(Color::RAYWHITE); // Clear texture background
 
         let mut d = d.begin_mode3D(&camera); // Begin 3d mode drawing
 
-        DrawModel(model, position, 0.1, WHITE); // Draw 3d model with texture
+        DrawModel(model, position, 0.1, Color::WHITE); // Draw 3d model with texture
 
         d.draw_grid(10, 1.0); // Draw a grid
 
@@ -155,7 +155,7 @@ pub fn run(rl
         BeginShaderMode(shaders[currentShader]);
 
         // NOTE: Render texture must be y-flipped due to default OpenGL coordinates (left-bottom)
-        DrawTextureRec(target.texture, (Rectangle){0, 0, target.texture.width, -target.texture.height}, (Vector2){0, 0}, WHITE);
+        DrawTextureRec(target.texture, rrect(0, 0, target.texture.width, -target.texture.height), rvec2(0,  0), Color::WHITE);
 
         EndShaderMode();
 
@@ -166,7 +166,7 @@ pub fn run(rl
 
         d.draw_text("CURRENT POSTPRO SHADER:", 10, 15, 20, Color::BLACK);
         d.draw_text(postproShaderText[currentShader], 330, 15, 20,Color::RED);
-        d.draw_text("< >", 540, 10, 30, DARKColor::BLUE);
+        d.draw_text("< >", 540, 10, 30, Color::DARKBLUE);
 
         d.draw_fps(700, 15);
 

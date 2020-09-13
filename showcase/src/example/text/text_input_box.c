@@ -28,7 +28,7 @@ const MAX_INPUT_CHARS 9
     char name[MAX_INPUT_CHARS + 1] = "\0"; // NOTE: One extra space required for line ending char '\0'
     int letterCount = 0;
 
-    Rectangle textBox = {screen_width / 2 - 100, 180, 225, 50};
+    let textBox  = rrect(screen_width / 2 - 100,  180,  225,  50);
     bool mouseOnText = false;
 
     int framesCounter = 0;
@@ -41,12 +41,12 @@ const MAX_INPUT_CHARS 9
     {
         // Update
         //----------------------------------------------------------------------------------
-        if (CheckCollisionPointRec(rl.get_mouse_position(), textBox))
+        if CheckCollisionPointRec(rl.get_mouse_position(), textBox)
             mouseOnText = true;
         else
             mouseOnText = false;
 
-        if (mouseOnText)
+        if mouseOnText
         {
             // Get pressed key (character) on the queue
             int key = GetKeyPressed();
@@ -55,7 +55,7 @@ const MAX_INPUT_CHARS 9
             while (key > 0)
             {
                 // NOTE: Only allow keys in range [32..125]
-                if ((key >= 32) && (key <= 125) && (letterCount < MAX_INPUT_CHARS))
+                if (key >= 32) && (key <= 125) && (letterCount < MAX_INPUT_CHARS)
                 {
                     name[letterCount] = (char)key;
                     letterCount++;
@@ -64,17 +64,17 @@ const MAX_INPUT_CHARS 9
                 key = GetKeyPressed(); // Check next character in the queue
             }
 
-            if (IsKeyPressed(raylib::consts::KeyboardKey::KEY_BACKSPACE))
+            if rl.is_key_pressed(raylib::consts::KeyboardKey::KEY_BACKSPACE)
             {
                 letterCount--;
                 name[letterCount] = '\0';
 
-                if (letterCount < 0)
+                if letterCount < 0
                     letterCount = 0;
             }
         }
 
-        if (mouseOnText)
+        if mouseOnText
             framesCounter++;
         else
             framesCounter = 0;
@@ -88,22 +88,22 @@ const MAX_INPUT_CHARS 9
 
         d.draw_text("PLACE MOUSE OVER INPUT BOX!", 240, 140, 20, Color::GRAY);
 
-        d.draw_rectangleRec(textBox, Color::LIGHTGRAY);
-        if (mouseOnText)
+        d.draw_rectangle_rec(textBox, Color::LIGHTGRAY);
+        if mouseOnText
             d.draw_rectangle_lines(textBox.x, textBox.y, textBox.width, textBox.height,Color::RED);
         else
             d.draw_rectangle_lines(textBox.x, textBox.y, textBox.width, textBox.height, Color::DARKGRAY);
 
         d.draw_text(name, textBox.x + 5, textBox.y + 8, 40, Color::MAROON);
 
-        d.draw_text(FormatText("INPUT CHARS: %i/%i", letterCount, MAX_INPUT_CHARS), 315, 250, 20, Color::DARKGRAY);
+        d.draw_text(&format!("INPUT CHARS: {}/{}", letterCount, MAX_INPUT_CHARS), 315, 250, 20, Color::DARKGRAY);
 
-        if (mouseOnText)
+        if mouseOnText
         {
-            if (letterCount < MAX_INPUT_CHARS)
+            if letterCount < MAX_INPUT_CHARS
             {
                 // Draw blinking underscore char
-                if (((framesCounter / 20) % 2) == 0)
+                if ((framesCounter / 20) % 2) == 0
                     d.draw_text("_", textBox.x + 8 + raylib::text::measure_textname, 40), textBox.y + 12, 40, Color::MAROON);
             }
             else
@@ -129,7 +129,7 @@ bool IsAnyKeyPressed()
     bool keyPressed = false;
     int key = GetKeyPressed();
 
-    if ((key >= 32) && (key <= 126))
+    if (key >= 32) && (key <= 126)
         keyPressed = true;
 
     return keyPressed;

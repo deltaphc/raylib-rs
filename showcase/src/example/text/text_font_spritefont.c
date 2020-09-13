@@ -69,9 +69,9 @@ pub fn run(rl
 
         d.clear_background(Color::RAYWHITE);
 
-        DrawTextEx(font1, msg1, fontPosition1, font1.baseSize, -3, WHITE);
-        DrawTextEx(font2, msg2, fontPosition2, font2.baseSize, -2, WHITE);
-        DrawTextEx(font3, msg3, fontPosition3, font3.baseSize, 2, WHITE);
+        DrawTextEx(font1, msg1, fontPosition1, font1.baseSize, -3, Color::WHITE);
+        DrawTextEx(font2, msg2, fontPosition2, font2.baseSize, -2, Color::WHITE);
+        DrawTextEx(font3, msg3, fontPosition3, font3.baseSize, 2, Color::WHITE);
 
         EndDrawing();
         //----------------------------------------------------------------------------------

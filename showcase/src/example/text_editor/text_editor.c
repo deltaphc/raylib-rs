@@ -66,24 +66,24 @@ int main(int argc, char **argv)
         Vector2 mouse = rl.get_mouse_position();
 
         // Fonts drag & drop logic
-        if (IsFileDropped())
+        if IsFileDropped()
         {
             int count = 0;
             char **files = GetDroppedFiles(&count);
 
-            if (IsFileExtension(files[0], ".ttf") ||
+            if IsFileExtension(files[0], ".ttf" ||
                 IsFileExtension(files[0], ".otf") ||
                 IsFileExtension(files[0], ".fnt"))
             {
                 Font fnt = LoadFont(files[0]);
 
-                if (fnt.texture.id != 0)
+                if fnt.texture.id != 0
                 {
                     // Font was loaded, only change font on success
                     GuiSetFont(fnt);
 
                     // Remove old font
-                    if (font.texture.id != 0)
+                    if font.texture.id != 0
                         UnloadFont(font);
                     font = fnt;
                 }
@@ -101,9 +101,9 @@ int main(int argc, char **argv)
 
         // Draw textboxes extended
         //---------------------------------------------------------------------------------------
-        if (GuiTextEditor((Rectangle){20, 20, 380, 410}, text01, strlen(text01), textEditor01EditMode))
+        if GuiTextEditor(rrect(20, 20, 380, 410), text01, strlen(text01), textEditor01EditMode)
             textEditor01EditMode = !textEditor01EditMode;
-        if (GuiTextEditor((Rectangle){420, 20, 360, 410}, text02, strlen(text02), textEditor02EditMode))
+        if GuiTextEditor(rrect(420, 20, 360, 410), text02, strlen(text02), textEditor02EditMode)
             textEditor02EditMode = !textEditor02EditMode;
         //---------------------------------------------------------------------------------------
 
@@ -140,11 +140,11 @@ bool GuiTextEditor(Rectangle bounds, char *text, int textSize, bool editMode)
 
     // Update control
     //--------------------------------------------------------------------
-    if ((state != GUI_STATE_DISABLED) && !guiLocked)
+    if (state != GUI_STATE_DISABLED) && !guiLocked
     {
         Vector2 mousePoint = rl.get_mouse_position();
 
-        if (editMode)
+        if editMode
         {
             state = GUI_STATE_PRESSED;
             framesCounter++;
@@ -152,19 +152,19 @@ bool GuiTextEditor(Rectangle bounds, char *text, int textSize, bool editMode)
             // TODO: Cursor position logic (mouse and keys)
 
             // Characters selection logic
-            if (selectStartCp != -1)
+            if selectStartCp != -1
             {
-                if (rl.is_key_down(raylib::consts::KeyboardKey::KEY_LEFT_SHIFT) && IsKeyPressed(raylib::consts::KeyboardKey::KEY_RIGHT))
+                if rl.is_key_down(raylib::consts::KeyboardKey::KEY_LEFT_SHIFT) && rl.is_key_pressed(raylib::consts::KeyboardKey::KEY_RIGHT)
                 {
                     selectLengthCp++;
-                    if (selectLengthCp >= (codepointCount - selectStartCp))
+                    if selectLengthCp >= (codepointCount - selectStartCp)
                         selectLengthCp = codepointCount - selectStartCp;
                 }
 
-                if (rl.is_key_down(raylib::consts::KeyboardKey::KEY_LEFT_SHIFT) && IsKeyPressed(raylib::consts::KeyboardKey::KEY_LEFT))
+                if rl.is_key_down(raylib::consts::KeyboardKey::KEY_LEFT_SHIFT) && rl.is_key_pressed(raylib::consts::KeyboardKey::KEY_LEFT)
                 {
                     selectLengthCp--;
-                    if (selectLengthCp < 0)
+                    if selectLengthCp < 0
                         selectLengthCp = 0;
                 }
             }
@@ -174,20 +174,20 @@ bool GuiTextEditor(Rectangle bounds, char *text, int textSize, bool editMode)
             // TODO: On key pressed, place new character in cursor position
 
             // Exit edit mode logic
-            if (IsKeyPressed(raylib::consts::KeyboardKey::KEY_ENTER) || (!CheckCollisionPointRec(mousePoint, bounds) && rl.is_mouse_button_pressed(0)))
+            if rl.is_key_pressed(raylib::consts::KeyboardKey::KEY_ENTER) || (!CheckCollisionPointRec(mousePoint, bounds) && rl.is_mouse_button_pressed(0))
                 pressed = true;
         }
         else
         {
-            if (CheckCollisionPointRec(mousePoint, bounds))
+            if CheckCollisionPointRec(mousePoint, bounds)
             {
                 state = GUI_STATE_FOCUSED;
-                if (rl.is_mouse_button_pressed(0))
+                if rl.is_mouse_button_pressed(0)
                     pressed = true;
             }
         }
 
-        if (pressed)
+        if pressed
         {
             // Exiting edit mode, reset temp variables
             framesCounter = 0;
@@ -204,9 +204,9 @@ bool GuiTextEditor(Rectangle bounds, char *text, int textSize, bool editMode)
     //--------------------------------------------------------------------
     d.draw_rectangle_linesEx(bounds, GuiGetStyle(TEXTBOX, BORDER_WIDTH), Fade(GetColor(GuiGetStyle(TEXTBOX, BORDER + (state * 3))), guiAlpha));
 
-    if (state == GUI_STATE_PRESSED)
+    if state == GUI_STATE_PRESSED
         d.draw_rectangle(bounds.x + GuiGetStyle(TEXTBOX, BORDER_WIDTH), bounds.y + GuiGetStyle(TEXTBOX, BORDER_WIDTH), bounds.width - 2 * GuiGetStyle(TEXTBOX, BORDER_WIDTH), bounds.height - 2 * GuiGetStyle(TEXTBOX, BORDER_WIDTH), Fade(GetColor(GuiGetStyle(TEXTBOX, BASE_COLOR_PRESSED)), guiAlpha));
-    else if (state == GUI_STATE_DISABLED)
+    else if state == GUI_STATE_DISABLED
         d.draw_rectangle(bounds.x + GuiGetStyle(TEXTBOX, BORDER_WIDTH), bounds.y + GuiGetStyle(TEXTBOX, BORDER_WIDTH), bounds.width - 2 * GuiGetStyle(TEXTBOX, BORDER_WIDTH), bounds.height - 2 * GuiGetStyle(TEXTBOX, BORDER_WIDTH), Fade(GetColor(GuiGetStyle(TEXTBOX, BASE_COLOR_DISABLED)), guiAlpha));
 
     Font font = GetFontDefault();
@@ -228,7 +228,7 @@ bool GuiTextEditor(Rectangle bounds, char *text, int textSize, bool editMode)
                          font.recs[index].width * scaleFactor, font.recs[index].height * scaleFactor};
 
         // Automatic line break to wrap text inside box
-        if (textWrap && ((rec.x + rec.width) >= (bounds.x + bounds.width)))
+        if textWrap && ((rec.x + rec.width) >= (bounds.x + bounds.width))
         {
             textOffsetY += (int)((font.baseSize + font.baseSize / 2) * scaleFactor);
             textOffsetX = 0.0;
@@ -240,9 +240,9 @@ bool GuiTextEditor(Rectangle bounds, char *text, int textSize, bool editMode)
         }
 
         // Check selected codepoint
-        if (editMode)
+        if editMode
         {
-            if (rl.is_mouse_button_pressed(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON) && CheckCollisionPointRec(rl.get_mouse_position(), rec))
+            if rl.is_mouse_button_pressed(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON) && CheckCollisionPointRec(rl.get_mouse_position(), rec)
             {
                 cursor = rec;
                 cursorCodepoint = cp;
@@ -253,11 +253,11 @@ bool GuiTextEditor(Rectangle bounds, char *text, int textSize, bool editMode)
             }
 
             // On mouse left button down allow text selection
-            if ((selectStartCp != -1) && IsMouseButtonDown(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON) && CheckCollisionPointRec(rl.get_mouse_position(), rec))
+            if (selectStartCp != -1) && rl.is_mouse_button_down(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON) && CheckCollisionPointRec(rl.get_mouse_position(), rec)
             {
-                if (cp >= selectStartCp)
+                if cp >= selectStartCp
                     selectLengthCp = cp - selectStartCp;
-                else if (cp < selectStartCp)
+                else if cp < selectStartCp
                 {
                     //int temp = selectStartCp;
                     //selectStartCp = cp;
@@ -266,7 +266,7 @@ bool GuiTextEditor(Rectangle bounds, char *text, int textSize, bool editMode)
             }
         }
 
-        if (codepoint == '\n') // Line break character
+        if codepoint == '\n' // Line break character
         {
             // NOTE: Fixed line spacing of 1.5 line-height
             // TODO: Support custom line spacing defined by user
@@ -276,9 +276,9 @@ bool GuiTextEditor(Rectangle bounds, char *text, int textSize, bool editMode)
         else
         {
             // Draw codepoint glyph
-            if ((codepoint != ' ') && (codepoint != '\t') && ((rec.x + rec.width) < (bounds.x + bounds.width)))
+            if (codepoint != ' ') && (codepoint != '\t') && ((rec.x + rec.width) < (bounds.x + bounds.width))
             {
-                DrawTexturePro(font.texture, font.recs[index], rec, (Vector2){0, 0}, 0.0, GetColor(GuiGetStyle(DEFAULT, TEXT_COLOR_NORMAL)));
+                d.draw_texture_pro(font.texture, font.recs[index], rec, rvec2(0,  0), 0.0, GetColor(GuiGetStyle(DEFAULT, TEXT_COLOR_NORMAL)));
             }
 
             // TODO: On text overflow do something... move text to the left?
@@ -286,10 +286,10 @@ bool GuiTextEditor(Rectangle bounds, char *text, int textSize, bool editMode)
 
         // Draw codepoints selection from selectStartCp to selectLengthCp
         // TODO: Consider spacing when drawing selected characters background
-        if (editMode && (selectStartCp != -1) && ((cp >= selectStartCp) && (cp <= (selectStartCp + selectLengthCp))))
-            d.draw_rectangleRec(rec, Color::MAROON);
+        if editMode && (selectStartCp != -1) && ((cp >= selectStartCp) && (cp <= (selectStartCp + selectLengthCp)))
+            d.draw_rectangle_rec(rec, Color::MAROON);
 
-        if (font.chars[index].advanceX == 0)
+        if font.chars[index].advanceX == 0
             textOffsetX += ((float)font.recs[index].width * scaleFactor + GuiGetStyle(DEFAULT, TEXT_SPACING));
         else
             textOffsetX += ((float)font.chars[index].advanceX * scaleFactor + GuiGetStyle(DEFAULT, TEXT_SPACING));
@@ -299,8 +299,8 @@ bool GuiTextEditor(Rectangle bounds, char *text, int textSize, bool editMode)
     }
 
     // Draw blinking cursor
-    if (editMode && ((framesCounter / 20) % 2 == 0))
-        d.draw_rectangleRec(cursor, Fade(GetColor(GuiGetStyle(TEXTBOX, BORDER_COLOR_PRESSED)), guiAlpha));
+    if editMode && ((framesCounter / 20) % 2 == 0)
+        d.draw_rectangle_rec(cursor, Fade(GetColor(GuiGetStyle(TEXTBOX, BORDER_COLOR_PRESSED)), guiAlpha));
 
     //Guid.draw_text(text, GetTextBounds(TEXTBOX, bounds), GuiGetStyle(TEXTBOX, TEXT_ALIGNMENT), Fade(GetColor(GuiGetStyle(TEXTBOX, TEXT + (state*3))), guiAlpha));
     //--------------------------------------------------------------------

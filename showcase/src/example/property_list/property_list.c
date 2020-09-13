@@ -70,12 +70,12 @@ const RAYGUI_IMPLEMENTATION const RAYGUI_SUPPORT_ICONS
         let mut d = rl.begin_drawing(thread);
         ClearBackground(GetColor(GuiGetStyle(DEFAULT, BACKGROUND_COLOR)));
 
-        GuiGrid((Rectangle){0, 0, SCREEN_WIDTH, SCREEN_HEIGHT}, 20.0, 2); // draw a fancy grid
+        GuiGrid(rrect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT), 20.0, 2); // draw a fancy grid
 
-        GuiDMPropertyList((Rectangle){(SCREEN_WIDTH - 180) / 2, (SCREEN_HEIGHT - 280) / 2, 180, 280}, prop, SIZEOF(prop), &focus, &scroll);
+        GuiDMPropertyList(rrect((SCREEN_WIDTH - 180) / 2, (SCREEN_HEIGHT - 280) / 2, 180, 280), prop, SIZEOF(prop), &focus, &scroll);
 
-        if (prop[0].value.vbool)
-            d.draw_text(TextFormat("FOCUS:%i | SCROLL:%i | FPS:%i", focus, scroll, GetFPS()), prop[8].value.v2.x, prop[8].value.v2.y, 20, prop[11].value.vcolor);
+        if prop[0].value.vbool
+            d.draw_text(&format!("FOCUS:{} | SCROLL:{} | FPS:{}", focus, scroll, GetFPS()), prop[8].value.v2.x, prop[8].value.v2.y, 20, prop[11].value.vcolor);
         EndDrawing();
         //----------------------------------------------------------------------------------
     }

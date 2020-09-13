@@ -27,19 +27,19 @@ pub fn run(rl
 
     // NOTE: Textures MUST be loaded after Window initialization (OpenGL context is required)
 
-    Texture2D scarfy = LoadTexture("resources/scarfy.png"); // Texture loading
+    let scarfy = rl.load_texture(thread, "resources/scarfy.png"); // Texture loading
 
     int frameWidth = scarfy.width / 6;
     int frameHeight = scarfy.height;
 
     // Source rectangle (part of the texture to use for drawing)
-    Rectangle sourceRec = {0.0, 0.0, frameWidth, frameHeight};
+    let sourceRec  = rrect(0.0,  0.0,  frameWidth,  frameHeight);
 
     // Destination rectangle (screen rectangle where drawing part of texture)
-    Rectangle destRec = {screen_width / 2, screen_height / 2, frameWidth * 2, frameHeight * 2};
+    let destRec  = rrect(screen_width / 2,  screen_height / 2,  frameWidth * 2,  frameHeight * 2);
 
     // Origin of the texture (rotation/scale point), it's relative to destination rectangle size
-    Vector2 origin = {frameWidth, frameHeight};
+    let origin = rvec2(frameWidth, frameHeight);
 
     int rotation = 0;
 
@@ -60,12 +60,12 @@ pub fn run(rl
 
         d.clear_background(Color::RAYWHITE);
 
-        // NOTE: Using DrawTexturePro() we can easily rotate and scale the part of the texture we draw
+        // NOTE: Using d.draw_texture_pro() we can easily rotate and scale the part of the texture we draw
         // sourceRec defines the part of the texture we use for drawing
         // destRec defines the rectangle where our texture part will fit (scaling it to fit)
         // origin defines the point of the texture used as reference for rotation and scaling
         // rotation defines the texture rotation (using origin as rotation point)
-        DrawTexturePro(scarfy, sourceRec, destRec, origin, (float)rotation, WHITE);
+        d.draw_texture_pro(scarfy, sourceRec, destRec, origin, (float)rotation, Color::WHITE);
 
         DrawLine((int)destRec.x, 0, (int)destRec.x, screen_height, Color::GRAY);
         DrawLine(0, (int)destRec.y, screen_width, (int)destRec.y, Color::GRAY);

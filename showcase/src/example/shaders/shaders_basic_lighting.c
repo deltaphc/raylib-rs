@@ -72,8 +72,8 @@ const RLIGHTS_IMPLEMENTATION
     modelB.materials[0].maps[MAP_DIFFUSE].texture = texture;
     modelC.materials[0].maps[MAP_DIFFUSE].texture = texture;
 
-    Shader shader = LoadShader(FormatText("resources/shaders/glsl%i/base_lighting.vs", GLSL_VERSION),
-                               FormatText("resources/shaders/glsl%i/lighting.fs", GLSL_VERSION));
+    Shader shader = LoadShader(&format!("resources/shaders/glsl{}/base_lighting.vs", GLSL_VERSION),
+                               &format!("resources/shaders/glsl{}/lighting.fs", GLSL_VERSION));
 
     // Get some shader loactions
     shader.locs[LOC_MATRIX_MODEL] = GetShaderLocation(shader, "matModel");
@@ -92,10 +92,10 @@ const RLIGHTS_IMPLEMENTATION
 
     // Using 4 point lights, white,Color::RED, green and blue
     Light lights[MAX_LIGHTS] = {0};
-    lights[0] = CreateLight(LIGHT_POINT, (Vector3){4, 2, 4}, Vector3Zero(), WHITE, shader);
-    lights[1] = CreateLight(LIGHT_POINT, (Vector3){4, 2, 4}, Vector3Zero(),Color::RED, shader);
-    lights[2] = CreateLight(LIGHT_POINT, (Vector3){0, 4, 2}, Vector3Zero(), Color::GREEN, shader);
-    lights[3] = CreateLight(LIGHT_POINT, (Vector3){0, 4, 2}, Vector3Zero(), Color::BLUE, shader);
+    lights[0] = CreateLight(LIGHT_POINT, rvec3(4, 2,  4), Vector3Zero(), Color::WHITE, shader);
+    lights[1] = CreateLight(LIGHT_POINT, rvec3(4, 2,  4), Vector3Zero(),Color::RED, shader);
+    lights[2] = CreateLight(LIGHT_POINT, rvec3(0, 4,  2), Vector3Zero(), Color::GREEN, shader);
+    lights[3] = CreateLight(LIGHT_POINT, rvec3(0, 4,  2), Vector3Zero(), Color::BLUE, shader);
 
     SetCameraMode(camera, CAMERA_ORBITAL); // Set an orbital camera mode
 
@@ -107,19 +107,19 @@ const RLIGHTS_IMPLEMENTATION
     {
         // Update
         //----------------------------------------------------------------------------------
-        if (IsKeyPressed(raylib::consts::KeyboardKey::KEY_W))
+        if rl.is_key_pressed(raylib::consts::KeyboardKey::KEY_W)
         {
             lights[0].enabled = !lights[0].enabled;
         }
-        if (IsKeyPressed(raylib::consts::KeyboardKey::KEY_R))
+        if rl.is_key_pressed(raylib::consts::KeyboardKey::KEY_R)
         {
             lights[1].enabled = !lights[1].enabled;
         }
-        if (IsKeyPressed(raylib::consts::KeyboardKey::KEY_G))
+        if rl.is_key_pressed(raylib::consts::KeyboardKey::KEY_G)
         {
             lights[2].enabled = !lights[2].enabled;
         }
-        if (IsKeyPressed(raylib::consts::KeyboardKey::KEY_B))
+        if rl.is_key_pressed(raylib::consts::KeyboardKey::KEY_B)
         {
             lights[3].enabled = !lights[3].enabled;
         }
@@ -160,24 +160,24 @@ const RLIGHTS_IMPLEMENTATION
         let mut d = d.begin_mode3D(&camera);
 
         // Draw the three models
-        DrawModel(modelA, Vector3Zero(), 1.0, WHITE);
-        DrawModel(modelB, (Vector3){-1.6, 0, 0}, 1.0, WHITE);
-        DrawModel(modelC, (Vector3){1.6, 0, 0}, 1.0, WHITE);
+        DrawModel(modelA, Vector3Zero(), 1.0, Color::WHITE);
+        DrawModel(modelB, rvec3(-1.6, 0,  0), 1.0, Color::WHITE);
+        DrawModel(modelC, rvec3(1.6, 0,  0), 1.0, Color::WHITE);
 
         // Draw markers to show where the lights are
-        if (lights[0].enabled)
+        if lights[0].enabled
         {
-            DrawSphereEx(lights[0].position, 0.2, 8, 8, WHITE);
+            DrawSphereEx(lights[0].position, 0.2, 8, 8, Color::WHITE);
         }
-        if (lights[1].enabled)
+        if lights[1].enabled
         {
             DrawSphereEx(lights[1].position, 0.2, 8, 8,Color::RED);
         }
-        if (lights[2].enabled)
+        if lights[2].enabled
         {
             DrawSphereEx(lights[2].position, 0.2, 8, 8, Color::GREEN);
         }
-        if (lights[3].enabled)
+        if lights[3].enabled
         {
             DrawSphereEx(lights[3].position, 0.2, 8, 8, Color::BLUE);
         }

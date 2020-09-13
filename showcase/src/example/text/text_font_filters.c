@@ -41,8 +41,8 @@ pub fn run(rl
     GenTextureMipmaps(&font.texture);
 
     float fontSize = font.baseSize;
-    Vector2 fontPosition = {40, screen_height / 2 - 80};
-    Vector2 textSize = {0.0, 0.0};
+    let fontPosition = rvec2(40, screen_height / 2 - 80);
+    let textSize = rvec2(0.0, 0.0);
 
     // Setup texture scaling filter
     SetTextureFilter(font.texture, FILTER_POINT);
@@ -56,20 +56,20 @@ pub fn run(rl
     {
         // Update
         //----------------------------------------------------------------------------------
-        fontSize += GetMouseWheelMove() * 4.0;
+        fontSize += rl.get_mouse_wheel_move() * 4.0;
 
         // Choose font texture filter method
-        if (IsKeyPressed(raylib::consts::KeyboardKey::KEY_ONE))
+        if rl.is_key_pressed(raylib::consts::KeyboardKey::KEY_ONE)
         {
             SetTextureFilter(font.texture, FILTER_POINT);
             currentFontFilter = 0;
         }
-        else if (IsKeyPressed(raylib::consts::KeyboardKey::KEY_TWO))
+        else if rl.is_key_pressed(raylib::consts::KeyboardKey::KEY_TWO)
         {
             SetTextureFilter(font.texture, FILTER_BILINEAR);
             currentFontFilter = 1;
         }
-        else if (IsKeyPressed(raylib::consts::KeyboardKey::KEY_THREE))
+        else if rl.is_key_pressed(raylib::consts::KeyboardKey::KEY_THREE)
         {
             // NOTE: Trilinear filter won't be noticed on 2D drawing
             SetTextureFilter(font.texture, FILTER_TRILINEAR);
@@ -78,19 +78,19 @@ pub fn run(rl
 
         textSize = MeasureTextEx(font, msg, fontSize, 0);
 
-        if (rl.is_key_down(raylib::consts::KeyboardKey::KEY_LEFT))
+        if rl.is_key_down(raylib::consts::KeyboardKey::KEY_LEFT)
             fontPosition.x -= 10;
-        else if (rl.is_key_down(raylib::consts::KeyboardKey::KEY_RIGHT))
+        else if rl.is_key_down(raylib::consts::KeyboardKey::KEY_RIGHT)
             fontPosition.x += 10;
 
         // Load a dropped TTF file dynamically (at current fontSize)
-        if (IsFileDropped())
+        if IsFileDropped()
         {
             int count = 0;
             char **droppedFiles = GetDroppedFiles(&count);
 
             // NOTE: We only support first ttf file dropped
-            if (IsFileExtension(droppedFiles[0], ".ttf"))
+            if IsFileExtension(droppedFiles[0], ".ttf")
             {
                 UnloadFont(font);
                 font = LoadFontEx(droppedFiles[0], fontSize, 0, 0);
@@ -116,15 +116,15 @@ pub fn run(rl
         //d.draw_rectangle_lines(fontPosition.x, fontPosition.y, textSize.x, textSize.y,Color::RED);
 
         d.draw_rectangle(0, screen_height - 80, screen_width, 80, Color::LIGHTGRAY);
-        d.draw_text(FormatText("Font size: %02.02f", fontSize), 20, screen_height - 50, 10, Color::DARKGRAY);
-        d.draw_text(FormatText("Text size: [%02.02f, %02.02f]", textSize.x, textSize.y), 20, screen_height - 30, 10, Color::DARKGRAY);
+        d.draw_text(&format!("Font size: %02.02f", fontSize), 20, screen_height - 50, 10, Color::DARKGRAY);
+        d.draw_text(&format!("Text size: [%02.02f, %02.02f]", textSize.x, textSize.y), 20, screen_height - 30, 10, Color::DARKGRAY);
         d.draw_text("CURRENT TEXTURE FILTER:", 250, 400, 20, Color::GRAY);
 
-        if (currentFontFilter == 0)
+        if currentFontFilter == 0
             d.draw_text("POINT", 570, 400, 20, Color::BLACK);
-        else if (currentFontFilter == 1)
+        else if currentFontFilter == 1
             d.draw_text("BILINEAR", 570, 400, 20, Color::BLACK);
-        else if (currentFontFilter == 2)
+        else if currentFontFilter == 2
             d.draw_text("TRILINEAR", 570, 400, 20, Color::BLACK);
 
         EndDrawing();

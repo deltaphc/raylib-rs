@@ -183,8 +183,8 @@ int main(int argc, char **argv)
     Font fontAsian = LoadFont("resources/notoCJK.fnt");
     Font fontEmoji = LoadFont("resources/emoji.fnt");
 
-    Vector2 hoveredPos = {0.0, 0.0};
-    Vector2 selectedPos = {0.0, 0.0};
+    let hoveredPos = rvec2(0.0, 0.0);
+    let selectedPos = rvec2(0.0, 0.0);
 
     // Set a random set of emojis when starting up
     RandomizeEmoji();
@@ -198,11 +198,11 @@ int main(int argc, char **argv)
         // Update
         //----------------------------------------------------------------------------------
         // Add a new set of emojis when SPACE is pressed
-        if (IsKeyPressed(raylib::consts::KeyboardKey::KEY_SPACE))
+        if rl.is_key_pressed(raylib::consts::KeyboardKey::KEY_SPACE)
             RandomizeEmoji();
 
         // Set the selected emoji and copy its text to clipboard
-        if (rl.is_mouse_button_pressed(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON) && (hovered != -1) && (hovered != selected))
+        if rl.is_mouse_button_pressed(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON) && (hovered != -1) && (hovered != selected)
         {
             selected = hovered;
             selectedPos = hoveredPos;
@@ -210,7 +210,7 @@ int main(int argc, char **argv)
         }
 
         Vector2 mouse = rl.get_mouse_position();
-        Vector2 pos = {28.8f, 10.0};
+        let pos = rvec2(28.8f, 10.0);
         hovered = -1;
         //----------------------------------------------------------------------------------
 
@@ -225,9 +225,9 @@ int main(int argc, char **argv)
         for (int i = 0; i < SIZEOF(emoji); ++i)
         {
             const char *txt = &emojiCodepoints[emoji[i].index];
-            Rectangle emojiRect = {pos.x, pos.y, fontEmoji.baseSize, fontEmoji.baseSize};
+            let emojiRect  = rrect(pos.x,  pos.y,  fontEmoji.baseSize,  fontEmoji.baseSize);
 
-            if (!CheckCollisionPointRec(mouse, emojiRect))
+            if !CheckCollisionPointRec(mouse, emojiRect)
             {
                 DrawTextEx(fontEmoji, txt, pos, fontEmoji.baseSize, 1.0, selected == i ? emoji[i].color : Fade(Color::LIGHTGRAY, 0.4f));
             }
@@ -238,7 +238,7 @@ int main(int argc, char **argv)
                 hoveredPos = pos;
             }
 
-            if ((i != 0) && (i % EMOJI_PER_WIDTH == 0))
+            if (i != 0) && (i % EMOJI_PER_WIDTH == 0)
             {
                 pos.y += fontEmoji.baseSize + 24.25f;
                 pos.x = 28.8f;
@@ -250,38 +250,38 @@ int main(int argc, char **argv)
 
         // Draw the message when a emoji is selected
         //------------------------------------------------------------------------------
-        if (selected != -1)
+        if selected != -1
         {
             let message = emoji[selected].message;
             let horizontalPadding = 20, verticalPadding = 30;
             Font *font = &fontDefault;
 
             // Set correct font for asian languages
-            if (TextIsEqual(messages[message].language, "Chinese") ||
+            if TextIsEqual(messages[message].language, "Chinese" ||
                 TextIsEqual(messages[message].language, "Korean") ||
                 TextIsEqual(messages[message].language, "Japanese"))
                 font = &fontAsian;
 
             // Calculate size for the message box (approximate the height and width)
             Vector2 sz = MeasureTextEx(*font, messages[message].text, font->baseSize, 1.0);
-            if (sz.x > 300)
+            if sz.x > 300
             {
                 sz.y *= sz.x / 300;
                 sz.x = 300;
             }
-            else if (sz.x < 160)
+            else if sz.x < 160
                 sz.x = 160;
 
-            Rectangle msgRect = {selectedPos.x - 38.8f, selectedPos.y, 2 * horizontalPadding + sz.x, 2 * verticalPadding + sz.y};
+            let msgRect  = rrect(selectedPos.x - 38.8f,  selectedPos.y,  2 * horizontalPadding + sz.x,  2 * verticalPadding + sz.y);
             msgRect.y -= msgRect.height;
 
             // Coordinates for the chat bubble triangle
-            Vector2 a = {selectedPos.x, msgRect.y + msgRect.height}, b = {a.x + 8, a.y + 10}, c = {a.x + 10, a.y};
+            let a = {selectedPos.x, msgRect.y + msgRect.height}, b = {a.x + 8, a.y + 10}, c = rvec2(a.x + 10, a.y);
 
             // Don't go outside the screen
-            if (msgRect.x < 10)
+            if msgRect.x < 10
                 msgRect.x += 28;
-            if (msgRect.y < 10)
+            if msgRect.y < 10
             {
                 msgRect.y = selectedPos.y + 84;
                 a.y = msgRect.y;
@@ -293,24 +293,24 @@ int main(int argc, char **argv)
                 a = b;
                 b = tmp;
             }
-            if (msgRect.x + msgRect.width > screen_width)
+            if msgRect.x + msgRect.width > screen_width
                 msgRect.x -= (msgRect.x + msgRect.width) - screen_width + 10;
 
             // Draw chat bubble
-            d.draw_rectangleRec(msgRect, emoji[selected].color);
-            DrawTriangle(a, b, c, emoji[selected].color);
+            d.draw_rectangle_rec(msgRect, emoji[selected].color);
+            d.draw_triangle(a, b, c, emoji[selected].color);
 
             // Draw the main text message
-            Rectangle textRect = {msgRect.x + horizontalPadding / 2, msgRect.y + verticalPadding / 2, msgRect.width - horizontalPadding, msgRect.height};
-            DrawTextRec(*font, messages[message].text, textRect, font->baseSize, 1.0, true, WHITE);
+            let textRect  = rrect(msgRect.x + horizontalPadding / 2,  msgRect.y + verticalPadding / 2,  msgRect.width - horizontalPadding,  msgRect.height);
+            DrawTextRec(*font, messages[message].text, textRect, font->baseSize, 1.0, true, Color::WHITE);
 
             // Draw the info text below the main message
             int size = strlen(messages[message].text);
             int len = GetCodepointsCount(messages[message].text);
-            const char *info = TextFormat("%s %u characters %i bytes", messages[message].language, len, size);
+            const char *info = &format!("%s %u characters {} bytes", messages[message].language, len, size);
             sz = MeasureTextEx(GetFontDefault(), info, 10, 1.0);
-            Vector2 pos = {textRect.x + textRect.width - sz.x, msgRect.y + msgRect.height - sz.y - 2};
-            d.draw_text(info, pos.x, pos.y, 10, RAYWHITE);
+            let pos = rvec2(textRect.x + textRect.width - sz.x, msgRect.y + msgRect.height - sz.y - 2);
+            d.draw_text(info, pos.x, pos.y, 10, Color::RAYWHITE);
         }
         //------------------------------------------------------------------------------
 

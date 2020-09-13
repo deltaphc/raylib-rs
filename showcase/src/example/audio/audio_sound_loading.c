@@ -38,9 +38,9 @@ pub fn run(rl
     {
         // Update
         //----------------------------------------------------------------------------------
-        if (IsKeyPressed(raylib::consts::KeyboardKey::KEY_SPACE))
+        if rl.is_key_pressed(raylib::consts::KeyboardKey::KEY_SPACE)
             PlaySound(fxWav); // Play WAV sound
-        if (IsKeyPressed(raylib::consts::KeyboardKey::KEY_ENTER))
+        if rl.is_key_pressed(raylib::consts::KeyboardKey::KEY_ENTER)
             PlaySound(fxOgg); // Play OGG sound
         //----------------------------------------------------------------------------------
 

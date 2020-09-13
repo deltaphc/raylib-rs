@@ -40,8 +40,8 @@ pub fn run(rl
 
     InitAudioDevice(); // Initialize audio device
 
-    Color colors[14] = {ORANGE,Color::RED, Color::GOLD, Color::LIME, Color::BLUE, VIOLET, BROWN, Color::LIGHTGRAY, PINK,
-                        YELLOW, Color::GREEN, Color::SKYBLUE, PURPLE, BEIGE};
+    Color colors[14] = {ORANGE,Color::RED, Color::GOLD, Color::LIME, Color::BLUE, Color::VIOLET, BROWN, Color::LIGHTGRAY, Color::PINK,
+                        Color::YELLOW, Color::GREEN, Color::SKYBLUE, PURPLE, Color::BEIGE};
 
     // Creates ome circles for visual effect
     CircleWave circles[MAX_CIRCLES] = {0};
@@ -74,18 +74,18 @@ pub fn run(rl
         UpdateMusicStream(music); // Update music buffer with new stream data
 
         // Restart music playing (stop and play)
-        if (IsKeyPressed(raylib::consts::KeyboardKey::KEY_SPACE))
+        if rl.is_key_pressed(raylib::consts::KeyboardKey::KEY_SPACE)
         {
             StopMusicStream(music);
             PlayMusicStream(music);
         }
 
         // Pause/Resume music playing
-        if (IsKeyPressed(raylib::consts::KeyboardKey::KEY_P))
+        if rl.is_key_pressed(raylib::consts::KeyboardKey::KEY_P)
         {
             pause = !pause;
 
-            if (pause)
+            if pause
                 PauseMusicStream(music);
             else
                 ResumeMusicStream(music);
@@ -100,10 +100,10 @@ pub fn run(rl
             circles[i].alpha += circles[i].speed;
             circles[i].radius += circles[i].speed * 10.0;
 
-            if (circles[i].alpha > 1.0)
+            if circles[i].alpha > 1.0
                 circles[i].speed *= -1;
 
-            if (circles[i].alpha <= 0.0)
+            if circles[i].alpha <= 0.0
             {
                 circles[i].alpha = 0.0;
                 circles[i].radius = raylib::get_random_value(10, 40);
@@ -123,7 +123,7 @@ pub fn run(rl
 
         for (int i = MAX_CIRCLES - 1; i >= 0; i--)
         {
-            DrawCircleV(circles[i].position, circles[i].radius, Fade(circles[i].color, circles[i].alpha));
+            d.draw_circle_v(circles[i].position, circles[i].radius, Fade(circles[i].color, circles[i].alpha));
         }
 
         // Draw time bar

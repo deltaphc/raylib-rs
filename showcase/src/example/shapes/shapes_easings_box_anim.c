@@ -26,7 +26,7 @@ pub fn run(rl
     InitWindow(screenWidscreen_widtheight, "raylib [shapes] example - easings box anim");
 
     // Box variables to be animated with easings
-    Rectangle rec = {GetScreenWidth() / 2, -100, 100, 100};
+    let rec  = rrect(GetScreenWidth() / 2,  -100,  100,  100);
     float rotation = 0.0;
     float alpha = 1.0;
 
@@ -49,9 +49,9 @@ pub fn run(rl
 
             // NOTE: Remember that 3rd parameter of easing function refers to
             // desired value variation, do not confuse it with expected final value!
-            rec.y = EaseElasticOut(framesCounter, -100, Getscreen_height() / 2 + 100, 120);
+            rec.y = EaseElasticOut(framesCounter, -100, rl.get_screen_height() / 2 + 100, 120);
 
-            if (framesCounter >= 120)
+            if framesCounter >= 120
             {
                 framesCounter = 0;
                 state = 1;
@@ -64,7 +64,7 @@ pub fn run(rl
             rec.height = EaseBounceOut(framesCounter, 100, -90, 120);
             rec.width = EaseBounceOut(framesCounter, 100, GetScreenWidth(), 120);
 
-            if (framesCounter >= 120)
+            if framesCounter >= 120
             {
                 framesCounter = 0;
                 state = 2;
@@ -76,7 +76,7 @@ pub fn run(rl
             framesCounter++;
             rotation = EaseQuadOut(framesCounter, 0.0, 270.0, 240);
 
-            if (framesCounter >= 240)
+            if framesCounter >= 240
             {
                 framesCounter = 0;
                 state = 3;
@@ -88,7 +88,7 @@ pub fn run(rl
             framesCounter++;
             rec.height = EaseCircOut(framesCounter, 10, GetScreenWidth(), 120);
 
-            if (framesCounter >= 120)
+            if framesCounter >= 120
             {
                 framesCounter = 0;
                 state = 4;
@@ -100,7 +100,7 @@ pub fn run(rl
             framesCounter++;
             alpha = EaseSineOut(framesCounter, 1.0, -1.0, 160);
 
-            if (framesCounter >= 160)
+            if framesCounter >= 160
             {
                 framesCounter = 0;
                 state = 5;
@@ -112,9 +112,9 @@ pub fn run(rl
         }
 
         // Reset animation at anyscreen_width
-        if (IsKeyPressed(raylib::consts::KeyboardKey::KEY_SPACE))
+        if rl.is_key_pressed(raylib::consts::KeyboardKey::KEY_SPACE)
         {
-            rec = (Rectangle){GetScreenWidth() / 2, -100, 100, 100};
+            rec = rrect(GetScreenWidth() / 2, -100, 100, 100);
             rotation = 0.0;
             alpha = 1.0;
             state = 0;
@@ -128,9 +128,9 @@ pub fn run(rl
 
         d.clear_background(Color::RAYWHITE);
 
-        d.draw_rectanglePro(rec, (Vector2){rec.width / 2, rec.height / 2}, rotation, Fade(BLACK, alpha));
+        d.draw_rectanglePro(rec, rvec2(rec.width / 2,  rec.height / 2), rotation, Fade(BLACK, alpha));
 
-        d.draw_text("PRESS [SPACE] TO RESET BOX ANIMATION!", 10, Getscreen_height() - 25, 20, Color::LIGHTGRAY);
+        d.draw_text("PRESS [SPACE] TO RESET BOX ANIMATION!", 10, rl.get_screen_height() - 25, 20, Color::LIGHTGRAY);
 
         EndDrawing();
         //----------------------------------------------------------------------------------

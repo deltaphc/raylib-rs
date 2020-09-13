@@ -25,12 +25,12 @@ pub fn run(rl
 screen_width
     InitWindow(screenWidth, screenHeigscreen_width [shapes] example - following eyes");
 
-    Vector2 scleraLeftPosition = {GetScreenWidth() / 2 - 100, Getscreen_height() / 2};
-    Vector2 scleraRightPosition = {screen_widthdth() / 2 + 100, Getscreen_height() / 2};
+    let scleraLeftPosition = rvec2(GetScreenWidth() / 2 - 100, rl.get_screen_height() / 2);
+    let scleraRightPosition = rvec2(screen_widthdth() / 2 + 100, rl.get_screen_height() / 2);
     float scleraRadius = 80;screen_width
 
-    Vector2 irisLeftPosition = {GetScreenWidth() / 2 - 100, Getscreen_height() / 2};
-    Vector2 irisRightPosition = {GetScreenWidth() / 2 + 100, Getscreen_height() / 2};
+    let irisLeftPosition = rvec2(GetScreenWidth() / 2 - 100, rl.get_screen_height() / 2);
+    let irisRightPosition = rvec2(GetScreenWidth() / 2 + 100, rl.get_screen_height() / 2);
     float irisRadius = 24;
 
     float angle = 0.0;
@@ -48,7 +48,7 @@ screen_width
         irisRightPosition = rl.get_mouse_position();
 
         // Check not inside the left eye sclera
-        if (!CheckCollisionPointCircle(irisLeftPosition, scleraLeftPosition, scleraRadius - 20))
+        if !CheckCollisionPointCircle(irisLeftPosition, scleraLeftPosition, scleraRadius - 20)
         {
             dx = irisLeftPosition.x - scleraLeftPosition.x;
             dy = irisLeftPosition.y - scleraLeftPosition.y;
@@ -63,7 +63,7 @@ screen_width
         }
 
         // Check not inside the right eye sclera
-        if (!CheckCollisionPointCircle(irisRightPosition, scleraRightPosition, scleraRadius - 20))
+        if !CheckCollisionPointCircle(irisRightPosition, scleraRightPosition, scleraRadius - 20)
         {
             dx = irisRightPosition.x - scleraRightPosition.x;
             dy = irisRightPosition.y - scleraRightPosition.y;
@@ -84,13 +84,13 @@ screen_width
 
         d.clear_background(Color::RAYWHITE);
 
-        DrawCircleV(scleraLeftPosition, scleraRadius, Color::LIGHTGRAY);
-        DrawCircleV(irisLeftPosition, irisRadius, BROWN);
-        DrawCircleV(irisLeftPosition, 10, Color::BLACK);
+        d.draw_circle_v(scleraLeftPosition, scleraRadius, Color::LIGHTGRAY);
+        d.draw_circle_v(irisLeftPosition, irisRadius, BROWN);
+        d.draw_circle_v(irisLeftPosition, 10, Color::BLACK);
 
-        DrawCircleV(scleraRightPosition, scleraRadius, Color::LIGHTGRAY);
-        DrawCircleV(irisRightPosition, irisRadius, DARKGREEN);
-        DrawCircleV(irisRightPosition, 10, Color::BLACK);
+        d.draw_circle_v(scleraRightPosition, scleraRadius, Color::LIGHTGRAY);
+        d.draw_circle_v(irisRightPosition, irisRadius, DARKGREEN);
+        d.draw_circle_v(irisRightPosition, 10, Color::BLACK);
 
         d.draw_fps(10, 10);
 

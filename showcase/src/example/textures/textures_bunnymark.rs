@@ -80,8 +80,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
             {
                 bunnies[i].speed.x *= -1.0;
             }
-            if (bunnies[i].position.y + tex_bunny.height as f32 / 2.0)
-                > rl.get_screen_height() as f32
+            if bunnies[i].position.y + tex_bunny.height as f32 / 2.0 > rl.get_screen_height() as f32
                 || (bunnies[i].position.y + tex_bunny.height as f32 / 2.0 - 40.0) < 0.0
             {
                 bunnies[i].speed.y *= -1.0;

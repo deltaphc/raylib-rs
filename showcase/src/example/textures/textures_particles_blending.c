@@ -44,7 +44,7 @@ pub fn run(rl
     // Initialize particles
     for (int i = 0; i < MAX_PARTICLES; i++)
     {
-        mouseTail[i].position = (Vector2){0, 0};
+        mouseTail[i].position = rvec2(0,  0);
         mouseTail[i].color = (Color){raylib::get_random_value(0, 255), raylib::get_random_value(0, 255), raylib::get_random_value(0, 255), 255};
         mouseTail[i].alpha = 1.0;
         mouseTail[i].size = (float)raylib::get_random_value(1, 30) / 20.0;
@@ -54,7 +54,7 @@ pub fn run(rl
 
     float gravity = 3.0;
 
-    Texture2D smoke = LoadTexture("resources/smoke.png");
+    let smoke = rl.load_texture(thread, "resources/smoke.png");
 
     int blending = BLEND_ALPHA;
 
@@ -73,7 +73,7 @@ pub fn run(rl
         // NOTE: When a particle disappears, active = false and it can be reused.
         for (int i = 0; i < MAX_PARTICLES; i++)
         {
-            if (!mouseTail[i].active)
+            if !mouseTail[i].active
             {
                 mouseTail[i].active = true;
                 mouseTail[i].alpha = 1.0;
@@ -84,21 +84,21 @@ pub fn run(rl
 
         for (int i = 0; i < MAX_PARTICLES; i++)
         {
-            if (mouseTail[i].active)
+            if mouseTail[i].active
             {
                 mouseTail[i].position.y += gravity;
                 mouseTail[i].alpha -= 0.01f;
 
-                if (mouseTail[i].alpha <= 0.0)
+                if mouseTail[i].alpha <= 0.0
                     mouseTail[i].active = false;
 
                 mouseTail[i].rotation += 5.0;
             }
         }
 
-        if (IsKeyPressed(raylib::consts::KeyboardKey::KEY_SPACE))
+        if rl.is_key_pressed(raylib::consts::KeyboardKey::KEY_SPACE)
         {
-            if (blending == BLEND_ALPHA)
+            if blending == BLEND_ALPHA
                 blending = BLEND_ADDITIVE;
             else
                 blending = BLEND_ALPHA;
@@ -116,10 +116,10 @@ pub fn run(rl
         // Draw active particles
         for (int i = 0; i < MAX_PARTICLES; i++)
         {
-            if (mouseTail[i].active)
-                DrawTexturePro(smoke, (Rectangle){0.0, 0.0, (float)smoke.width, (float)smoke.height},
-                               (Rectangle){mouseTail[i].position.x, mouseTail[i].position.y, smoke.width * mouseTail[i].size, smoke.height * mouseTail[i].size},
-                               (Vector2){(float)(smoke.width * mouseTail[i].size / 2.0), (float)(smoke.height * mouseTail[i].size / 2.0)}, mouseTail[i].rotation,
+            if mouseTail[i].active
+                d.draw_texture_pro(smoke, rrect(0.0, 0.0, (float)smoke.width, (float)smoke.height),
+                               rrect(mouseTail[i].position.x, mouseTail[i].position.y, smoke.width * mouseTail[i].size, smoke.height * mouseTail[i].size),
+                               rvec2((float)(smoke.width * mouseTail[i].size / 2.0),  (float)(smoke.height * mouseTail[i].size / 2.0)), mouseTail[i].rotation,
                                Fade(mouseTail[i].color, mouseTail[i].alpha));
         }
 
@@ -127,10 +127,10 @@ pub fn run(rl
 
         d.draw_text("PRESS SPACE to CHANGE BLENDING MODE", 180, 20, 20, Color::BLACK);
 
-        if (blending == BLEND_ALPHA)
+        if blending == BLEND_ALPHA
             d.draw_text("ALPHA BLENDING", 290, screen_height - 40, 20, Color::BLACK);
         else
-            d.draw_text("ADDITIVE BLENDING", 280, screen_height - 40, 20, RAYWHITE);
+            d.draw_text("ADDITIVE BLENDING", 280, screen_height - 40, 20, Color::RAYWHITE);
 
         EndDrawing();
         //----------------------------------------------------------------------------------

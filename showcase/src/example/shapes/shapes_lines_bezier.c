@@ -26,8 +26,8 @@ pub fn run(rl
     rl.set_window_title(thread, "raylib [shapes] example - cubic-bezier lines");
 
 
-    Vector2 start = {0, 0};
-    Vector2 end = {screen_width, screen_height};
+    let start = rvec2(0, 0);
+    let end = rvec2(screen_width, screen_height);
 
     rl.set_target_fps(60); // Set our game to run at 60 frames-per-second
     //--------------------------------------------------------------------------------------
@@ -37,9 +37,9 @@ pub fn run(rl
     {
         // Update
         //----------------------------------------------------------------------------------
-        if (IsMouseButtonDown(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON))
+        if rl.is_mouse_button_down(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON)
             start = rl.get_mouse_position();
-        else if (IsMouseButtonDown(raylib::consts::MouseButton::MOUSE_RIGHT_BUTTON))
+        else if rl.is_mouse_button_down(raylib::consts::MouseButton::MOUSE_RIGHT_BUTTON)
             end = rl.get_mouse_position();
         //----------------------------------------------------------------------------------
 

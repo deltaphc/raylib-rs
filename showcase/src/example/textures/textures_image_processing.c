@@ -61,7 +61,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut
     Rectangle selectRecs[NUM_PROCESSES] = {0};
 
     for (int i = 0; i < NUM_PROCESSES; i++)
-        selectRecs[i] = (Rectangle){40.0, (float)(50 + 32 * i), 150.0, 30.0};
+        selectRecs[i] = rrect(40.0, (float)(50 + 32 * i), 150.0, 30.0);
 
     rl.set_target_fps(60);
     //---------------------------------------------------------------------------------------
@@ -71,22 +71,22 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut
     {
         // Update
         //----------------------------------------------------------------------------------
-        if (IsKeyPressed(raylib::consts::KeyboardKey::KEY_DOWN))
+        if rl.is_key_pressed(raylib::consts::KeyboardKey::KEY_DOWN)
         {
             currentProcess++;
-            if (currentProcess > 7)
+            if currentProcess > 7
                 currentProcess = 0;
             textureReload = true;
         }
-        else if (IsKeyPressed(raylib::consts::KeyboardKey::KEY_UP))
+        else if rl.is_key_pressed(raylib::consts::KeyboardKey::KEY_UP)
         {
             currentProcess--;
-            if (currentProcess < 0)
+            if currentProcess < 0
                 currentProcess = 7;
             textureReload = true;
         }
 
-        if (textureReload)
+        if textureReload
         {
             UnloadImage(image);                         // Unload current image data
             image = LoadImage("resources/parrots.png"); // Re-load image data
@@ -121,7 +121,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut
                 break;
             }
 
-            Color *pixels = GetImageData(image); // Get pixel data from image (RGBA 32bit)
+            let *pixels = GetImageData(image); // Get pixel data from image (RGBA 32bit)
             UpdateTexture(texture, pixels);      // Update texture with new image data
             free(pixels);                        // Unload pixels data from RAM
 
@@ -140,12 +140,12 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut
         // Draw rectangles
         for (int i = 0; i < NUM_PROCESSES; i++)
         {
-            d.draw_rectangleRec(selectRecs[i], (i == currentProcess) ? Color::SKYBLUE : Color::LIGHTGRAY);
+            d.draw_rectangle_rec(selectRecs[i], (i == currentProcess) ? Color::SKYBLUE : Color::LIGHTGRAY);
             d.draw_rectangle_lines((int)selectRecs[i].x, (int)selectRecs[i].y, (int)selectRecs[i].width, (int)selectRecs[i].height, (i == currentProcess) ? Color::BLUE : Color::GRAY);
-            d.draw_text(processText[i], (int)(selectRecs[i].x + selectRecs[i].width / 2 - raylib::text::measure_textprocessText[i], 10) / 2), (int)selectRecs[i].y + 11, 10, (i == currentProcess) ? DARKColor::BLUE : Color::DARKGRAY);
+            d.draw_text(processText[i], (int)(selectRecs[i].x + selectRecs[i].width / 2 - raylib::text::measure_textprocessText[i], 10) / 2), (int)selectRecs[i].y + 11, 10, (i == currentProcess) ? Color::DARKBLUE : Color::DARKGRAY);
         }
 
-        DrawTexture(texture, screen_width - texture.width - 60, screen_height / 2 - texture.height / 2, WHITE);
+        d.draw_texture(texture, screen_width - texture.width - 60, screen_height / 2 - texture.height / 2, Color::WHITE);
         d.draw_rectangle_lines(screen_width - texture.width - 60, screen_height / 2 - texture.height / 2, texture.width, texture.height, Color::BLACK);
 
         EndDrawing();

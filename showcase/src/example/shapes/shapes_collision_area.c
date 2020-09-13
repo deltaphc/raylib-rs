@@ -27,11 +27,11 @@ pub fn run(rl
 
 
     // Box A: Moving box
-    Rectangle boxA = {10, Getscreen_height() / 2 - 50, 200, 100};
+    let boxA  = rrect(10,  rl.get_screen_height() / 2 - 50,  200,  100);
     int boxASpeedX = 4;
 
     // Box B: Mouse moved box
-    Rectangle boxB = {Getscreen_width() / 2 - 30, Getscreen_height() / 2 - 30, 60, 60};
+    let boxB  = rrect(rl.get_screen_width() / 2 - 30,  rl.get_screen_height() / 2 - 30,  60,  60);
 
     Rectangle boxCollision = {0}; // Collision rectangle
 
@@ -49,11 +49,11 @@ pub fn run(rl
         // Update
         //-----------------------------------------------------
         // Move box if not paused
-        if (!pause)
+        if !pause
             boxA.x += boxASpeedX;
 
         // Bounce box on x screen limits
-        if (((boxA.x + boxA.width) >= Getscreen_width()) || (boxA.x <= 0))
+        if ((boxA.x + boxA.width) >= rl.get_screen_width()) || (boxA.x <= 0)
             boxASpeedX *= -1;
 
         // Update player-controlled-box (box02)
@@ -61,25 +61,25 @@ pub fn run(rl
         boxB.y = GetMouseY() - boxB.height / 2;
 
         // Make sure Box B does not go out of move area limits
-        if ((boxB.x + boxB.width) >= Getscreen_width())
-            boxB.x = Getscreen_width() - boxB.width;
-        else if (boxB.x <= 0)
+        if (boxB.x + boxB.width) >= rl.get_screen_width()
+            boxB.x = rl.get_screen_width() - boxB.width;
+        else if boxB.x <= 0
             boxB.x = 0;
 
-        if ((boxB.y + boxB.height) >= Getscreen_height())
-            boxB.y = Getscreen_height() - boxB.height;
-        else if (boxB.y <= screenUpperLimit)
+        if (boxB.y + boxB.height) >= rl.get_screen_height()
+            boxB.y = rl.get_screen_height() - boxB.height;
+        else if boxB.y <= screenUpperLimit
             boxB.y = screenUpperLimit;
 
         // Check boxes collision
         collision = CheckCollisionRecs(boxA, boxB);
 
         // Get collision rectangle (only on collision)
-        if (collision)
+        if collision
             boxCollision = GetCollisionRec(boxA, boxB);
 
         // Pause Box A movement
-        if (IsKeyPressed(raylib::consts::KeyboardKey::KEY_SPACE))
+        if rl.is_key_pressed(raylib::consts::KeyboardKey::KEY_SPACE)
             pause = !pause;
         //-----------------------------------------------------
 
@@ -91,19 +91,19 @@ pub fn run(rl
 
         d.draw_rectangle(0, 0, screen_width, screenUpperLimit, collision ?Color::RED : Color::BLACK);
 
-        d.draw_rectangleRec(boxA, Color::GOLD);
-        d.draw_rectangleRec(boxB, Color::BLUE);
+        d.draw_rectangle_rec(boxA, Color::GOLD);
+        d.draw_rectangle_rec(boxB, Color::BLUE);
 
-        if (collision)
+        if collision
         {
             // Draw collision area
-            d.draw_rectangleRec(boxCollision, Color::LIME);
+            d.draw_rectangle_rec(boxCollision, Color::LIME);
 
             // Draw collision message
-            d.draw_text("COLLISION!", Getscreen_width() / 2 - raylib::text::measure_text("COLLISION!", 20) / 2, screenUpperLimit / 2 - 10, 20, Color::BLACK);
+            d.draw_text("COLLISION!", rl.get_screen_width() / 2 - raylib::text::measure_text("COLLISION!", 20) / 2, screenUpperLimit / 2 - 10, 20, Color::BLACK);
 
             // Draw collision area
-            d.draw_text(FormatText("Collision Area: %i", (int)boxCollision.width * (int)boxCollision.height), Getscreen_width() / 2 - 100, screenUpperLimit + 10, 20, Color::BLACK);
+            d.draw_text(&format!("Collision Area: {}", (int)boxCollision.width * (int)boxCollision.height), rl.get_screen_width() / 2 - 100, screenUpperLimit + 10, 20, Color::BLACK);
         }
 
         d.draw_fps(10, 10);

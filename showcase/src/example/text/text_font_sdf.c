@@ -58,11 +58,11 @@ const GLSL_VERSION 100
     UnloadImage(atlas);
 
     // Load SDF required shader (we use default vertex shader)
-    Shader shader = LoadShader(0, FormatText("resources/shaders/glsl%i/sdf.fs", GLSL_VERSION));
+    Shader shader = LoadShader(0, &format!("resources/shaders/glsl{}/sdf.fs", GLSL_VERSION));
     SetTextureFilter(fontSDF.texture, FILTER_BILINEAR); // Required for SDF font
 
-    Vector2 fontPosition = {40, screen_height / 2 - 50};
-    Vector2 textSize = {0.0, 0.0};
+    let fontPosition = rvec2(40, screen_height / 2 - 50);
+    let textSize = rvec2(0.0, 0.0);
     float fontSize = 16.0;
     int currentFont = 0; // 0 - fontDefault, 1 - fontSDF
 
@@ -74,23 +74,23 @@ const GLSL_VERSION 100
     {
         // Update
         //----------------------------------------------------------------------------------
-        fontSize += GetMouseWheelMove() * 8.0;
+        fontSize += rl.get_mouse_wheel_move() * 8.0;
 
-        if (fontSize < 6)
+        if fontSize < 6
             fontSize = 6;
 
-        if (rl.is_key_down(raylib::consts::KeyboardKey::KEY_SPACE))
+        if rl.is_key_down(raylib::consts::KeyboardKey::KEY_SPACE)
             currentFont = 1;
         else
             currentFont = 0;
 
-        if (currentFont == 0)
+        if currentFont == 0
             textSize = MeasureTextEx(fontDefault, msg, fontSize, 0);
         else
             textSize = MeasureTextEx(fontSDF, msg, fontSize, 0);
 
-        fontPosition.x = Getscreen_width() / 2 - textSize.x / 2;
-        fontPosition.y = Getscreen_height() / 2 - textSize.y / 2 + 80;
+        fontPosition.x = rl.get_screen_width() / 2 - textSize.x / 2;
+        fontPosition.y = rl.get_screen_height() / 2 - textSize.y / 2 + 80;
         //----------------------------------------------------------------------------------
 
         // Draw
@@ -99,31 +99,31 @@ const GLSL_VERSION 100
 
         d.clear_background(Color::RAYWHITE);
 
-        if (currentFont == 1)
+        if currentFont == 1
         {
             // NOTE: SDF fonts require a custom SDf shader to compute fragment color
             BeginShaderMode(shader); // Activate SDF font shader
             DrawTextEx(fontSDF, msg, fontPosition, fontSize, 0, Color::BLACK);
             EndShaderMode(); // Activate our default shader for next drawings
 
-            DrawTexture(fontSDF.texture, 10, 10, Color::BLACK);
+            d.draw_texture(fontSDF.texture, 10, 10, Color::BLACK);
         }
         else
         {
             DrawTextEx(fontDefault, msg, fontPosition, fontSize, 0, Color::BLACK);
-            DrawTexture(fontDefault.texture, 10, 10, Color::BLACK);
+            d.draw_texture(fontDefault.texture, 10, 10, Color::BLACK);
         }
 
-        if (currentFont == 1)
+        if currentFont == 1
             d.draw_text("SDF!", 320, 20, 80,Color::RED);
         else
             d.draw_text("default font", 315, 40, 30, Color::GRAY);
 
-        d.draw_text("FONT SIZE: 16.0", Getscreen_width() - 240, 20, 20, Color::DARKGRAY);
-        d.draw_text(FormatText("RENDER SIZE: %02.02f", fontSize), Getscreen_width() - 240, 50, 20, Color::DARKGRAY);
-        d.draw_text("Use MOUSE WHEEL to SCALE TEXT!", Getscreen_width() - 240, 90, 10, Color::DARKGRAY);
+        d.draw_text("FONT SIZE: 16.0", rl.get_screen_width() - 240, 20, 20, Color::DARKGRAY);
+        d.draw_text(&format!("RENDER SIZE: %02.02f", fontSize), rl.get_screen_width() - 240, 50, 20, Color::DARKGRAY);
+        d.draw_text("Use MOUSE WHEEL to SCALE TEXT!", rl.get_screen_width() - 240, 90, 10, Color::DARKGRAY);
 
-        d.draw_text("HOLD SPACE to USE SDF FONT VERSION!", 340, Getscreen_height() - 30, 20, Color::MAROON);
+        d.draw_text("HOLD SPACE to USE SDF FONT VERSION!", 340, rl.get_screen_height() - 30, 20, Color::MAROON);
 
         EndDrawing();
         //----------------------------------------------------------------------------------

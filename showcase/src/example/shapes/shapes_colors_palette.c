@@ -26,12 +26,12 @@ const MAX_COLORS_COUNT 21 // Number of colors available
 
 
     Color colors[MAX_COLORS_COUNT] = {
-        Color::DARKGRAY, Color::MAROON, ORANGE, DARKGREEN, DARKColor::BLUE, DARKPURPLE, DARKBROWN,
-        Color::GRAY,Color::RED, Color::GOLD, Color::LIME, Color::BLUE, VIOLET, BROWN, Color::LIGHTGRAY, PINK, YELLOW,
-        Color::GREEN, Color::SKYBLUE, PURPLE, BEIGE};
+        Color::DARKGRAY, Color::MAROON, Color::ORANGE, DARKGREEN, Color::DARKBLUE, DARKPURPLE, DARKBROWN,
+        Color::GRAY,Color::RED, Color::GOLD, Color::LIME, Color::BLUE, Color::VIOLET, BROWN, Color::LIGHTGRAY, Color::PINK, Color::YELLOW,
+        Color::GREEN, Color::SKYBLUE, PURPLE, Color::BEIGE};
 
     const char *colorNames[MAX_COLORS_COUNT] = {
-        "DARKGRAY", "Color::MAROON", "ORANGE", "DARKGREEN", "DARKColor::BLUE", "DARKPURPLE",
+        "DARKGRAY", "Color::MAROON", "ORANGE", "DARKGREEN", "Color::DARKBLUE", "DARKPURPLE",
         "DARKBROWN", "GRAY", "RED", "Color::GOLD", "Color::LIME", "Color::BLUE", "VIOLET", "BROWN",
         "Color::LIGHTGRAY", "PINK", "YELLOW", "GREEN", "Color::SKYBLUE", "PURPLE", "BEIGE"};
 
@@ -48,7 +48,7 @@ const MAX_COLORS_COUNT 21 // Number of colors available
 
     int colorState[MAX_COLORS_COUNT] = {0}; // Color state: 0-DEFAULT, 1-MOUSE_HOVER
 
-    Vector2 mousePoint = {0.0, 0.0};
+    let mousePoint = rvec2(0.0, 0.0);
 
     rl.set_target_fps(60); // Set our game to run at 60 frames-per-second
     //--------------------------------------------------------------------------------------
@@ -62,7 +62,7 @@ const MAX_COLORS_COUNT 21 // Number of colors available
 
         for (int i = 0; i < MAX_COLORS_COUNT; i++)
         {
-            if (CheckCollisionPointRec(mousePoint, colorsRecs[i]))
+            if CheckCollisionPointRec(mousePoint, colorsRecs[i])
                 colorState[i] = 1;
             else
                 colorState[i] = 0;
@@ -76,16 +76,16 @@ const MAX_COLORS_COUNT 21 // Number of colors available
         d.clear_background(Color::RAYWHITE);
 
         d.draw_text("raylib colors palette", 28, 42, 20, Color::BLACK);
-        d.draw_text("press SPACE to see all colors", Getscreen_width() - 180, Getscreen_height() - 40, 10, Color::GRAY);
+        d.draw_text("press SPACE to see all colors", rl.get_screen_width() - 180, rl.get_screen_height() - 40, 10, Color::GRAY);
 
         for (int i = 0; i < MAX_COLORS_COUNT; i++) // Draw all rectangles
         {
-            d.draw_rectangleRec(colorsRecs[i], Fade(colors[i], colorState[i] ? 0.6f : 1.0));
+            d.draw_rectangle_rec(colorsRecs[i], Fade(colors[i], colorState[i] ? 0.6f : 1.0));
 
-            if (rl.is_key_down(raylib::consts::KeyboardKey::KEY_SPACE) || colorState[i])
+            if rl.is_key_down(raylib::consts::KeyboardKey::KEY_SPACE) || colorState[i]
             {
                 d.draw_rectangle(colorsRecs[i].x, colorsRecs[i].y + colorsRecs[i].height - 26, colorsRecs[i].width, 20, Color::BLACK);
-                d.draw_rectangle_linesEx(colorsRecs[i], 6, Fade(BLACK, 0.3f));
+                d.draw_rectangle_linesEx(colorsRecs[i], 6, Fade(BLACK, 0.3));
                 d.draw_text(colorNames[i], colorsRecs[i].x + colorsRecs[i].width - raylib::text::measure_textcolorNames[i], 10) - 12,
                          colorsRecs[i].y + colorsRecs[i].height - 20, 10, colors[i]);
             }

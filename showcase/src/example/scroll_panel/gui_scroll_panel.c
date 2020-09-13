@@ -43,9 +43,9 @@ int main()
     rl.set_window_title(thread, "raygui - GuiScrollPanel()");
 
 
-    Rectangle panelRec = {20, 40, 200, 150};
-    Rectangle panelContentRec = {0, 0, 340, 340};
-    Vector2 panelScroll = {99, -20};
+    let panelRec  = rrect(20,  40,  200,  150);
+    let panelContentRec  = rrect(0,  0,  340,  340);
+    let panelScroll = rvec2(99, -20);
 
     bool showContentArea = true;
 
@@ -66,23 +66,23 @@ int main()
 
         d.clear_background(Color::RAYWHITE);
 
-        d.draw_text(TextFormat("[%f, %f]", panelScroll.x, panelScroll.y), 4, 4, 20,Color::RED);
+        d.draw_text(&format!("[%f, %f]", panelScroll.x, panelScroll.y), 4, 4, 20,Color::RED);
 
         Rectangle view = GuiScrollPanel(panelRec, panelContentRec, &panelScroll);
 
         BeginScissorMode(view.x, view.y, view.width, view.height);
-        GuiGrid((Rectangle){panelRec.x + panelScroll.x, panelRec.y + panelScroll.y, panelContentRec.width, panelContentRec.height}, 16, 3);
+        GuiGrid(rrect(panelRec.x + panelScroll.x, panelRec.y + panelScroll.y, panelContentRec.width, panelContentRec.height), 16, 3);
         EndScissorMode();
 
-        if (showContentArea)
+        if showContentArea
             d.draw_rectangle(panelRec.x + panelScroll.x, panelRec.y + panelScroll.y, panelContentRec.width, panelContentRec.height,Color::RED.fade(0.1));
 
         DrawStyleEditControls();
 
-        showContentArea = GuiCheckBox((Rectangle){565, 80, 20, 20}, "SHOW CONTENT AREA", showContentArea);
+        showContentArea = GuiCheckBox(rrect(565, 80, 20, 20), "SHOW CONTENT AREA", showContentArea);
 
-        panelContentRec.width = GuiSliderBar((Rectangle){590, 385, 145, 15}, "WIDTH", TextFormat("%i", (int)panelContentRec.width), 1, 600, true);
-        panelContentRec.height = GuiSliderBar((Rectangle){590, 410, 145, 15}, "HEIGHT", TextFormat("%i", (int)panelContentRec.height), 1, 400, true);
+        panelContentRec.width = GuiSliderBar(rrect(590, 385, 145, 15), "WIDTH", &format!("{}", (int)panelContentRec.width), 1, 600, true);
+        panelContentRec.height = GuiSliderBar(rrect(590, 410, 145, 15), "HEIGHT", &format!("{}", (int)panelContentRec.height), 1, 400, true);
 
         EndDrawing();
         //----------------------------------------------------------------------------------
@@ -101,53 +101,53 @@ static void DrawStyleEditControls(void)
 {
     // ScrollPanel style controls
     //----------------------------------------------------------
-    GuiGroupBox((Rectangle){550, 170, 220, 205}, "SCROLLBAR STYLE");
+    GuiGroupBox(rrect(550, 170, 220, 205), "SCROLLBAR STYLE");
 
     int style = GuiGetStyle(SCROLLBAR, BORDER_WIDTH);
-    GuiLabel((Rectangle){555, 195, 110, 10}, "BORDER_WIDTH");
-    GuiSpinner((Rectangle){670, 190, 90, 20}, NULL, &style, 0, 6, false);
+    GuiLabel(rrect(555, 195, 110, 10), "BORDER_WIDTH");
+    GuiSpinner(rrect(670, 190, 90, 20), NULL, &style, 0, 6, false);
     GuiSetStyle(SCROLLBAR, BORDER_WIDTH, style);
 
     style = GuiGetStyle(SCROLLBAR, ARROWS_SIZE);
-    GuiLabel((Rectangle){555, 220, 110, 10}, "ARROWS_SIZE");
-    GuiSpinner((Rectangle){670, 215, 90, 20}, NULL, &style, 4, 14, false);
+    GuiLabel(rrect(555, 220, 110, 10), "ARROWS_SIZE");
+    GuiSpinner(rrect(670, 215, 90, 20), NULL, &style, 4, 14, false);
     GuiSetStyle(SCROLLBAR, ARROWS_SIZE, style);
 
     style = GuiGetStyle(SCROLLBAR, SLIDER_PADDING);
-    GuiLabel((Rectangle){555, 245, 110, 10}, "SLIDER_PADDING");
-    GuiSpinner((Rectangle){670, 240, 90, 20}, NULL, &style, 0, 14, false);
+    GuiLabel(rrect(555, 245, 110, 10), "SLIDER_PADDING");
+    GuiSpinner(rrect(670, 240, 90, 20), NULL, &style, 0, 14, false);
     GuiSetStyle(SCROLLBAR, SLIDER_PADDING, style);
 
-    style = GuiCheckBox((Rectangle){565, 280, 20, 20}, "ARROWS_VISIBLE", GuiGetStyle(SCROLLBAR, ARROWS_VISIBLE));
+    style = GuiCheckBox(rrect(565, 280, 20, 20), "ARROWS_VISIBLE", GuiGetStyle(SCROLLBAR, ARROWS_VISIBLE));
     GuiSetStyle(SCROLLBAR, ARROWS_VISIBLE, style);
 
     style = GuiGetStyle(SCROLLBAR, SLIDER_PADDING);
-    GuiLabel((Rectangle){555, 325, 110, 10}, "SLIDER_PADDING");
-    GuiSpinner((Rectangle){670, 320, 90, 20}, NULL, &style, 0, 14, false);
+    GuiLabel(rrect(555, 325, 110, 10), "SLIDER_PADDING");
+    GuiSpinner(rrect(670, 320, 90, 20), NULL, &style, 0, 14, false);
     GuiSetStyle(SCROLLBAR, SLIDER_PADDING, style);
 
     style = GuiGetStyle(SCROLLBAR, SLIDER_WIDTH);
-    GuiLabel((Rectangle){555, 350, 110, 10}, "SLIDER_WIDTH");
-    GuiSpinner((Rectangle){670, 345, 90, 20}, NULL, &style, 2, 100, false);
+    GuiLabel(rrect(555, 350, 110, 10), "SLIDER_WIDTH");
+    GuiSpinner(rrect(670, 345, 90, 20), NULL, &style, 2, 100, false);
     GuiSetStyle(SCROLLBAR, SLIDER_WIDTH, style);
 
     const char *text = GuiGetStyle(LISTVIEW, SCROLLBAR_SIDE) == SCROLLBAR_LEFT_SIDE ? "SCROLLBAR: LEFT" : "SCROLLBAR: RIGHT";
-    style = GuiToggle((Rectangle){560, 110, 200, 35}, text, GuiGetStyle(LISTVIEW, SCROLLBAR_SIDE));
+    style = GuiToggle(rrect(560, 110, 200, 35), text, GuiGetStyle(LISTVIEW, SCROLLBAR_SIDE));
     GuiSetStyle(LISTVIEW, SCROLLBAR_SIDE, style);
     //----------------------------------------------------------
 
     // ScrollBar style controls
     //----------------------------------------------------------
-    GuiGroupBox((Rectangle){550, 20, 220, 135}, "SCROLLPANEL STYLE");
+    GuiGroupBox(rrect(550, 20, 220, 135), "SCROLLPANEL STYLE");
 
     style = GuiGetStyle(LISTVIEW, SCROLLBAR_WIDTH);
-    GuiLabel((Rectangle){555, 35, 110, 10}, "SCROLLBAR_WIDTH");
-    GuiSpinner((Rectangle){670, 30, 90, 20}, NULL, &style, 6, 30, false);
+    GuiLabel(rrect(555, 35, 110, 10), "SCROLLBAR_WIDTH");
+    GuiSpinner(rrect(670, 30, 90, 20), NULL, &style, 6, 30, false);
     GuiSetStyle(LISTVIEW, SCROLLBAR_WIDTH, style);
 
     style = GuiGetStyle(DEFAULT, BORDER_WIDTH);
-    GuiLabel((Rectangle){555, 60, 110, 10}, "BORDER_WIDTH");
-    GuiSpinner((Rectangle){670, 55, 90, 20}, NULL, &style, 0, 20, false);
+    GuiLabel(rrect(555, 60, 110, 10), "BORDER_WIDTH");
+    GuiSpinner(rrect(670, 55, 90, 20), NULL, &style, 0, 20, false);
     GuiSetStyle(DEFAULT, BORDER_WIDTH, style);
     //----------------------------------------------------------
 }

@@ -125,7 +125,7 @@ const EASINGS_H
     }
     EASEDEF float EaseCircInOut(float t, float b, float c, float d)
     {
-        if ((t /= d / 2) < 1)
+        if (t /= d / 2) < 1
             return (-c / 2 * (sqrt(1 - t * t) - 1) + b);
         t -= 2;
         return (c / 2 * (sqrt(1 - t * t) + 1) + b);
@@ -144,7 +144,7 @@ const EASINGS_H
     }
     EASEDEF float EaseCubicInOut(float t, float b, float c, float d)
     {
-        if ((t /= d / 2) < 1)
+        if (t /= d / 2) < 1
             return (c / 2 * t * t * t + b);
         t -= 2;
         return (c / 2 * (t * t * t + 2) + b);
@@ -163,7 +163,7 @@ const EASINGS_H
     }
     EASEDEF float EaseQuadInOut(float t, float b, float c, float d)
     {
-        if ((t /= d / 2) < 1)
+        if (t /= d / 2) < 1
             return (((c / 2) * (t * t)) + b);
         t--;
         return (-c / 2 * (((t - 2) * t) - 1) + b);
@@ -174,11 +174,11 @@ const EASINGS_H
     EASEDEF float EaseExpoOut(float t, float b, float c, float d) { return (t == d) ? (b + c) : (c * (-pow(2, -10 * t / d) + 1) + b); }
     EASEDEF float EaseExpoInOut(float t, float b, float c, float d)
     {
-        if (t == 0)
+        if t == 0
             return b;
-        if (t == d)
+        if t == d
             return (b + c);
-        if ((t /= d / 2) < 1)
+        if (t /= d / 2) < 1
             return (c / 2 * pow(2, 10 * (t - 1)) + b);
 
         return (c / 2 * (-pow(2, -10 * --t) + 2) + b);
@@ -202,7 +202,7 @@ const EASINGS_H
     EASEDEF float EaseBackInOut(float t, float b, float c, float d)
     {
         float s = 1.70158f;
-        if ((t /= d / 2) < 1)
+        if (t /= d / 2) < 1
         {
             s *= 1.525f;
             return (c / 2 * (t * t * ((s + 1) * t - s)) + b);
@@ -216,16 +216,16 @@ const EASINGS_H
     // Bounce Easing functions
     EASEDEF float EaseBounceOut(float t, float b, float c, float d)
     {
-        if ((t /= d) < (1 / 2.75f))
+        if (t /= d) < (1 / 2.75f)
         {
             return (c * (7.5625f * t * t) + b);
         }
-        else if (t < (2 / 2.75f))
+        else if t < (2 / 2.75f)
         {
             float postFix = t -= (1.5 / 2.75f);
             return (c * (7.5625f * (postFix)*t + 0.75f) + b);
         }
-        else if (t < (2.5 / 2.75))
+        else if t < (2.5 / 2.75)
         {
             float postFix = t -= (2.25f / 2.75f);
             return (c * (7.5625f * (postFix)*t + 0.9375f) + b);
@@ -240,7 +240,7 @@ const EASINGS_H
     EASEDEF float EaseBounceIn(float t, float b, float c, float d) { return (c - EaseBounceOut(d - t, 0, c, d) + b); }
     EASEDEF float EaseBounceInOut(float t, float b, float c, float d)
     {
-        if (t < d / 2)
+        if t < d / 2
             return (EaseBounceIn(t * 2, 0, c, d) * 0.5 + b);
         else
             return (EaseBounceOut(t * 2 - d, 0, c, d) * 0.5 + c * 0.5 + b);
@@ -249,12 +249,12 @@ const EASINGS_H
     // Elastic Easing functions
     EASEDEF float EaseElasticIn(float t, float b, float c, float d)
     {
-        if (t == 0)
+        if t == 0
             return b;
-        if ((t /= d) == 1)
+        if (t /= d) == 1
             return (b + c);
 
-        float p = d * 0.3f;
+        float p = d * 0.3;
         float a = c;
         float s = p / 4;
         float postFix = a * pow(2, 10 * (t -= 1));
@@ -264,12 +264,12 @@ const EASINGS_H
 
     EASEDEF float EaseElasticOut(float t, float b, float c, float d)
     {
-        if (t == 0)
+        if t == 0
             return b;
-        if ((t /= d) == 1)
+        if (t /= d) == 1
             return (b + c);
 
-        float p = d * 0.3f;
+        float p = d * 0.3;
         float a = c;
         float s = p / 4;
 
@@ -278,16 +278,16 @@ const EASINGS_H
 
     EASEDEF float EaseElasticInOut(float t, float b, float c, float d)
     {
-        if (t == 0)
+        if t == 0
             return b;
-        if ((t /= d / 2) == 2)
+        if (t /= d / 2) == 2
             return (b + c);
 
-        float p = d * (0.3f * 1.5);
+        float p = d * (0.3 * 1.5);
         float a = c;
         float s = p / 4;
 
-        if (t < 1)
+        if t < 1
         {
             float postFix = a * pow(2, 10 * (t -= 1));
             return -0.5 * (postFix * sin((t * d - s) * (2 * PI) / p)) + b;

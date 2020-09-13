@@ -45,18 +45,18 @@ pub fn run(rl
         UpdateMusicStream(music); // Update music buffer with new stream data
 
         // Restart music playing (stop and play)
-        if (IsKeyPressed(raylib::consts::KeyboardKey::KEY_SPACE))
+        if rl.is_key_pressed(raylib::consts::KeyboardKey::KEY_SPACE)
         {
             StopMusicStream(music);
             PlayMusicStream(music);
         }
 
         // Pause/Resume music playing
-        if (IsKeyPressed(raylib::consts::KeyboardKey::KEY_P))
+        if rl.is_key_pressed(raylib::consts::KeyboardKey::KEY_P)
         {
             pause = !pause;
 
-            if (pause)
+            if pause
                 PauseMusicStream(music);
             else
                 ResumeMusicStream(music);
@@ -65,7 +65,7 @@ pub fn run(rl
         // Get timePlayed scaled to bar dimensions (400 pixels)
         timePlayed = GetMusicTimePlayed(music) / GetMusicTimeLength(music) * 400;
 
-        if (timePlayed > 400)
+        if timePlayed > 400
             StopMusicStream(music);
         //----------------------------------------------------------------------------------
 

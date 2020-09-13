@@ -47,11 +47,11 @@ const GLSL_VERSION 100
     );
 
     Model model = LoadModel("resources/models/watermill.obj");                 // Load OBJ model
-    Texture2D texture = LoadTexture("resources/models/watermill_diffuse.png"); // Load model texture
+    let texture = rl.load_texture(thread, "resources/models/watermill_diffuse.png"); // Load model texture
 
     // Load shader for model
     // NOTE: Defining 0 (NULL) for vertex shader forces usage of internal default vertex shader
-    Shader shader = LoadShader(0, FormatText("resources/shaders/glsl%i/grayscale.fs", GLSL_VERSION));
+    Shader shader = LoadShader(0, &format!("resources/shaders/glsl{}/grayscale.fs", GLSL_VERSION));
 
     model.materials[0].shader = shader;                     // Set shader effect to 3d model
     model.materials[0].maps[MAP_DIFFUSE].texture = texture; // Bind texture to model
@@ -79,7 +79,7 @@ const GLSL_VERSION 100
 
         let mut d = d.begin_mode3D(&camera);
 
-        DrawModel(model, position, 0.2, WHITE); // Draw 3d model with texture
+        DrawModel(model, position, 0.2, Color::WHITE); // Draw 3d model with texture
 
         d.draw_grid(10, 1.0); // Draw a grid
 

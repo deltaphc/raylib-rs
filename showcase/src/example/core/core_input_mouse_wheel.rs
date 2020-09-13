@@ -11,11 +11,7 @@
 
 use raylib::prelude::*;
 
-pub fn run(rl
-           : &mut RaylibHandle, thread
-           : &RaylibThread)
-    ->crate::SampleOut
-{
+pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
     // Initialization
     //--------------------------------------------------------------------------------------
     let screen_width = 800;
@@ -24,19 +20,19 @@ pub fn run(rl
     rl.set_window_size(screen_width, screen_height);
     rl.set_window_title(thread, "raylib [core] example - input mouse wheel");
 
-
-    int boxPositionY = screen_height / 2 - 40;
-    int scrollSpeed = 4; // Scrolling speed in pixels
+    let mut box_position_y = screen_height / 2 - 40;
+    let scroll_speed = 4; // Scrolling speed in pixels
 
     rl.set_target_fps(60); // Set our game to run at 60 frames-per-second
-    //--------------------------------------------------------------------------------------
+                           //--------------------------------------------------------------------------------------
 
     // Main game loop
-    return Box::new(move |rl: &mut RaylibHandle, thread: &RaylibThread| -> () // Detect window close button or ESC key
+    return Box::new(
+        move |rl: &mut RaylibHandle, thread: &RaylibThread| -> () // Detect window close button or ESC key
     {
         // Update
         //----------------------------------------------------------------------------------
-        boxPositionY -= (GetMouseWheelMove() * scrollSpeed);
+        box_position_y -= rl.get_mouse_wheel_move() * scroll_speed;
         //----------------------------------------------------------------------------------
 
         // Draw
@@ -45,19 +41,12 @@ pub fn run(rl
 
         d.clear_background(Color::RAYWHITE);
 
-        d.draw_rectangle(screen_width / 2 - 40, boxPositionY, 80, 80, Color::MAROON);
+        d.draw_rectangle(screen_width / 2 - 40, box_position_y, 80, 80, Color::MAROON);
 
         d.draw_text("Use mouse wheel to move the cube up and down!", 10, 10, 20, Color::GRAY);
-        d.draw_text(FormatText("Box position Y: %03i", boxPositionY), 10, 40, 20, Color::LIGHTGRAY);
+        d.draw_text(&format!("Box position Y: {:03}", box_position_y), 10, 40, 20, Color::LIGHTGRAY);
 
-        EndDrawing();
         //----------------------------------------------------------------------------------
-    }
-
-    // De-Initialization
-    //--------------------------------------------------------------------------------------
-    CloseWindow(); // Close window and OpenGL context
-    //--------------------------------------------------------------------------------------
-
-    return 0;
+    },
+    );
 }

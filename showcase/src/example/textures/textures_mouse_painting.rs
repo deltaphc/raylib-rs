@@ -90,8 +90,6 @@ pub fn run(mut rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut
     return Box::new(
         move |mut rl: &mut RaylibHandle, thread: &RaylibThread| -> () {
             use raylib::consts::GestureType::*;
-            use raylib::consts::KeyboardKey::*;
-            use raylib::consts::MouseButton::*;
             // Update
             //----------------------------------------------------------------------------------
             let mouse_pos = rl.get_mouse_position();
@@ -139,7 +137,7 @@ pub fn run(mut rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut
             }
 
             if rl.is_mouse_button_down(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON)
-                || rl.get_gesture_detected() == GESTURE_DRAG as u32
+                || rl.get_gesture_detected() == GESTURE_DRAG
             {
                 // Paint circle into render texture
                 // NOTE: To avoid discontinuous circles, we could store

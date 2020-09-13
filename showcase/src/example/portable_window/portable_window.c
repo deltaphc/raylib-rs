@@ -38,7 +38,7 @@ const RAYGUI_IMPLEMENTATION
 
     // General variables
     Vector2 mousePosition = {0};
-    Vector2 windowPosition = {500, 200};
+    let windowPosition = rvec2(500, 200);
     Vector2 panOffset = mousePosition;
     bool dragWindow = false;
 
@@ -56,21 +56,21 @@ const RAYGUI_IMPLEMENTATION
         //----------------------------------------------------------------------------------
         mousePosition = rl.get_mouse_position();
 
-        if (rl.is_mouse_button_pressed(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON))
+        if rl.is_mouse_button_pressed(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON)
         {
-            if (CheckCollisionPointRec(mousePosition, (Rectangle){0, 0, screen_width, 20}))
+            if CheckCollisionPointRec(mousePosition, rrect(0, 0, screen_width, 20))
             {
                 dragWindow = true;
                 panOffset = mousePosition;
             }
         }
 
-        if (dragWindow)
+        if dragWindow
         {
             windowPosition.x += (mousePosition.x - panOffset.x);
             windowPosition.y += (mousePosition.y - panOffset.y);
 
-            if (IsMouseButtonReleased(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON))
+            if IsMouseButtonReleased(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON)
                 dragWindow = false;
 
             SetWindowPosition(windowPosition.x, windowPosition.y);
@@ -83,9 +83,9 @@ const RAYGUI_IMPLEMENTATION
 
         d.clear_background(Color::RAYWHITE);
 
-        exitWindow = GuiWindowBox((Rectangle){0, 0, screen_width, screen_height}, "PORTABLE WINDOW");
+        exitWindow = GuiWindowBox(rrect(0, 0, screen_width, screen_height), "PORTABLE WINDOW");
 
-        d.draw_text(FormatText("Mouse Position: [ %.0, %.0 ]", mousePosition.x, mousePosition.y), 10, 40, 10, Color::DARKGRAY);
+        d.draw_text(&format!("Mouse Position: [ %.0, %.0 ]", mousePosition.x, mousePosition.y), 10, 40, 10, Color::DARKGRAY);
 
         EndDrawing();
         //----------------------------------------------------------------------------------

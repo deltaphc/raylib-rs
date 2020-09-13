@@ -36,7 +36,7 @@ pub fn run(rl
     Texture2D texture = LoadTextureFromImage(parrots); // Image converted to texture, uploaded to GPU memory (VRAM)
     UnloadImage(parrots);                              // Once image has been converted to texture and uploaded to VRAM, it can be unloaded from RAM
 
-    Vector2 position = {(float)(screen_width / 2 - texture.width / 2), (float)(screen_height / 2 - texture.height / 2 - 20)};
+    let position = rvec2((float)(screen_width / 2 - texture.width / 2), (float)(screen_height / 2 - texture.height / 2 - 20));
 
     bool showFont = false;
 
@@ -48,7 +48,7 @@ pub fn run(rl
     {
         // Update
         //----------------------------------------------------------------------------------
-        if (rl.is_key_down(raylib::consts::KeyboardKey::KEY_SPACE))
+        if rl.is_key_down(raylib::consts::KeyboardKey::KEY_SPACE)
             showFont = true;
         else
             showFont = false;
@@ -60,16 +60,16 @@ pub fn run(rl
 
         d.clear_background(Color::RAYWHITE);
 
-        if (!showFont)
+        if !showFont
         {
             // Draw texture with text already drawn inside
-            DrawTextureV(texture, position, WHITE);
+            DrawTextureV(texture, position, Color::WHITE);
 
             // Draw text directly using sprite font
-            DrawTextEx(font, "[Parrots font drawing]", (Vector2){position.x + 20, position.y + 20 + 280}, (float)font.baseSize, 0.0, WHITE);
+            DrawTextEx(font, "[Parrots font drawing]", rvec2(position.x + 20,  position.y + 20 + 280), (float)font.baseSize, 0.0, Color::WHITE);
         }
         else
-            DrawTexture(font.texture, screen_width / 2 - font.texture.width / 2, 50, Color::BLACK);
+            d.draw_texture(font.texture, screen_width / 2 - font.texture.width / 2, 50, Color::BLACK);
 
         d.draw_text("PRESS SPACE to SEE USED SPRITEFONT ", 290, 420, 10, Color::DARKGRAY);
 

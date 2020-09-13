@@ -28,7 +28,7 @@ const RAYGUI_IMPLEMENTATION
     rl.set_window_title(thread, "raylib [shapes] example - draw ring");
 
 
-    Vector2 center = {(Getscreen_width() - 300) / 2, Getscreen_height() / 2};
+    let center = rvec2((rl.get_screen_width() - 300) / 2, rl.get_screen_height() / 2);
 
     float innerRadius = 80.0;
     float outerRadius = 190.0;
@@ -58,32 +58,32 @@ const RAYGUI_IMPLEMENTATION
 
         d.clear_background(Color::RAYWHITE);
 
-        DrawLine(500, 0, 500, Getscreen_height(), Fade(Color::LIGHTGRAY, 0.6f));
-        d.draw_rectangle(500, 0, Getscreen_width() - 500, Getscreen_height(), Fade(Color::LIGHTGRAY, 0.3f));
+        DrawLine(500, 0, 500, rl.get_screen_height(), Fade(Color::LIGHTGRAY, 0.6f));
+        d.draw_rectangle(500, 0, rl.get_screen_width() - 500, rl.get_screen_height(), Fade(Color::LIGHTGRAY, 0.3));
 
-        if (drawRing)
+        if drawRing
             DrawRing(center, innerRadius, outerRadius, startAngle, endAngle, segments, Color::MAROON.fade(0.3));
-        if (drawRingLines)
+        if drawRingLines
             DrawRingLines(center, innerRadius, outerRadius, startAngle, endAngle, segments, BLACK.fade(0.4));
-        if (drawCircleLines)
+        if drawCircleLines
             DrawCircleSectorLines(center, outerRadius, startAngle, endAngle, segments, BLACK.fade(0.4));
 
         // Draw GUI controls
         //------------------------------------------------------------------------------
-        startAngle = GuiSliderBar((Rectangle){600, 40, 120, 20}, "StartAngle", startAngle, -450, 450, true);
-        endAngle = GuiSliderBar((Rectangle){600, 70, 120, 20}, "EndAngle", endAngle, -450, 450, true);
+        startAngle = GuiSliderBar(rrect(600, 40, 120, 20), "StartAngle", startAngle, -450, 450, true);
+        endAngle = GuiSliderBar(rrect(600, 70, 120, 20), "EndAngle", endAngle, -450, 450, true);
 
-        innerRadius = GuiSliderBar((Rectangle){600, 140, 120, 20}, "InnerRadius", innerRadius, 0, 100, true);
-        outerRadius = GuiSliderBar((Rectangle){600, 170, 120, 20}, "OuterRadius", outerRadius, 0, 200, true);
+        innerRadius = GuiSliderBar(rrect(600, 140, 120, 20), "InnerRadius", innerRadius, 0, 100, true);
+        outerRadius = GuiSliderBar(rrect(600, 170, 120, 20), "OuterRadius", outerRadius, 0, 200, true);
 
-        segments = GuiSliderBar((Rectangle){600, 240, 120, 20}, "Segments", segments, 0, 100, true);
+        segments = GuiSliderBar(rrect(600, 240, 120, 20), "Segments", segments, 0, 100, true);
 
-        drawRing = GuiCheckBox((Rectangle){600, 320, 20, 20}, "Draw Ring", drawRing);
-        drawRingLines = GuiCheckBox((Rectangle){600, 350, 20, 20}, "Draw RingLines", drawRingLines);
-        drawCircleLines = GuiCheckBox((Rectangle){600, 380, 20, 20}, "Draw CircleLines", drawCircleLines);
+        drawRing = GuiCheckBox(rrect(600, 320, 20, 20), "Draw Ring", drawRing);
+        drawRingLines = GuiCheckBox(rrect(600, 350, 20, 20), "Draw RingLines", drawRingLines);
+        drawCircleLines = GuiCheckBox(rrect(600, 380, 20, 20), "Draw CircleLines", drawCircleLines);
         //------------------------------------------------------------------------------
 
-        d.draw_text(FormatText("MODE: %s", (segments >= 4) ? "MANUAL" : "AUTO"), 600, 270, 10, (segments >= 4) ? Color::MAROON : Color::DARKGRAY);
+        d.draw_text(&format!("MODE: %s", (segments >= 4) ? "MANUAL" : "AUTO"), 600, 270, 10, (segments >= 4) ? Color::MAROON : Color::DARKGRAY);
 
         d.draw_fps(10, 10);
 

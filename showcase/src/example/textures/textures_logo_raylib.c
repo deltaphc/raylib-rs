@@ -26,7 +26,7 @@ pub fn run(rl
 
 
     // NOTE: Textures MUST be loaded after Window initialization (OpenGL context is required)
-    Texture2D texture = LoadTexture("resources/raylib_logo.png"); // Texture loading
+    let texture = rl.load_texture(thread, "resources/raylib_logo.png"); // Texture loading
     //---------------------------------------------------------------------------------------
 
     // Main game loop
@@ -43,7 +43,7 @@ pub fn run(rl
 
         d.clear_background(Color::RAYWHITE);
 
-        DrawTexture(texture, screen_width / 2 - texture.width / 2, screen_height / 2 - texture.height / 2, WHITE);
+        d.draw_texture(texture, screen_width / 2 - texture.width / 2, screen_height / 2 - texture.height / 2, Color::WHITE);
 
         d.draw_text("this IS a texture!", 360, 370, 10, Color::GRAY);
 

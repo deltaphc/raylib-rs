@@ -11,11 +11,7 @@
 
 use raylib::prelude::*;
 
-pub fn run(rl
-           : &mut RaylibHandle, thread
-           : &RaylibThread)
-    ->crate::SampleOut
-{
+pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
     // Initialization
     //--------------------------------------------------------------------------------------
     let screen_width = 800;
@@ -24,26 +20,35 @@ pub fn run(rl
     rl.set_window_size(screen_width, screen_height);
     rl.set_window_title(thread, "raylib [core] example - mouse input");
 
-
-    Vector2 ballPosition = {-100.0, -100.0};
-    Color ballColor = DARKColor::BLUE;
+    let mut ballPosition = rvec2(-100.0, -100.0);
+    let mut ballColor = Color::DARKBLUE;
 
     rl.set_target_fps(60); // Set our game to run at 60 frames-per-second
-    //---------------------------------------------------------------------------------------
+                           //---------------------------------------------------------------------------------------
 
     // Main game loop
-    return Box::new(move |rl: &mut RaylibHandle, thread: &RaylibThread| -> () // Detect window close button or ESC key
+    return Box::new(
+        move |rl: &mut RaylibHandle, thread: &RaylibThread| -> () // Detect window close button or ESC key
     {
         // Update
         //----------------------------------------------------------------------------------
         ballPosition = rl.get_mouse_position();
 
-        if (rl.is_mouse_button_pressed(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON))
-            ballColor = Color::MAROON;
-        else if (rl.is_mouse_button_pressed(raylib::consts::MouseButton::MOUSE_MIDDLE_BUTTON))
-            ballColor = Color::LIME;
-        else if (rl.is_mouse_button_pressed(raylib::consts::MouseButton::MOUSE_RIGHT_BUTTON))
-            ballColor = DARKColor::BLUE;
+        if rl.is_mouse_button_pressed(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON)
+            {
+
+                ballColor = Color::MAROON;
+            }
+        else if rl.is_mouse_button_pressed(raylib::consts::MouseButton::MOUSE_MIDDLE_BUTTON)
+            {
+
+                ballColor = Color::LIME;
+            }
+        else if rl.is_mouse_button_pressed(raylib::consts::MouseButton::MOUSE_RIGHT_BUTTON)
+            {
+
+                ballColor = Color::DARKBLUE;
+            }
         //----------------------------------------------------------------------------------
 
         // Draw
@@ -52,18 +57,11 @@ pub fn run(rl
 
         d.clear_background(Color::RAYWHITE);
 
-        DrawCircleV(ballPosition, 40, ballColor);
+        d.draw_circle_v(ballPosition, 40.0, ballColor);
 
         d.draw_text("move ball with mouse and click mouse button to change color", 10, 10, 20, Color::DARKGRAY);
 
-        EndDrawing();
         //----------------------------------------------------------------------------------
-    }
-
-    // De-Initialization
-    //--------------------------------------------------------------------------------------
-    CloseWindow(); // Close window and OpenGL context
-    //--------------------------------------------------------------------------------------
-
-    return 0;
+    },
+    );
 }

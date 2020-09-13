@@ -60,17 +60,17 @@ static Texture2D checked = {0};
 // Draw a color button, if clicked return true
 bool ColorButton(Rectangle bounds, Color color)
 {
-    Rectangle body = {bounds.x + 2, bounds.y + 2, bounds.width - 4, bounds.height - 4};
+    let body  = rrect(bounds.x + 2,  bounds.y + 2,  bounds.width - 4,  bounds.height - 4);
     bool pressed = false;
 
     // Update control
     Vector2 mouse = rl.get_mouse_position();
-    if (rl.is_mouse_button_pressed(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON) && CheckCollisionPointRec(mouse, bounds))
+    if rl.is_mouse_button_pressed(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON) && CheckCollisionPointRec(mouse, bounds)
         pressed = true;
 
     // Draw control
-    DrawTexture(checked, body.x, body.y, WHITE);
-    d.draw_rectangleRec(body, color);
+    d.draw_texture(checked, body.x, body.y, Color::WHITE);
+    d.draw_rectangle_rec(body, color);
     d.draw_rectangle_linesEx(bounds, 1, Color::BLACK);
 
     return pressed;
@@ -91,7 +91,7 @@ int main(int argc, char **argv)
 
 
     // Generate a checked checked used by the color buttons
-    Image img = GenImageChecked(26, 26, 5, 5, RAYWHITE, Color::DARKGRAY);
+    Image img = GenImageChecked(26, 26, 5, 5, Color::RAYWHITE, Color::DARKGRAY);
     checked = LoadTextureFromImage(img);
     UnloadImage(img);
 
@@ -100,9 +100,9 @@ int main(int argc, char **argv)
     int fontSpacing = GuiGetStyle(DEFAULT, TEXT_SPACING);
     int padding = GuiGetStyle(TEXTBOX, TEXT_INNER_PADDING);
     int border = GuiGetStyle(TEXTBOX, BORDER_WIDTH);
-    Color colorFG = GetColor(GuiGetStyle(TEXTBOX, COLOR_SELECTED_FG));
-    Color colorBG = GetColor(GuiGetStyle(TEXTBOX, COLOR_SELECTED_BG));
-    Color *colorSelected = &colorFG;
+    let colorFG = GetColor(GuiGetStyle(TEXTBOX, COLOR_SELECTED_FG));
+    let colorBG = GetColor(GuiGetStyle(TEXTBOX, COLOR_SELECTED_BG));
+    let *colorSelected = &colorFG;
 
     bool showMenu = false;
     Rectangle menuRect = {0};
@@ -126,48 +126,48 @@ int main(int argc, char **argv)
         Vector2 mouse = rl.get_mouse_position();
 
         // Check all textboxes to get the active textboxBounds
-        if (textBox01EditMode)
+        if textBox01EditMode
             textboxActive = 0;
-        else if (textBox02EditMode)
+        else if textBox02EditMode
             textboxActive = 1;
-        else if (spinnerEditMode)
+        else if spinnerEditMode
             textboxActive = 2;
-        else if (valueBoxEditMode)
+        else if valueBoxEditMode
             textboxActive = 3;
 
         // Show/Hide the textboxBounds menu
         /*
-        if ((textboxActive < 2) && !showMenu && CheckCollisionPointRec(mouse, textboxBounds[textboxActive]) && rl.is_mouse_button_pressed(raylib::consts::MouseButton::MOUSE_RIGHT_BUTTON)) 
+        if (textboxActive < 2) && !showMenu && CheckCollisionPointRec(mouse, textboxBounds[textboxActive]) && rl.is_mouse_button_pressed(raylib::consts::MouseButton::MOUSE_RIGHT_BUTTON) 
         {
             showMenu = true;
-            menuRect = (Rectangle){mouse.x, mouse.y, 80, 110};
+            menuRect = rrect(mouse.x, mouse.y, 80, 110);
         }
         */
 
         // Menu hidding logic
-        if (showMenu && rl.is_mouse_button_pressed(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON) && !CheckCollisionPointRec(mouse, menuRect))
+        if showMenu && rl.is_mouse_button_pressed(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON) && !CheckCollisionPointRec(mouse, menuRect)
             showMenu = false;
 
         // Fonts drag & drop logic
-        if (IsFileDropped())
+        if IsFileDropped()
         {
             int count = 0;
             char **files = GetDroppedFiles(&count);
 
-            if (IsFileExtension(files[0], ".ttf") ||
+            if IsFileExtension(files[0], ".ttf" ||
                 IsFileExtension(files[0], ".otf") ||
                 IsFileExtension(files[0], ".fnt"))
             {
                 Font fnt = LoadFont(files[0]);
 
-                if (fnt.texture.id != 0)
+                if fnt.texture.id != 0
                 {
                     // Font was loaded, only change font on success
                     GuiSetFont(fnt);
                     fontSize = fnt.baseSize;
 
                     // Remove old font
-                    if (font.texture.id != 0)
+                    if font.texture.id != 0
                         UnloadFont(font);
                     font = fnt;
                 }
@@ -184,7 +184,7 @@ int main(int argc, char **argv)
             sprintf(&hex[j], "%02Xh ", (char)text[i]);
 
         int startIdx = 0, endIdx = 0;
-        if (textboxActive < 2)
+        if textboxActive < 2
         {
             Vector2 sel = GuiTextBoxGetSelection();
             startIdx = GuiTextBoxGetByteIndex(text, 0, 0, sel.x);
@@ -211,14 +211,14 @@ int main(int argc, char **argv)
         GuiSetStyle(TEXTBOX, COLOR_SELECTED_FG, ColorToInt(colorFG));
 
         // TODO: GuiTextBoxEx() is not following editMode logic like GuiTextBox()
-        if (GuiTextBoxEx(textboxBounds[0], text01, SIZEOF(text01) - 1, textBox01EditMode))
+        if GuiTextBoxEx(textboxBounds[0], text01, SIZEOF(text01) - 1, textBox01EditMode)
             textBox01EditMode = !textBox01EditMode;
-        if (GuiTextBoxEx(textboxBounds[1], text02, SIZEOF(text02) - 1, textBox02EditMode))
+        if GuiTextBoxEx(textboxBounds[1], text02, SIZEOF(text02) - 1, textBox02EditMode)
             textBox02EditMode = !textBox02EditMode;
 
-        if (GuiSpinner(textboxBounds[2], NULL, &spinnerValue, INT_MIN, INT_MAX, spinnerEditMode))
+        if GuiSpinner(textboxBounds[2], NULL, &spinnerValue, INT_MIN, INT_MAX, spinnerEditMode)
             spinnerEditMode = !spinnerEditMode;
-        if (GuiValueBox(textboxBounds[3], NULL, &valueBoxValue, INT_MIN, INT_MAX, valueBoxEditMode))
+        if GuiValueBox(textboxBounds[3], NULL, &valueBoxValue, INT_MIN, INT_MAX, valueBoxEditMode)
             valueBoxEditMode = !valueBoxEditMode;
         //---------------------------------------------------------------------------------------
 
@@ -228,11 +228,11 @@ int main(int argc, char **argv)
         GuiSetStyle(TEXTBOX, TEXT_ALIGNMENT, GUI_TEXT_ALIGN_CENTER);
 
         // Draw hexadecimal values viewer
-        DrawTextRecEx(guiFont, hex, (Rectangle){20, 95, 760, 205}, 20, 1, true, Color::BLACK, startIdx * 3, len * 3, colorFG, colorBG);
+        DrawTextRecEx(guiFont, hex, rrect(20, 95, 760, 205), 20, 1, true, Color::BLACK, startIdx * 3, len * 3, colorFG, colorBG);
 
         // Draw right-mouse-button-click menu and logic
         //---------------------------------------------------------------------------------------
-        if (showMenu)
+        if showMenu
         {
             GuiSetStyle(LISTVIEW, LIST_ITEMS_HEIGHT, 24); // make items look a little bigger
             const char *menuItems[] = {"#17# Cut", "#16# Copy", "#18# Paste", "#101# SelectAll"};
@@ -242,7 +242,7 @@ int main(int argc, char **argv)
             GuiSetStyle(DEFAULT, TEXT_ALIGNMENT, GUI_TEXT_ALIGN_LEFT); // Fixes visual glitch with other alignments
             active = GuiListViewEx(menuRect, menuItems, SIZEOF(menuItems), &focus, &scroll, active);
 
-            if (active != -1)
+            if active != -1
             {
                 showMenu = false;
                 char *text = (textboxActive == 1) ? text02 : text01;
@@ -271,44 +271,44 @@ int main(int argc, char **argv)
         //---------------------------------------------------------------------------------------
         /*
             // UI for changing the font size and spacing of all textboxes
-            GuiLine((Rectangle){25,280,750,10}, NULL);
-            GuiGroupBox((Rectangle){20,320,190,100},  GuiIconText(RICON_GEAR, "FONT"));
-            GuiLabel((Rectangle){30,340,60,20}, "Size");
-            GuiSpinner((Rectangle){95,340,100,20}, NULL, &fontSize, 10, 40, true);
-            GuiLabel((Rectangle){30,380,60,20}, "Spacing");
-            GuiSpinner((Rectangle){95,380,100,20}, NULL, &fontSpacing, 1, 10, true);
+            GuiLine(rrect(25,280,750,10), NULL);
+            GuiGroupBox(rrect(20,320,190,100),  GuiIconText(RICON_GEAR, "FONT"));
+            GuiLabel(rrect(30,340,60,20), "Size");
+            GuiSpinner(rrect(95,340,100,20), NULL, &fontSize, 10, 40, true);
+            GuiLabel(rrect(30,380,60,20), "Spacing");
+            GuiSpinner(rrect(95,380,100,20), NULL, &fontSpacing, 1, 10, true);
             
             // UI for changing the style of all textboxes
-            GuiGroupBox((Rectangle){225,320,190,100}, GuiIconText(RICON_COLOR_BUCKET, "STYLE"));
-            GuiLabel((Rectangle){240,340,60,20}, "Padding");
-            GuiSpinner((Rectangle){305,340,100,20}, NULL, &padding, 2, 30, true);
-            GuiLabel((Rectangle){240,380,60,20}, "Border");
-            GuiSpinner((Rectangle){305,380,100,20}, NULL, &border, 0, 8, true);
+            GuiGroupBox(rrect(225,320,190,100), GuiIconText(RICON_COLOR_BUCKET, "STYLE"));
+            GuiLabel(rrect(240,340,60,20), "Padding");
+            GuiSpinner(rrect(305,340,100,20), NULL, &padding, 2, 30, true);
+            GuiLabel(rrect(240,380,60,20), "Border");
+            GuiSpinner(rrect(305,380,100,20), NULL, &border, 0, 8, true);
 
             // UI for changing the width/height of the active textboxBounds
             bool changed = false;
             int width = textboxBounds[textboxActive].width, height = textboxBounds[textboxActive].height;
-            GuiGroupBox((Rectangle){430,320,175,100}, GuiIconText(RICON_CURSOR_SCALE, "SCALE"));
-            GuiLabel((Rectangle){435,340,55,20}, "Width");
-            if (GuiSpinner((Rectangle){495,340,100,20}, NULL, &width, 30, 300, true)) changed = true;
-            GuiLabel((Rectangle){435,380,55,20}, "Height");
-            if (GuiSpinner((Rectangle){495,380,100,20}, NULL, &height, 12, 60, true)) changed = true;
+            GuiGroupBox(rrect(430,320,175,100), GuiIconText(RICON_CURSOR_SCALE, "SCALE"));
+            GuiLabel(rrect(435,340,55,20), "Width");
+            if GuiSpinner(rrect(495,340,100,20), NULL, &width, 30, 300, true) changed = true;
+            GuiLabel(rrect(435,380,55,20), "Height");
+            if GuiSpinner(rrect(495,380,100,20), NULL, &height, 12, 60, true) changed = true;
             GuiSetStyle(LABEL, TEXT_ALIGNMENT, GUI_TEXT_ALIGN_CENTER);
-            GuiLabel((Rectangle){30,290,740,10}, GuiIconText(RICON_TEXT_T, " DRAG A FONT FILE (*.TTF, *.FNT) ANYWHERE TO CHANGE THE DEFAULT FONT!"));
+            GuiLabel(rrect(30,290,740,10), GuiIconText(RICON_TEXT_T, " DRAG A FONT FILE (*.TTF, *.FNT) ANYWHERE TO CHANGE THE DEFAULT FONT!"));
             GuiSetStyle(LABEL, TEXT_ALIGNMENT, GUI_TEXT_ALIGN_LEFT);
             textboxBounds[textboxActive].y = 85 - height;
             textboxBounds[textboxActive].height = height;
             textboxBounds[textboxActive].width = width;
-            if (changed) GuiTextBoxSetActive(textboxBounds[textboxActive]);
+            if changed) GuiTextBoxSetActive(textboxBounds[textboxActive];
             
             // UI for selecting the selected text background and foreground color
-            if (ColorButton((Rectangle){625,320,30,30}, colorFG)) colorSelected = &colorFG;
-            if (ColorButton((Rectangle){625,389,30,30}, colorBG)) colorSelected = &colorBG;
-            *colorSelected = GuiColorPicker((Rectangle){660,320,90,85}, *colorSelected);
+            if ColorButton(rrect(625,320,30,30), colorFG) colorSelected = &colorFG;
+            if ColorButton(rrect(625,389,30,30), colorBG) colorSelected = &colorBG;
+            *colorSelected = GuiColorPicker(rrect(660,320,90,85), *colorSelected);
             
             float alpha = colorSelected->a;
             GuiSetStyle(SLIDER, TEXT_ALIGNMENT, GUI_TEXT_ALIGN_LEFT); // Slider for the selected color alpha value
-            colorSelected->a = GuiSlider((Rectangle){664,420,100,20}, GuiIconText(RICON_CROP_ALPHA, "Alpha"), NULL, alpha, 0.0, 255.0);
+            colorSelected->a = GuiSlider(rrect(664,420,100,20), GuiIconText(RICON_CROP_ALPHA, "Alpha"), NULL, alpha, 0.0, 255.0);
             */
         //---------------------------------------------------------------------------------------
 

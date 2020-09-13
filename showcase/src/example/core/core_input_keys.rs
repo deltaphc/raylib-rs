@@ -11,11 +11,7 @@
 
 use raylib::prelude::*;
 
-pub fn run(rl
-           : &mut RaylibHandle, thread
-           : &RaylibThread)
-    ->crate::SampleOut
-{
+pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
     // Initialization
     //--------------------------------------------------------------------------------------
     let screen_width = 800;
@@ -24,25 +20,37 @@ pub fn run(rl
     rl.set_window_size(screen_width, screen_height);
     rl.set_window_title(thread, "raylib [core] example - keyboard input");
 
-
-    Vector2 ballPosition = {(float)screen_width / 2, (float)screen_height / 2};
+    let mut ballPosition = rvec2(screen_width / 2, screen_height / 2);
 
     rl.set_target_fps(60); // Set our game to run at 60 frames-per-second
-    //--------------------------------------------------------------------------------------
+                           //--------------------------------------------------------------------------------------
 
     // Main game loop
-    return Box::new(move |rl: &mut RaylibHandle, thread: &RaylibThread| -> () // Detect window close button or ESC key
+    return Box::new(
+        move |rl: &mut RaylibHandle, thread: &RaylibThread| -> () // Detect window close button or ESC key
     {
         // Update
         //----------------------------------------------------------------------------------
-        if (rl.is_key_down(raylib::consts::KeyboardKey::KEY_RIGHT))
-            ballPosition.x += 2.0;
-        if (rl.is_key_down(raylib::consts::KeyboardKey::KEY_LEFT))
-            ballPosition.x -= 2.0;
-        if (rl.is_key_down(raylib::consts::KeyboardKey::KEY_UP))
-            ballPosition.y -= 2.0;
-        if (rl.is_key_down(raylib::consts::KeyboardKey::KEY_DOWN))
-            ballPosition.y += 2.0;
+        if rl.is_key_down(raylib::consts::KeyboardKey::KEY_RIGHT)
+            {
+
+                ballPosition.x += 2.0;
+            }
+        if rl.is_key_down(raylib::consts::KeyboardKey::KEY_LEFT)
+            {
+
+                ballPosition.x -= 2.0;
+            }
+        if rl.is_key_down(raylib::consts::KeyboardKey::KEY_UP)
+            {
+
+                ballPosition.y -= 2.0;
+            }
+        if rl.is_key_down(raylib::consts::KeyboardKey::KEY_DOWN)
+            {
+
+                ballPosition.y += 2.0;
+            }
         //----------------------------------------------------------------------------------
 
         // Draw
@@ -53,16 +61,9 @@ pub fn run(rl
 
         d.draw_text("move the ball with arrow keys", 10, 10, 20, Color::DARKGRAY);
 
-        DrawCircleV(ballPosition, 50, Color::MAROON);
+        d.draw_circle_v(ballPosition, 50.0, Color::MAROON);
 
-        EndDrawing();
         //----------------------------------------------------------------------------------
-    }
-
-    // De-Initialization
-    //--------------------------------------------------------------------------------------
-    CloseWindow(); // Close window and OpenGL context
-    //--------------------------------------------------------------------------------------
-
-    return 0;
+    },
+    );
 }
