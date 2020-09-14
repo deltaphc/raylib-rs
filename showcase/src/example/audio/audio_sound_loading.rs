@@ -11,11 +11,7 @@
 
 use raylib::prelude::*;
 
-pub fn run(rl
-           : &mut RaylibHandle, thread
-           : &RaylibThread)
-    ->crate::SampleOut
-{
+pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
     // Initialization
     //--------------------------------------------------------------------------------------
     let screen_width = 800;
@@ -24,24 +20,28 @@ pub fn run(rl
     rl.set_window_size(screen_width, screen_height);
     rl.set_window_title(thread, "raylib [audio] example - sound loading and playing");
 
+    let mut audio = RaylibAudio::init_audio_device(); // Initialize audio device
 
-    InitAudioDevice(); // Initialize audio device
-
-    Sound fxWav = LoadSound("resources/sound.wav");    // Load WAV audio file
-    Sound fxOgg = LoadSound("resources/tanatana.ogg"); // Load OGG audio file
+    let mut fxWav = Sound::load_sound("original/audio/resources/sound.wav").unwrap(); // Load WAV audio file
+    let mut fxOgg = Sound::load_sound("original/audio/resources/tanatana.ogg").unwrap(); // Load OGG audio file
 
     rl.set_target_fps(60); // Set our game to run at 60 frames-per-second
-    //--------------------------------------------------------------------------------------
+                           //--------------------------------------------------------------------------------------
 
     // Main game loop
-    return Box::new(move |rl: &mut RaylibHandle, thread: &RaylibThread| -> () // Detect window close button or ESC key
+    return Box::new(
+        move |rl: &mut RaylibHandle, thread: &RaylibThread| -> () // Detect window close button or ESC key
     {
         // Update
         //----------------------------------------------------------------------------------
         if rl.is_key_pressed(raylib::consts::KeyboardKey::KEY_SPACE)
-            PlaySound(fxWav); // Play WAV sound
+            {
+                audio.play_sound(&mut fxWav); // Play WAV sound
+            }
         if rl.is_key_pressed(raylib::consts::KeyboardKey::KEY_ENTER)
-            PlaySound(fxOgg); // Play OGG sound
+            {
+                audio.play_sound(&mut fxOgg); // Play OGG soundd
+            }
         //----------------------------------------------------------------------------------
 
         // Draw
@@ -53,19 +53,7 @@ pub fn run(rl
         d.draw_text("Press SPACE to PLAY the WAV sound!", 200, 180, 20, Color::LIGHTGRAY);
         d.draw_text("Press ENTER to PLAY the OGG sound!", 200, 220, 20, Color::LIGHTGRAY);
 
-        EndDrawing();
         //----------------------------------------------------------------------------------
-    }
-
-    // De-Initialization
-    //--------------------------------------------------------------------------------------
-    UnloadSound(fxWav); // Unload sound data
-    UnloadSound(fxOgg); // Unload sound data
-
-    CloseAudioDevice(); // Close audio device
-
-    CloseWindow(); // Close window and OpenGL context
-    //--------------------------------------------------------------------------------------
-
-    return 0;
+    },
+    );
 }

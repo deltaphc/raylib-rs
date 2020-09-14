@@ -453,7 +453,7 @@ double GuiDMValueBox(Rectangle bounds, double value, double minValue, double max
 
     // Draw control
     //--------------------------------------------------------------------
-    d.draw_rectangle_linesEx(bounds, GuiGetStyle(VALUEBOX, BORDER_WIDTH), Fade(GetColor(GuiGetStyle(VALUEBOX, BORDER + (state * 3))), guiAlpha));
+    d.draw_rectangle_lines_ex(bounds, GuiGetStyle(VALUEBOX, BORDER_WIDTH), Fade(GetColor(GuiGetStyle(VALUEBOX, BORDER + (state * 3))), guiAlpha));
 
     Rectangle textBounds = {bounds.x + GuiGetStyle(VALUEBOX, BORDER_WIDTH) + textPadding, bounds.y + GuiGetStyle(VALUEBOX, BORDER_WIDTH),
                             bounds.width - 2 * (GuiGetStyle(VALUEBOX, BORDER_WIDTH) + textPadding), bounds.height - 2 * GuiGetStyle(VALUEBOX, BORDER_WIDTH)};
@@ -645,7 +645,7 @@ void GuiDMPropertyList(Rectangle bounds, GuiDMProperty *props, int count, int *f
     // Draw control
     //--------------------------------------------------------------------
     d.draw_rectangle_rec(bounds, Fade(GetColor(GuiGetStyle(DEFAULT, BACKGROUND_COLOR)), guiAlpha));                                            // Draw background
-    d.draw_rectangle_linesEx(bounds, GuiGetStyle(DEFAULT, BORDER_WIDTH), Fade(GetColor(GuiGetStyle(LISTVIEW, BORDER + state * 3)), guiAlpha)); // Draw border
+    d.draw_rectangle_lines_ex(bounds, GuiGetStyle(DEFAULT, BORDER_WIDTH), Fade(GetColor(GuiGetStyle(LISTVIEW, BORDER + state * 3)), guiAlpha)); // Draw border
 
     BeginScissorMode(absoluteBounds.x, bounds.y + GuiGetStyle(DEFAULT, BORDER_WIDTH), absoluteBounds.width, bounds.height - 2 * GuiGetStyle(DEFAULT, BORDER_WIDTH));
     int currentHeight = 0;

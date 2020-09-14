@@ -134,14 +134,14 @@ pub fn run(rl
     for (int i = 0; i < MAXSPOT; i++)
     {
 
-        spots[i].pos.x = raylib::get_random_value(64, screen_width - 64);
-        spots[i].pos.y = raylib::get_random_value(64, screen_height - 64);
+        spots[i].pos.x = raylib::get_random_value::<i32>(64, screen_width - 64);
+        spots[i].pos.y = raylib::get_random_value::<i32>(64, screen_height - 64);
         spots[i].vel = rvec2(0,  0);
 
         while ((fabs(spots[i].vel.x) + fabs(spots[i].vel.y)) < 2)
         {
-            spots[i].vel.x = raylib::get_random_value(-40, 40) / 10.0;
-            spots[i].vel.y = raylib::get_random_value(-40, 40) / 10.0;
+            spots[i].vel.x = raylib::get_random_value::<i32>(-40, 40) / 10.0;
+            spots[i].vel.y = raylib::get_random_value::<i32>(-40, 40) / 10.0;
         }
 
         spots[i].inner = 28 * (i + 1);
@@ -249,8 +249,8 @@ void ResetStar(Star *s)
 
     do
     {
-        s->vel.x = (float)raylib::get_random_value(-1000, 1000) / 100.0;
-        s->vel.y = (float)raylib::get_random_value(-1000, 1000) / 100.0;
+        s->vel.x = (float)raylib::get_random_value::<i32>(-1000, 1000) / 100.0;
+        s->vel.y = (float)raylib::get_random_value::<i32>(-1000, 1000) / 100.0;
 
     } while (!(fabs(s->vel.x) + fabs(s->vel.y) > 1));
 

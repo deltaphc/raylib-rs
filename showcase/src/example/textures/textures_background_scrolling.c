@@ -64,16 +64,16 @@ pub fn run(rl
 
         // Draw background image twice
         // NOTE: Texture is scaled twice its size
-        DrawTextureEx(background, rvec2(scrollingBack,  20), 0.0, 2.0, Color::WHITE);
-        DrawTextureEx(background, rvec2(background.width * 2 + scrollingBack,  20), 0.0, 2.0, Color::WHITE);
+        d.draw_texture_ex(background, rvec2(scrollingBack,  20), 0.0, 2.0, Color::WHITE);
+        d.draw_texture_ex(background, rvec2(background.width * 2 + scrollingBack,  20), 0.0, 2.0, Color::WHITE);
 
         // Draw midground image twice
-        DrawTextureEx(midground, rvec2(scrollingMid,  20), 0.0, 2.0, Color::WHITE);
-        DrawTextureEx(midground, rvec2(midground.width * 2 + scrollingMid,  20), 0.0, 2.0, Color::WHITE);
+        d.draw_texture_ex(midground, rvec2(scrollingMid,  20), 0.0, 2.0, Color::WHITE);
+        d.draw_texture_ex(midground, rvec2(midground.width * 2 + scrollingMid,  20), 0.0, 2.0, Color::WHITE);
 
         // Draw foreground image twice
-        DrawTextureEx(foreground, rvec2(scrollingFore,  70), 0.0, 2.0, Color::WHITE);
-        DrawTextureEx(foreground, rvec2(foreground.width * 2 + scrollingFore,  70), 0.0, 2.0, Color::WHITE);
+        d.draw_texture_ex(foreground, rvec2(scrollingFore,  70), 0.0, 2.0, Color::WHITE);
+        d.draw_texture_ex(foreground, rvec2(foreground.width * 2 + scrollingFore,  70), 0.0, 2.0, Color::WHITE);
 
         d.draw_text("BACKGROUND SCROLLING & PARALLAX", 10, 10, 20,Color::RED);
         d.draw_text("(c) Cyberpunk Street Environment by Luis Zuno (@ansimuz)", screen_width - 330, screen_height - 20, 10, Color::RAYWHITE);

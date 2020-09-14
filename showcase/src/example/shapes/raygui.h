@@ -602,7 +602,7 @@ static bool CheckCollisionPointRec(Vector2 point, Rectangle rec); // Check if po
 static const char *&format!(const char *text, ...);             // Formatting of text with variables to 'embed'
 
 static void d.draw_rectangle_rec(Rectangle rec, Color color);                                                  // Draw rectangle filled with color
-static void d.draw_rectangle_linesEx(Rectangle rec, int lineThick, Color color);                               // Draw rectangle outlines
+static void d.draw_rectangle_lines_ex(Rectangle rec, int lineThick, Color color);                               // Draw rectangle outlines
 static void d.draw_rectangleGradientV(int posX, int posY, int width, int height, Color color1, Color color2); // Draw rectangle vertical gradient
 //-------------------------------------------------------------------------------
 
@@ -903,7 +903,7 @@ RAYGUIDEF bool GuiWindowBox(Rectangle bounds, const char *text)
     //--------------------------------------------------------------------
 
     // Draw window base
-    d.draw_rectangle_linesEx(bounds, GuiGetStyle(DEFAULT, BORDER_WIDTH), Fade(GetColor(GuiGetStyle(DEFAULT, BORDER + (state * 3))), guiAlpha));
+    d.draw_rectangle_lines_ex(bounds, GuiGetStyle(DEFAULT, BORDER_WIDTH), Fade(GetColor(GuiGetStyle(DEFAULT, BORDER + (state * 3))), guiAlpha));
     d.draw_rectangle_rec(RAYGUI_CLITERAL(Rectangle){bounds.x + GuiGetStyle(DEFAULT, BORDER_WIDTH), bounds.y + GuiGetStyle(DEFAULT, BORDER_WIDTH),
                                                 const bounds.width - GuiGetStyle(DEFAULT, BORDER_WIDTH) * 2, bounds.height - GuiGetStyle(DEFAULT, BORDER_WIDTH) * 2},
                      const Fade(GetColor(GuiGetStyle(DEFAULT, BACKGROUND_COLOR)), guiAlpha));
@@ -994,7 +994,7 @@ RAYGUIDEF void GuiPanel(Rectangle bounds)
     // Draw control
     //--------------------------------------------------------------------
     d.draw_rectangle_rec(bounds, Fade(GetColor(GuiGetStyle(DEFAULT, (state == GUI_STATE_DISABLED) ? BASE_COLOR_DISABLED : BACKGROUND_COLOR)), guiAlpha));
-    d.draw_rectangle_linesEx(bounds, PANEL_BORDER_WIDTH, Fade(GetColor(GuiGetStyle(DEFAULT, (state == GUI_STATE_DISABLED) ? BORDER_COLOR_DISABLED : LINE_COLOR)), guiAlpha));
+    d.draw_rectangle_lines_ex(bounds, PANEL_BORDER_WIDTH, Fade(GetColor(GuiGetStyle(DEFAULT, (state == GUI_STATE_DISABLED) ? BORDER_COLOR_DISABLED : LINE_COLOR)), guiAlpha));
     //--------------------------------------------------------------------
 }
 
@@ -1118,7 +1118,7 @@ RAYGUIDEF Rectangle GuiScrollPanel(Rectangle bounds, Rectangle content, Vector2 
     GuiSetStyle(SCROLLBAR, SLIDER_SIZE, slider);
 
     // Draw scrollbar lines depending on current state
-    d.draw_rectangle_linesEx(bounds, GuiGetStyle(DEFAULT, BORDER_WIDTH), Fade(GetColor(GuiGetStyle(LISTVIEW, (float)BORDER + (state * 3))), guiAlpha));
+    d.draw_rectangle_lines_ex(bounds, GuiGetStyle(DEFAULT, BORDER_WIDTH), Fade(GetColor(GuiGetStyle(LISTVIEW, (float)BORDER + (state * 3))), guiAlpha));
     //--------------------------------------------------------------------
 
     if scroll != NULL
@@ -1171,7 +1171,7 @@ RAYGUIDEF bool GuiButton(Rectangle bounds, const char *text)
 
     // Draw control
     //--------------------------------------------------------------------
-    d.draw_rectangle_linesEx(bounds, GuiGetStyle(BUTTON, BORDER_WIDTH), Fade(GetColor(GuiGetStyle(BUTTON, BORDER + (state * 3))), guiAlpha));
+    d.draw_rectangle_lines_ex(bounds, GuiGetStyle(BUTTON, BORDER_WIDTH), Fade(GetColor(GuiGetStyle(BUTTON, BORDER + (state * 3))), guiAlpha));
     d.draw_rectangle(bounds.x + GuiGetStyle(BUTTON, BORDER_WIDTH), bounds.y + GuiGetStyle(BUTTON, BORDER_WIDTH), bounds.width - 2 * GuiGetStyle(BUTTON, BORDER_WIDTH), bounds.height - 2 * GuiGetStyle(BUTTON, BORDER_WIDTH), Fade(GetColor(GuiGetStyle(BUTTON, BASE + (state * 3))), guiAlpha));
 
     Guid.draw_text(text, GetTextBounds(BUTTON, bounds), GuiGetStyle(BUTTON, TEXT_ALIGNMENT), Fade(GetColor(GuiGetStyle(BUTTON, TEXT + (state * 3))), guiAlpha));
@@ -1247,7 +1247,7 @@ RAYGUIDEF bool GuiImageButtonEx(Rectangle bounds, Texture2D texture, Rectangle t
 
     // Draw control
     //--------------------------------------------------------------------
-    d.draw_rectangle_linesEx(bounds, GuiGetStyle(BUTTON, BORDER_WIDTH), Fade(GetColor(GuiGetStyle(BUTTON, BORDER + (state * 3))), guiAlpha));
+    d.draw_rectangle_lines_ex(bounds, GuiGetStyle(BUTTON, BORDER_WIDTH), Fade(GetColor(GuiGetStyle(BUTTON, BORDER + (state * 3))), guiAlpha));
     d.draw_rectangle(bounds.x + GuiGetStyle(BUTTON, BORDER_WIDTH), bounds.y + GuiGetStyle(BUTTON, BORDER_WIDTH), bounds.width - 2 * GuiGetStyle(BUTTON, BORDER_WIDTH), bounds.height - 2 * GuiGetStyle(BUTTON, BORDER_WIDTH), Fade(GetColor(GuiGetStyle(BUTTON, BASE + (state * 3))), guiAlpha));
 
     if text != NULL
@@ -1290,14 +1290,14 @@ RAYGUIDEF bool GuiToggle(Rectangle bounds, const char *text, bool active)
     //--------------------------------------------------------------------
     if state == GUI_STATE_NORMAL
     {
-        d.draw_rectangle_linesEx(bounds, GuiGetStyle(TOGGLE, BORDER_WIDTH), Fade(GetColor(GuiGetStyle(TOGGLE, (active ? BORDER_COLOR_PRESSED : (BORDER + state * 3)))), guiAlpha));
+        d.draw_rectangle_lines_ex(bounds, GuiGetStyle(TOGGLE, BORDER_WIDTH), Fade(GetColor(GuiGetStyle(TOGGLE, (active ? BORDER_COLOR_PRESSED : (BORDER + state * 3)))), guiAlpha));
         d.draw_rectangle(bounds.x + GuiGetStyle(TOGGLE, BORDER_WIDTH), bounds.y + GuiGetStyle(TOGGLE, BORDER_WIDTH), bounds.width - 2 * GuiGetStyle(TOGGLE, BORDER_WIDTH), bounds.height - 2 * GuiGetStyle(TOGGLE, BORDER_WIDTH), Fade(GetColor(GuiGetStyle(TOGGLE, (active ? BASE_COLOR_PRESSED : (BASE + state * 3)))), guiAlpha));
 
         Guid.draw_text(text, GetTextBounds(TOGGLE, bounds), GuiGetStyle(TOGGLE, TEXT_ALIGNMENT), Fade(GetColor(GuiGetStyle(TOGGLE, (active ? TEXT_COLOR_PRESSED : (TEXT + state * 3)))), guiAlpha));
     }
     else
     {
-        d.draw_rectangle_linesEx(bounds, GuiGetStyle(TOGGLE, BORDER_WIDTH), Fade(GetColor(GuiGetStyle(TOGGLE, BORDER + state * 3)), guiAlpha));
+        d.draw_rectangle_lines_ex(bounds, GuiGetStyle(TOGGLE, BORDER_WIDTH), Fade(GetColor(GuiGetStyle(TOGGLE, BORDER + state * 3)), guiAlpha));
         d.draw_rectangle(bounds.x + GuiGetStyle(TOGGLE, BORDER_WIDTH), bounds.y + GuiGetStyle(TOGGLE, BORDER_WIDTH), bounds.width - 2 * GuiGetStyle(TOGGLE, BORDER_WIDTH), bounds.height - 2 * GuiGetStyle(TOGGLE, BORDER_WIDTH), Fade(GetColor(GuiGetStyle(TOGGLE, BASE + state * 3)), guiAlpha));
 
         Guid.draw_text(text, GetTextBounds(TOGGLE, bounds), GuiGetStyle(TOGGLE, TEXT_ALIGNMENT), Fade(GetColor(GuiGetStyle(TOGGLE, TEXT + state * 3)), guiAlpha));
@@ -1372,7 +1372,7 @@ RAYGUIDEF bool GuiCheckBox(Rectangle bounds, const char *text, bool checked)
 
     // Draw control
     //--------------------------------------------------------------------
-    d.draw_rectangle_linesEx(bounds, GuiGetStyle(CHECKBOX, BORDER_WIDTH), Fade(GetColor(GuiGetStyle(CHECKBOX, BORDER + (state * 3))), guiAlpha));
+    d.draw_rectangle_lines_ex(bounds, GuiGetStyle(CHECKBOX, BORDER_WIDTH), Fade(GetColor(GuiGetStyle(CHECKBOX, BORDER + (state * 3))), guiAlpha));
     if checked
         d.draw_rectangle(bounds.x + GuiGetStyle(CHECKBOX, BORDER_WIDTH) + GuiGetStyle(CHECKBOX, INNER_PADDING),
                       bounds.y + GuiGetStyle(CHECKBOX, BORDER_WIDTH) + GuiGetStyle(CHECKBOX, INNER_PADDING),
@@ -1433,7 +1433,7 @@ RAYGUIDEF int GuiComboBox(Rectangle bounds, const char *text, int active)
     // Draw control
     //--------------------------------------------------------------------
     // Draw combo box main
-    d.draw_rectangle_linesEx(bounds, GuiGetStyle(COMBOBOX, BORDER_WIDTH), Fade(GetColor(GuiGetStyle(COMBOBOX, BORDER + (state * 3))), guiAlpha));
+    d.draw_rectangle_lines_ex(bounds, GuiGetStyle(COMBOBOX, BORDER_WIDTH), Fade(GetColor(GuiGetStyle(COMBOBOX, BORDER + (state * 3))), guiAlpha));
     d.draw_rectangle(bounds.x + GuiGetStyle(COMBOBOX, BORDER_WIDTH), bounds.y + GuiGetStyle(COMBOBOX, BORDER_WIDTH), bounds.width - 2 * GuiGetStyle(COMBOBOX, BORDER_WIDTH), bounds.height - 2 * GuiGetStyle(COMBOBOX, BORDER_WIDTH), Fade(GetColor(GuiGetStyle(COMBOBOX, BASE + (state * 3))), guiAlpha));
 
     Guid.draw_text(elementsPtrs[active], GetTextBounds(COMBOBOX, bounds), GuiGetStyle(COMBOBOX, TEXT_ALIGNMENT), Fade(GetColor(GuiGetStyle(COMBOBOX, TEXT + (state * 3))), guiAlpha));
@@ -1524,7 +1524,7 @@ RAYGUIDEF bool GuiDropdownBox(Rectangle bounds, const char *text, int *active, b
     case GUI_STATE_NORMAL:
     {
         d.draw_rectangle(bounds.x, bounds.y, bounds.width, bounds.height, Fade(GetColor(GuiGetStyle(DROPDOWNBOX, BASE_COLOR_NORMAL)), guiAlpha));
-        d.draw_rectangle_linesEx(bounds, GuiGetStyle(DROPDOWNBOX, BORDER_WIDTH), Fade(GetColor(GuiGetStyle(DROPDOWNBOX, BORDER_COLOR_NORMAL)), guiAlpha));
+        d.draw_rectangle_lines_ex(bounds, GuiGetStyle(DROPDOWNBOX, BORDER_WIDTH), Fade(GetColor(GuiGetStyle(DROPDOWNBOX, BORDER_COLOR_NORMAL)), guiAlpha));
 
         GuiListElement(RAYGUI_CLITERALrrect(bounds.x, bounds.y, bounds.width, bounds.height), elementsPtrs[auxActive], false, false);
     }
@@ -1570,7 +1570,7 @@ RAYGUIDEF bool GuiDropdownBox(Rectangle bounds, const char *text, int *active, b
     case GUI_STATE_DISABLED:
     {
         d.draw_rectangle(bounds.x, bounds.y, bounds.width, bounds.height, Fade(GetColor(GuiGetStyle(DROPDOWNBOX, BASE_COLOR_DISABLED)), guiAlpha));
-        d.draw_rectangle_linesEx(bounds, GuiGetStyle(DROPDOWNBOX, BORDER_WIDTH), Fade(GetColor(GuiGetStyle(DROPDOWNBOX, BORDER_COLOR_DISABLED)), guiAlpha));
+        d.draw_rectangle_lines_ex(bounds, GuiGetStyle(DROPDOWNBOX, BORDER_WIDTH), Fade(GetColor(GuiGetStyle(DROPDOWNBOX, BORDER_COLOR_DISABLED)), guiAlpha));
 
         GuiListElement(RAYGUI_CLITERALrrect(bounds.x, bounds.y, bounds.width, bounds.height), elementsPtrs[auxActive], false, false);
     }
@@ -2618,7 +2618,7 @@ RAYGUIDEF bool GuiTextBox(Rectangle bounds, char *text, int textSize, bool editM
 
     // Draw control
     //--------------------------------------------------------------------
-    d.draw_rectangle_linesEx(bounds, GuiGetStyle(TEXTBOX, BORDER_WIDTH), Fade(GetColor(GuiGetStyle(TEXTBOX, BORDER + (state * 3))), guiAlpha));
+    d.draw_rectangle_lines_ex(bounds, GuiGetStyle(TEXTBOX, BORDER_WIDTH), Fade(GetColor(GuiGetStyle(TEXTBOX, BORDER + (state * 3))), guiAlpha));
 
     if state == GUI_STATE_PRESSED
     {
@@ -2800,7 +2800,7 @@ RAYGUIDEF bool GuiValueBox(Rectangle bounds, int *value, int minValue, int maxVa
 
     // Draw control
     //--------------------------------------------------------------------
-    d.draw_rectangle_linesEx(bounds, GuiGetStyle(VALUEBOX, BORDER_WIDTH), Fade(GetColor(GuiGetStyle(VALUEBOX, BORDER + (state * 3))), guiAlpha));
+    d.draw_rectangle_lines_ex(bounds, GuiGetStyle(VALUEBOX, BORDER_WIDTH), Fade(GetColor(GuiGetStyle(VALUEBOX, BORDER + (state * 3))), guiAlpha));
 
     if state == GUI_STATE_PRESSED
     {
@@ -2905,7 +2905,7 @@ RAYGUIDEF bool GuiTextBox(Rectangle bounds, char *text, int textSize, bool editM
 
     // Draw control
     //--------------------------------------------------------------------
-    d.draw_rectangle_linesEx(bounds, GuiGetStyle(TEXTBOX, BORDER_WIDTH), Fade(GetColor(GuiGetStyle(TEXTBOX, BORDER + (state * 3))), guiAlpha));
+    d.draw_rectangle_lines_ex(bounds, GuiGetStyle(TEXTBOX, BORDER_WIDTH), Fade(GetColor(GuiGetStyle(TEXTBOX, BORDER + (state * 3))), guiAlpha));
 
     if state == GUI_STATE_PRESSED
     {
@@ -3099,7 +3099,7 @@ RAYGUIDEF bool GuiTextBoxMulti(Rectangle bounds, char *text, int textSize, bool 
 
     // Draw control
     //--------------------------------------------------------------------
-    d.draw_rectangle_linesEx(bounds, GuiGetStyle(TEXTBOX, BORDER_WIDTH), Fade(GetColor(GuiGetStyle(TEXTBOX, BORDER + (state * 3))), guiAlpha));
+    d.draw_rectangle_lines_ex(bounds, GuiGetStyle(TEXTBOX, BORDER_WIDTH), Fade(GetColor(GuiGetStyle(TEXTBOX, BORDER + (state * 3))), guiAlpha));
 
     if state == GUI_STATE_PRESSED
     {
@@ -3211,7 +3211,7 @@ RAYGUIDEF float GuiSliderPro(Rectangle bounds, const char *text, float value, fl
 
     // Draw control
     //--------------------------------------------------------------------
-    d.draw_rectangle_linesEx(bounds, GuiGetStyle(SLIDER, BORDER_WIDTH), Fade(GetColor(GuiGetStyle(SLIDER, BORDER + (state * 3))), guiAlpha));
+    d.draw_rectangle_lines_ex(bounds, GuiGetStyle(SLIDER, BORDER_WIDTH), Fade(GetColor(GuiGetStyle(SLIDER, BORDER + (state * 3))), guiAlpha));
     d.draw_rectangle(bounds.x + GuiGetStyle(SLIDER, BORDER_WIDTH), bounds.y + GuiGetStyle(SLIDER, BORDER_WIDTH), bounds.width - 2 * GuiGetStyle(SLIDER, BORDER_WIDTH), bounds.height - 2 * GuiGetStyle(SLIDER, BORDER_WIDTH), Fade(GetColor(GuiGetStyle(SLIDER, (state != GUI_STATE_DISABLED) ? BASE_COLOR_NORMAL : BASE_COLOR_DISABLED)), guiAlpha));
 
     // Draw slider internal bar (depends on state)
@@ -3263,7 +3263,7 @@ RAYGUIDEF float GuiProgressBar(Rectangle bounds, const char *text, float value, 
     if showValue
         GuiLabel(RAYGUI_CLITERALrrect((float)bounds.x + bounds.width + GuiGetStyle(SLIDER, TEXT_PADDING), (float)bounds.y + bounds.height / 2 - GuiGetStyle(DEFAULT, TEXT_SIZE) / 2 + GuiGetStyle(SLIDER, INNER_PADDING), (float)GuiGetStyle(DEFAULT, TEXT_SIZE), (float)GuiGetStyle(DEFAULT, TEXT_SIZE)), &format!("%.02f", value));
 
-    d.draw_rectangle_linesEx(bounds, GuiGetStyle(PROGRESSBAR, BORDER_WIDTH), Fade(GetColor(GuiGetStyle(PROGRESSBAR, BORDER + (state * 3))), guiAlpha));
+    d.draw_rectangle_lines_ex(bounds, GuiGetStyle(PROGRESSBAR, BORDER_WIDTH), Fade(GetColor(GuiGetStyle(PROGRESSBAR, BORDER + (state * 3))), guiAlpha));
 
     // Draw slider internal progress bar (depends on state)
     if (state == GUI_STATE_NORMAL) || (state == GUI_STATE_PRESSED)
@@ -3282,7 +3282,7 @@ RAYGUIDEF void GuiStatusBar(Rectangle bounds, const char *text)
 
     // Draw control
     //--------------------------------------------------------------------
-    d.draw_rectangle_linesEx(bounds, GuiGetStyle(DEFAULT, BORDER_WIDTH), Fade(GetColor(GuiGetStyle(DEFAULT, (state != GUI_STATE_DISABLED) ? BORDER_COLOR_NORMAL : BORDER_COLOR_DISABLED)), guiAlpha));
+    d.draw_rectangle_lines_ex(bounds, GuiGetStyle(DEFAULT, BORDER_WIDTH), Fade(GetColor(GuiGetStyle(DEFAULT, (state != GUI_STATE_DISABLED) ? BORDER_COLOR_NORMAL : BORDER_COLOR_DISABLED)), guiAlpha));
     d.draw_rectangle_rec(RAYGUI_CLITERALrrect(bounds.x + GuiGetStyle(DEFAULT, BORDER_WIDTH), bounds.y + GuiGetStyle(DEFAULT, BORDER_WIDTH), bounds.width - GuiGetStyle(DEFAULT, BORDER_WIDTH) * 2, bounds.height - GuiGetStyle(DEFAULT, BORDER_WIDTH) * 2), Fade(GetColor(GuiGetStyle(DEFAULT, (state != GUI_STATE_DISABLED) ? BASE_COLOR_NORMAL : BASE_COLOR_DISABLED)), guiAlpha));
 
     Guid.draw_text(text, GetTextBounds(DEFAULT, bounds), GuiGetStyle(DEFAULT, TEXT_ALIGNMENT), Fade(GetColor(GuiGetStyle(DEFAULT, (state != GUI_STATE_DISABLED) ? TEXT_COLOR_NORMAL : TEXT_COLOR_DISABLED)), guiAlpha));
@@ -3421,7 +3421,7 @@ RAYGUIDEF int GuiScrollBar(Rectangle bounds, int value, int minValue, int maxVal
     d.draw_rectangle_rec(bounds, Fade(GetColor(GuiGetStyle(DEFAULT, BORDER_COLOR_DISABLED)), guiAlpha)); // Draw the background
     d.draw_rectangle_rec(scrollbar, Fade(GetColor(GuiGetStyle(BUTTON, BASE_COLOR_NORMAL)), guiAlpha));   // Draw the scrollbar active area background
 
-    d.draw_rectangle_linesEx(bounds, GuiGetStyle(SCROLLBAR, BORDER_WIDTH), Fade(GetColor(GuiGetStyle(LISTVIEW, BORDER + state * 3)), guiAlpha));
+    d.draw_rectangle_lines_ex(bounds, GuiGetStyle(SCROLLBAR, BORDER_WIDTH), Fade(GetColor(GuiGetStyle(LISTVIEW, BORDER + state * 3)), guiAlpha));
 
     d.draw_rectangle_rec(slider, Fade(GetColor(GuiGetStyle(SLIDER, BORDER + state * 3)), guiAlpha)); // Draw the slider bar
 
@@ -3509,20 +3509,20 @@ static bool GuiListElement(Rectangle bounds, const char *text, bool active, bool
         if active
         {
             d.draw_rectangle(bounds.x, bounds.y, bounds.width, bounds.height, Fade(GetColor(GuiGetStyle(LISTVIEW, BASE_COLOR_PRESSED)), guiAlpha));
-            d.draw_rectangle_linesEx(bounds, GuiGetStyle(DEFAULT, BORDER_WIDTH), Fade(GetColor(GuiGetStyle(LISTVIEW, BORDER_COLOR_PRESSED)), guiAlpha));
+            d.draw_rectangle_lines_ex(bounds, GuiGetStyle(DEFAULT, BORDER_WIDTH), Fade(GetColor(GuiGetStyle(LISTVIEW, BORDER_COLOR_PRESSED)), guiAlpha));
         }
     }
     break;
     case GUI_STATE_FOCUSED:
     {
         d.draw_rectangle(bounds.x, bounds.y, bounds.width, bounds.height, Fade(GetColor(GuiGetStyle(LISTVIEW, BASE_COLOR_FOCUSED)), guiAlpha));
-        d.draw_rectangle_linesEx(bounds, GuiGetStyle(DEFAULT, BORDER_WIDTH), Fade(GetColor(GuiGetStyle(LISTVIEW, BORDER_COLOR_FOCUSED)), guiAlpha));
+        d.draw_rectangle_lines_ex(bounds, GuiGetStyle(DEFAULT, BORDER_WIDTH), Fade(GetColor(GuiGetStyle(LISTVIEW, BORDER_COLOR_FOCUSED)), guiAlpha));
     }
     break;
     case GUI_STATE_PRESSED:
     {
         d.draw_rectangle(bounds.x, bounds.y, bounds.width, bounds.height, Fade(GetColor(GuiGetStyle(LISTVIEW, BASE_COLOR_PRESSED)), guiAlpha));
-        d.draw_rectangle_linesEx(bounds, GuiGetStyle(DEFAULT, BORDER_WIDTH), Fade(GetColor(GuiGetStyle(LISTVIEW, BORDER_COLOR_PRESSED)), guiAlpha));
+        d.draw_rectangle_lines_ex(bounds, GuiGetStyle(DEFAULT, BORDER_WIDTH), Fade(GetColor(GuiGetStyle(LISTVIEW, BORDER_COLOR_PRESSED)), guiAlpha));
     }
     break;
     case GUI_STATE_DISABLED:
@@ -3530,7 +3530,7 @@ static bool GuiListElement(Rectangle bounds, const char *text, bool active, bool
         if active
         {
             d.draw_rectangle(bounds.x, bounds.y, bounds.width, bounds.height, Fade(GetColor(GuiGetStyle(LISTVIEW, BASE_COLOR_DISABLED)), guiAlpha));
-            d.draw_rectangle_linesEx(bounds, GuiGetStyle(DEFAULT, BORDER_WIDTH), Fade(GetColor(GuiGetStyle(LISTVIEW, BORDER_COLOR_NORMAL)), guiAlpha));
+            d.draw_rectangle_lines_ex(bounds, GuiGetStyle(DEFAULT, BORDER_WIDTH), Fade(GetColor(GuiGetStyle(LISTVIEW, BORDER_COLOR_NORMAL)), guiAlpha));
         }
     }
     break;
@@ -3771,7 +3771,7 @@ RAYGUIDEF bool GuiListViewEx(Rectangle bounds, const char **text, int count, int
         }
     }
 
-    d.draw_rectangle_linesEx(bounds, GuiGetStyle(DEFAULT, BORDER_WIDTH), Fade(GetColor(GuiGetStyle(LISTVIEW, BORDER + state * 3)), guiAlpha));
+    d.draw_rectangle_lines_ex(bounds, GuiGetStyle(DEFAULT, BORDER_WIDTH), Fade(GetColor(GuiGetStyle(LISTVIEW, BORDER + state * 3)), guiAlpha));
 
     // Draw ListView states
     switch (state)
@@ -3933,7 +3933,7 @@ RAYGUIDEF Color GuiColorPanelEx(Rectangle bounds, Color color, float hue)
         const d.draw_rectangleGradientEx(bounds, Fade(Fade(GetColor(GuiGetStyle(COLORPICKER, BASE_COLOR_DISABLED)), 0.1), guiAlpha), Fade(Fade(colBlack, 0.6f), guiAlpha), Fade(Fade(colBlack, 0.6f), guiAlpha), Fade(Fade(GetColor(GuiGetStyle(COLORPICKER, BORDER_COLOR_DISABLED)), 0.6f), guiAlpha));
 }
 
-d.draw_rectangle_linesEx(bounds, 1, Fade(GetColor(GuiGetStyle(COLORPICKER, BORDER + state * 3)), guiAlpha));
+d.draw_rectangle_lines_ex(bounds, 1, Fade(GetColor(GuiGetStyle(COLORPICKER, BORDER + state * 3)), guiAlpha));
 //--------------------------------------------------------------------
 
 return color;
@@ -4005,7 +4005,7 @@ RAYGUIDEF float GuiColorBarAlpha(Rectangle bounds, float alpha)
     else
         d.draw_rectangleGradientEx(bounds, Fade(GetColor(GuiGetStyle(COLORPICKER, BASE_COLOR_DISABLED)), 0.1), Fade(GetColor(GuiGetStyle(COLORPICKER, BASE_COLOR_DISABLED)), 0.1), Fade(GetColor(GuiGetStyle(COLORPICKER, BORDER_COLOR_DISABLED)), guiAlpha), Fade(GetColor(GuiGetStyle(COLORPICKER, BORDER_COLOR_DISABLED)), guiAlpha));
 
-    d.draw_rectangle_linesEx(bounds, 1, Fade(GetColor(GuiGetStyle(COLORPICKER, BORDER + state * 3)), guiAlpha));
+    d.draw_rectangle_lines_ex(bounds, 1, Fade(GetColor(GuiGetStyle(COLORPICKER, BORDER + state * 3)), guiAlpha));
 
     // Draw alpha bar: selector
     d.draw_rectangle_rec(selector, Fade(GetColor(GuiGetStyle(COLORPICKER, BORDER + state * 3)), guiAlpha));
@@ -4073,7 +4073,7 @@ RAYGUIDEF float GuiColorBarHue(Rectangle bounds, float hue)
     else
         d.draw_rectangleGradientV(bounds.x, bounds.y, bounds.width, bounds.height, Fade(Fade(GetColor(GuiGetStyle(COLORPICKER, BASE_COLOR_DISABLED)), 0.1), guiAlpha), Fade(GetColor(GuiGetStyle(COLORPICKER, BORDER_COLOR_DISABLED)), guiAlpha));
 
-    d.draw_rectangle_linesEx(bounds, 1, Fade(GetColor(GuiGetStyle(COLORPICKER, BORDER + state * 3)), guiAlpha));
+    d.draw_rectangle_lines_ex(bounds, 1, Fade(GetColor(GuiGetStyle(COLORPICKER, BORDER + state * 3)), guiAlpha));
 
     // Draw hue bar: selector
     d.draw_rectangle_rec(selector, Fade(GetColor(GuiGetStyle(COLORPICKER, BORDER + state * 3)), guiAlpha));
@@ -4797,7 +4797,7 @@ RAYGUIDEF void GuiLoadStyle(const char *fileName)
     }
 
     // Draw rectangle border lines with color
-    static void d.draw_rectangle_linesEx(Rectangle rec, int lineThick, Color color)
+    static void d.draw_rectangle_lines_ex(Rectangle rec, int lineThick, Color color)
     {
         d.draw_rectangle(rec.x, rec.y, rec.width, lineThick, color);
         d.draw_rectangle(rec.x, rec.y + lineThick, lineThick, rec.height - 2 * lineThick, color);

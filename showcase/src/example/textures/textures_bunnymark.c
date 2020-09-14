@@ -63,11 +63,11 @@ pub fn run(rl
                 if bunniesCount < MAX_BUNNIES
                 {
                     bunnies[bunniesCount].position = rl.get_mouse_position();
-                    bunnies[bunniesCount].speed.x = (float)raylib::get_random_value(-250, 250) / 60.0;
-                    bunnies[bunniesCount].speed.y = (float)raylib::get_random_value(-250, 250) / 60.0;
-                    bunnies[bunniesCount].color = (Color){raylib::get_random_value(50, 240),
-                                                          raylib::get_random_value(80, 240),
-                                                          raylib::get_random_value(100, 240), 255};
+                    bunnies[bunniesCount].speed.x = (float)raylib::get_random_value::<i32>(-250, 250) / 60.0;
+                    bunnies[bunniesCount].speed.y = (float)raylib::get_random_value::<i32>(-250, 250) / 60.0;
+                    bunnies[bunniesCount].color = (Color){raylib::get_random_value::<i32>(50, 240),
+                                                          raylib::get_random_value::<i32>(80, 240),
+                                                          raylib::get_random_value::<i32>(100, 240), 255};
                     bunniesCount++;
                 }
             }

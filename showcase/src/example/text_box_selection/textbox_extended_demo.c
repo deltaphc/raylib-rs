@@ -71,7 +71,7 @@ bool ColorButton(Rectangle bounds, Color color)
     // Draw control
     d.draw_texture(checked, body.x, body.y, Color::WHITE);
     d.draw_rectangle_rec(body, color);
-    d.draw_rectangle_linesEx(bounds, 1, Color::BLACK);
+    d.draw_rectangle_lines_ex(bounds, 1, Color::BLACK);
 
     return pressed;
 }
@@ -149,10 +149,10 @@ int main(int argc, char **argv)
             showMenu = false;
 
         // Fonts drag & drop logic
-        if IsFileDropped()
+        if rl.is_file_dropped()
         {
             int count = 0;
-            char **files = GetDroppedFiles(&count);
+            char **files = rl.get_dropped_files(&count);
 
             if IsFileExtension(files[0], ".ttf" ||
                 IsFileExtension(files[0], ".otf") ||

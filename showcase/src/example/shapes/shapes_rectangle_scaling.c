@@ -83,7 +83,7 @@ const MOUSE_SCALE_MARK_SIZE 12
 
         if mouseScaleReady
         {
-            d.draw_rectangle_linesEx(rec, 1,Color::RED);
+            d.draw_rectangle_lines_ex(rec, 1,Color::RED);
             d.draw_triangle(rvec2(rec.x + rec.width - MOUSE_SCALE_MARK_SIZE,  rec.y + rec.height),
                          rvec2(rec.x + rec.width,  rec.y + rec.height),
                          rvec2(rec.x + rec.width,  rec.y + rec.height - MOUSE_SCALE_MARK_SIZE),Color::RED);

@@ -97,7 +97,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
         use raylib::consts::GuiControlState::*;
         use raylib::consts::GuiDefaultProperty::*;
         use raylib::consts::GuiTextAlignment::*;
-        use raylib::consts::KeyboardKey::*;
+        
         // Update
         //----------------------------------------------------------------------------------
 
@@ -263,7 +263,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
         sliderValue = d.gui_slider(
             rrect(355, 400, 165, 20),
             Some(rstr!("TEST")),
-            Some(&rstr!("{:.2}", sliderValue as f32).unwrap()),
+            Some(&rstr!("{:.2}", sliderValue as f32)),
             sliderValue,
             -50.0,
             100.0,
@@ -271,7 +271,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
         sliderBarValue = d.gui_slider_bar(
             rrect(320, 430, 200, 20),
             None,
-            Some(&rstr!("{}", sliderBarValue).unwrap()),
+            Some(&rstr!("{}", sliderBarValue)),
             sliderBarValue,
             0.0,
             100.0,

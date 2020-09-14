@@ -137,7 +137,7 @@ pub trait RaylibDrawGui {
     /// Get one style property
     /// SHOULD use one of the Gui*Property enums
     #[inline]
-    fn gui_get_style(&mut self, control: crate::consts::GuiControl, property: i32) -> i32 {
+    fn gui_get_style(&self, control: crate::consts::GuiControl, property: i32) -> i32 {
         unsafe { ffi::GuiGetStyle(control as i32, property as i32) }
     }
     /// Load style file (.rgs)

@@ -1,4 +1,4 @@
-info face="Noto Serif 
+info face="Noto Serif CJK JP" size=-16 bold=0 italic=0 charset="" unicode=1 stretchH=100 smooth=1 aa=1 padding=0,0,0,0 spacing=2,2 outline=1
 common lineHeight=23 base=18 scaleW=512 scaleH=512 pages=1 packed=0 alphaChnl=0Color::REDChnl=4 greenChnl=4 blueChnl=4
 page id=0 file="notoCJK.png"
 chars count=576

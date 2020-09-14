@@ -98,7 +98,7 @@ tempor incididunt ut labore et dolore magna aliqua. Nec ullamcorper sit amet ris
 
         d.clear_background(Color::RAYWHITE);
 
-        d.draw_rectangle_linesEx(container, 3, borderColor); // Draw container border
+        d.draw_rectangle_lines_ex(container, 3, borderColor); // Draw container border
 
         // Draw text in container (add some padding)
         DrawTextRec(font, text,

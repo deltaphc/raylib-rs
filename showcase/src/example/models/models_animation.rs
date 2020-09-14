@@ -63,7 +63,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
         // If we don't capture texture, it won't get moved to the closure which means raylib will drop it.
         let _ = texture;
 
-        use raylib::consts::KeyboardKey::*;
+        
         // Update
         //----------------------------------------------------------------------------------
         rl.update_camera(&mut camera);

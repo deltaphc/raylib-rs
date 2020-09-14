@@ -25,10 +25,10 @@ const NUM_FRAMES 8 const NUM_LINES 6
     rl.set_window_title(thread, "raylib [textures] example - sprite explosion");
 
 
-    InitAudioDevice();
+    let mut audio = RaylibAudio::init_audio_device();
 
     // Load explosion sound
-    Sound fxBoom = LoadSound("resources/boom.wav");
+    Sound fxBoom = Sound::load_sound("resources/boom.wav");
 
     // Load explosion texture
     let explosion = rl.load_texture(thread, "resources/explosion.png");

@@ -27,8 +27,8 @@ const MAX_COLORS_COUNT 21 // Number of colors available
 
     Color colors[MAX_COLORS_COUNT] = {
         Color::DARKGRAY, Color::MAROON, Color::ORANGE, DARKGREEN, Color::DARKBLUE, DARKPURPLE, DARKBROWN,
-        Color::GRAY,Color::RED, Color::GOLD, Color::LIME, Color::BLUE, Color::VIOLET, BROWN, Color::LIGHTGRAY, Color::PINK, Color::YELLOW,
-        Color::GREEN, Color::SKYBLUE, PURPLE, Color::BEIGE};
+        Color::GRAY,Color::RED, Color::GOLD, Color::LIME, Color::BLUE, Color::VIOLET, Color::BROWN, Color::LIGHTGRAY, Color::PINK, Color::YELLOW,
+        Color::GREEN, Color::SKYBLUE, Color::PURPLE, Color::BEIGE};
 
     const char *colorNames[MAX_COLORS_COUNT] = {
         "DARKGRAY", "Color::MAROON", "ORANGE", "DARKGREEN", "Color::DARKBLUE", "DARKPURPLE",
@@ -85,7 +85,7 @@ const MAX_COLORS_COUNT 21 // Number of colors available
             if rl.is_key_down(raylib::consts::KeyboardKey::KEY_SPACE) || colorState[i]
             {
                 d.draw_rectangle(colorsRecs[i].x, colorsRecs[i].y + colorsRecs[i].height - 26, colorsRecs[i].width, 20, Color::BLACK);
-                d.draw_rectangle_linesEx(colorsRecs[i], 6, Fade(BLACK, 0.3));
+                d.draw_rectangle_lines_ex(colorsRecs[i], 6, Fade(BLACK, 0.3));
                 d.draw_text(colorNames[i], colorsRecs[i].x + colorsRecs[i].width - raylib::text::measure_textcolorNames[i], 10) - 12,
                          colorsRecs[i].y + colorsRecs[i].height - 20, 10, colors[i]);
             }

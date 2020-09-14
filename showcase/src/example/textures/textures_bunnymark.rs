@@ -47,7 +47,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
 
     // Main game loop
     return Box::new(move |rl: &mut RaylibHandle, thread: &RaylibThread| -> () {
-        use raylib::consts::MouseButton::*;
+        
         // Update
         //----------------------------------------------------------------------------------
         if rl.is_mouse_button_down(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON) {

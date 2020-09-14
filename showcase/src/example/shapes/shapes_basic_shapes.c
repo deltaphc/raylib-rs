@@ -54,7 +54,7 @@ pub fn run(rl
                      rvec2(screen_width / 4 * 3 - 60,  150),
                      rvec2(screen_width / 4 * 3 + 60,  150), Color::VIOLET);
 
-        DrawPoly(rvec2(screen_width / 4 * 3,  320), 6, 80, 0, BROWN);
+        DrawPoly(rvec2(screen_width / 4 * 3,  320), 6, 80, 0, Color::BROWN);
 
         DrawCircleGradient(screen_width / 4, 220, 60, Color::GREEN, Color::SKYBLUE);
 

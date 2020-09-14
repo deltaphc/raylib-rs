@@ -30,7 +30,7 @@ const MAX_COLORS_COUNT 23 // Number of colors available
     // Colours to choose from
     Color colors[MAX_COLORS_COUNT] = {
         Color::RAYWHITE, Color::YELLOW, Color::GOLD, Color::ORANGE, Color::PINK,Color::RED, Color::MAROON, Color::GREEN, Color::LIME, DARKGREEN,
-        Color::SKYBLUE, Color::BLUE, Color::DARKBLUE, PURPLE, Color::VIOLET, DARKPURPLE, Color::BEIGE, BROWN, DARKBROWN,
+        Color::SKYBLUE, Color::BLUE, Color::DARKBLUE, Color::PURPLE, Color::VIOLET, DARKPURPLE, Color::BEIGE, Color::BROWN, DARKBROWN,
         Color::LIGHTGRAY, Color::GRAY, Color::DARKGRAY, Color::BLACK};
 
     // Define colorsRecs data (for every rectangle)
@@ -199,12 +199,12 @@ const MAX_COLORS_COUNT 23 // Number of colors available
         if colorMouseHover >= 0
             d.draw_rectangle_rec(colorsRecs[colorMouseHover], Fade(WHITE, 0.6f));
 
-        d.draw_rectangle_linesEx((Rectangle){colorsRecs[colorSelected].x - 2, colorsRecs[colorSelected].y - 2,
+        d.draw_rectangle_lines_ex((Rectangle){colorsRecs[colorSelected].x - 2, colorsRecs[colorSelected].y - 2,
                                          colorsRecs[colorSelected].width + 4, colorsRecs[colorSelected].height + 4},
                              2, Color::BLACK);
 
         // Draw save image button
-        d.draw_rectangle_linesEx(btnSaveRec, 2, btnSaveMouseHover ?Color::RED : Color::BLACK);
+        d.draw_rectangle_lines_ex(btnSaveRec, 2, btnSaveMouseHover ?Color::RED : Color::BLACK);
         d.draw_text("SAVE!", 755, 20, 10, btnSaveMouseHover ?Color::RED : Color::BLACK);
 
         // Draw save image message

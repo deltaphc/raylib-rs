@@ -338,18 +338,18 @@ int main(int argc, char **argv)
 static void RandomizeEmoji(void)
 {
     hovered = selected = -1;
-    int start = raylib::get_random_value(45, 360);
+    int start = raylib::get_random_value::<i32>(45, 360);
 
     for (int i = 0; i < SIZEOF(emoji); ++i)
     {
         // 0-179 emoji codepoints (from emoji char array) each 4bytes + null char
-        emoji[i].index = raylib::get_random_value(0, 179) * 5;
+        emoji[i].index = raylib::get_random_value::<i32>(0, 179) * 5;
 
         // Generate a random color for this emoji
         Vector3 hsv = {(start * (i + 1)) % 360, 0.6f, 0.85f};
         emoji[i].color = Fade(ColorFromHSV(hsv), 0.8f);
 
         // Set a random message for this emoji
-        emoji[i].message = raylib::get_random_value(0, SIZEOF(messages) - 1);
+        emoji[i].message = raylib::get_random_value::<i32>(0, SIZEOF(messages) - 1);
     }
 }

@@ -7,4 +7,5 @@ raylib-test/test_out/*
 !raylib-test/test_out/.gitkeep
 raylib-test/storage.data
 samples/savegame
-showcase/my_amazing_texture_painting.png
+showcase/*.png
+showcase/*.raw

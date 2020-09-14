@@ -84,10 +84,10 @@ pub fn run(rl
             fontPosition.x += 10;
 
         // Load a dropped TTF file dynamically (at current fontSize)
-        if IsFileDropped()
+        if rl.is_file_dropped()
         {
             int count = 0;
-            char **droppedFiles = GetDroppedFiles(&count);
+            char **droppedFiles = rl.get_dropped_files(&count);
 
             // NOTE: We only support first ttf file dropped
             if IsFileExtension(droppedFiles[0], ".ttf")

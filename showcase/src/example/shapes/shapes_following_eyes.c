@@ -85,7 +85,7 @@ screen_width
         d.clear_background(Color::RAYWHITE);
 
         d.draw_circle_v(scleraLeftPosition, scleraRadius, Color::LIGHTGRAY);
-        d.draw_circle_v(irisLeftPosition, irisRadius, BROWN);
+        d.draw_circle_v(irisLeftPosition, irisRadius, Color::BROWN);
         d.draw_circle_v(irisLeftPosition, 10, Color::BLACK);
 
         d.draw_circle_v(scleraRightPosition, scleraRadius, Color::LIGHTGRAY);

@@ -25,9 +25,9 @@ const NUM_FRAMES 3 // Number of frames (rectangles) for the button sprite textur
     rl.set_window_title(thread, "raylib [textures] example - sprite button");
 
 
-    InitAudioDevice(); // Initialize audio device
+    let mut audio = RaylibAudio::init_audio_device(); // Initialize audio device
 
-    Sound fxButton = LoadSound("resources/buttonfx.wav");   // Load button sound
+    Sound fxButton = Sound::load_sound("resources/buttonfx.wav");   // Load button sound
     let button = rl.load_texture(thread, "resources/button.png"); // Load button texture
 
     // Define frame rectangle for drawing

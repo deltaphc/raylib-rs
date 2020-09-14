@@ -22,7 +22,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
 
     let mut framesCounter = 0; // Variable used to count frames
 
-    let mut randValue: i32 = raylib::get_random_value(-8, 5); // Get a random integer number between -8 and 5 (both included)
+    let mut randValue: i32 = raylib::get_random_value::<i32>(-8, 5); // Get a random integer number between -8 and 5 (both included)
 
     rl.set_target_fps(60); // Set our game to run at 60 frames-per-second
                            //--------------------------------------------------------------------------------------
@@ -38,7 +38,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
         // Every two seconds (120 frames) a new random value is generated
         if ((framesCounter / 120) % 2) == 1
         {
-            randValue = raylib::get_random_value(-8, 5);
+            randValue = raylib::get_random_value::<i32>(-8, 5);
             framesCounter = 0;
         }
         //----------------------------------------------------------------------------------

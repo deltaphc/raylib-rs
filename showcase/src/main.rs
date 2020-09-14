@@ -34,6 +34,34 @@ fn main() {
     rl.set_exit_key(None);
 
     let samples: Vec<(&std::ffi::CStr, Sample)> = vec![
+        (
+            rstr!("raygui - controls test suite"),
+            example::controls_test_suite::controls_test_suite::run,
+        ),
+        (
+            rstr!("raygui - image exporter"),
+            example::image_exporter::image_exporter::run,
+        ),
+        (
+            rstr!("raylib [audio] example - music playing (streaming)"),
+            example::audio::audio_music_stream::run,
+        ),
+        (
+            rstr!("raylib [audio] example - module playing (streaming)"),
+            example::audio::audio_module_playing::run,
+        ),
+        (
+            rstr!("raylib [audio] example - Multichannel sound playing"),
+            example::audio::audio_multichannel_sound::run,
+        ),
+        (
+            rstr!("raylib [audio] example - raw audio streaming"),
+            example::audio::audio_raw_stream::run,
+        ),
+        (
+            rstr!("raylib [audio] example - sound loading and playing"),
+            example::audio::audio_sound_loading::run,
+        ),
         (rstr!("Core2D Camera"), example::core::core_2d_camera::run),
         (
             rstr!("Core2D Camera Platformer"),
@@ -103,15 +131,15 @@ fn main() {
             rstr!("raylib [core] example - core world screen"),
             example::core::core_world_screen::run,
         ),
+        (
+            rstr!("raylib [core] example - scissor test"),
+            example::core::core_scissor_test::run,
+        ),
         // VR is Buggy AF. Take a look at it
         // (
         //     rstr!("raylib [core] example - vr simulator"),
         //     example::core::core_vr_simulator::run,
         // ),
-        (
-            rstr!("raygui - controls test suite"),
-            example::controls_test_suite::controls_test_suite::run,
-        ),
         (
             rstr!("raylib [models] example - pbr material"),
             example::models::models_material_pbr::run,
@@ -127,14 +155,6 @@ fn main() {
         (
             rstr!("raylib [models] example - model animation"),
             example::models::models_animation::run,
-        ),
-        (
-            rstr!("raylib [core] example - scissor test"),
-            example::core::core_scissor_test::run,
-        ),
-        (
-            rstr!("raylib [audio] example - music playing (streaming)"),
-            example::audio::audio_music_stream::run,
         ),
         (
             rstr!("raylib [shaders] example - postprocessing shader"),

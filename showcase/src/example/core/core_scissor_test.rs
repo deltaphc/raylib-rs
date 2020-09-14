@@ -30,7 +30,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
 
     // Main game loop
     return Box::new(move |rl: &mut RaylibHandle, thread: &RaylibThread| -> () {
-        use raylib::consts::KeyboardKey::*;
+        
         // Update
         //----------------------------------------------------------------------------------
         if rl.is_key_pressed(raylib::consts::KeyboardKey::KEY_S) {

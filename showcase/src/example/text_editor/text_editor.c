@@ -66,10 +66,10 @@ int main(int argc, char **argv)
         Vector2 mouse = rl.get_mouse_position();
 
         // Fonts drag & drop logic
-        if IsFileDropped()
+        if rl.is_file_dropped()
         {
             int count = 0;
-            char **files = GetDroppedFiles(&count);
+            char **files = rl.get_dropped_files(&count);
 
             if IsFileExtension(files[0], ".ttf" ||
                 IsFileExtension(files[0], ".otf") ||
@@ -202,7 +202,7 @@ bool GuiTextEditor(Rectangle bounds, char *text, int textSize, bool editMode)
 
     // Draw control
     //--------------------------------------------------------------------
-    d.draw_rectangle_linesEx(bounds, GuiGetStyle(TEXTBOX, BORDER_WIDTH), Fade(GetColor(GuiGetStyle(TEXTBOX, BORDER + (state * 3))), guiAlpha));
+    d.draw_rectangle_lines_ex(bounds, GuiGetStyle(TEXTBOX, BORDER_WIDTH), Fade(GetColor(GuiGetStyle(TEXTBOX, BORDER + (state * 3))), guiAlpha));
 
     if state == GUI_STATE_PRESSED
         d.draw_rectangle(bounds.x + GuiGetStyle(TEXTBOX, BORDER_WIDTH), bounds.y + GuiGetStyle(TEXTBOX, BORDER_WIDTH), bounds.width - 2 * GuiGetStyle(TEXTBOX, BORDER_WIDTH), bounds.height - 2 * GuiGetStyle(TEXTBOX, BORDER_WIDTH), Fade(GetColor(GuiGetStyle(TEXTBOX, BASE_COLOR_PRESSED)), guiAlpha));

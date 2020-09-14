@@ -45,10 +45,10 @@ pub fn run(rl
     for (int i = 0; i < MAX_PARTICLES; i++)
     {
         mouseTail[i].position = rvec2(0,  0);
-        mouseTail[i].color = (Color){raylib::get_random_value(0, 255), raylib::get_random_value(0, 255), raylib::get_random_value(0, 255), 255};
+        mouseTail[i].color = (Color){raylib::get_random_value::<i32>(0, 255), raylib::get_random_value::<i32>(0, 255), raylib::get_random_value::<i32>(0, 255), 255};
         mouseTail[i].alpha = 1.0;
-        mouseTail[i].size = (float)raylib::get_random_value(1, 30) / 20.0;
-        mouseTail[i].rotation = (float)raylib::get_random_value(0, 360);
+        mouseTail[i].size = (float)raylib::get_random_value::<i32>(1, 30) / 20.0;
+        mouseTail[i].rotation = (float)raylib::get_random_value::<i32>(0, 360);
         mouseTail[i].active = false;
     }
 

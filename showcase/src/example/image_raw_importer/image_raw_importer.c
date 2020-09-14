@@ -83,10 +83,10 @@ const RAYGUI_IMPLEMENTATION const RAYGUI_SUPPORT_RICONS
         // Update
         //----------------------------------------------------------------------------------
         // Check if a file is dropped
-        if IsFileDropped()
+        if rl.is_file_dropped()
         {
             int fileCount = 0;
-            char **droppedFiles = GetDroppedFiles(&fileCount);
+            char **droppedFiles = rl.get_dropped_files(&fileCount);
 
             // Check file extensions for drag-and-drop
             if (fileCount == 1) && IsFileExtension(droppedFiles[0], ".raw")
@@ -187,7 +187,7 @@ const RAYGUI_IMPLEMENTATION const RAYGUI_SUPPORT_RICONS
 
         if texture.id != 0
         {
-            DrawTextureEx(texture, rvec2(screen_width / 2 - texture.width * imageScale / 2,  screen_height / 2 - texture.height * imageScale / 2), 0, imageScale, Color::WHITE);
+            d.draw_texture_ex(texture, rvec2(screen_width / 2 - texture.width * imageScale / 2,  screen_height / 2 - texture.height * imageScale / 2), 0, imageScale, Color::WHITE);
             d.draw_text(&format!("SCALE x%.0", imageScale), 20, screen_height - 40, 20, GetColor(GuiGetStyle(DEFAULT, LINE_COLOR)));
         }
         else

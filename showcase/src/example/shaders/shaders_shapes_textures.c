@@ -92,7 +92,7 @@ pub fn run(rl
                           rvec2(430 - 20,  230),
                           rvec2(430 + 20,  230), Color::DARKBLUE);
 
-        DrawPoly(rvec2(430, 320), 6, 80, 0, BROWN);
+        DrawPoly(rvec2(430, 320), 6, 80, 0, Color::BROWN);
 
         // Activate our custom shader to be applied on next shapes/textures drawings
         BeginShaderMode(shader);
