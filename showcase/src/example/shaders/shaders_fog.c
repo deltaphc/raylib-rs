@@ -65,9 +65,9 @@ const RLIGHTS_IMPLEMENTATION
     Texture texture = LoadTexture("resources/texel_checker.png");
 
     // Assign texture to default model material
-    modelA.materials[0].maps[MAP_DIFFUSE].texture = texture;
-    modelB.materials[0].maps[MAP_DIFFUSE].texture = texture;
-    modelC.materials[0].maps[MAP_DIFFUSE].texture = texture;
+    modelA.materials[0].maps[raylib::consts::MaterialMapType::MAP_ALBEDO].texture = *texture.as_ref();
+    modelB.materials[0].maps[raylib::consts::MaterialMapType::MAP_ALBEDO].texture = *texture.as_ref();
+    modelC.materials[0].maps[raylib::consts::MaterialMapType::MAP_ALBEDO].texture = *texture.as_ref();
 
     // Load shader and set up some uniforms
     Shader shader = LoadShader(&format!("resources/shaders/glsl{}/base_lighting.vs", GLSL_VERSION),
@@ -91,7 +91,7 @@ const RLIGHTS_IMPLEMENTATION
     // Using just 1 point lights
     CreateLight(LIGHT_POINT, rvec3(0, 2,  6), Vector3Zero(), Color::WHITE, shader);
 
-    SetCameraMode(camera, CAMERA_ORBITAL); // Set an orbital camera mode
+    rl.set_camera_mode(&camera, raylib::consts::CameraMode::CAMERA_ORBITAL); // Set an orbital camera mode
 
     rl.set_target_fps(60); // Set our game to run at 60 frames-per-second
     //--------------------------------------------------------------------------------------
@@ -136,12 +136,12 @@ const RLIGHTS_IMPLEMENTATION
         let mut d = d.begin_mode3D(&camera);
 
         // Draw the three models
-        DrawModel(modelA, Vector3Zero(), 1.0, Color::WHITE);
-        DrawModel(modelB, rvec3(-2.6, 0,  0), 1.0, Color::WHITE);
-        DrawModel(modelC, rvec3(2.6, 0,  0), 1.0, Color::WHITE);
+        d.draw_model(modelA, Vector3Zero(), 1.0, Color::WHITE);
+        d.draw_model(modelB, rvec3(-2.6, 0,  0), 1.0, Color::WHITE);
+        d.draw_model(modelC, rvec3(2.6, 0,  0), 1.0, Color::WHITE);
 
         for (int i = -20; i < 20; i += 2)
-            DrawModel(modelA, rvec3(i, 0,  2), 1.0, Color::WHITE);
+            d.draw_model(modelA, rvec3(i, 0,  2), 1.0, Color::WHITE);
 
         EndMode3D();
 

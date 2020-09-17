@@ -240,7 +240,7 @@ int main(int argc, char **argv)
 
             if (i != 0) && (i % EMOJI_PER_WIDTH == 0)
             {
-                pos.y += fontEmoji.baseSize + 24.25f;
+                pos.y += fontEmoji.baseSize + 24.25;
                 pos.x = 28.8f;
             }
             else

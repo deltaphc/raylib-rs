@@ -1,4 +1,5 @@
 #![allow(non_snake_case)]
+#![allow(unused_parens)]
 
 pub use raylib::prelude::*;
 
@@ -43,6 +44,14 @@ fn main() {
             example::image_exporter::image_exporter::run,
         ),
         (
+            rstr!("raygui - portable window"),
+            example::portable_window::portable_window::run,
+        ),
+        (
+            rstr!("raygui - GuiScrollPanel()"),
+            example::scroll_panel::gui_scroll_panel::run,
+        ),
+        (
             rstr!("raylib [audio] example - music playing (streaming)"),
             example::audio::audio_music_stream::run,
         ),
@@ -62,9 +71,12 @@ fn main() {
             rstr!("raylib [audio] example - sound loading and playing"),
             example::audio::audio_sound_loading::run,
         ),
-        (rstr!("Core2D Camera"), example::core::core_2d_camera::run),
         (
-            rstr!("Core2D Camera Platformer"),
+            rstr!("raylib [core] example - Camera"),
+            example::core::core_2d_camera::run,
+        ),
+        (
+            rstr!("raylib [core] example - Camera Platformer"),
             example::core::core_2d_camera_platformer::run,
         ),
         (
@@ -141,20 +153,78 @@ fn main() {
         //     example::core::core_vr_simulator::run,
         // ),
         (
+            rstr!("raylib [models] example - cubesmap loading and drawing"),
+            example::models::models_cubicmap::run,
+        ),
+        (
             rstr!("raylib [models] example - pbr material"),
             example::models::models_material_pbr::run,
         ),
         (
-            rstr!("rlgl standalone"),
-            example::others::rlgl_standalone::run,
+            rstr!("raylib [models] example - drawing billboards"),
+            example::models::models_billboard::run,
         ),
         (
-            rstr!("raylib [textures] example - bunnymark"),
-            example::textures::textures_bunnymark::run,
+            rstr!("raylib [models] example - box collisions"),
+            example::models::models_box_collisions::run,
+        ),
+        (
+            rstr!("raylib [models] example - cubesmap loading and drawing"),
+            example::models::models_cubicmap::run,
         ),
         (
             rstr!("raylib [models] example - model animation"),
             example::models::models_animation::run,
+        ),
+        (
+            rstr!("raylib [models] example - first person maze"),
+            example::models::models_first_person_maze::run,
+        ),
+        (
+            rstr!("raylib [models] example - geometric shapes"),
+            example::models::models_geometric_shapes::run,
+        ),
+        (
+            rstr!("raylib [models] example - heightmap loading and drawing"),
+            example::models::models_heightmap::run,
+        ),
+        (
+            rstr!("raylib [models] example - models loading"),
+            example::models::models_loading::run,
+        ),
+        (
+            rstr!("raylib [models] example - mesh generation"),
+            example::models::models_mesh_generation::run,
+        ),
+        (
+            rstr!("raylib [models] example - mesh picking"),
+            example::models::models_mesh_picking::run,
+        ),
+        (
+            rstr!("raylib [models] example - orthographic projection"),
+            example::models::models_orthographic_projection::run,
+        ),
+        (
+            rstr!(
+                "raylib [models] example - rlgl module usage with push/pop matrix transformations"
+            ),
+            example::models::models_rlgl_solar_system::run,
+        ),
+        (
+            rstr!("raylib [models] example - skybox loading and drawing"),
+            example::models::models_skybox::run,
+        ),
+        (
+            rstr!("raylib [models] example - waving cubes"),
+            example::models::models_waving_cubes::run,
+        ),
+        (
+            rstr!("raylib [models] example - plane rotations (yaw, pitch, roll)"),
+            example::models::models_yaw_pitch_roll::run,
+        ),
+        (
+            rstr!("raylib [textures] example - bunnymark"),
+            example::textures::textures_bunnymark::run,
         ),
         (
             rstr!("raylib [shaders] example - postprocessing shader"),
@@ -167,6 +237,10 @@ fn main() {
         (
             rstr!("raylib [textures] example - mouse painting"),
             example::textures::textures_mouse_painting::run,
+        ),
+        (
+            rstr!("rlgl standalone"),
+            example::others::rlgl_standalone::run,
         ),
     ];
     let mut sample = None;
@@ -188,7 +262,7 @@ fn main() {
                     let list: Vec<_> = samples.iter().map(|(s, _)| *s).collect();
 
                     list_view_active = d.gui_list_view_ex(
-                        rrect(200.0, y_margin, 400, box_length),
+                        rrect(100.0, y_margin, 600, box_length),
                         list.as_slice(),
                         &mut list_view_focus,
                         &mut list_view_scroll_index,

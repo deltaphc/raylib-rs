@@ -66,7 +66,7 @@ const MOUSE_SCALE_MARK_SIZE 12
             if rec.height < MOUSE_SCALE_MARK_SIZE
                 rec.height = MOUSE_SCALE_MARK_SIZE;
 
-            if IsMouseButtonReleased(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON)
+            if rl.is_mouse_button_released(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON)
                 mouseScaleMode = false;
         }
         //----------------------------------------------------------------------------------

@@ -36,6 +36,7 @@ pub use ffi::GuiDropdownBoxProperty;
 pub use ffi::GuiListViewProperty;
 pub use ffi::GuiProgressBarProperty;
 pub use ffi::GuiScrollBarProperty;
+pub use ffi::GuiScrollBarSide;
 pub use ffi::GuiSliderProperty;
 pub use ffi::GuiSpinnerProperty;
 pub use ffi::GuiTextAlignment;

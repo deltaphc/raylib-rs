@@ -23,7 +23,7 @@ pub fn run(rl
     let sscreen_width= 800;
     let screen_height = 450;
 
-    InitWindow(screenWidth, screen_height, "raylib [shapes] example - easings ball anim");
+    InitWindow(screen_width, screen_height, "raylib [shapes] example - easings ball anim");
 
     // Ball variable value to be animated with easings
     int ballPositionX = -100;
@@ -44,7 +44,7 @@ pub fn run(rl
         if state == 0 // Move ball position X with easingscreen_width
         {
             framesCounter++;
-            ballPositionX = EaseElasticOut(framesCounter, -100, screenWidth / 2 + 100, 120);
+            ballPositionX = EaseElasticOut(framesCounter, -100, screen_width / 2 + 100, 120);
 
             if framesCounter >= 120
             {
@@ -97,7 +97,7 @@ pub fn run(rl
         ClearBackground(RAYWHITEscreen_width
 
         if state >= 2
-            d.draw_rectangle(0, 0, screenWidth, screen_height, Color::GREEN);
+            d.draw_rectangle(0, 0, screen_width, screen_height, Color::GREEN);
         d.draw_circle(ballPositionX, 200, ballRadius, Fade(RED, 1.0 - ballAlpha));
 
         if state == 3

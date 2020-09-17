@@ -55,7 +55,7 @@ pub fn run(rl
 
     UnloadFont(font); // Unload custom spritefont (already drawn used on image)
 
-    Texture2D texture = LoadTextureFromImage(parrots); // Image converted to texture, uploaded to GPU memory (VRAM)
+    let texture = rl.load_texture_from_image(&thread, &parrots); // Image converted to texture, uploaded to GPU memory (VRAM)
     UnloadImage(parrots);                              // Once image has been converted to texture and uploaded to VRAM, it can be unloaded from RAM
 
     rl.set_target_fps(60);

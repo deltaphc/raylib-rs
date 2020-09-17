@@ -51,9 +51,9 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut
 
     // NOTE: Textures MUST be loaded after Window initialization (OpenGL context is required)
 
-    Image image = LoadImage("resources/parrots.png"); // Loaded in CPU memory (RAM)
+    let image = Image::load_image("original/models/resources/parrots.png").unwrap(); // Loaded in CPU memory (RAM)
     ImageFormat(&image, UNCOMPRESSED_R8G8B8A8);       // Format image to RGBA 32bit (required for texture update) <-- ISSUE
-    Texture2D texture = LoadTextureFromImage(image);  // Image converted to texture, GPU memory (VRAM)
+    let texture = rl.load_texture_from_image(thread, &image).unwrap();  // Image converted to texture, GPU memory (VRAM)
 
     int currentProcess = NONE;
     bool textureReload = false;

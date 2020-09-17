@@ -65,8 +65,8 @@ pub fn run(rl
 
     // Load and apply the diffuse texture (colour map)
     Texture texDiffuse = LoadTexture("resources/plasma.png");
-    model1.materials[0].maps[MAP_DIFFUSE].texture = texDiffuse;
-    model2.materials[0].maps[MAP_DIFFUSE].texture = texDiffuse;
+    model1.materials[0].maps[raylib::consts::MaterialMapType::MAP_ALBEDO].texture = texDiffuse;
+    model2.materials[0].maps[raylib::consts::MaterialMapType::MAP_ALBEDO].texture = texDiffuse;
 
     // Using MAP_EMISSION as a spare slot to use for 2nd texture
     // NOTE: Don't use MAP_IRRADIANCE, MAP_PREFILTER or  MAP_CUBEMAP
@@ -116,9 +116,9 @@ pub fn run(rl
 
         let mut d = d.begin_mode3D(&camera);
 
-        DrawModel(model1, rvec3(0.5, 0,  0), 1, Color::WHITE);
-        DrawModelEx(model2, rvec3(-.5, 0,  0), rvec3(1, 1,  0), 50, rvec3(1, 1,  1), Color::WHITE);
-        DrawModel(model3, rvec3(0, 0,  -1.5), 1, Color::WHITE);
+        d.draw_model(model1, rvec3(0.5, 0,  0), 1, Color::WHITE);
+        d.draw_modelEx(model2, rvec3(-.5, 0,  0), rvec3(1, 1,  0), 50, rvec3(1, 1,  1), Color::WHITE);
+        d.draw_model(model3, rvec3(0, 0,  -1.5), 1, Color::WHITE);
         d.draw_grid(10, 1.0); // Draw a grid
 
         EndMode3D();

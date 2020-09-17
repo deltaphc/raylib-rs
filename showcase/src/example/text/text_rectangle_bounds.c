@@ -69,7 +69,7 @@ tempor incididunt ut labore et dolore magna aliqua. Nec ullamcorper sit amet ris
         // Container resizing logic
         if resizing
         {
-            if IsMouseButtonReleased(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON)
+            if rl.is_mouse_button_released(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON)
                 resizing = false;
 
             int width = container.width + (mouse.x - lastMouse.x);

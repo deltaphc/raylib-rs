@@ -62,7 +62,7 @@ const MAX_COLORS_COUNT 23 // Number of colors available
     ClearBackground(colors[0]);
     EndTextureMode();
 
-    SetTargetFPS(120); // Set our game to run at 120 frames-per-second
+    rl.set_target_fps(120); // Set our game to run at 120 frames-per-second
     //--------------------------------------------------------------------------------------
 
     // Main game loop
@@ -148,7 +148,7 @@ const MAX_COLORS_COUNT 23 // Number of colors available
 
         // Image saving logic
         // NOTE: Saving painted texture to a default named image
-        if (btnSaveMouseHover && IsMouseButtonReleased(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON)) || rl.is_key_pressed(raylib::consts::KeyboardKey::KEY_S)
+        if (btnSaveMouseHover && rl.is_mouse_button_released(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON)) || rl.is_key_pressed(raylib::consts::KeyboardKey::KEY_S)
         {
             Image image = GetTextureData(target.texture);
             ImageFlipVertical(&image);

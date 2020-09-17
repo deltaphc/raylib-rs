@@ -23,7 +23,7 @@ pub fn run(rl
     let sscreen_width= 800;
     let screen_height = 450;
 screen_width
-    InitWindow(screenWidth, screenHeigscreen_width [shapes] example - following eyes");
+    InitWindow(screen_width, screenHeigscreen_width [shapes] example - following eyes");
 
     let scleraLeftPosition = rvec2(GetScreenWidth() / 2 - 100, rl.get_screen_height() / 2);
     let scleraRightPosition = rvec2(screen_widthdth() / 2 + 100, rl.get_screen_height() / 2);

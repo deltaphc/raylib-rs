@@ -569,7 +569,7 @@ static Vector2 rl.get_mouse_position(void);
 static int rl.get_mouse_wheel_move(void);
 static bool rl.is_mouse_button_down(int button);
 static bool rl.is_mouse_button_pressed(int button);
-static bool IsMouseButtonReleased(int button);
+static bool rl.is_mouse_button_released(int button);
 
 static bool rl.is_key_down(int key);
 static bool rl.is_key_pressed(int key);
@@ -1163,7 +1163,7 @@ RAYGUIDEF bool GuiButton(Rectangle bounds, const char *text)
             else
                 state = GUI_STATE_FOCUSED;
 
-            if IsMouseButtonReleased(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON)
+            if rl.is_mouse_button_released(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON)
                 pressed = true;
         }
     }
@@ -1200,7 +1200,7 @@ RAYGUIDEF bool GuiLabelButton(Rectangle bounds, const char *text)
             else
                 state = GUI_STATE_FOCUSED;
 
-            if IsMouseButtonReleased(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON)
+            if rl.is_mouse_button_released(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON)
                 pressed = true;
         }
     }
@@ -1237,7 +1237,7 @@ RAYGUIDEF bool GuiImageButtonEx(Rectangle bounds, Texture2D texture, Rectangle t
         {
             if rl.is_mouse_button_down(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON)
                 state = GUI_STATE_PRESSED;
-            else if IsMouseButtonReleased(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON)
+            else if rl.is_mouse_button_released(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON)
                 clicked = true;
             else
                 state = GUI_STATE_FOCUSED;
@@ -1275,7 +1275,7 @@ RAYGUIDEF bool GuiToggle(Rectangle bounds, const char *text, bool active)
         {
             if rl.is_mouse_button_down(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON)
                 state = GUI_STATE_PRESSED;
-            else if IsMouseButtonReleased(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON)
+            else if rl.is_mouse_button_released(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON)
             {
                 state = GUI_STATE_NORMAL;
                 active = !active;
@@ -1364,7 +1364,7 @@ RAYGUIDEF bool GuiCheckBox(Rectangle bounds, const char *text, bool checked)
             else
                 state = GUI_STATE_FOCUSED;
 
-            if IsMouseButtonReleased(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON)
+            if rl.is_mouse_button_released(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON)
                 checked = !checked;
         }
     }
@@ -1505,7 +1505,7 @@ RAYGUIDEF bool GuiDropdownBox(Rectangle bounds, const char *text, int *active, b
             }
             else if !CheckCollisionPointRec(mousePoint, openBounds)
             {
-                if rl.is_mouse_button_pressed(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON) || IsMouseButtonReleased(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON)
+                if rl.is_mouse_button_pressed(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON) || rl.is_mouse_button_released(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON)
                     pressed = true;
             }
         }
@@ -3493,7 +3493,7 @@ static bool GuiListElement(Rectangle bounds, const char *text, bool active, bool
                     state = GUI_STATE_FOCUSED;
             }
 
-            if IsMouseButtonReleased(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON)
+            if rl.is_mouse_button_released(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON)
                 active = !active;
         }
     }

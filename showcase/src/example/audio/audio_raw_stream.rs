@@ -96,7 +96,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
             }
 
             // Scale read cursor's position to minimize transition artifacts
-            readCursor = (readCursor * (waveLength / oldWavelength));
+            readCursor = readCursor * (waveLength / oldWavelength);
             oldFrequency = frequency;
         }
 

@@ -256,7 +256,6 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
 
     // Main game loop
     return Box::new(move |rl: &mut RaylibHandle, thread: &RaylibThread| -> () {
-        
         // Update
         //----------------------------------------------------------------------------------
         rl.update_camera(&mut camera); // Update camera
@@ -332,7 +331,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
             //----------------------------------------------------------------------------------
         }
 
-        if rl.is_key_pressed(raylib::consts::KeyboardKey::KEY_ESCAPE) {
+        if rl.is_key_pressed(crate::EXIT_KEY) {
             unsafe {
                 rl.unload_texture(thread, texture.clone());
             }

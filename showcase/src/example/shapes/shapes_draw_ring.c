@@ -64,9 +64,9 @@ const RAYGUI_IMPLEMENTATION
         if drawRing
             DrawRing(center, innerRadius, outerRadius, startAngle, endAngle, segments, Color::MAROON.fade(0.3));
         if drawRingLines
-            DrawRingLines(center, innerRadius, outerRadius, startAngle, endAngle, segments, BLACK.fade(0.4));
+            DrawRingLines(center, innerRadius, outerRadius, startAngle, endAngle, segments, Color::BLACK.fade(0.4));
         if drawCircleLines
-            DrawCircleSectorLines(center, outerRadius, startAngle, endAngle, segments, BLACK.fade(0.4));
+            DrawCircleSectorLines(center, outerRadius, startAngle, endAngle, segments, Color::BLACK.fade(0.4));
 
         // Draw GUI controls
         //------------------------------------------------------------------------------

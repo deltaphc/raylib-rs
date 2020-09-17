@@ -17,40 +17,35 @@
 
 use raylib::prelude::*;
 
-const RAYGUI_IMPLEMENTATION
-#include "../../src/raygui.h"
 
     //------------------------------------------------------------------------------------
     // Program main entry point
     //------------------------------------------------------------------------------------
-    int
-    main()
-{
+pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
     // Initialization
     //---------------------------------------------------------------------------------------
-    int screen_width = 800;
-    int screen_height = 600;
+    let screen_width = 800;
+    let screen_height = 600;
 
-    SetConfigFlags(FLAG_WINDOW_UNDECORATED);
     rl.set_window_size(screen_width, screen_height);
     rl.set_window_title(thread, "raygui - portable window");
 
 
     // General variables
-    Vector2 mousePosition = {0};
-    let windowPosition = rvec2(500, 200);
-    Vector2 panOffset = mousePosition;
-    bool dragWindow = false;
+    let mut mousePosition = Vector2::default();
+    let  mut windowPosition = rvec2(500, 200);
+    let  mut panOffset = mousePosition;
+    let mut  dragWindow = false;
 
-    SetWindowPosition(windowPosition.x, windowPosition.y);
+    rl.set_window_position(windowPosition.x as i32, windowPosition.y as i32);
 
-    bool exitWindow = false;
+    let mut  exitWindow = false;
 
     rl.set_target_fps(60);
     //--------------------------------------------------------------------------------------
 
     // Main game loop
-    while (!exitWindow && !WindowShouldClose()) // Detect window close button or ESC key
+    return Box::new(move |rl: &mut RaylibHandle, thread: &RaylibThread| -> ()  // Detect window close button or ESC key
     {
         // Update
         //----------------------------------------------------------------------------------
@@ -58,7 +53,7 @@ const RAYGUI_IMPLEMENTATION
 
         if rl.is_mouse_button_pressed(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON)
         {
-            if CheckCollisionPointRec(mousePosition, rrect(0, 0, screen_width, 20))
+            if rrect(0, 0, screen_width, 20).check_collision_point_rec(mousePosition )
             {
                 dragWindow = true;
                 panOffset = mousePosition;
@@ -70,10 +65,12 @@ const RAYGUI_IMPLEMENTATION
             windowPosition.x += (mousePosition.x - panOffset.x);
             windowPosition.y += (mousePosition.y - panOffset.y);
 
-            if IsMouseButtonReleased(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON)
+            if rl.is_mouse_button_released(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON)
+            {
                 dragWindow = false;
+            }
 
-            SetWindowPosition(windowPosition.x, windowPosition.y);
+            rl.set_window_position(windowPosition.x as i32, windowPosition.y as i32);
         }
         //----------------------------------------------------------------------------------
 
@@ -83,18 +80,12 @@ const RAYGUI_IMPLEMENTATION
 
         d.clear_background(Color::RAYWHITE);
 
-        exitWindow = GuiWindowBox(rrect(0, 0, screen_width, screen_height), "PORTABLE WINDOW");
+        exitWindow = d.gui_window_box(rrect(0, 0, screen_width, screen_height), Some(rstr!("PORTABLE WINDOW")));
 
-        d.draw_text(&format!("Mouse Position: [ %.0, %.0 ]", mousePosition.x, mousePosition.y), 10, 40, 10, Color::DARKGRAY);
+        d.draw_text(&format!("Mouse Position: [ {:.0}, {:.0} ]", mousePosition.x, mousePosition.y), 10, 40, 10, Color::DARKGRAY);
 
-        EndDrawing();
         //----------------------------------------------------------------------------------
-    }
+ 
+    });
 
-    // De-Initialization
-    //--------------------------------------------------------------------------------------
-    CloseWindow(); // Close window and OpenGL context
-    //--------------------------------------------------------------------------------------
-
-    return 0;
 }

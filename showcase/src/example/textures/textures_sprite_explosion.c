@@ -45,7 +45,7 @@ const NUM_FRAMES 8 const NUM_LINES 6
     bool active = false;
     int framesCounter = 0;
 
-    SetTargetFPS(120);
+    rl.set_target_fps(120);
     //--------------------------------------------------------------------------------------
 
     // Main game loop

@@ -61,7 +61,7 @@ const NUM_FRAMES 3 // Number of frames (rectangles) for the button sprite textur
             else
                 btnState = 1;
 
-            if IsMouseButtonReleased(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON)
+            if rl.is_mouse_button_released(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON)
                 btnAction = true;
         }
         else

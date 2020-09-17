@@ -68,9 +68,9 @@ const RLIGHTS_IMPLEMENTATION
     Texture texture = LoadTexture("resources/texel_checker.png");
 
     // Assign texture to default model material
-    modelA.materials[0].maps[MAP_DIFFUSE].texture = texture;
-    modelB.materials[0].maps[MAP_DIFFUSE].texture = texture;
-    modelC.materials[0].maps[MAP_DIFFUSE].texture = texture;
+    modelA.materials[0].maps[raylib::consts::MaterialMapType::MAP_ALBEDO].texture = *texture.as_ref();
+    modelB.materials[0].maps[raylib::consts::MaterialMapType::MAP_ALBEDO].texture = *texture.as_ref();
+    modelC.materials[0].maps[raylib::consts::MaterialMapType::MAP_ALBEDO].texture = *texture.as_ref();
 
     Shader shader = LoadShader(&format!("resources/shaders/glsl{}/base_lighting.vs", GLSL_VERSION),
                                &format!("resources/shaders/glsl{}/lighting.fs", GLSL_VERSION));
@@ -97,7 +97,7 @@ const RLIGHTS_IMPLEMENTATION
     lights[2] = CreateLight(LIGHT_POINT, rvec3(0, 4,  2), Vector3Zero(), Color::GREEN, shader);
     lights[3] = CreateLight(LIGHT_POINT, rvec3(0, 4,  2), Vector3Zero(), Color::BLUE, shader);
 
-    SetCameraMode(camera, CAMERA_ORBITAL); // Set an orbital camera mode
+    rl.set_camera_mode(&camera, raylib::consts::CameraMode::CAMERA_ORBITAL); // Set an orbital camera mode
 
     rl.set_target_fps(60); // Set our game to run at 60 frames-per-second
     //--------------------------------------------------------------------------------------
@@ -160,9 +160,9 @@ const RLIGHTS_IMPLEMENTATION
         let mut d = d.begin_mode3D(&camera);
 
         // Draw the three models
-        DrawModel(modelA, Vector3Zero(), 1.0, Color::WHITE);
-        DrawModel(modelB, rvec3(-1.6, 0,  0), 1.0, Color::WHITE);
-        DrawModel(modelC, rvec3(1.6, 0,  0), 1.0, Color::WHITE);
+        d.draw_model(modelA, Vector3Zero(), 1.0, Color::WHITE);
+        d.draw_model(modelB, rvec3(-1.6, 0,  0), 1.0, Color::WHITE);
+        d.draw_model(modelC, rvec3(1.6, 0,  0), 1.0, Color::WHITE);
 
         // Draw markers to show where the lights are
         if lights[0].enabled

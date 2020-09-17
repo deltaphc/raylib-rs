@@ -56,7 +56,6 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
     // Main game loop
     // Detect window close button or ESC key
     return Box::new(move |rl: &mut RaylibHandle, thread: &RaylibThread| -> () {
-        
         // Update
         //----------------------------------------------------------------------------------
 

@@ -227,7 +227,7 @@ const EASINGS_H
         }
         else if t < (2.5 / 2.75)
         {
-            float postFix = t -= (2.25f / 2.75f);
+            float postFix = t -= (2.25 / 2.75f);
             return (c * (7.5625f * (postFix)*t + 0.9375f) + b);
         }
         else

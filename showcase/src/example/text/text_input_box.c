@@ -33,7 +33,7 @@ const MAX_INPUT_CHARS 9
 
     int framesCounter = 0;
 
-    SetTargetFPS(10); // Set our game to run at 60 frames-per-second
+    rl.set_target_fps(10); // Set our game to run at 60 frames-per-second
     //--------------------------------------------------------------------------------------
 
     // Main game loop

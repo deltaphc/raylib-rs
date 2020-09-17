@@ -36,7 +36,7 @@ pub fn run(rl
 
 
     Image imBlank = GenImageColor(1024, 1024, BLANK);
-    Texture2D texture = LoadTextureFromImage(imBlank); // Load blank texture to fill on shader
+    let texture = rl.load_texture_from_image(&thread, &imBlank); // Load blank texture to fill on shader
     UnloadImage(imBlank);
 
     // NOTE: Using GLSL 330 shader version, on OpenGL ES 2.0 use GLSL 100 shader version

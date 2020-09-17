@@ -29,8 +29,8 @@ pub fn run(rl
 
     // NOTE: Textures MUST be loaded after Window initialization (OpenGL context is required)
 
-    Image image = LoadImage("resources/raylib_logo.png"); // Loaded in CPU memory (RAM)
-    Texture2D texture = LoadTextureFromImage(image);      // Image converted to texture, GPU memory (VRAM)
+    let image = Image::load_image("original/models/resources/raylib_logo.png").unwrap(); // Loaded in CPU memory (RAM)
+    let texture = rl.load_texture_from_image(thread, &image).unwrap();      // Image converted to texture, GPU memory (VRAM)
 
     UnloadImage(image); // Once image has been converted to texture and uploaded to VRAM, it can be unloaded from RAM
     //---------------------------------------------------------------------------------------

@@ -77,9 +77,9 @@ pub fn run(rl
     // Define the camera to look into our 3d world
     Camera camera = {{2.0, 3.0, 2.0}, {0.0, 1.0, 0.0}, {0.0, 1.0, 0.0}, 45.0, 0};
 
-    Model model = LoadModel("resources/models/church.obj");                 // Load OBJ model
+    let model = rl.load_model(&thread, "original/models/resources/models/church.obj");                 // Load OBJ model
     let texture = rl.load_texture(thread, "resources/models/church_diffuse.png"); // Load model texture (diffuse map)
-    model.materials[0].maps[MAP_DIFFUSE].texture = texture;                 // Set model diffuse texture
+    model.materials_mut()[0].maps_mut()[raylib::consts::MaterialMapType::MAP_ALBEDO].texture = *texture.as_ref();                 // Set model diffuse texture
 
     let position = Vector3::zero(); // Set model position
 
@@ -108,7 +108,7 @@ pub fn run(rl
     RenderTexture2D target = LoadRenderTexture(screen_width, screen_height);
 
     // Setup orbital camera
-    SetCameraMode(camera, CAMERA_ORBITAL); // Set an orbital camera mode
+    rl.set_camera_mode(&camera, raylib::consts::CameraMode::CAMERA_ORBITAL); // Set an orbital camera mode
 
     rl.set_target_fps(60); // Set our game to run at 60 frames-per-second
     //--------------------------------------------------------------------------------------
@@ -143,7 +143,7 @@ pub fn run(rl
 
         let mut d = d.begin_mode3D(&camera); // Begin 3d mode drawing
 
-        DrawModel(model, position, 0.1, Color::WHITE); // Draw 3d model with texture
+        d.draw_model(model, position, 0.1, Color::WHITE); // Draw 3d model with texture
 
         d.draw_grid(10, 1.0); // Draw a grid
 

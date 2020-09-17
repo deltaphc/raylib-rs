@@ -33,7 +33,7 @@ pub fn run(rl
     // Draw over image using custom font
     ImageDrawTextEx(&parrots, rvec2(20.0, 20.0), font, "[Parrots font drawing]", (float)font.baseSize, 0.0,Color::RED);
 
-    Texture2D texture = LoadTextureFromImage(parrots); // Image converted to texture, uploaded to GPU memory (VRAM)
+    let texture = rl.load_texture_from_image(&thread, &parrots); // Image converted to texture, uploaded to GPU memory (VRAM)
     UnloadImage(parrots);                              // Once image has been converted to texture and uploaded to VRAM, it can be unloaded from RAM
 
     let position = rvec2((float)(screen_width / 2 - texture.width / 2), (float)(screen_height / 2 - texture.height / 2 - 20));
