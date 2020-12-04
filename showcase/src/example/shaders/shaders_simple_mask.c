@@ -50,14 +50,14 @@ pub fn run(rl
     );
 
     // Define our three models to show the shader on
-    Mesh torus = rl.gen_mesh_torus(thread,.3, 1, 16, 32);
+    Mesh torus = Mesh::gen_mesh_torus(thread,.3, 1, 16, 32);
     let model1 = rl.load_model_from_mesh(thread, torus).unwrap();
 
-    Mesh cube = rl.gen_mesh_cube(thread,.8, .8, .8);
+    Mesh cube = Mesh::gen_mesh_cube(thread,.8, .8, .8);
     let model2 = rl.load_model_from_mesh(thread, cube).unwrap();
 
     // Generate model to be shaded just to see the gaps in the other two
-    Mesh sphere = rl.gen_mesh_sphere(thread,1, 16, 16);
+    Mesh sphere = Mesh::gen_mesh_sphere(thread,1, 16, 16);
     let model3 = rl.load_model_from_mesh(thread, sphere).unwrap();
 
     // Load the shader
@@ -74,7 +74,7 @@ pub fn run(rl
     let texMask = rl.load_texture(thread, "original/resources/mask.png");
     model1.materials[0].maps[MAP_EMISSION].texture = texMask;
     model2.materials[0].maps[MAP_EMISSION].texture = texMask;
-    shader.locs[LOC_MAP_EMISSION] = shader.get_shader_location( "mask");
+    shader.locs_mut()[raylib::consts::ShaderLocationIndex::LOC_MAP_EMISSION] = shader.get_shader_location( "mask");
 
     // Frame is incremented each frame to animate the shader
     int shaderFrame = shader.get_shader_location( "frame");
@@ -97,13 +97,13 @@ pub fn run(rl
         framesCounter++;
         rotation.x += 0.01f;
         rotation.y += 0.005f;
-        rotation.z -= 0.0025f;
+        rotation.z -= 0.0025;
 
         // Send frames counter to shader for animation
         shader.set_shader_value( shaderFrame, &framesCounter, UNIFORM_INT);
 
         // Rotate one of the models
-        model1.transform = MatrixRotateXYZ(rotation);
+        model1.transform = Matrix::rotate_xYZ(rotation);
 
         rl.update_camera(&mut camera);
         //----------------------------------------------------------------------------------

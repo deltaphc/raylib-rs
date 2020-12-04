@@ -57,9 +57,9 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
         45.0, CAMERA_PERSPECTIVE};  // fov, type
 
     // Load models and texture
-    let modelA = rl.load_model_from_mesh(thread, rl.gen_mesh_torus(thread,0.4, 1.0, 16, 32)).unwrap();
-    let modelB = rl.load_model_from_mesh(thread, rl.gen_mesh_cube(thread,1.0, 1.0, 1.0)).unwrap();
-    let modelC = rl.load_model_from_mesh(thread, rl.gen_mesh_sphere(thread,0.5, 32, 32)).unwrap();
+    let modelA = rl.load_model_from_mesh(thread, Mesh::gen_mesh_torus(thread,0.4, 1.0, 16, 32)).unwrap();
+    let modelB = rl.load_model_from_mesh(thread, Mesh::gen_mesh_cube(thread,1.0, 1.0, 1.0)).unwrap();
+    let modelC = rl.load_model_from_mesh(thread, Mesh::gen_mesh_sphere(thread,0.5, 32, 32)).unwrap();
     let texture = rl.load_texture(thread, "original/resources/texel_checker.png");
 
     // Assign texture to default model material
@@ -70,8 +70,8 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
     // Load shader and set up some uniforms
     let shader = rl.load_shader(thread,&format!("resources/shaders/glsl{}/base_lighting.vs", GLSL_VERSION),
                                &format!("resources/shaders/glsl{}/fog.fs", GLSL_VERSION));
-    shader.locs[LOC_MATRIX_MODEL] = shader.get_shader_location( "matModel");
-    shader.locs[LOC_VECTOR_VIEW] = shader.get_shader_location( "viewPos");
+    shader.locs_mut()[raylib::consts::ShaderLocationIndex::LOC_MATRIX_MODEL] = shader.get_shader_location( "matModel");
+    shader.locs_mut()[raylib::consts::ShaderLocationIndex::LOC_VECTOR_VIEW] = shader.get_shader_location( "viewPos");
 
     // Ambient light level
     int ambientLoc = shader.get_shader_location( "ambient");
@@ -118,11 +118,11 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
         shader.set_shader_value( fogDensityLoc, &fogDensity, UNIFORM_FLOAT);
 
         // Rotate the torus
-        modelA.transform = MatrixMultiply(modelA.transform, MatrixRotateX(-0.025));
-        modelA.transform = MatrixMultiply(modelA.transform, MatrixRotateZ(0.012));
+        modelA.transform = MatrixMultiply(modelA.transform, Matrix::rotate_x(-0.025));
+        modelA.transform = MatrixMultiply(modelA.transform, Matrix::rotate_z(0.012));
 
         // Update the light shader with the camera view position
-        shader.set_shader_value( shader.locs[LOC_VECTOR_VIEW], &camera.position.x, UNIFORM_VEC3);
+        shader.set_shader_value( shader.locs_mut()[raylib::consts::ShaderLocationIndex::LOC_VECTOR_VIEW], &camera.position.x, UNIFORM_VEC3);
         //----------------------------------------------------------------------------------
 
         // Draw

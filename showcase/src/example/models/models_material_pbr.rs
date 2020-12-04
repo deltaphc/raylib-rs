@@ -232,30 +232,30 @@ fn load_material_pbr(
 
     // Get required locations points for PBR material
     // NOTE: Those location names must be available and used in the shader code
-    mat.shader_mut().locs_mut()[LOC_MAP_ALBEDO as usize] =
+    mat.shader_mut().locs_mut()[raylib::consts::ShaderLocationIndex::LOC_MAP_ALBEDO as usize] =
         mat.shader().get_shader_location("albedo.sampler");
-    mat.shader_mut().locs_mut()[LOC_MAP_METALNESS as usize] =
+    mat.shader_mut().locs_mut()[raylib::consts::ShaderLocationIndex::LOC_MAP_METALNESS as usize] =
         mat.shader().get_shader_location("metalness.sampler");
-    mat.shader_mut().locs_mut()[LOC_MAP_NORMAL as usize] =
+    mat.shader_mut().locs_mut()[raylib::consts::ShaderLocationIndex::LOC_MAP_NORMAL as usize] =
         mat.shader().get_shader_location("normals.sampler");
-    mat.shader_mut().locs_mut()[LOC_MAP_ROUGHNESS as usize] =
+    mat.shader_mut().locs_mut()[raylib::consts::ShaderLocationIndex::LOC_MAP_ROUGHNESS as usize] =
         mat.shader().get_shader_location("roughness.sampler");
-    mat.shader_mut().locs_mut()[LOC_MAP_OCCLUSION as usize] =
+    mat.shader_mut().locs_mut()[raylib::consts::ShaderLocationIndex::LOC_MAP_OCCLUSION as usize] =
         mat.shader().get_shader_location("occlusion.sampler");
-    //mat.shader_mut().locs_mut()[LOC_MAP_EMISSION] = mat.shader().get_shader_location( "emission.sampler");
-    //mat.shader_mut().locs_mut()[LOC_MAP_HEIGHT] = mat.shader().get_shader_location( "height.sampler");
-    mat.shader_mut().locs_mut()[LOC_MAP_IRRADIANCE as usize] =
+    //mat.shader_mut().locs_mut()[raylib::consts::ShaderLocationIndex::LOC_MAP_EMISSION] = mat.shader().get_shader_location( "emission.sampler");
+    //mat.shader_mut().locs_mut()[raylib::consts::ShaderLocationIndex::LOC_MAP_HEIGHT] = mat.shader().get_shader_location( "height.sampler");
+    mat.shader_mut().locs_mut()[raylib::consts::ShaderLocationIndex::LOC_MAP_IRRADIANCE as usize] =
         mat.shader().get_shader_location("irradianceMap");
-    mat.shader_mut().locs_mut()[LOC_MAP_PREFILTER as usize] =
+    mat.shader_mut().locs_mut()[raylib::consts::ShaderLocationIndex::LOC_MAP_PREFILTER as usize] =
         mat.shader().get_shader_location("prefilterMap");
-    mat.shader_mut().locs_mut()[LOC_MAP_BRDF as usize] =
+    mat.shader_mut().locs_mut()[raylib::consts::ShaderLocationIndex::LOC_MAP_BRDF as usize] =
         mat.shader().get_shader_location("brdfLUT");
 
     // Set view matrix location
-    mat.shader_mut().locs_mut()[LOC_MATRIX_MODEL as usize] =
+    mat.shader_mut().locs_mut()[raylib::consts::ShaderLocationIndex::LOC_MATRIX_MODEL as usize] =
         mat.shader().get_shader_location("matModel");
-    //mat.shader_mut().locs_mut()[LOC_MATRIX_VIEW] = mat.shader().get_shader_location( "view");
-    mat.shader_mut().locs_mut()[LOC_VECTOR_VIEW as usize] =
+    //mat.shader_mut().locs_mut()[raylib::consts::ShaderLocationIndex::LOC_MATRIX_VIEW] = mat.shader().get_shader_location( "view");
+    mat.shader_mut().locs_mut()[raylib::consts::ShaderLocationIndex::LOC_VECTOR_VIEW as usize] =
         mat.shader().get_shader_location("viewPos");
 
     // Set PBR standard maps

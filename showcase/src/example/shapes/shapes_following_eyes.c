@@ -55,8 +55,8 @@ screen_width
 
             angle = atan2f(dy, dx);
 
-            dxx = (scleraRadius - irisRadius) * cosf(angle);
-            dyy = (scleraRadius - irisRadius) * sinf(angle);
+            dxx = (scleraRadius - irisRadius) * (angle).cos();
+            dyy = (scleraRadius - irisRadius) * (angle).sin();
 
             irisLeftPosition.x = scleraLeftPosition.x + dxx;
             irisLeftPosition.y = scleraLeftPosition.y + dyy;
@@ -70,8 +70,8 @@ screen_width
 
             angle = atan2f(dy, dx);
 
-            dxx = (scleraRadius - irisRadius) * cosf(angle);
-            dyy = (scleraRadius - irisRadius) * sinf(angle);
+            dxx = (scleraRadius - irisRadius) * (angle).cos();
+            dyy = (scleraRadius - irisRadius) * (angle).sin();
 
             irisRightPosition.x = scleraRightPosition.x + dxx;
             irisRightPosition.y = scleraRightPosition.y + dyy;

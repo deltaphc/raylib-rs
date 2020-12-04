@@ -2104,8 +2104,6 @@ pub const ICON_TEXT_PADDING: u32 = 4;
 pub const TEXTSPLIT_MAX_TEXT_LENGTH: u32 = 1024;
 pub const TEXTSPLIT_MAX_TEXT_ELEMENTS: u32 = 128;
 pub const MAX_LIGHTS: u32 = 4;
-pub const LIGHT_DISTANCE: f64 = 3.5;
-pub const LIGHT_HEIGHT: f64 = 1.0;
 pub type va_list = __builtin_va_list;
 pub type __gnuc_va_list = __builtin_va_list;
 
@@ -17325,20 +17323,14 @@ extern "C" {
         loadIconsName: bool,
     ) -> *mut *mut ::std::os::raw::c_char;
 }
-#[repr(i32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum LightType {
-    LIGHT_DIRECTIONAL = 0,
-    LIGHT_POINT = 1,
-}
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct Light {
-    pub enabled: bool,
-    pub type_: LightType,
+    pub type_: ::std::os::raw::c_int,
     pub position: Vector3,
     pub target: Vector3,
     pub color: Color,
+    pub enabled: bool,
     pub enabledLoc: ::std::os::raw::c_int,
     pub typeLoc: ::std::os::raw::c_int,
     pub posLoc: ::std::os::raw::c_int,
@@ -17358,18 +17350,8 @@ fn bindgen_test_layout_Light() {
         concat!("Alignment of ", stringify!(Light))
     );
     assert_eq!(
-        unsafe { &(*(::std::ptr::null::<Light>())).enabled as *const _ as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(Light),
-            "::",
-            stringify!(enabled)
-        )
-    );
-    assert_eq!(
         unsafe { &(*(::std::ptr::null::<Light>())).type_ as *const _ as usize },
-        4usize,
+        0usize,
         concat!(
             "Offset of field: ",
             stringify!(Light),
@@ -17379,7 +17361,7 @@ fn bindgen_test_layout_Light() {
     );
     assert_eq!(
         unsafe { &(*(::std::ptr::null::<Light>())).position as *const _ as usize },
-        8usize,
+        4usize,
         concat!(
             "Offset of field: ",
             stringify!(Light),
@@ -17389,7 +17371,7 @@ fn bindgen_test_layout_Light() {
     );
     assert_eq!(
         unsafe { &(*(::std::ptr::null::<Light>())).target as *const _ as usize },
-        20usize,
+        16usize,
         concat!(
             "Offset of field: ",
             stringify!(Light),
@@ -17399,12 +17381,22 @@ fn bindgen_test_layout_Light() {
     );
     assert_eq!(
         unsafe { &(*(::std::ptr::null::<Light>())).color as *const _ as usize },
-        32usize,
+        28usize,
         concat!(
             "Offset of field: ",
             stringify!(Light),
             "::",
             stringify!(color)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<Light>())).enabled as *const _ as usize },
+        32usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(Light),
+            "::",
+            stringify!(enabled)
         )
     );
     assert_eq!(
@@ -17458,20 +17450,25 @@ fn bindgen_test_layout_Light() {
         )
     );
 }
+pub const LIGHT_DISTANCE: f64 = 3.5;
+pub const LIGHT_HEIGHT: f64 = 1.0;
+#[repr(i32)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+pub enum LightType {
+    LIGHT_DIRECTIONAL = 0,
+    LIGHT_POINT = 1,
+}
 extern "C" {
     pub fn CreateLight(
         type_: ::std::os::raw::c_int,
-        pos: Vector3,
-        targ: Vector3,
+        position: Vector3,
+        target: Vector3,
         color: Color,
         shader: Shader,
-    );
+    ) -> Light;
 }
 extern "C" {
     pub fn UpdateLightValues(shader: Shader, light: Light);
-}
-extern "C" {
-    pub static mut lights: [Light; 4usize];
 }
 pub const lightsCount: ::std::os::raw::c_int = 0;
 pub type __builtin_va_list = *mut ::std::os::raw::c_char;

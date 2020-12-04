@@ -204,12 +204,12 @@ const EASINGS_H
         float s = 1.70158f;
         if (t /= d / 2) < 1
         {
-            s *= 1.525f;
+            s *= 1.525;
             return (c / 2 * (t * t * ((s + 1) * t - s)) + b);
         }
 
         float postFix = t -= 2;
-        s *= 1.525f;
+        s *= 1.525;
         return (c / 2 * ((postFix)*t * ((s + 1) * t + s) + 2) + b);
     }
 
@@ -218,22 +218,22 @@ const EASINGS_H
     {
         if (t /= d) < (1 / 2.75f)
         {
-            return (c * (7.5625f * t * t) + b);
+            return (c * (7.5625 * t * t) + b);
         }
         else if t < (2 / 2.75f)
         {
             float postFix = t -= (1.5 / 2.75f);
-            return (c * (7.5625f * (postFix)*t + 0.75f) + b);
+            return (c * (7.5625 * (postFix)*t + 0.75f) + b);
         }
         else if t < (2.5 / 2.75)
         {
             float postFix = t -= (2.25 / 2.75f);
-            return (c * (7.5625f * (postFix)*t + 0.9375f) + b);
+            return (c * (7.5625 * (postFix)*t + 0.9375f) + b);
         }
         else
         {
-            float postFix = t -= (2.625f / 2.75f);
-            return (c * (7.5625f * (postFix)*t + 0.984375f) + b);
+            float postFix = t -= (2.625 / 2.75f);
+            return (c * (7.5625 * (postFix)*t + 0.984375f) + b);
         }
     }
 
