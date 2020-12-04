@@ -74,11 +74,19 @@ fn build_with_cmake(src_path: &str) {
     let dst_lib = join_cmake_lib_directory(dst);
     // on windows copy the static library to the proper file name
     if platform_os == PlatformOS::Windows {
-        std::fs::copy(
-            dst_lib.join("raylib_static.lib"),
-            dst_lib.join("raylib.lib"),
-        )
-        .expect("filed to create windows library");
+        if Path::new(&dst_lib.join("raylib_static.lib")).exists() {
+            std::fs::copy(
+                dst_lib.join("raylib_static.lib"),
+                dst_lib.join("raylib.lib"),
+            ).expect("filed to create windows library");
+        } else if Path::new(&dst_lib.join("libraylib_static.a")).exists() {
+            std::fs::copy(
+                dst_lib.join("libraylib_static.a"),
+                dst_lib.join("libraylib.a"),
+            ).expect("filed to create windows library");
+        } else {
+            panic!("filed to create windows library");
+        }
     } // on web copy libraylib.bc to libraylib.a
     if platform == Platform::Web {
         std::fs::copy(dst_lib.join("libraylib.bc"), dst_lib.join("libraylib.a"))
