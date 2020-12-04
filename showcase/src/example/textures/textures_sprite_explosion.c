@@ -13,9 +13,7 @@ use raylib::prelude::*;
 
 const NUM_FRAMES 8 const NUM_LINES 6
 
-    int
-    main(void)
-{
+pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
     // Initialization
     //--------------------------------------------------------------------------------------
     let screen_width = 800;

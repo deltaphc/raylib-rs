@@ -14,11 +14,11 @@
 
 use raylib::prelude::*;
 
-#if defined(PLATFORM_DESKTOP)
-#defconstL_VERSION 330
-#else // PLATFORM_RPI, PLATFORM_ANDROID, PLATFORM_WEB -> Not supported at this moment
-#defconstL_VERSION 100
-#endif
+#[cfg(not(target_arch = "wasm32"))]
+const GLSL_VERSION: i32 = 330;
+#[cfg(target_arch = "wasm32")] -> Not supported at this moment
+const GLSL_VERSION: i32 = 100;
+
 
 pub fn run(rl
            : &mut RaylibHandle, thread
@@ -45,16 +45,16 @@ pub fn run(rl
 
     // Load raymarching shader
     // NOTE: Defining 0 (NULL) for vertex shader forces usage of internal default vertex shader
-    Shader shader = LoadShader(0, &format!("resources/shaders/glsl{}/raymarching.fs", GLSL_VERSION));
+    let shader = rl.load_shader(thread,0, &format!("resources/shaders/glsl{}/raymarching.fs", GLSL_VERSION));
 
     // Get shader locations for required uniforms
-    int viewEyeLoc = GetShaderLocation(shader, "viewEye");
-    int viewCenterLoc = GetShaderLocation(shader, "viewCenter");
-    int runTimeLoc = GetShaderLocation(shader, "runTime");
-    int resolutionLoc = GetShaderLocation(shader, "resolution");
+    int viewEyeLoc = shader.get_shader_location( "viewEye");
+    int viewCenterLoc = shader.get_shader_location( "viewCenter");
+    int runTimeLoc = shader.get_shader_location( "runTime");
+    int resolutionLoc = shader.get_shader_location( "resolution");
 
     float resolution[2] = {(float)screen_width, (float)screen_height};
-    SetShaderValue(shader, resolutionLoc, resolution, UNIFORM_VEC2);
+    shader.set_shader_value( resolutionLoc, resolution, UNIFORM_VEC2);
 
     float runTime = 0.0;
 
@@ -71,7 +71,7 @@ pub fn run(rl
             screen_width = rl.get_screen_width();
             screen_height = rl.get_screen_height();
             float resolution[2] = {(float)screen_width, (float)screen_height};
-            SetShaderValue(shader, resolutionLoc, resolution, UNIFORM_VEC2);
+            shader.set_shader_value( resolutionLoc, resolution, UNIFORM_VEC2);
         }
 
         // Update
@@ -85,9 +85,9 @@ pub fn run(rl
         runTime += deltaTime;
 
         // Set shader required uniform values
-        SetShaderValue(shader, viewEyeLoc, cameraPos, UNIFORM_VEC3);
-        SetShaderValue(shader, viewCenterLoc, cameraTarget, UNIFORM_VEC3);
-        SetShaderValue(shader, runTimeLoc, &runTime, UNIFORM_FLOAT);
+        shader.set_shader_value( viewEyeLoc, cameraPos, UNIFORM_VEC3);
+        shader.set_shader_value( viewCenterLoc, cameraTarget, UNIFORM_VEC3);
+        shader.set_shader_value( runTimeLoc, &runTime, UNIFORM_FLOAT);
         //----------------------------------------------------------------------------------
 
         // Draw

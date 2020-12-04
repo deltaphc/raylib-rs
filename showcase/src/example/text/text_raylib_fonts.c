@@ -16,9 +16,7 @@ use raylib::prelude::*;
 
 const MAX_FONTS 8
 
-    int
-    main(void)
-{
+pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
     // Initialization
     //--------------------------------------------------------------------------------------
     let screen_width = 800;

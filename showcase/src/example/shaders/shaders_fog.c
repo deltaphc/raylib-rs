@@ -27,20 +27,18 @@
 
 use raylib::prelude::*;
 
-#include "raymath.h"
 
-const RLIGHTS_IMPLEMENTATION
-#include "rlights.h"
 
-#if defined(PLATFORM_DESKTOP)
-#defconstL_VERSION 330
-#else // PLATFORM_RPI, PLATFORM_ANDROID, PLATFORM_WEB
-#defconstL_VERSION 100
-#endif
 
-    int
-    main(void)
-{
+use raylib::rlights;
+
+#[cfg(not(target_arch = "wasm32"))]
+const GLSL_VERSION: i32 = 330;
+#[cfg(target_arch = "wasm32")]
+const GLSL_VERSION: i32 = 100;
+
+
+pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
     // Initialization
     //--------------------------------------------------------------------------------------
     let screen_width = 800;
@@ -59,10 +57,10 @@ const RLIGHTS_IMPLEMENTATION
         45.0, CAMERA_PERSPECTIVE};  // fov, type
 
     // Load models and texture
-    Model modelA = LoadModelFromMesh(GenMeshTorus(0.4f, 1.0, 16, 32));
-    Model modelB = LoadModelFromMesh(GenMeshCube(1.0, 1.0, 1.0));
-    Model modelC = LoadModelFromMesh(GenMeshSphere(0.5, 32, 32));
-    Texture texture = LoadTexture("resources/texel_checker.png");
+    let modelA = rl.load_model_from_mesh(thread, rl.gen_mesh_torus(thread,0.4, 1.0, 16, 32)).unwrap();
+    let modelB = rl.load_model_from_mesh(thread, rl.gen_mesh_cube(thread,1.0, 1.0, 1.0)).unwrap();
+    let modelC = rl.load_model_from_mesh(thread, rl.gen_mesh_sphere(thread,0.5, 32, 32)).unwrap();
+    let texture = rl.load_texture(thread, "original/resources/texel_checker.png");
 
     // Assign texture to default model material
     modelA.materials[0].maps[raylib::consts::MaterialMapType::MAP_ALBEDO].texture = *texture.as_ref();
@@ -70,18 +68,18 @@ const RLIGHTS_IMPLEMENTATION
     modelC.materials[0].maps[raylib::consts::MaterialMapType::MAP_ALBEDO].texture = *texture.as_ref();
 
     // Load shader and set up some uniforms
-    Shader shader = LoadShader(&format!("resources/shaders/glsl{}/base_lighting.vs", GLSL_VERSION),
+    let shader = rl.load_shader(thread,&format!("resources/shaders/glsl{}/base_lighting.vs", GLSL_VERSION),
                                &format!("resources/shaders/glsl{}/fog.fs", GLSL_VERSION));
-    shader.locs[LOC_MATRIX_MODEL] = GetShaderLocation(shader, "matModel");
-    shader.locs[LOC_VECTOR_VIEW] = GetShaderLocation(shader, "viewPos");
+    shader.locs[LOC_MATRIX_MODEL] = shader.get_shader_location( "matModel");
+    shader.locs[LOC_VECTOR_VIEW] = shader.get_shader_location( "viewPos");
 
     // Ambient light level
-    int ambientLoc = GetShaderLocation(shader, "ambient");
-    SetShaderValue(shader, ambientLoc, (float[4]){0.2, 0.2, 0.2, 1.0}, UNIFORM_VEC4);
+    int ambientLoc = shader.get_shader_location( "ambient");
+    shader.set_shader_value( ambientLoc, (float[4]){0.2, 0.2, 0.2, 1.0}, UNIFORM_VEC4);
 
     float fogDensity = 0.15f;
-    int fogDensityLoc = GetShaderLocation(shader, "fogDensity");
-    SetShaderValue(shader, fogDensityLoc, &fogDensity, UNIFORM_FLOAT);
+    int fogDensityLoc = shader.get_shader_location( "fogDensity");
+    shader.set_shader_value( fogDensityLoc, &fogDensity, UNIFORM_FLOAT);
 
     // NOTE: All models share the same shader
     modelA.materials[0].shader = shader;
@@ -89,7 +87,7 @@ const RLIGHTS_IMPLEMENTATION
     modelC.materials[0].shader = shader;
 
     // Using just 1 point lights
-    CreateLight(LIGHT_POINT, rvec3(0, 2,  6), Vector3Zero(), Color::WHITE, shader);
+    CreateLight(LIGHT_POINT, rvec3(0, 2,  6), Vector3::zero()(), Color::WHITE, shader);
 
     rl.set_camera_mode(&camera, raylib::consts::CameraMode::CAMERA_ORBITAL); // Set an orbital camera mode
 
@@ -117,14 +115,14 @@ const RLIGHTS_IMPLEMENTATION
                 fogDensity = 0.0;
         }
 
-        SetShaderValue(shader, fogDensityLoc, &fogDensity, UNIFORM_FLOAT);
+        shader.set_shader_value( fogDensityLoc, &fogDensity, UNIFORM_FLOAT);
 
         // Rotate the torus
         modelA.transform = MatrixMultiply(modelA.transform, MatrixRotateX(-0.025));
         modelA.transform = MatrixMultiply(modelA.transform, MatrixRotateZ(0.012));
 
         // Update the light shader with the camera view position
-        SetShaderValue(shader, shader.locs[LOC_VECTOR_VIEW], &camera.position.x, UNIFORM_VEC3);
+        shader.set_shader_value( shader.locs[LOC_VECTOR_VIEW], &camera.position.x, UNIFORM_VEC3);
         //----------------------------------------------------------------------------------
 
         // Draw
@@ -136,7 +134,7 @@ const RLIGHTS_IMPLEMENTATION
         let mut d = d.begin_mode3D(&camera);
 
         // Draw the three models
-        d.draw_model(modelA, Vector3Zero(), 1.0, Color::WHITE);
+        d.draw_model(modelA, Vector3::zero()(), 1.0, Color::WHITE);
         d.draw_model(modelB, rvec3(-2.6, 0,  0), 1.0, Color::WHITE);
         d.draw_model(modelC, rvec3(2.6, 0,  0), 1.0, Color::WHITE);
 

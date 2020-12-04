@@ -11,17 +11,15 @@
 
 use raylib::prelude::*;
 
-#if defined(PLATFORM_DESKTOP)
+#[cfg(not(target_arch = "wasm32"))]
 const GLSL_VERSION 330
-#else // PLATFORM_RPI, PLATFORM_ANDROID, PLATFORM_WEB
+#[cfg(target_arch = "wasm32")]
 const GLSL_VERSION 100
 #endif
 
 #include <stdlib.h>
 
-    int
-    main(void)
-{
+pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
     // Initialization
     //--------------------------------------------------------------------------------------
     let screen_width = 800;
@@ -58,7 +56,7 @@ const GLSL_VERSION 100
     UnloadImage(atlas);
 
     // Load SDF required shader (we use default vertex shader)
-    Shader shader = LoadShader(0, &format!("resources/shaders/glsl{}/sdf.fs", GLSL_VERSION));
+    let shader = rl.load_shader(thread,0, &format!("resources/shaders/glsl{}/sdf.fs", GLSL_VERSION));
     SetTextureFilter(fontSDF.texture, FILTER_BILINEAR); // Required for SDF font
 
     let fontPosition = rvec2(40, screen_height / 2 - 50);

@@ -19,13 +19,13 @@
 ********************************************************************************************/
 
 use raylib::prelude::*;
-#include "raymath.h"
 
-#if defined(PLATFORM_DESKTOP)
-#defconstL_VERSION 330
-#else // PLATFORM_RPI, PLATFORM_ANDROID, PLATFORM_WEB
-#defconstL_VERSION 100
-#endif
+
+#[cfg(not(target_arch = "wasm32"))]
+const GLSL_VERSION: i32 = 330;
+#[cfg(target_arch = "wasm32")]
+const GLSL_VERSION: i32 = 100;
+
 
 pub fn run(rl
            : &mut RaylibHandle, thread
@@ -50,34 +50,34 @@ pub fn run(rl
     );
 
     // Define our three models to show the shader on
-    Mesh torus = GenMeshTorus(.3, 1, 16, 32);
-    Model model1 = LoadModelFromMesh(torus);
+    Mesh torus = rl.gen_mesh_torus(thread,.3, 1, 16, 32);
+    let model1 = rl.load_model_from_mesh(thread, torus).unwrap();
 
-    Mesh cube = GenMeshCube(.8, .8, .8);
-    Model model2 = LoadModelFromMesh(cube);
+    Mesh cube = rl.gen_mesh_cube(thread,.8, .8, .8);
+    let model2 = rl.load_model_from_mesh(thread, cube).unwrap();
 
     // Generate model to be shaded just to see the gaps in the other two
-    Mesh sphere = GenMeshSphere(1, 16, 16);
-    Model model3 = LoadModelFromMesh(sphere);
+    Mesh sphere = rl.gen_mesh_sphere(thread,1, 16, 16);
+    let model3 = rl.load_model_from_mesh(thread, sphere).unwrap();
 
     // Load the shader
-    Shader shader = LoadShader(0, &format!("resources/shaders/glsl{}/mask.fs", GLSL_VERSION));
+    let shader = rl.load_shader(thread,0, &format!("resources/shaders/glsl{}/mask.fs", GLSL_VERSION));
 
     // Load and apply the diffuse texture (colour map)
-    Texture texDiffuse = LoadTexture("resources/plasma.png");
+    let texDiffuse = rl.load_texture(thread, "original/resources/plasma.png");
     model1.materials[0].maps[raylib::consts::MaterialMapType::MAP_ALBEDO].texture = texDiffuse;
     model2.materials[0].maps[raylib::consts::MaterialMapType::MAP_ALBEDO].texture = texDiffuse;
 
     // Using MAP_EMISSION as a spare slot to use for 2nd texture
     // NOTE: Don't use MAP_IRRADIANCE, MAP_PREFILTER or  MAP_CUBEMAP
     // as they are bound as cube maps
-    Texture texMask = LoadTexture("resources/mask.png");
+    let texMask = rl.load_texture(thread, "original/resources/mask.png");
     model1.materials[0].maps[MAP_EMISSION].texture = texMask;
     model2.materials[0].maps[MAP_EMISSION].texture = texMask;
-    shader.locs[LOC_MAP_EMISSION] = GetShaderLocation(shader, "mask");
+    shader.locs[LOC_MAP_EMISSION] = shader.get_shader_location( "mask");
 
     // Frame is incremented each frame to animate the shader
-    int shaderFrame = GetShaderLocation(shader, "frame");
+    int shaderFrame = shader.get_shader_location( "frame");
 
     // Apply the shader to the two models
     model1.materials[0].shader = shader;
@@ -100,7 +100,7 @@ pub fn run(rl
         rotation.z -= 0.0025f;
 
         // Send frames counter to shader for animation
-        SetShaderValue(shader, shaderFrame, &framesCounter, UNIFORM_INT);
+        shader.set_shader_value( shaderFrame, &framesCounter, UNIFORM_INT);
 
         // Rotate one of the models
         model1.transform = MatrixRotateXYZ(rotation);

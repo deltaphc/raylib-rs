@@ -13,9 +13,7 @@ use raylib::prelude::*;
 
 const NUM_FRAMES 3 // Number of frames (rectangles) for the button sprite texture
 
-    int
-    main(void)
-{
+pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
     // Initialization
     //--------------------------------------------------------------------------------------
     let screen_width = 800;

@@ -18,11 +18,11 @@
 
 use raylib::prelude::*;
 
-#if defined(PLATFORM_DESKTOP)
-#defconstL_VERSION 330
-#else // PLATFORM_RPI, PLATFORM_ANDROID, PLATFORM_WEB
-#defconstL_VERSION 100
-#endif
+#[cfg(not(target_arch = "wasm32"))]
+const GLSL_VERSION: i32 = 330;
+#[cfg(target_arch = "wasm32")]
+const GLSL_VERSION: i32 = 100;
+
 
 pub fn run(rl
            : &mut RaylibHandle, thread
@@ -56,11 +56,11 @@ pub fn run(rl
 
     // Load postprocessing shader
     // NOTE: Defining 0 (NULL) for vertex shader forces usage of internal default vertex shader
-    Shader shader = LoadShader(0, &format!("resources/shaders/glsl{}/swirl.fs", GLSL_VERSION));
+    let shader = rl.load_shader(thread,0, &format!("resources/shaders/glsl{}/swirl.fs", GLSL_VERSION));
 
     // Get variable (uniform) location on the shader to connect with the program
     // NOTE: If uniform variable could not be found in the shader, function returns -1
-    int swirlCenterLoc = GetShaderLocation(shader, "center");
+    int swirlCenterLoc = shader.get_shader_location( "center");
 
     float swirlCenter[2] = {(float)screen_width / 2, (float)screen_height / 2};
 
@@ -84,7 +84,7 @@ pub fn run(rl
         swirlCenter[1] = screen_height - mousePosition.y;
 
         // Send new value to the shader to be used on drawing
-        SetShaderValue(shader, swirlCenterLoc, swirlCenter, UNIFORM_VEC2);
+        shader.set_shader_value( swirlCenterLoc, swirlCenter, UNIFORM_VEC2);
 
         rl.update_camera(&mut camera); // Update camera
         //----------------------------------------------------------------------------------

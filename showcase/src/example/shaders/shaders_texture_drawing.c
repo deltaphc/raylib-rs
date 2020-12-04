@@ -15,11 +15,11 @@
 
 use raylib::prelude::*;
 
-#if defined(PLATFORM_DESKTOP)
-#defconstL_VERSION 330
-#else // PLATFORM_RPI, PLATFORM_ANDROID, PLATFORM_WEB
-#defconstL_VERSION 100
-#endif
+#[cfg(not(target_arch = "wasm32"))]
+const GLSL_VERSION: i32 = 330;
+#[cfg(target_arch = "wasm32")]
+const GLSL_VERSION: i32 = 100;
+
 
 pub fn run(rl
            : &mut RaylibHandle, thread
@@ -40,11 +40,11 @@ pub fn run(rl
     UnloadImage(imBlank);
 
     // NOTE: Using GLSL 330 shader version, on OpenGL ES 2.0 use GLSL 100 shader version
-    Shader shader = LoadShader(0, &format!("resources/shaders/glsl{}/cubes_panning.fs", GLSL_VERSION));
+    let shader = rl.load_shader(thread,0, &format!("resources/shaders/glsl{}/cubes_panning.fs", GLSL_VERSION));
 
     float time = 0.0;
-    int timeLoc = GetShaderLocation(shader, "uTime");
-    SetShaderValue(shader, timeLoc, &time, UNIFORM_FLOAT);
+    int timeLoc = shader.get_shader_location( "uTime");
+    shader.set_shader_value( timeLoc, &time, UNIFORM_FLOAT);
 
     rl.set_target_fps(60); // Set our game to run at 60 frames-per-second
     // -------------------------------------------------------------------------------------------------------------
@@ -55,7 +55,7 @@ pub fn run(rl
         // Update
         //----------------------------------------------------------------------------------
         time = GetTime();
-        SetShaderValue(shader, timeLoc, &time, UNIFORM_FLOAT);
+        shader.set_shader_value( timeLoc, &time, UNIFORM_FLOAT);
         //----------------------------------------------------------------------------------
 
         // Draw

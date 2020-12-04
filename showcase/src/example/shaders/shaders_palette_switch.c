@@ -20,11 +20,11 @@
 
 use raylib::prelude::*;
 
-#if defined(PLATFORM_DESKTOP)
+#[cfg(not(target_arch = "wasm32"))]
 const GLSL_VERSION 330
-#else // PLATFORM_RPI, PLATFORM_ANDROID, PLATFORM_WEB
+#[cfg(target_arch = "wasm32")]
 const GLSL_VERSION 100
-#endif
+
 
     const MAX_PALETTES 3 const COLORS_PER_PALETTE 8 const VALUES_PER_COLOR 3
 
@@ -133,11 +133,11 @@ pub fn run(rl
     // Load shader to be used on some parts drawing
     // NOTE 1: Using GLSL 330 shader version, on OpenGL ES 2.0 use GLSL 100 shader version
     // NOTE 2: Defining 0 (NULL) for vertex shader forces usage of internal default vertex shader
-    Shader shader = LoadShader(0, &format!("resources/shaders/glsl{}/palette_switch.fs", GLSL_VERSION));
+    let shader = rl.load_shader(thread,0, &format!("resources/shaders/glsl{}/palette_switch.fs", GLSL_VERSION));
 
     // Get variable (uniform) location on the shader to connect with the program
     // NOTE: If uniform variable could not be found in the shader, function returns -1
-    int paletteLoc = GetShaderLocation(shader, "palette");
+    int paletteLoc = shader.get_shader_location( "palette");
 
     int currentPalette = 0;
     int lineHeight = screen_height / COLORS_PER_PALETTE;

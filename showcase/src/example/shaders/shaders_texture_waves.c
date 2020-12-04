@@ -20,11 +20,11 @@
 
 use raylib::prelude::*;
 
-#if defined(PLATFORM_DESKTOP)
-#defconstL_VERSION 330
-#else // PLATFORM_RPI, PLATFORM_ANDROID, PLATFORM_WEB
-#defconstL_VERSION 100
-#endif
+#[cfg(not(target_arch = "wasm32"))]
+const GLSL_VERSION: i32 = 330;
+#[cfg(target_arch = "wasm32")]
+const GLSL_VERSION: i32 = 100;
+
 
 pub fn run(rl
            : &mut RaylibHandle, thread
@@ -44,17 +44,17 @@ pub fn run(rl
     let texture = rl.load_texture(thread, "resources/space.png");
 
     // Load shader and setup location points and values
-    Shader shader = LoadShader(0, &format!("resources/shaders/glsl{}/wave.fs", GLSL_VERSION));
+    let shader = rl.load_shader(thread,0, &format!("resources/shaders/glsl{}/wave.fs", GLSL_VERSION));
 
-    int secondsLoc = GetShaderLocation(shader, "secondes");
-    int freqXLoc = GetShaderLocation(shader, "freqX");
-    int freqYLoc = GetShaderLocation(shader, "freqY");
-    int ampXLoc = GetShaderLocation(shader, "ampX");
-    int ampYLoc = GetShaderLocation(shader, "ampY");
-    int speedXLoc = GetShaderLocation(shader, "speedX");
-    int speedYLoc = GetShaderLocation(shader, "speedY");
+    int secondsLoc = shader.get_shader_location( "secondes");
+    int freqXLoc = shader.get_shader_location( "freqX");
+    int freqYLoc = shader.get_shader_location( "freqY");
+    int ampXLoc = shader.get_shader_location( "ampX");
+    int ampYLoc = shader.get_shader_location( "ampY");
+    int speedXLoc = shader.get_shader_location( "speedX");
+    int speedYLoc = shader.get_shader_location( "speedY");
 
-    // Shader uniform values that can be updated at any time
+    // let uniform values that can be updated at any time
     float freqX = 25.0;
     float freqY = 25.0;
     float ampX = 5.0;
@@ -63,13 +63,13 @@ pub fn run(rl
     float speedY = 8.0;
 
     float screenSize[2] = {(float)rl.get_screen_width(), (float)rl.get_screen_height()};
-    SetShaderValue(shader, GetShaderLocation(shader, "size"), &screenSize, UNIFORM_VEC2);
-    SetShaderValue(shader, freqXLoc, &freqX, UNIFORM_FLOAT);
-    SetShaderValue(shader, freqYLoc, &freqY, UNIFORM_FLOAT);
-    SetShaderValue(shader, ampXLoc, &ampX, UNIFORM_FLOAT);
-    SetShaderValue(shader, ampYLoc, &ampY, UNIFORM_FLOAT);
-    SetShaderValue(shader, speedXLoc, &speedX, UNIFORM_FLOAT);
-    SetShaderValue(shader, speedYLoc, &speedY, UNIFORM_FLOAT);
+    shader.set_shader_value( shader.get_shader_location( "size"), &screenSize, UNIFORM_VEC2);
+    shader.set_shader_value( freqXLoc, &freqX, UNIFORM_FLOAT);
+    shader.set_shader_value( freqYLoc, &freqY, UNIFORM_FLOAT);
+    shader.set_shader_value( ampXLoc, &ampX, UNIFORM_FLOAT);
+    shader.set_shader_value( ampYLoc, &ampY, UNIFORM_FLOAT);
+    shader.set_shader_value( speedXLoc, &speedX, UNIFORM_FLOAT);
+    shader.set_shader_value( speedYLoc, &speedY, UNIFORM_FLOAT);
 
     float seconds = 0.0;
 
@@ -83,7 +83,7 @@ pub fn run(rl
         //----------------------------------------------------------------------------------
         seconds += GetFrameTime();
 
-        SetShaderValue(shader, secondsLoc, &seconds, UNIFORM_FLOAT);
+        shader.set_shader_value( secondsLoc, &seconds, UNIFORM_FLOAT);
         //----------------------------------------------------------------------------------
 
         // Draw

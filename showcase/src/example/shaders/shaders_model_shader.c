@@ -18,15 +18,13 @@
 
 use raylib::prelude::*;
 
-#if defined(PLATFORM_DESKTOP)
+#[cfg(not(target_arch = "wasm32"))]
 const GLSL_VERSION 330
-#else // PLATFORM_RPI, PLATFORM_ANDROID, PLATFORM_WEB
+#[cfg(target_arch = "wasm32")]
 const GLSL_VERSION 100
-#endif
 
-    int
-    main(void)
-{
+
+pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
     // Initialization
     //--------------------------------------------------------------------------------------
     let screen_width = 800;
@@ -51,7 +49,7 @@ const GLSL_VERSION 100
 
     // Load shader for model
     // NOTE: Defining 0 (NULL) for vertex shader forces usage of internal default vertex shader
-    Shader shader = LoadShader(0, &format!("resources/shaders/glsl{}/grayscale.fs", GLSL_VERSION));
+    let shader = rl.load_shader(thread,0, &format!("resources/shaders/glsl{}/grayscale.fs", GLSL_VERSION));
 
     model.materials[0].shader = shader;                     // Set shader effect to 3d model
     model.materials_mut()[0].maps_mut()[raylib::consts::MaterialMapType::MAP_ALBEDO].texture = *texture.as_ref(); // Bind texture to model

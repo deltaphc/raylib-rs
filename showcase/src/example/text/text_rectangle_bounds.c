@@ -62,7 +62,7 @@ tempor incididunt ut labore et dolore magna aliqua. Nec ullamcorper sit amet ris
 
         // Check if the mouse is inside the container and toggle border color
         if CheckCollisionPointRec(mouse, container)
-            borderColor = Fade(Color::MAROON, 0.4f);
+            borderColor = Fade(Color::MAROON, 0.4);
         else if !resizing
             borderColor = Color::MAROON;
 

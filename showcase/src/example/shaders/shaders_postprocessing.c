@@ -18,11 +18,11 @@
 
 use raylib::prelude::*;
 
-#if defined(PLATFORM_DESKTOP)
+#[cfg(not(target_arch = "wasm32"))]
 const GLSL_VERSION 330
-#else // PLATFORM_RPI, PLATFORM_ANDROID, PLATFORM_WEB
+#[cfg(target_arch = "wasm32")]
 const GLSL_VERSION 100
-#endif
+
 
     const MAX_POSTPRO_SHADERS 12
 
@@ -86,21 +86,21 @@ pub fn run(rl
     // Load all postpro shaders
     // NOTE 1: All postpro shader use the base vertex shader (DEFAULT_VERTEX_SHADER)
     // NOTE 2: We load the correct shader depending on GLSL version
-    Shader shaders[MAX_POSTPRO_SHADERS] = {0};
+    let shaders[MAX_POSTPRO_SHADERS] = {0};
 
     // NOTE: Defining 0 (NULL) for vertex shader forces usage of internal default vertex shader
-    shaders[FX_GRAYSCALE] = LoadShader(0, &format!("resources/shaders/glsl{}/grayscale.fs", GLSL_VERSION));
-    shaders[FX_POSTERIZATION] = LoadShader(0, &format!("resources/shaders/glsl{}/posterization.fs", GLSL_VERSION));
-    shaders[FX_DREAM_VISION] = LoadShader(0, &format!("resources/shaders/glsl{}/dream_vision.fs", GLSL_VERSION));
-    shaders[FX_PIXELIZER] = LoadShader(0, &format!("resources/shaders/glsl{}/pixelizer.fs", GLSL_VERSION));
-    shaders[FX_CROSS_HATCHING] = LoadShader(0, &format!("resources/shaders/glsl{}/cross_hatching.fs", GLSL_VERSION));
-    shaders[FX_CROSS_STITCHING] = LoadShader(0, &format!("resources/shaders/glsl{}/cross_stitching.fs", GLSL_VERSION));
-    shaders[FX_PREDATOR_VIEW] = LoadShader(0, &format!("resources/shaders/glsl{}/predator.fs", GLSL_VERSION));
-    shaders[FX_SCANLINES] = LoadShader(0, &format!("resources/shaders/glsl{}/scanlines.fs", GLSL_VERSION));
-    shaders[FX_FISHEYE] = LoadShader(0, &format!("resources/shaders/glsl{}/fisheye.fs", GLSL_VERSION));
-    shaders[FX_SOBEL] = LoadShader(0, &format!("resources/shaders/glsl{}/sobel.fs", GLSL_VERSION));
-    shaders[FX_BLOOM] = LoadShader(0, &format!("resources/shaders/glsl{}/bloom.fs", GLSL_VERSION));
-    shaders[FX_BLUR] = LoadShader(0, &format!("resources/shaders/glsl{}/blur.fs", GLSL_VERSION));
+    shaders[FX_GRAYSCALE] = rl.load_shader(thread,0, &format!("resources/shaders/glsl{}/grayscale.fs", GLSL_VERSION));
+    shaders[FX_POSTERIZATION] = rl.load_shader(thread,0, &format!("resources/shaders/glsl{}/posterization.fs", GLSL_VERSION));
+    shaders[FX_DREAM_VISION] = rl.load_shader(thread,0, &format!("resources/shaders/glsl{}/dream_vision.fs", GLSL_VERSION));
+    shaders[FX_PIXELIZER] = rl.load_shader(thread,0, &format!("resources/shaders/glsl{}/pixelizer.fs", GLSL_VERSION));
+    shaders[FX_CROSS_HATCHING] = rl.load_shader(thread,0, &format!("resources/shaders/glsl{}/cross_hatching.fs", GLSL_VERSION));
+    shaders[FX_CROSS_STITCHING] = rl.load_shader(thread,0, &format!("resources/shaders/glsl{}/cross_stitching.fs", GLSL_VERSION));
+    shaders[FX_PREDATOR_VIEW] = rl.load_shader(thread,0, &format!("resources/shaders/glsl{}/predator.fs", GLSL_VERSION));
+    shaders[FX_SCANLINES] = rl.load_shader(thread,0, &format!("resources/shaders/glsl{}/scanlines.fs", GLSL_VERSION));
+    shaders[FX_FISHEYE] = rl.load_shader(thread,0, &format!("resources/shaders/glsl{}/fisheye.fs", GLSL_VERSION));
+    shaders[FX_SOBEL] = rl.load_shader(thread,0, &format!("resources/shaders/glsl{}/sobel.fs", GLSL_VERSION));
+    shaders[FX_BLOOM] = rl.load_shader(thread,0, &format!("resources/shaders/glsl{}/bloom.fs", GLSL_VERSION));
+    shaders[FX_BLUR] = rl.load_shader(thread,0, &format!("resources/shaders/glsl{}/blur.fs", GLSL_VERSION));
 
     int currentShader = FX_GRAYSCALE;
 

@@ -28,16 +28,16 @@
 ********************************************************************************************/
 
 use raylib::prelude::*;
-#include "raymath.h"
+
 
 #include <stddef.h>
 #include <stdint.h>
 
-#if defined(PLATFORM_DESKTOP)
-#defconstL_VERSION 330
-#else // PLATFORM_RPI, PLATFORM_ANDROID, PLATFORM_WEB
-#defconstL_VERSION 100
-#endif
+#[cfg(not(target_arch = "wasm32"))]
+const GLSL_VERSION: i32 = 330;
+#[cfg(target_arch = "wasm32")]
+const GLSL_VERSION: i32 = 100;
+
 
 #define MAXSPOT 3 // NB must be the same as define in shader
 const numStars 400 const
@@ -49,7 +49,7 @@ const numStars 400 const
     float inner;
     float radius;
 
-    // Shader locations
+    // let locations
     unsigned int posLoc;
     unsigned int innerLoc;
     unsigned int radiusLoc;
@@ -80,7 +80,7 @@ pub fn run(rl
 
     HideCursor();
 
-    Texture texRay = LoadTexture("resources/raysan.png");
+    let texRay = rl.load_texture(thread, "original/resources/raysan.png");
 
     Star stars[numStars] = {0};
 
@@ -97,7 +97,7 @@ pub fn run(rl
     int frameCounter = 0;
 
     // Use default vert shader
-    Shader spotShader = LoadShader(0, &format!("resources/shaders/glsl{}/spotlight.fs", GLSL_VERSION));
+    let spotShader = rl.load_shader(thread,0, &format!("resources/shaders/glsl{}/spotlight.fs", GLSL_VERSION));
 
     // Get the locations of spots in the shader
     Spot spots[MAXSPOT];

@@ -227,6 +227,10 @@ fn main() {
             example::textures::textures_bunnymark::run,
         ),
         (
+            rstr!("raylib [shaders] example - basic lighting"),
+            example::shaders::shaders_basic_lighting::run,
+        ),
+        (
             rstr!("raylib [shaders] example - postprocessing shader"),
             example::shaders::shaders_postprocessing::run,
         ),

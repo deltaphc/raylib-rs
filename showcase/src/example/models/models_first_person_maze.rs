@@ -93,7 +93,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut
                 let mut d = d.begin_mode3D(&camera);
     
                     d.draw_model(&model, mapPosition, 1.0, Color::WHITE);                     // Draw maze map
-                    //d.draw_cube_vplayerPosition, rvec3( 0.2f, 0.4f,0.2f ), Color::RED);  // Draw player
+                    //d.draw_cube_vplayerPosition, rvec3( 0.2f, 0.4,0.2f ), Color::RED);  // Draw player
     
 
             }

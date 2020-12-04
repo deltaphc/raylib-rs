@@ -13,9 +13,7 @@ use raylib::prelude::*;
 
 const NUM_TEXTURES 7 // Currently we have 7 generation algorithms
 
-    int
-    main(void)
-{
+pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
     // Initialization
     //--------------------------------------------------------------------------------------
     let screen_width = 800;

@@ -229,7 +229,7 @@ int main(int argc, char **argv)
 
             if !CheckCollisionPointRec(mouse, emojiRect)
             {
-                DrawTextEx(fontEmoji, txt, pos, fontEmoji.baseSize, 1.0, selected == i ? emoji[i].color : Fade(Color::LIGHTGRAY, 0.4f));
+                DrawTextEx(fontEmoji, txt, pos, fontEmoji.baseSize, 1.0, selected == i ? emoji[i].color : Fade(Color::LIGHTGRAY, 0.4));
             }
             else
             {

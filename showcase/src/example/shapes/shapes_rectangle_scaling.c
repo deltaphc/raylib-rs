@@ -15,9 +15,7 @@ use raylib::prelude::*;
 
 const MOUSE_SCALE_MARK_SIZE 12
 
-    int
-    main(void)
-{
+pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
     // Initialization
     //--------------------------------------------------------------------------------------
     let screen_width = 800;

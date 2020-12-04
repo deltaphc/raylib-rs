@@ -13,9 +13,7 @@ use raylib::prelude::*;
 
 const MAX_COLORS_COUNT 21 // Number of colors available
 
-    int
-    main(void)
-{
+pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
     // Initialization
     //--------------------------------------------------------------------------------------
     let screen_width = 800;

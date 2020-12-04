@@ -18,11 +18,11 @@
 
 use raylib::prelude::*;
 
-#if defined(PLATFORM_DESKTOP)
+#[cfg(not(target_arch = "wasm32"))]
 const GLSL_VERSION 330
-#else // PLATFORM_RPI, PLATFORM_ANDROID, PLATFORM_WEB
+#[cfg(target_arch = "wasm32")]
 const GLSL_VERSION 100
-#endif
+
 
     // A few good julia sets
     const float POINTS_OF_INTEREST[6][2] =
@@ -51,7 +51,7 @@ pub fn run(rl
 
     // Load julia set shader
     // NOTE: Defining 0 (NULL) for vertex shader forces usage of internal default vertex shader
-    Shader shader = LoadShader(0, &format!("resources/shaders/glsl{}/julia_set.fs", GLSL_VERSION));
+    let shader = rl.load_shader(thread,0, &format!("resources/shaders/glsl{}/julia_set.fs", GLSL_VERSION));
 
     // c constant to use in z^2 + c
     float c[2] = {POINTS_OF_INTEREST[0][0], POINTS_OF_INTEREST[0][1]};
@@ -64,17 +64,17 @@ pub fn run(rl
 
     // Get variable (uniform) locations on the shader to connect with the program
     // NOTE: If uniform variable could not be found in the shader, function returns -1
-    int cLoc = GetShaderLocation(shader, "c");
-    int zoomLoc = GetShaderLocation(shader, "zoom");
-    int offsetLoc = GetShaderLocation(shader, "offset");
+    int cLoc = shader.get_shader_location( "c");
+    int zoomLoc = shader.get_shader_location( "zoom");
+    int offsetLoc = shader.get_shader_location( "offset");
 
     // Tell the shader what the screen dimensions, zoom, offset and c are
     float screenDims[2] = {(float)screen_width, (float)screen_height};
-    SetShaderValue(shader, GetShaderLocation(shader, "screenDims"), screenDims, UNIFORM_VEC2);
+    shader.set_shader_value( shader.get_shader_location( "screenDims"), screenDims, UNIFORM_VEC2);
 
-    SetShaderValue(shader, cLoc, c, UNIFORM_VEC2);
-    SetShaderValue(shader, zoomLoc, &zoom, UNIFORM_FLOAT);
-    SetShaderValue(shader, offsetLoc, offset, UNIFORM_VEC2);
+    shader.set_shader_value( cLoc, c, UNIFORM_VEC2);
+    shader.set_shader_value( zoomLoc, &zoom, UNIFORM_FLOAT);
+    shader.set_shader_value( offsetLoc, offset, UNIFORM_VEC2);
 
     // Create a RenderTexture2D to be used for render to texture
     RenderTexture2D target = LoadRenderTexture(screen_width, screen_height);
@@ -112,7 +112,7 @@ pub fn run(rl
             else if rl.is_key_pressed(raylib::consts::KeyboardKey::KEY_SIX)
                 c[0] = POINTS_OF_INTEREST[5][0], c[1] = POINTS_OF_INTEREST[5][1];
 
-            SetShaderValue(shader, cLoc, c, UNIFORM_VEC2);
+            shader.set_shader_value( cLoc, c, UNIFORM_VEC2);
         }
 
         if rl.is_key_pressed(raylib::consts::KeyboardKey::KEY_SPACE)
@@ -148,15 +148,15 @@ pub fn run(rl
             else
                 offsetSpeed = rvec2(0.0, 0.0);
 
-            SetShaderValue(shader, zoomLoc, &zoom, UNIFORM_FLOAT);
-            SetShaderValue(shader, offsetLoc, offset, UNIFORM_VEC2);
+            shader.set_shader_value( zoomLoc, &zoom, UNIFORM_FLOAT);
+            shader.set_shader_value( offsetLoc, offset, UNIFORM_VEC2);
 
             // Increment c value with time
             float amount = GetFrameTime() * incrementSpeed * 0.0005f;
             c[0] += amount;
             c[1] += amount;
 
-            SetShaderValue(shader, cLoc, c, UNIFORM_VEC2);
+            shader.set_shader_value( cLoc, c, UNIFORM_VEC2);
         }
         //----------------------------------------------------------------------------------
 

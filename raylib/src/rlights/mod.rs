@@ -7,8 +7,9 @@ pub use ffi::LIGHT_DISTANCE;
 pub use ffi::LIGHT_HEIGHT;
 pub use ffi::MAX_LIGHTS;
 
-#[repr(C)]
-#[derive(Debug)]
+pub use crate::consts::LightType;
+
+#[derive(Debug, Clone)]
 struct Light {
     enabled: bool,
     light_type: LightType,
@@ -50,5 +51,11 @@ pub fn create_light(
             color.into(),
             *shader.as_ref(),
         )
+    }
+}
+
+pub fn update_light_values(shader: impl AsRef<ffi::Shader>, light: impl Into<ffi::Light>) {
+    unsafe {
+        ffi::UpdateLightValues(*shader.as_ref(), light.into());
     }
 }

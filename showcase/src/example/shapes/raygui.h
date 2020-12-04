@@ -3996,7 +3996,7 @@ RAYGUIDEF float GuiColorBarAlpha(Rectangle bounds, float alpha)
                 d.draw_rectangle(bounds.x + x * COLORBARALPHA_CHECKED_SIZE,
                               bounds.y + y * COLORBARALPHA_CHECKED_SIZE,
                               COLORBARALPHA_CHECKED_SIZE, COLORBARALPHA_CHECKED_SIZE,
-                              ((x + y) % 2) ? Fade(Fade(GetColor(GuiGetStyle(COLORPICKER, BORDER_COLOR_DISABLED)), 0.4f), guiAlpha) : Fade(Fade(GetColor(GuiGetStyle(COLORPICKER, BASE_COLOR_DISABLED)), 0.4f), guiAlpha));
+                              ((x + y) % 2) ? Fade(Fade(GetColor(GuiGetStyle(COLORPICKER, BORDER_COLOR_DISABLED)), 0.4), guiAlpha) : Fade(Fade(GetColor(GuiGetStyle(COLORPICKER, BASE_COLOR_DISABLED)), 0.4), guiAlpha));
             }
         }
 

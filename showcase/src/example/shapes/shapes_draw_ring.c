@@ -16,9 +16,7 @@
 const RAYGUI_IMPLEMENTATION
 #include "raygui.h" // Required for GUI controls
 
-    int
-    main(void)
-{
+pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
     // Initialization
     //--------------------------------------------------------------------------------------
     let screen_width = 800;

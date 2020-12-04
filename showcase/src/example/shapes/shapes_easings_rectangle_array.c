@@ -23,9 +23,7 @@ const RECS_WIDTH 50 const RECS_HEIGHT 50
 
     const PLAY_TIME_IN_FRAMES 240 // At 60 fps = 4 seconds
 
-    int
-    main(void)
-{
+pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
     // Initialization
     //--------------------------------------------------------------------------------------
     let screen_width = 800;

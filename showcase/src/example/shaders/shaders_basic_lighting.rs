@@ -26,21 +26,15 @@
 ********************************************************************************************/
 
 use raylib::prelude::*;
+use raylib::rlights;
 
-#include "raymath.h"
+#[cfg(not(target_arch = "wasm32"))]
+const GLSL_VERSION: i32 = 330;
+#[cfg(target_arch = "wasm32")]
+const GLSL_VERSION: i32 = 100;
 
-const RLIGHTS_IMPLEMENTATION
-#include "rlights.h"
 
-#if defined(PLATFORM_DESKTOP)
-#defconstL_VERSION 330
-#else // PLATFORM_RPI, PLATFORM_ANDROID, PLATFORM_WEB
-#defconstL_VERSION 100
-#endif
-
-    int
-    main(void)
-{
+pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
     // Initialization
     //--------------------------------------------------------------------------------------
     let screen_width = 800;
@@ -60,30 +54,31 @@ const RLIGHTS_IMPLEMENTATION
     );              // Camera mode type
 
     // Load models
-    Model modelA = LoadModelFromMesh(GenMeshTorus(0.4f, 1.0, 16, 32));
-    Model modelB = LoadModelFromMesh(GenMeshCube(1.0, 1.0, 1.0));
-    Model modelC = LoadModelFromMesh(GenMeshSphere(0.5, 32, 32));
+    let modelA = rl.load_model_from_mesh(thread, rl.gen_mesh_torus(thread,0.4, 1.0, 16, 32)).unwrap();
+    let modelA = rl.load_model_from_mesh(thread, rl.gen_mesh_torus(thread,0.4, 1.0, 16, 32)).unwrap();
+    let modelB = rl.load_model_from_mesh(thread, rl.gen_mesh_cube(thread,1.0, 1.0, 1.0)).unwrap();
+    let modelC = rl.load_model_from_mesh(thread, rl.gen_mesh_sphere(thread,0.5, 32, 32)).unwrap();
 
     // Load models texture
-    Texture texture = LoadTexture("resources/texel_checker.png");
+    let texture = rl.load_texture(thread, "original/resources/texel_checker.png");
 
     // Assign texture to default model material
     modelA.materials[0].maps[raylib::consts::MaterialMapType::MAP_ALBEDO].texture = *texture.as_ref();
     modelB.materials[0].maps[raylib::consts::MaterialMapType::MAP_ALBEDO].texture = *texture.as_ref();
     modelC.materials[0].maps[raylib::consts::MaterialMapType::MAP_ALBEDO].texture = *texture.as_ref();
 
-    Shader shader = LoadShader(&format!("resources/shaders/glsl{}/base_lighting.vs", GLSL_VERSION),
-                               &format!("resources/shaders/glsl{}/lighting.fs", GLSL_VERSION));
+    let shader = rl.load_shader(thread,&format!("resources/shaders/glsl{}/base_lighting.vs", GLSL_VERSION),
+                               &format!("resources/shaders/glsl{}/lighting.fs", GLSL_VERSION)).unwrap();
 
     // Get some shader loactions
-    shader.locs[LOC_MATRIX_MODEL] = GetShaderLocation(shader, "matModel");
-    shader.locs[LOC_VECTOR_VIEW] = GetShaderLocation(shader, "viewPos");
+    shader.locs[LOC_MATRIX_MODEL] = shader.get_shader_location( "matModel");
+    shader.locs[LOC_VECTOR_VIEW] = shader.get_shader_location( "viewPos");
 
     // ambient light level
-    int ambientLoc = GetShaderLocation(shader, "ambient");
-    SetShaderValue(shader, ambientLoc, (float[4]){0.2, 0.2, 0.2, 1.0}, UNIFORM_VEC4);
+    let ambientLoc = shader.get_shader_location( "ambient");
+    shader.set_shader_value( ambientLoc, Vector4::new(0.2, 0.2, 0.2, 1.0));
 
-    float angle = 6.282f;
+    let angle = 6.282f;
 
     // All models use the same shader
     modelA.materials[0].shader = shader;
@@ -91,11 +86,12 @@ const RLIGHTS_IMPLEMENTATION
     modelC.materials[0].shader = shader;
 
     // Using 4 point lights, white,Color::RED, green and blue
-    Light lights[MAX_LIGHTS] = {0};
-    lights[0] = CreateLight(LIGHT_POINT, rvec3(4, 2,  4), Vector3Zero(), Color::WHITE, shader);
-    lights[1] = CreateLight(LIGHT_POINT, rvec3(4, 2,  4), Vector3Zero(),Color::RED, shader);
-    lights[2] = CreateLight(LIGHT_POINT, rvec3(0, 4,  2), Vector3Zero(), Color::GREEN, shader);
-    lights[3] = CreateLight(LIGHT_POINT, rvec3(0, 4,  2), Vector3Zero(), Color::BLUE, shader);
+    let lights = [
+        rlights::create_light(raylights::LightType::LIGHT_POINT, rvec3(4, 2,  4), Vector3::zero(), Color::WHITE, &shader),
+         rlights::create_light(raylights::LightType::LIGHT_POINT, rvec3(4, 2,  4), Vector3::zero(),Color::RED, &shader),
+         rlights::create_light(raylights::LightType::LIGHT_POINT, rvec3(0, 4,  2), Vector3::zero(), Color::GREEN, &shader),
+         rlights::create_light(raylights::LightType::LIGHT_POINT, rvec3(0, 4,  2), Vector3::zero(), Color::BLUE, &shader),
+    ];
 
     rl.set_camera_mode(&camera, raylib::consts::CameraMode::CAMERA_ORBITAL); // Set an orbital camera mode
 
@@ -137,18 +133,18 @@ const RLIGHTS_IMPLEMENTATION
         lights[3].position.y = cosf(-angle * 0.35f) * 4.0;
         lights[3].position.z = sinf(-angle * 0.35f) * 4.0;
 
-        UpdateLightValues(shader, lights[0]);
-        UpdateLightValues(shader, lights[1]);
-        UpdateLightValues(shader, lights[2]);
-        UpdateLightValues(shader, lights[3]);
+        rlights::update_light_values(&shader, lights[0].clone());
+        rlights::update_light_values(&shader, lights[1].clone());
+        rlights::update_light_values(&shader, lights[2].clone());
+        rlights::update_light_values(&shader, lights[3].clone());
 
         // Rotate the torus
         modelA.transform = MatrixMultiply(modelA.transform, MatrixRotateX(-0.025f));
         modelA.transform = MatrixMultiply(modelA.transform, MatrixRotateZ(0.012f));
 
         // Update the light shader with the camera view position
-        float cameraPos[3] = {camera.position.x, camera.position.y, camera.position.z};
-        SetShaderValue(shader, shader.locs[LOC_VECTOR_VIEW], cameraPos, UNIFORM_VEC3);
+        let cameraPos = Vector3::new(camera.position.x, camera.position.y, camera.position.z);
+        shader.set_shader_value( shader.locs[LOC_VECTOR_VIEW], cameraPos);
         //----------------------------------------------------------------------------------
 
         // Draw
@@ -160,7 +156,7 @@ const RLIGHTS_IMPLEMENTATION
         let mut d = d.begin_mode3D(&camera);
 
         // Draw the three models
-        d.draw_model(modelA, Vector3Zero(), 1.0, Color::WHITE);
+        d.draw_model(modelA, Vector3::zero()(), 1.0, Color::WHITE);
         d.draw_model(modelB, rvec3(-1.6, 0,  0), 1.0, Color::WHITE);
         d.draw_model(modelC, rvec3(1.6, 0,  0), 1.0, Color::WHITE);
 
@@ -192,19 +188,19 @@ const RLIGHTS_IMPLEMENTATION
 
         EndDrawing();
         //----------------------------------------------------------------------------------
-    }
+    });
 
-    // De-Initialization
-    //--------------------------------------------------------------------------------------
-    UnloadModel(modelA); // Unload the modelA
-    UnloadModel(modelB); // Unload the modelB
-    UnloadModel(modelC); // Unload the modelC
+    // // De-Initialization
+    // //--------------------------------------------------------------------------------------
+    // UnloadModel(modelA); // Unload the modelA
+    // UnloadModel(modelB); // Unload the modelB
+    // UnloadModel(modelC); // Unload the modelC
 
-    UnloadTexture(texture); // Unload the texture
-    UnloadShader(shader);   // Unload shader
+    // UnloadTexture(texture); // Unload the texture
+    // UnloadShader(shader);   // Unload shader
 
-    CloseWindow(); // Close window and OpenGL context
-    //--------------------------------------------------------------------------------------
+    // CloseWindow(); // Close window and OpenGL context
+    // //--------------------------------------------------------------------------------------
 
-    return 0;
+    // return 0;
 }

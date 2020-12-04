@@ -13,9 +13,7 @@ use raylib::prelude::*;
 
 const MAX_FRAME_SPEED 15 const MIN_FRAME_SPEED 1
 
-    int
-    main(void)
-{
+pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
     // Initialization
     //--------------------------------------------------------------------------------------
     let screen_width = 800;
