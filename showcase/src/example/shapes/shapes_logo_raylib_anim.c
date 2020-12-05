@@ -50,7 +50,7 @@ pub fn run(rl
         //----------------------------------------------------------------------------------
         if state == 0 // State 0: Small box blinking
         {
-            framesCounter++;
+            framesCounter+=1;
 
             if framesCounter == 120
             {
@@ -76,11 +76,11 @@ pub fn run(rl
         }
         else if state == 3) // State 3: Letters appearing (one by one
         {
-            framesCounter++;
+            framesCounter+=1;
 
             if framesCounter / 12 // Every 12 frames, one more letter!
             {
-                lettersCount++;
+                lettersCount+=1;
                 framesCounter = 0;
             }
 

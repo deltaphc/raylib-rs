@@ -37,7 +37,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
 
 
     // Define the camera to look into our 3d world
-    let camera = Camera3D::perspective(
+    let mut camera = Camera3D::perspective(
     rvec3(4.0, 4.0, 4.0),
     rvec3(0.0, 1.0, 1.0),
     rvec3(0.0, 1.0, 0.0),
@@ -45,14 +45,14 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
     );
 
     let model = rl.load_model(&thread, "original/models/resources/models/watermill.obj");                 // Load OBJ model
-    let texture = rl.load_texture(thread, "resources/models/watermill_diffuse.png"); // Load model texture
+    let texture = rl.load_texture(thread, "original/shaders/resources/models/watermill_diffuse.png"); // Load model texture
 
     // Load shader for model
     // NOTE: Defining 0 (NULL) for vertex shader forces usage of internal default vertex shader
-    let shader = rl.load_shader(thread,0, &format!("resources/shaders/glsl{}/grayscale.fs", GLSL_VERSION));
+    let shader = rl.load_shader(thread,0, &format!("original/shaders/resources/shaders/glsl{}/grayscale.fs", GLSL_VERSION));
 
-    model.materials[0].shader = shader;                     // Set shader effect to 3d model
-    model.materials_mut()[0].maps_mut()[raylib::consts::MaterialMapType::MAP_ALBEDO].texture = *texture.as_ref(); // Bind texture to model
+    model.materials_mut()[0].shader = shader;                     // Set shader effect to 3d model
+    model.materials_mut()[0].maps_mut()[raylib::consts::MaterialMapType::MAP_ALBEDO as usize].texture = *texture.as_ref(); // Bind texture to model
 
     let position = Vector3::zero(); // Set model position
 

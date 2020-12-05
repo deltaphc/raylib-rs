@@ -147,7 +147,7 @@ bool GuiTextEditor(Rectangle bounds, char *text, int textSize, bool editMode)
         if editMode
         {
             state = GUI_STATE_PRESSED;
-            framesCounter++;
+            framesCounter+=1;
 
             // TODO: Cursor position logic (mouse and keys)
 
@@ -156,14 +156,14 @@ bool GuiTextEditor(Rectangle bounds, char *text, int textSize, bool editMode)
             {
                 if rl.is_key_down(raylib::consts::KeyboardKey::KEY_LEFT_SHIFT) && rl.is_key_pressed(raylib::consts::KeyboardKey::KEY_RIGHT)
                 {
-                    selectLengthCp++;
+                    selectLengthCp+=1;
                     if selectLengthCp >= (codepointCount - selectStartCp)
                         selectLengthCp = codepointCount - selectStartCp;
                 }
 
                 if rl.is_key_down(raylib::consts::KeyboardKey::KEY_LEFT_SHIFT) && rl.is_key_pressed(raylib::consts::KeyboardKey::KEY_LEFT)
                 {
-                    selectLengthCp--;
+                    selectLengthCp-=1;
                     if selectLengthCp < 0
                         selectLengthCp = 0;
                 }
@@ -216,7 +216,7 @@ bool GuiTextEditor(Rectangle bounds, char *text, int textSize, bool editMode)
 
     float scaleFactor = GuiGetStyle(DEFAULT, TEXT_SIZE) * 2 / font.baseSize; // Character quad scaling factor
 
-    for (int i = 0, cp = 0; i < textLen; i++)
+    for (int i = 0, cp = 0; i < textLen; i+=1)
     {
         // Get next codepoint from byte string and glyph index in font
         int codepointByteCount = 0;
@@ -295,7 +295,7 @@ bool GuiTextEditor(Rectangle bounds, char *text, int textSize, bool editMode)
             textOffsetX += ((float)font.chars[index].advanceX * scaleFactor + GuiGetStyle(DEFAULT, TEXT_SPACING));
 
         i += (codepointByteCount - 1); // Move text bytes counter to next codepoint
-        cp++;
+        cp+=1;
     }
 
     // Draw blinking cursor

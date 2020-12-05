@@ -45,7 +45,7 @@ pub fn run(rl
         {
         case 0: // Move box down to center of screen
         {
-            framesCounter++;
+            framesCounter+=1;
 
             // NOTE: Remember that 3rd parameter of easing function refers to
             // desired value variation, do not confuse it with expected final value!
@@ -60,7 +60,7 @@ pub fn run(rl
         break;
         case 1: // Scale box to an horizontal bar
         {screen_width
-            framesCounter++;
+            framesCounter+=1;
             rec.height = EaseBounceOut(framesCounter, 100, -90, 120);
             rec.width = EaseBounceOut(framesCounter, 100, GetScreenWidth(), 120);
 
@@ -73,7 +73,7 @@ pub fn run(rl
         break;
         case 2: // Rotate horizontal bar rectangle
         {
-            framesCounter++;
+            framesCounter+=1;
             rotation = EaseQuadOut(framesCounter, 0.0, 270.0, 240);
 
             if framesCounter >= 240
@@ -85,7 +85,7 @@ pub fn run(rl
         break;
         case 3: // Increase bar size to fill all screenscreen_width
         {
-            framesCounter++;
+            framesCounter+=1;
             rec.height = EaseCircOut(framesCounter, 10, GetScreenWidth(), 120);
 
             if framesCounter >= 120
@@ -97,7 +97,7 @@ pub fn run(rl
         break;
         case 4: // Fade out animation
         {
-            framesCounter++;
+            framesCounter+=1;
             alpha = EaseSineOut(framesCounter, 1.0, -1.0, 160);
 
             if framesCounter >= 160

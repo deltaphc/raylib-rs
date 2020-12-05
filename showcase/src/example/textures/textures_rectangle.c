@@ -41,12 +41,12 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
     {
         // Update
         //----------------------------------------------------------------------------------
-        framesCounter++;
+        framesCounter+=1;
 
         if framesCounter >= (60 / framesSpeed)
         {
             framesCounter = 0;
-            currentFrame++;
+            currentFrame+=1;
 
             if currentFrame > 5
                 currentFrame = 0;
@@ -55,9 +55,9 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
         }
 
         if rl.is_key_pressed(raylib::consts::KeyboardKey::KEY_RIGHT)
-            framesSpeed++;
+            framesSpeed+=1;
         else if rl.is_key_pressed(raylib::consts::KeyboardKey::KEY_LEFT)
-            framesSpeed--;
+            framesSpeed-=1;
 
         if framesSpeed > MAX_FRAME_SPEED
             framesSpeed = MAX_FRAME_SPEED;
@@ -79,14 +79,14 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
         d.draw_text(&format!("{:02} FPS", framesSpeed), 575, 210, 10, Color::DARKGRAY);
         d.draw_text("PRESS RIGHT/LEFT KEYS to CHANGE SPEED!", 290, 240, 10, Color::DARKGRAY);
 
-        for (int i = 0; i < MAX_FRAME_SPEED; i++)
+        for (int i = 0; i < MAX_FRAME_SPEED; i+=1)
         {
             if i < framesSpeed
                 d.draw_rectangle(250 + 21 * i, 205, 20, 20,Color::RED);
             d.draw_rectangle_lines(250 + 21 * i, 205, 20, 20, Color::MAROON);
         }
 
-        DrawTextureRec(scarfy, frameRec, position, Color::WHITE); // Draw part of the texture
+        d.draw_texture_rec(scarfy, frameRec, position, Color::WHITE); // Draw part of the texture
 
         d.draw_text("(c) Scarfy sprite by Eiden Marsal", screen_width - 200, screen_height - 20, 10, Color::GRAY);
 

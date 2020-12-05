@@ -38,12 +38,12 @@ pub fn run(rl
     rl.set_window_title(thread, "raylib [shaders] example - shapes and texture shaders");
 
 
-    let fudesumi = rl.load_texture(thread, "resources/fudesumi.png");
+    let fudesumi = rl.load_texture(thread, "original/shaders/resources/fudesumi.png");
 
     // Load shader to be used on some parts drawing
     // NOTE 1: Using GLSL 330 shader version, on OpenGL ES 2.0 use GLSL 100 shader version
     // NOTE 2: Defining 0 (NULL) for vertex shader forces usage of internal default vertex shader
-    let shader = rl.load_shader(thread,0, &format!("resources/shaders/glsl{}/grayscale.fs", GLSL_VERSION));
+    let shader = rl.load_shader(thread,0, &format!("original/shaders/resources/shaders/glsl{}/grayscale.fs", GLSL_VERSION));
 
     rl.set_target_fps(60); // Set our game to run at 60 frames-per-second
     //--------------------------------------------------------------------------------------
@@ -71,7 +71,7 @@ pub fn run(rl
         DrawCircleLines(80, 340, 80, Color::DARKBLUE);
 
         // Activate our custom shader to be applied on next shapes/textures drawings
-        BeginShaderMode(shader);
+        let mut d = d.begin_shader_mode(&shader);
 
         d.draw_text("USING CUSTOM SHADER", 190, 40, 10,Color::RED);
 
@@ -95,7 +95,7 @@ pub fn run(rl
         DrawPoly(rvec2(430, 320), 6, 80, 0, Color::BROWN);
 
         // Activate our custom shader to be applied on next shapes/textures drawings
-        BeginShaderMode(shader);
+        let mut d = d.begin_shader_mode(&shader);
 
         d.draw_texture(fudesumi, 500, -30, Color::WHITE); // Using custom shader
 

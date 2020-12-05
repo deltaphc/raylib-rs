@@ -42,7 +42,7 @@ pub fn run(rl
 
 
     // Define the camera to look into our 3d world
-    let camera = Camera3D::perspective(
+    let mut camera = Camera3D::perspective(
     rvec3(0.0, 1.0, 2.0),
     rvec3(0.0, 0.0, 0.0),
     rvec3(0.0, 1.0, 0.0),
@@ -61,27 +61,27 @@ pub fn run(rl
     let model3 = rl.load_model_from_mesh(thread, sphere).unwrap();
 
     // Load the shader
-    let shader = rl.load_shader(thread,0, &format!("resources/shaders/glsl{}/mask.fs", GLSL_VERSION));
+    let shader = rl.load_shader(thread,0, &format!("original/shaders/resources/shaders/glsl{}/mask.fs", GLSL_VERSION));
 
     // Load and apply the diffuse texture (colour map)
     let texDiffuse = rl.load_texture(thread, "original/resources/plasma.png");
-    model1.materials[0].maps[raylib::consts::MaterialMapType::MAP_ALBEDO].texture = texDiffuse;
-    model2.materials[0].maps[raylib::consts::MaterialMapType::MAP_ALBEDO].texture = texDiffuse;
+    model1.materials_mut()[0].maps_mut()[raylib::consts::MaterialMapType::MAP_ALBEDO as usize].texture = texDiffuse;
+    model2.materials_mut()[0].maps_mut()[raylib::consts::MaterialMapType::MAP_ALBEDO as usize].texture = texDiffuse;
 
     // Using MAP_EMISSION as a spare slot to use for 2nd texture
     // NOTE: Don't use MAP_IRRADIANCE, MAP_PREFILTER or  MAP_CUBEMAP
     // as they are bound as cube maps
     let texMask = rl.load_texture(thread, "original/resources/mask.png");
-    model1.materials[0].maps[MAP_EMISSION].texture = texMask;
-    model2.materials[0].maps[MAP_EMISSION].texture = texMask;
+    model1.materials_mut()[0].maps_mut()[MAP_EMISSION].texture = texMask;
+    model2.materials_mut()[0].maps_mut()[MAP_EMISSION].texture = texMask;
     shader.locs_mut()[raylib::consts::ShaderLocationIndex::LOC_MAP_EMISSION] = shader.get_shader_location( "mask");
 
     // Frame is incremented each frame to animate the shader
     int shaderFrame = shader.get_shader_location( "frame");
 
     // Apply the shader to the two models
-    model1.materials[0].shader = shader;
-    model2.materials[0].shader = shader;
+    model1.materials_mut()[0].shader = shader;
+    model2.materials_mut()[0].shader = shader;
 
     int framesCounter = 0;
     Vector3 rotation = {0}; // Model rotation angles
@@ -94,7 +94,7 @@ pub fn run(rl
     {
         // Update
         //----------------------------------------------------------------------------------
-        framesCounter++;
+        framesCounter+=1;
         rotation.x += 0.01f;
         rotation.y += 0.005f;
         rotation.z -= 0.0025;

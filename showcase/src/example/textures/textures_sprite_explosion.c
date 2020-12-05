@@ -67,16 +67,16 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
         // Compute explosion animation frames
         if active
         {
-            framesCounter++;
+            framesCounter+=1;
 
             if framesCounter > 2
             {
-                currentFrame++;
+                currentFrame+=1;
 
                 if currentFrame >= NUM_FRAMES
                 {
                     currentFrame = 0;
-                    currentLine++;
+                    currentLine+=1;
 
                     if currentLine >= NUM_LINES
                     {
@@ -101,7 +101,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
 
         // Draw explosion required frame rectangle
         if active
-            DrawTextureRec(explosion, frameRec, position, Color::WHITE);
+            d.draw_texture_rec(explosion, frameRec, position, Color::WHITE);
 
         EndDrawing();
         //----------------------------------------------------------------------------------

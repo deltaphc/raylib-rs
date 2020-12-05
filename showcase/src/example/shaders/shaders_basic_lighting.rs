@@ -206,7 +206,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
         modelA.set_transform(&(*modelA.transform() * Matrix::rotate_z(0.012)));
 
         // Update the light shader with the camera view position
-        let cameraPos = Vector3::new(camera.position.x, camera.position.y, camera.position.z);
+        let mut cameraPos = Vector3::new(camera.position.x, camera.position.y, camera.position.z);
         let loc = shader.locs_mut()[raylib::consts::ShaderLocationIndex::LOC_VECTOR_VIEW as usize];
         shader.set_shader_value( loc, cameraPos);
         //----------------------------------------------------------------------------------

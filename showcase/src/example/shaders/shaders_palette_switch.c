@@ -133,7 +133,7 @@ pub fn run(rl
     // Load shader to be used on some parts drawing
     // NOTE 1: Using GLSL 330 shader version, on OpenGL ES 2.0 use GLSL 100 shader version
     // NOTE 2: Defining 0 (NULL) for vertex shader forces usage of internal default vertex shader
-    let shader = rl.load_shader(thread,0, &format!("resources/shaders/glsl{}/palette_switch.fs", GLSL_VERSION));
+    let shader = rl.load_shader(thread,0, &format!("original/shaders/resources/shaders/glsl{}/palette_switch.fs", GLSL_VERSION));
 
     // Get variable (uniform) location on the shader to connect with the program
     // NOTE: If uniform variable could not be found in the shader, function returns -1
@@ -151,9 +151,9 @@ pub fn run(rl
         // Update
         //----------------------------------------------------------------------------------
         if rl.is_key_pressed(raylib::consts::KeyboardKey::KEY_RIGHT)
-            currentPalette++;
+            currentPalette+=1;
         else if rl.is_key_pressed(raylib::consts::KeyboardKey::KEY_LEFT)
-            currentPalette--;
+            currentPalette-=1;
 
         if currentPalette >= MAX_PALETTES
             currentPalette = 0;
@@ -171,9 +171,9 @@ pub fn run(rl
 
         d.clear_background(Color::RAYWHITE);
 
-        BeginShaderMode(shader);
+        let mut d = d.begin_shader_mode(&shader);
 
-        for (int i = 0; i < COLORS_PER_PALETTE; i++)
+        for (int i = 0; i < COLORS_PER_PALETTE; i+=1)
         {
             // Draw horizontal screen-wide rectangles with increasing "palette index"
             // The used palette index is encoded in the RGB components of the pixel

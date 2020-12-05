@@ -40,7 +40,7 @@ pub fn run(rl
     UnloadImage(imBlank);
 
     // NOTE: Using GLSL 330 shader version, on OpenGL ES 2.0 use GLSL 100 shader version
-    let shader = rl.load_shader(thread,0, &format!("resources/shaders/glsl{}/cubes_panning.fs", GLSL_VERSION));
+    let shader = rl.load_shader(thread,0, &format!("original/shaders/resources/shaders/glsl{}/cubes_panning.fs", GLSL_VERSION));
 
     float time = 0.0;
     int timeLoc = shader.get_shader_location( "uTime");
@@ -64,7 +64,7 @@ pub fn run(rl
 
         d.clear_background(Color::RAYWHITE);
 
-        BeginShaderMode(shader);           // Enable our custom shader for next shapes/textures drawings
+        let mut d = d.begin_shader_mode(&shader);           // Enable our custom shader for next shapes/textures drawings
         d.draw_texture(texture, 0, 0, Color::WHITE); // Drawing BLANK texture, all magic happens on shader
         EndShaderMode();                   // Disable our custom shader, return to default shader
 

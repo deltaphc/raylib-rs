@@ -25,7 +25,7 @@
 *   while (currentPositionX < finalPositionX)
 *   {
 *       currentPositionX = EaseSineIn(currentTime, startPositionX, finalPositionX - startPositionX, duration);
-*       currentTime++;
+*       currentTime+=1;
 *   }
 *
 *   A port of Robert Penner's easing equations to C (http://robertpenner.com/easing/)
@@ -165,7 +165,7 @@ const EASINGS_H
     {
         if (t /= d / 2) < 1
             return (((c / 2) * (t * t)) + b);
-        t--;
+        t-=1;
         return (-c / 2 * (((t - 2) * t) - 1) + b);
     }
 

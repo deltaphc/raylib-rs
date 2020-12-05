@@ -100,7 +100,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread)-> crate::SampleOut {
         rl.update_camera(&mut camera); // Update camera
 
         // Send to material PBR shader camera view position
-        let camera_pos: [f32; 3] = [camera.position.x, camera.position.y, camera.position.z];
+        let mut camera_pos: [f32; 3] = [camera.position.x, camera.position.y, camera.position.z];
         let loc = model.materials()[0].shader().locs()
             [raylib::consts::ShaderLocationIndex::LOC_VECTOR_VIEW as usize];
         model.materials_mut()[0]
@@ -254,7 +254,7 @@ fn load_material_pbr(
     // Set view matrix location
     mat.shader_mut().locs_mut()[raylib::consts::ShaderLocationIndex::LOC_MATRIX_MODEL as usize] =
         mat.shader().get_shader_location("matModel");
-    //mat.shader_mut().locs_mut()[raylib::consts::ShaderLocationIndex::LOC_MATRIX_VIEW] = mat.shader().get_shader_location( "view");
+    //mat.shader_mut().locs_mut()[raylib::consts::ShaderLocationIndex::LOC_MATRIX_VIEW as usize] = mat.shader().get_shader_location( "view");
     mat.shader_mut().locs_mut()[raylib::consts::ShaderLocationIndex::LOC_VECTOR_VIEW as usize] =
         mat.shader().get_shader_location("viewPos");
 

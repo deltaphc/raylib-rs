@@ -113,7 +113,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
     //--------------------------------------------------------------------------------------
 
     // Unload textures data (GPU VRAM)
-    for (int i = 0; i < NUM_TEXTURES; i++)
+    for (int i = 0; i < NUM_TEXTURES; i+=1)
         UnloadTexture(textures[i]);
 
     CloseWindow(); // Close window and OpenGL context

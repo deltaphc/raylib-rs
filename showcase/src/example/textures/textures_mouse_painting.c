@@ -34,7 +34,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
     // Define colorsRecs data (for every rectangle)
     Rectangle colorsRecs[MAX_COLORS_COUNT] = {0};
 
-    for (int i = 0; i < MAX_COLORS_COUNT; i++)
+    for (int i = 0; i < MAX_COLORS_COUNT; i+=1)
     {
         colorsRecs[i].x = 10 + 30 * i + 2 * i;
         colorsRecs[i].y = 10;
@@ -53,7 +53,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
     int saveMessageCounter = 0;
 
     // Create a RenderTexture2D to use as a canvas
-    RenderTexture2D target = LoadRenderTexture(screen_width, screen_height);
+    RenderTexture2D target = rl.load_render_texture(thread,screen_width, screen_height);
 
     // Clear render texture before entering the game loop
     let mut d = d.begin_texture_mode(thread, &target);
@@ -72,9 +72,9 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
 
         // Move between colors with keys
         if rl.is_key_pressed(raylib::consts::KeyboardKey::KEY_RIGHT)
-            colorSelected++;
+            colorSelected+=1;
         else if rl.is_key_pressed(raylib::consts::KeyboardKey::KEY_LEFT)
-            colorSelected--;
+            colorSelected-=1;
 
         if colorSelected >= MAX_COLORS_COUNT
             colorSelected = MAX_COLORS_COUNT - 1;
@@ -82,7 +82,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
             colorSelected = 0;
 
         // Choose color with mouse
-        for (int i = 0; i < MAX_COLORS_COUNT; i++)
+        for (int i = 0; i < MAX_COLORS_COUNT; i+=1)
         {
             if CheckCollisionPointRec(mousePos, colorsRecs[i])
             {
@@ -158,7 +158,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
         if showSaveMessage
         {
             // On saving, show a full screen message for 2 seconds
-            saveMessageCounter++;
+            saveMessageCounter+=1;
             if saveMessageCounter > 240
             {
                 showSaveMessage = false;
@@ -174,7 +174,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
         d.clear_background(Color::RAYWHITE);
 
         // NOTE: Render texture must be y-flipped due to default OpenGL coordinates (left-bottom)
-        DrawTextureRec(target.texture, rrect(0, 0, target.texture.width, -target.texture.height), rvec2(0,  0), Color::WHITE);
+        d.draw_texture_rec(target.texture, rrect(0, 0, target.texture.width, -target.texture.height), rvec2(0,  0), Color::WHITE);
 
         // Draw drawing circle for reference
         if mousePos.y > 50
@@ -190,7 +190,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
         DrawLine(0, 50, rl.get_screen_width(), 50, Color::LIGHTGRAY);
 
         // Draw color selection rectangles
-        for (int i = 0; i < MAX_COLORS_COUNT; i++)
+        for (int i = 0; i < MAX_COLORS_COUNT; i+=1)
             d.draw_rectangle_rec(colorsRecs[i], colors[i]);
         d.draw_rectangle_lines(10, 10, 30, 30, Color::LIGHTGRAY);
 

@@ -82,7 +82,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
 
         d.clear_background(Color::RAYWHITE);
 
-        DrawTextureRec(button, sourceRec, rvec2(btnBounds.x,  btnBounds.y), Color::WHITE); // Draw button frame
+        d.draw_texture_rec(button, sourceRec, rvec2(btnBounds.x,  btnBounds.y), Color::WHITE); // Draw button frame
 
         EndDrawing();
         //----------------------------------------------------------------------------------

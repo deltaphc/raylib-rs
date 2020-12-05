@@ -35,9 +35,9 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
 
     Rectangle recs[MAX_RECS_X * MAX_RECS_Y] = {0};
 
-    for (int y = 0; y < MAX_RECS_Y; y++)
+    for (int y = 0; y < MAX_RECS_Y; y+=1)
     {
-        for (int x = 0; x < MAX_RECS_X; x++)
+        for (int x = 0; x < MAX_RECS_X; x+=1)
         {
             recs[y * MAX_RECS_X + x].x = RECS_WIDTH / 2 + RECS_WIDTH * x;
             recs[y * MAX_RECS_X + x].y = RECS_HEIGHT / 2 + RECS_HEIGHT * y;
@@ -60,9 +60,9 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
         //----------------------------------------------------------------------------------
         if state == 0
         {
-            framesCounter++;
+            framesCounter+=1;
 
-            for (int i = 0; i < MAX_RECS_X * MAX_RECS_Y; i++)
+            for (int i = 0; i < MAX_RECS_X * MAX_RECS_Y; i+=1)
             {
                 recs[i].height = EaseCircOut(framesCounter, RECS_HEIGHT, -RECS_HEIGHT, PLAY_TIME_IN_FRAMES);
                 recs[i].width = EaseCircOut(framesCounter, RECS_WIDTH, -RECS_WIDTH, PLAY_TIME_IN_FRAMES);
@@ -83,7 +83,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
             // When animation has finished, press space to restart
             framesCounter = 0;
 
-            for (int i = 0; i < MAX_RECS_X * MAX_RECS_Y; i++)
+            for (int i = 0; i < MAX_RECS_X * MAX_RECS_Y; i+=1)
             {
                 recs[i].height = RECS_HEIGHT;
                 recs[i].width = RECS_WIDTH;
@@ -101,7 +101,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
 
         if state == 0
         {
-            for (int i = 0; i < MAX_RECS_X * MAX_RECS_Y; i++)
+            for (int i = 0; i < MAX_RECS_X * MAX_RECS_Y; i+=1)
             {
                 d.draw_rectanglePro(recs[i], rvec2(recs[i].width / 2,  recs[i].height / 2), rotation,Color::RED);
             }

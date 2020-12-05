@@ -11,7 +11,6 @@
 *
 ********************************************************************************************/
 
-
 pub use raylib::prelude::*;
 
 const G: f32 = 400.0;
@@ -72,7 +71,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
     };
 
     // Store pointers to the multiple update camera functions
-    let camera_updaters = [
+    let mut camera_updaters = [
         update_camera_center,
         update_camera_center_inside_map,
         update_camera_center_smooth_follow,
@@ -82,7 +81,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
 
     let mut camera_option = 0;
 
-    let camera_description = [
+    let mut camera_description = [
         "Follow player center",
         "Follow player center, but clamp to map edges",
         "Follow player center; smoothed",

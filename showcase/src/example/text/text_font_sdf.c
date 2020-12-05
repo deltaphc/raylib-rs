@@ -100,7 +100,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
         if currentFont == 1
         {
             // NOTE: SDF fonts require a custom SDf shader to compute fragment color
-            BeginShaderMode(shader); // Activate SDF font shader
+            let mut d = d.begin_shader_mode(&shader); // Activate SDF font shader
             DrawTextEx(fontSDF, msg, fontPosition, fontSize, 0, Color::BLACK);
             EndShaderMode(); // Activate our default shader for next drawings
 

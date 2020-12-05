@@ -60,7 +60,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut
 
     Rectangle selectRecs[NUM_PROCESSES] = {0};
 
-    for (int i = 0; i < NUM_PROCESSES; i++)
+    for (int i = 0; i < NUM_PROCESSES; i+=1)
         selectRecs[i] = rrect(40.0, (float)(50 + 32 * i), 150.0, 30.0);
 
     rl.set_target_fps(60);
@@ -73,14 +73,14 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut
         //----------------------------------------------------------------------------------
         if rl.is_key_pressed(raylib::consts::KeyboardKey::KEY_DOWN)
         {
-            currentProcess++;
+            currentProcess+=1;
             if currentProcess > 7
                 currentProcess = 0;
             textureReload = true;
         }
         else if rl.is_key_pressed(raylib::consts::KeyboardKey::KEY_UP)
         {
-            currentProcess--;
+            currentProcess-=1;
             if currentProcess < 0
                 currentProcess = 7;
             textureReload = true;
@@ -138,7 +138,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut
         d.draw_text("IMAGE PROCESSING:", 40, 30, 10, Color::DARKGRAY);
 
         // Draw rectangles
-        for (int i = 0; i < NUM_PROCESSES; i++)
+        for (int i = 0; i < NUM_PROCESSES; i+=1)
         {
             d.draw_rectangle_rec(selectRecs[i], (i == currentProcess) ? Color::SKYBLUE : Color::LIGHTGRAY);
             d.draw_rectangle_lines((int)selectRecs[i].x, (int)selectRecs[i].y, (int)selectRecs[i].width, (int)selectRecs[i].height, (i == currentProcess) ? Color::BLUE : Color::GRAY);

@@ -22,7 +22,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut
     rl.set_window_size(screen_width, screen_height);
 
     // Define the camera to look into our 3d world
-    let camera = Camera::perspective( rvec3( 0.0, 10.0, 10.0 ), rvec3( 0.0, 0.0, 0.0 ), rvec3( 0.0, 1.0, 0.0 ), 45.0 );
+    let mut camera = Camera::perspective( rvec3( 0.0, 10.0, 10.0 ), rvec3( 0.0, 0.0, 0.0 ), rvec3( 0.0, 1.0, 0.0 ), 45.0 );
 
     let mut playerPosition = rvec3( 0.0, 1.0, 2.0 );
     let playerSize = rvec3( 1.0, 2.0, 1.0 );

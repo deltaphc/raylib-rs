@@ -84,20 +84,20 @@ pub fn run(rl
 
     Star stars[numStars] = {0};
 
-    for (int n = 0; n < numStars; n++)
+    for (int n = 0; n < numStars; n+=1)
         ResetStar(&stars[n]);
 
     // Progress all the stars on, so they don't all start in the centre
-    for (int m = 0; m < screen_width / 2.0; m++)
+    for (int m = 0; m < screen_width / 2.0; m+=1)
     {
-        for (int n = 0; n < numStars; n++)
+        for (int n = 0; n < numStars; n+=1)
             UpdateStar(&stars[n]);
     }
 
     int frameCounter = 0;
 
     // Use default vert shader
-    let spotShader = rl.load_shader(thread,0, &format!("resources/shaders/glsl{}/spotlight.fs", GLSL_VERSION));
+    let spotShader = rl.load_shader(thread,0, &format!("original/shaders/resources/shaders/glsl{}/spotlight.fs", GLSL_VERSION));
 
     // Get the locations of spots in the shader
     Spot spots[MAXSPOT];
@@ -106,7 +106,7 @@ pub fn run(rl
     unsigned int innerLoc;
     unsigned int radiusLoc;
 */
-    for (int i = 0; i < MAXSPOT; i++)
+    for (int i = 0; i < MAXSPOT; i+=1)
     {
         char posName[32] = "spots[x].pos\0";
         char innerName[32] = "spots[x].inner\0";
@@ -131,7 +131,7 @@ pub fn run(rl
 
     // randomise the locations and velocities of the spotlights
     // and initialise the shader locations
-    for (int i = 0; i < MAXSPOT; i++)
+    for (int i = 0; i < MAXSPOT; i+=1)
     {
 
         spots[i].pos.x = raylib::get_random_value::<i32>(64, screen_width - 64);
@@ -160,14 +160,14 @@ pub fn run(rl
     {
         // Update
         //----------------------------------------------------------------------------------
-        frameCounter++;
+        frameCounter+=1;
 
         // Move the stars, resetting them if the go offscreen
-        for (int n = 0; n < numStars; n++)
+        for (int n = 0; n < numStars; n+=1)
             UpdateStar(&stars[n]);
 
         // Update the spots, send them to the shader
-        for (int i = 0; i < MAXSPOT; i++)
+        for (int i = 0; i < MAXSPOT; i+=1)
         {
             if i == 0
             {
@@ -200,13 +200,13 @@ pub fn run(rl
         d.clear_background(Color::Color::DARKBLUE);
 
         // Draw stars and bobs
-        for (int n = 0; n < numStars; n++)
+        for (int n = 0; n < numStars; n+=1)
         {
             // Single pixel is just too small these days!
             d.draw_rectangle(stars[n].pos.x, stars[n].pos.y, 2, 2, Color::WHITE);
         }
 
-        for (int i = 0; i < 16; i++)
+        for (int i = 0; i < 16; i+=1)
         {
             d.draw_texture(texRay,
                         (screen_width / 2.0) + cos((frameCounter + i * 8) / 51.45f) * (screen_width / 2.2) - 32,
@@ -215,7 +215,7 @@ pub fn run(rl
         }
 
         // Draw spot lights
-        BeginShaderMode(spotShader);
+        let mut d = d.begin_shader_mode(&spotShader);
         // instead of a blank rectangle you could render here
         // a render texture of the full screen used to do screen
         // scaling (slight adjustment to shader would be required

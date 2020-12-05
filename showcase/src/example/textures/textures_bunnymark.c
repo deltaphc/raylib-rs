@@ -58,7 +58,7 @@ pub fn run(rl
         if rl.is_mouse_button_down(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON)
         {
             // Create more bunnies
-            for (int i = 0; i < 100; i++)
+            for (int i = 0; i < 100; i+=1)
             {
                 if bunniesCount < MAX_BUNNIES
                 {
@@ -68,13 +68,13 @@ pub fn run(rl
                     bunnies[bunniesCount].color = (Color){raylib::get_random_value::<i32>(50, 240),
                                                           raylib::get_random_value::<i32>(80, 240),
                                                           raylib::get_random_value::<i32>(100, 240), 255};
-                    bunniesCount++;
+                    bunniesCount+=1;
                 }
             }
         }
 
         // Update bunnies
-        for (int i = 0; i < bunniesCount; i++)
+        for (int i = 0; i < bunniesCount; i+=1)
         {
             bunnies[i].position.x += bunnies[i].speed.x;
             bunnies[i].position.y += bunnies[i].speed.y;
@@ -94,7 +94,7 @@ pub fn run(rl
 
         d.clear_background(Color::RAYWHITE);
 
-        for (int i = 0; i < bunniesCount; i++)
+        for (int i = 0; i < bunniesCount; i+=1)
         {
             // NOTE: When internal batch buffer limit is reached (MAX_BATCH_ELEMENTS),
             // a draw call is launched and buffer starts being filled again;

@@ -36,7 +36,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
     Rectangle colorsRecs[MAX_COLORS_COUNT] = {0}; // Rectangles array
 
     // Fills colorsRecs data (for every rectangle)
-    for (int i = 0; i < MAX_COLORS_COUNT; i++)
+    for (int i = 0; i < MAX_COLORS_COUNT; i+=1)
     {
         colorsRecs[i].x = 20 + 100 * (i % 7) + 10 * (i % 7);
         colorsRecs[i].y = 80 + 100 * (i / 7) + 10 * (i / 7);
@@ -58,7 +58,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
         //----------------------------------------------------------------------------------
         mousePoint = rl.get_mouse_position();
 
-        for (int i = 0; i < MAX_COLORS_COUNT; i++)
+        for (int i = 0; i < MAX_COLORS_COUNT; i+=1)
         {
             if CheckCollisionPointRec(mousePoint, colorsRecs[i])
                 colorState[i] = 1;
@@ -76,7 +76,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
         d.draw_text("raylib colors palette", 28, 42, 20, Color::BLACK);
         d.draw_text("press SPACE to see all colors", rl.get_screen_width() - 180, rl.get_screen_height() - 40, 10, Color::GRAY);
 
-        for (int i = 0; i < MAX_COLORS_COUNT; i++) // Draw all rectangles
+        for (int i = 0; i < MAX_COLORS_COUNT; i+=1) // Draw all rectangles
         {
             d.draw_rectangle_rec(colorsRecs[i], Fade(colors[i], colorState[i] ? 0.6f : 1.0));
 

@@ -42,7 +42,7 @@ pub fn run(rl
     Particle mouseTail[MAX_PARTICLES] = {0};
 
     // Initialize particles
-    for (int i = 0; i < MAX_PARTICLES; i++)
+    for (int i = 0; i < MAX_PARTICLES; i+=1)
     {
         mouseTail[i].position = rvec2(0,  0);
         mouseTail[i].color = (Color){raylib::get_random_value::<i32>(0, 255), raylib::get_random_value::<i32>(0, 255), raylib::get_random_value::<i32>(0, 255), 255};
@@ -71,7 +71,7 @@ pub fn run(rl
         // NOTE: Particles initial position should be mouse position when activated
         // NOTE: Particles fall down with gravity and rotation... and disappear after 2 seconds (alpha = 0)
         // NOTE: When a particle disappears, active = false and it can be reused.
-        for (int i = 0; i < MAX_PARTICLES; i++)
+        for (int i = 0; i < MAX_PARTICLES; i+=1)
         {
             if !mouseTail[i].active
             {
@@ -82,7 +82,7 @@ pub fn run(rl
             }
         }
 
-        for (int i = 0; i < MAX_PARTICLES; i++)
+        for (int i = 0; i < MAX_PARTICLES; i+=1)
         {
             if mouseTail[i].active
             {
@@ -114,7 +114,7 @@ pub fn run(rl
         BeginBlendMode(blending);
 
         // Draw active particles
-        for (int i = 0; i < MAX_PARTICLES; i++)
+        for (int i = 0; i < MAX_PARTICLES; i+=1)
         {
             if mouseTail[i].active
                 d.draw_texture_pro(smoke, rrect(0.0, 0.0, (float)smoke.width, (float)smoke.height),

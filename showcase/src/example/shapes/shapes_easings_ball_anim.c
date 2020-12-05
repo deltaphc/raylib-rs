@@ -43,7 +43,7 @@ pub fn run(rl
         //----------------------------------------------------------------------------------
         if state == 0 // Move ball position X with easingscreen_width
         {
-            framesCounter++;
+            framesCounter+=1;
             ballPositionX = EaseElasticOut(framesCounter, -100, screen_width / 2 + 100, 120);
 
             if framesCounter >= 120
@@ -54,7 +54,7 @@ pub fn run(rl
         }
         else if state == 1 // Increase ball radius with easing
         {
-            framesCounter++;
+            framesCounter+=1;
             ballRadius = EaseElasticIn(framesCounter, 20, 500, 200);
 
             if framesCounter >= 200
@@ -65,7 +65,7 @@ pub fn run(rl
         }
         else if state == 2) // Change ball alpha with easing (background color blending
         {
-            framesCounter++;
+            framesCounter+=1;
             ballAlpha = EaseCubicOut(framesCounter, 0.0, 1.0, 200);
 
             if framesCounter >= 200

@@ -35,7 +35,7 @@ pub fn run(rl
     rl.set_window_title(thread, "raylib [shaders] example - raymarching shapes");
 
 
-    let camera = Camera3D::perspective(
+    let mut camera = Camera3D::perspective(
     rvec3(2.5, 2.5, 3.0), // Camera position
     rvec3(0.0, 0.0, 0.7),   // Camera looking at point
     rvec3(0.0, 1.0, 0.0),       // Camera up vector (rotation towards target)
@@ -45,7 +45,7 @@ pub fn run(rl
 
     // Load raymarching shader
     // NOTE: Defining 0 (NULL) for vertex shader forces usage of internal default vertex shader
-    let shader = rl.load_shader(thread,0, &format!("resources/shaders/glsl{}/raymarching.fs", GLSL_VERSION));
+    let shader = rl.load_shader(thread,0, &format!("original/shaders/resources/shaders/glsl{}/raymarching.fs", GLSL_VERSION));
 
     // Get shader locations for required uniforms
     int viewEyeLoc = shader.get_shader_location( "viewEye");
@@ -98,7 +98,7 @@ pub fn run(rl
 
         // We only draw a white full-screen rectangle,
         // frame is generated in shader using raymarching
-        BeginShaderMode(shader);
+        let mut d = d.begin_shader_mode(&shader);
         d.draw_rectangle(0, 0, screen_width, screen_height, Color::WHITE);
         EndShaderMode();
 

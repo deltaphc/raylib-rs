@@ -40,7 +40,7 @@ pub fn run(rl
         if rl.is_key_down(raylib::consts::KeyboardKey::KEY_SPACE)
             framesCounter += 8;
         else
-            framesCounter++;
+            framesCounter+=1;
 
         if rl.is_key_pressed(raylib::consts::KeyboardKey::KEY_ENTER)
             framesCounter = 0;

@@ -55,7 +55,7 @@ pub fn run(rl
                 ballSpeed.y *= -1.0;
         }
         else
-            framesCounter++;
+            framesCounter+=1;
         //-----------------------------------------------------
 
         // Draw

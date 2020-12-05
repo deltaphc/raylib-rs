@@ -56,7 +56,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
                 if (key >= 32) && (key <= 125) && (letterCount < MAX_INPUT_CHARS)
                 {
                     name[letterCount] = (char)key;
-                    letterCount++;
+                    letterCount+=1;
                 }
 
                 key = GetKeyPressed(); // Check next character in the queue
@@ -64,7 +64,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
 
             if rl.is_key_pressed(raylib::consts::KeyboardKey::KEY_BACKSPACE)
             {
-                letterCount--;
+                letterCount-=1;
                 name[letterCount] = '\0';
 
                 if letterCount < 0
@@ -73,7 +73,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
         }
 
         if mouseOnText
-            framesCounter++;
+            framesCounter+=1;
         else
             framesCounter = 0;
         //----------------------------------------------------------------------------------

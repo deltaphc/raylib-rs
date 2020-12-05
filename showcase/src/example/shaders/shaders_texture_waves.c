@@ -41,10 +41,10 @@ pub fn run(rl
 
 
     // Load texture texture to apply shaders
-    let texture = rl.load_texture(thread, "resources/space.png");
+    let texture = rl.load_texture(thread, "original/shaders/resources/space.png");
 
     // Load shader and setup location points and values
-    let shader = rl.load_shader(thread,0, &format!("resources/shaders/glsl{}/wave.fs", GLSL_VERSION));
+    let shader = rl.load_shader(thread,0, &format!("original/shaders/resources/shaders/glsl{}/wave.fs", GLSL_VERSION));
 
     int secondsLoc = shader.get_shader_location( "secondes");
     int freqXLoc = shader.get_shader_location( "freqX");
@@ -92,7 +92,7 @@ pub fn run(rl
 
         d.clear_background(Color::RAYWHITE);
 
-        BeginShaderMode(shader);
+        let mut d = d.begin_shader_mode(&shader);
 
         d.draw_texture(texture, 0, 0, Color::WHITE);
         d.draw_texture(texture, texture.width, 0, Color::WHITE);

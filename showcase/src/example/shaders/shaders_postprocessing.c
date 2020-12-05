@@ -78,8 +78,8 @@ pub fn run(rl
     Camera camera = {{2.0, 3.0, 2.0}, {0.0, 1.0, 0.0}, {0.0, 1.0, 0.0}, 45.0, 0};
 
     let model = rl.load_model(&thread, "original/models/resources/models/church.obj");                 // Load OBJ model
-    let texture = rl.load_texture(thread, "resources/models/church_diffuse.png"); // Load model texture (diffuse map)
-    model.materials_mut()[0].maps_mut()[raylib::consts::MaterialMapType::MAP_ALBEDO].texture = *texture.as_ref();                 // Set model diffuse texture
+    let texture = rl.load_texture(thread, "original/shaders/resources/models/church_diffuse.png"); // Load model texture (diffuse map)
+    model.materials_mut()[0].maps_mut()[raylib::consts::MaterialMapType::MAP_ALBEDO as usize].texture = *texture.as_ref();                 // Set model diffuse texture
 
     let position = Vector3::zero(); // Set model position
 
@@ -89,23 +89,23 @@ pub fn run(rl
     let shaders[MAX_POSTPRO_SHADERS] = {0};
 
     // NOTE: Defining 0 (NULL) for vertex shader forces usage of internal default vertex shader
-    shaders[FX_GRAYSCALE] = rl.load_shader(thread,0, &format!("resources/shaders/glsl{}/grayscale.fs", GLSL_VERSION));
-    shaders[FX_POSTERIZATION] = rl.load_shader(thread,0, &format!("resources/shaders/glsl{}/posterization.fs", GLSL_VERSION));
-    shaders[FX_DREAM_VISION] = rl.load_shader(thread,0, &format!("resources/shaders/glsl{}/dream_vision.fs", GLSL_VERSION));
-    shaders[FX_PIXELIZER] = rl.load_shader(thread,0, &format!("resources/shaders/glsl{}/pixelizer.fs", GLSL_VERSION));
-    shaders[FX_CROSS_HATCHING] = rl.load_shader(thread,0, &format!("resources/shaders/glsl{}/cross_hatching.fs", GLSL_VERSION));
-    shaders[FX_CROSS_STITCHING] = rl.load_shader(thread,0, &format!("resources/shaders/glsl{}/cross_stitching.fs", GLSL_VERSION));
-    shaders[FX_PREDATOR_VIEW] = rl.load_shader(thread,0, &format!("resources/shaders/glsl{}/predator.fs", GLSL_VERSION));
-    shaders[FX_SCANLINES] = rl.load_shader(thread,0, &format!("resources/shaders/glsl{}/scanlines.fs", GLSL_VERSION));
-    shaders[FX_FISHEYE] = rl.load_shader(thread,0, &format!("resources/shaders/glsl{}/fisheye.fs", GLSL_VERSION));
-    shaders[FX_SOBEL] = rl.load_shader(thread,0, &format!("resources/shaders/glsl{}/sobel.fs", GLSL_VERSION));
-    shaders[FX_BLOOM] = rl.load_shader(thread,0, &format!("resources/shaders/glsl{}/bloom.fs", GLSL_VERSION));
-    shaders[FX_BLUR] = rl.load_shader(thread,0, &format!("resources/shaders/glsl{}/blur.fs", GLSL_VERSION));
+    shaders[FX_GRAYSCALE] = rl.load_shader(thread,0, &format!("original/shaders/resources/shaders/glsl{}/grayscale.fs", GLSL_VERSION));
+    shaders[FX_POSTERIZATION] = rl.load_shader(thread,0, &format!("original/shaders/resources/shaders/glsl{}/posterization.fs", GLSL_VERSION));
+    shaders[FX_DREAM_VISION] = rl.load_shader(thread,0, &format!("original/shaders/resources/shaders/glsl{}/dream_vision.fs", GLSL_VERSION));
+    shaders[FX_PIXELIZER] = rl.load_shader(thread,0, &format!("original/shaders/resources/shaders/glsl{}/pixelizer.fs", GLSL_VERSION));
+    shaders[FX_CROSS_HATCHING] = rl.load_shader(thread,0, &format!("original/shaders/resources/shaders/glsl{}/cross_hatching.fs", GLSL_VERSION));
+    shaders[FX_CROSS_STITCHING] = rl.load_shader(thread,0, &format!("original/shaders/resources/shaders/glsl{}/cross_stitching.fs", GLSL_VERSION));
+    shaders[FX_PREDATOR_VIEW as usize] = rl.load_shader(thread,0, &format!("original/shaders/resources/shaders/glsl{}/predator.fs", GLSL_VERSION));
+    shaders[FX_SCANLINES] = rl.load_shader(thread,0, &format!("original/shaders/resources/shaders/glsl{}/scanlines.fs", GLSL_VERSION));
+    shaders[FX_FISHEYE] = rl.load_shader(thread,0, &format!("original/shaders/resources/shaders/glsl{}/fisheye.fs", GLSL_VERSION));
+    shaders[FX_SOBEL] = rl.load_shader(thread,0, &format!("original/shaders/resources/shaders/glsl{}/sobel.fs", GLSL_VERSION));
+    shaders[FX_BLOOM] = rl.load_shader(thread,0, &format!("original/shaders/resources/shaders/glsl{}/bloom.fs", GLSL_VERSION));
+    shaders[FX_BLUR] = rl.load_shader(thread,0, &format!("original/shaders/resources/shaders/glsl{}/blur.fs", GLSL_VERSION));
 
     int currentShader = FX_GRAYSCALE;
 
     // Create a RenderTexture2D to be used for render to texture
-    RenderTexture2D target = LoadRenderTexture(screen_width, screen_height);
+    RenderTexture2D target = rl.load_render_texture(thread,screen_width, screen_height);
 
     // Setup orbital camera
     rl.set_camera_mode(&camera, raylib::consts::CameraMode::CAMERA_ORBITAL); // Set an orbital camera mode
@@ -121,9 +121,9 @@ pub fn run(rl
         rl.update_camera(&mut camera); // Update camera
 
         if rl.is_key_pressed(raylib::consts::KeyboardKey::KEY_RIGHT)
-            currentShader++;
+            currentShader+=1;
         else if rl.is_key_pressed(raylib::consts::KeyboardKey::KEY_LEFT)
-            currentShader--;
+            currentShader-=1;
 
         if currentShader >= MAX_POSTPRO_SHADERS
             currentShader = 0;
@@ -152,10 +152,10 @@ pub fn run(rl
         EndTextureMode(); // End drawing to texture (now we have a texture available for next passes)
 
         // Render previously generated texture using selected postpro shader
-        BeginShaderMode(shaders[currentShader]);
+        let mut d = d.begin_shader_mode(&shaders[currentShader]);
 
         // NOTE: Render texture must be y-flipped due to default OpenGL coordinates (left-bottom)
-        DrawTextureRec(target.texture, rrect(0, 0, target.texture.width, -target.texture.height), rvec2(0,  0), Color::WHITE);
+        d.draw_texture_rec(target.texture, rrect(0, 0, target.texture.width, -target.texture.height), rvec2(0,  0), Color::WHITE);
 
         EndShaderMode();
 
@@ -178,7 +178,7 @@ pub fn run(rl
     //--------------------------------------------------------------------------------------
 
     // Unload all postpro shaders
-    for (int i = 0; i < MAX_POSTPRO_SHADERS; i++)
+    for (int i = 0; i < MAX_POSTPRO_SHADERS; i+=1)
         UnloadShader(shaders[i]);
 
     UnloadTexture(texture);      // Unload texture

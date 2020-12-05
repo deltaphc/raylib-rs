@@ -77,7 +77,8 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
         ffi::rlEnableDepthTest(); // Enable DEPTH_TEST for 3D
     }
 
-    let camera = Camera3D::perspective(rvec3(5.0, 5.0, 5.0), Vector3::zero(), Vector3::up(), 45.0);
+    let mut camera =
+        Camera3D::perspective(rvec3(5.0, 5.0, 5.0), Vector3::zero(), Vector3::up(), 45.0);
 
     let cube_position = Vector3::zero(); // Cube default position (center)
                                          //--------------------------------------------------------------------------------------

@@ -43,9 +43,9 @@ pub fn run(rl
     // Dynamic memory allocation to store pixels data (Color type)
     let *pixels = (Color *)malloc(width * height * sizeof(Color));
 
-    for (int y = 0; y < height; y++)
+    for (int y = 0; y < height; y+=1)
     {
-        for (int x = 0; x < width; x++)
+        for (int x = 0; x < width; x+=1)
         {
             if ((x / 32 + y / 32) / 1) % 2 == 0
                 pixels[y * width + x] = Color::ORANGE;

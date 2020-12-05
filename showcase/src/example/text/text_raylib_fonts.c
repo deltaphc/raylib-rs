@@ -51,7 +51,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
 
     Vector2 positions[MAX_FONTS] = {0};
 
-    for (int i = 0; i < MAX_FONTS; i++)
+    for (int i = 0; i < MAX_FONTS; i+=1)
     {
         positions[i].x = screen_width / 2 - MeasureTextEx(fonts[i], messages[i], fonts[i].baseSize * 2, spacings[i]).x / 2;
         positions[i].y = 60 + fonts[i].baseSize + 45 * i;
@@ -84,7 +84,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
         d.draw_text("free fonts included with raylib", 250, 20, 20, Color::DARKGRAY);
         DrawLine(220, 50, 590, 50, Color::DARKGRAY);
 
-        for (int i = 0; i < MAX_FONTS; i++)
+        for (int i = 0; i < MAX_FONTS; i+=1)
         {
             DrawTextEx(fonts[i], messages[i], positions[i], fonts[i].baseSize * 2, spacings[i], colors[i]);
         }
@@ -97,7 +97,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
     //--------------------------------------------------------------------------------------
 
     // Fonts unloading
-    for (int i = 0; i < MAX_FONTS; i++)
+    for (int i = 0; i < MAX_FONTS; i+=1)
         UnloadFont(fonts[i]);
 
     CloseWindow(); // Close window and OpenGL context

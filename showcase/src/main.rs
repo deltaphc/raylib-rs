@@ -231,6 +231,22 @@ fn main() {
             example::shaders::shaders_basic_lighting::run,
         ),
         (
+            rstr!("raylib [shaders] example - custom uniform variable"),
+            example::shaders::shaders_custom_uniform::run,
+        ),
+        (
+            rstr!("raylib [shaders] example - Sieve of Eratosthenes"),
+            example::shaders::shaders_eratosthenes::run,
+        ),
+        (
+            rstr!("raylib [shaders] example - fog"),
+            example::shaders::shaders_fog::run,
+        ),
+        (
+            rstr!("raylib [shaders] example - julia sets"),
+            example::shaders::shaders_julia_set::run,
+        ),
+        (
             rstr!("raylib [shaders] example - postprocessing shader"),
             example::shaders::shaders_postprocessing::run,
         ),

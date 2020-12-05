@@ -180,7 +180,7 @@ int main(int argc, char **argv)
         char hex[(((textboxActive == 1) ? SIZEOF(text02) : SIZEOF(text01)) + 1) * 3 + 1];
         char *text = (textboxActive == 1) ? text02 : text01;
         int maxSize = (textboxActive == 1) ? SIZEOF(text02) : SIZEOF(text01);
-        for (int i = 0, j = 0; i < maxSize; ++i, j += 3)
+        for (int i = 0, j = 0; i < maxSize; +=1i, j += 3)
             sprintf(&hex[j], "%02Xh ", (char)text[i]);
 
         int startIdx = 0, endIdx = 0;
