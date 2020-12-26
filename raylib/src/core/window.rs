@@ -3,6 +3,7 @@ use crate::core::math::{Matrix, Ray, Vector2};
 use crate::core::{RaylibHandle, RaylibThread};
 use crate::ffi;
 use std::ffi::{CStr, CString, IntoStringError, NulError};
+use std::os::raw::c_char;
 
 // MonitorInfo grabs the sizes (virtual and physical) of your monitor
 #[derive(Clone, Debug)]
@@ -68,7 +69,7 @@ pub fn get_monitor_name(monitor: i32) -> Result<String, IntoStringError> {
     debug_assert!(monitor < len && monitor >= 0, "monitor index out of range");
 
     Ok(unsafe {
-        let c = CString::from_raw(ffi::GetMonitorName(monitor) as *mut i8);
+        let c = CString::from_raw(ffi::GetMonitorName(monitor) as *mut c_char);
         c.into_string()?
     })
 }
@@ -138,7 +139,7 @@ impl RaylibHandle {
     pub fn get_clipboard_text(&self) -> Result<String, std::str::Utf8Error> {
         unsafe {
             let c = ffi::GetClipboardText();
-            let c = CStr::from_ptr(c as *mut i8);
+            let c = CStr::from_ptr(c as *mut c_char);
             c.to_str().map(|s| s.to_owned())
         }
     }
