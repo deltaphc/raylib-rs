@@ -114,7 +114,7 @@ int main(void)
             EndShaderMode();
 
             // Draw some 2d text over drawn texture
-            DrawText("(c) Barracks 3D model by Alberto Cano", screenWidth - 220, screenHeight - 20, 10, GRAY);
+            DrawText("(c) Barracks 3D model by Alberto Cano", screenWidth - 220, screenHeight - 20, 10, Color::GRAY);
 
             DrawFPS(10, 10);
 

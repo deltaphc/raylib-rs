@@ -41,7 +41,7 @@ int main(void)
             DrawRectangle(screenWidth/2 - 112, screenHeight/2 - 112, 224, 224, RAYWHITE);
             DrawText("raylib", screenWidth/2 - 44, screenHeight/2 + 48, 50, BLACK);
 
-            DrawText("this is NOT a texture!", 350, 370, 10, GRAY);
+            DrawText("this is NOT a texture!", 350, 370, 10, Color::GRAY);
 
         EndDrawing();
         //----------------------------------------------------------------------------------

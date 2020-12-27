@@ -144,7 +144,7 @@ int main(void)
             }
             else if (state == 4)
             {
-                DrawText("[R] REPLAY", 340, 200, 20, GRAY);
+                DrawText("[R] REPLAY", 340, 200, 20, Color::GRAY);
             }
 
         EndDrawing();

@@ -25,7 +25,7 @@ int main(void)
 
     Vector3 playerPosition = { 0.0f, 1.0f, 2.0f };
     Vector3 playerSize = { 1.0f, 2.0f, 1.0f };
-    Color playerColor = GREEN;
+    Color playerColor = Color::GREEN;
 
     Vector3 enemyBoxPos = { -4.0f, 1.0f, 0.0f };
     Vector3 enemyBoxSize = { 2.0f, 2.0f, 2.0f };
@@ -78,7 +78,7 @@ int main(void)
             enemySpherePos, enemySphereSize)) collision = true;
 
         if (collision) playerColor = RED;
-        else playerColor = GREEN;
+        else playerColor = Color::GREEN;
         //----------------------------------------------------------------------------------
 
         // Draw
@@ -90,11 +90,11 @@ int main(void)
             BeginMode3D(camera);
 
                 // Draw enemy-box
-                DrawCube(enemyBoxPos, enemyBoxSize.x, enemyBoxSize.y, enemyBoxSize.z, GRAY);
+                DrawCube(enemyBoxPos, enemyBoxSize.x, enemyBoxSize.y, enemyBoxSize.z, Color::GRAY);
                 DrawCubeWires(enemyBoxPos, enemyBoxSize.x, enemyBoxSize.y, enemyBoxSize.z, DARKGRAY);
 
                 // Draw enemy-sphere
-                DrawSphere(enemySpherePos, enemySphereSize, GRAY);
+                DrawSphere(enemySpherePos, enemySphereSize, Color::GRAY);
                 DrawSphereWires(enemySpherePos, enemySphereSize, 16, 16, DARKGRAY);
 
                 // Draw player
@@ -104,7 +104,7 @@ int main(void)
 
             EndMode3D();
 
-            DrawText("Move player with cursors to collide", 220, 40, 20, GRAY);
+            DrawText("Move player with cursors to collide", 220, 40, 20, Color::GRAY);
 
             DrawFPS(10, 10);
 

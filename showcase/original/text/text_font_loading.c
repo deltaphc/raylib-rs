@@ -67,12 +67,12 @@ int main(void)
             if (!useTtf)
             {
                 DrawTextEx(fontBm, msg, (Vector2){ 20.0f, 100.0f }, fontBm.baseSize, 2, MAROON);
-                DrawText("Using BMFont (Angelcode) imported", 20, GetScreenHeight() - 30, 20, GRAY);
+                DrawText("Using BMFont (Angelcode) imported", 20, GetScreenHeight() - 30, 20, Color::GRAY);
             }
             else
             {
                 DrawTextEx(fontTtf, msg, (Vector2){ 20.0f, 100.0f }, fontTtf.baseSize, 2, LIME);
-                DrawText("Using TTF font generated", 20, GetScreenHeight() - 30, 20, GRAY);
+                DrawText("Using TTF font generated", 20, GetScreenHeight() - 30, 20, Color::GRAY);
             }
 
         EndDrawing();

@@ -75,11 +75,11 @@ int main(void)
                     DrawCube(cubePosition, cubeSize.x, cubeSize.y, cubeSize.z, RED);
                     DrawCubeWires(cubePosition, cubeSize.x, cubeSize.y, cubeSize.z, MAROON);
 
-                    DrawCubeWires(cubePosition, cubeSize.x + 0.2f, cubeSize.y + 0.2f, cubeSize.z + 0.2f, GREEN);
+                    DrawCubeWires(cubePosition, cubeSize.x + 0.2f, cubeSize.y + 0.2f, cubeSize.z + 0.2f, Color::GREEN);
                 }
                 else
                 {
-                    DrawCube(cubePosition, cubeSize.x, cubeSize.y, cubeSize.z, GRAY);
+                    DrawCube(cubePosition, cubeSize.x, cubeSize.y, cubeSize.z, Color::GRAY);
                     DrawCubeWires(cubePosition, cubeSize.x, cubeSize.y, cubeSize.z, DARKGRAY);
                 }
 
@@ -90,7 +90,7 @@ int main(void)
 
             DrawText("Try selecting the box with mouse!", 240, 10, 20, DARKGRAY);
 
-            if(collision) DrawText("BOX SELECTED", (screenWidth - MeasureText("BOX SELECTED", 30)) / 2, screenHeight * 0.1f, 30, GREEN);
+            if(collision) DrawText("BOX SELECTED", (screenWidth - MeasureText("BOX SELECTED", 30)) / 2, screenHeight * 0.1f, 30, Color::GREEN);
 
             DrawFPS(10, 10);
 

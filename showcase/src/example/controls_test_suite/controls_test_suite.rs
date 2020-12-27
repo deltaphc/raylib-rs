@@ -8,10 +8,10 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
     // Initialization
     //---------------------------------------------------------------------------------------
     // #[cfg(not(target_os = "macos"))] { // Macos has issues with high DPI
-        let screenWidth = 690;
-        let screenHeight = 560;
+        let screen_width = 690;
+        let screen_height = 560;
     
-        rl.set_window_size(screenWidth, screenHeight);
+        rl.set_window_size(screen_width, screen_height);
     // }
     rl.set_window_title(thread, "raygui - controls test suite");
 
@@ -97,17 +97,17 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
         use raylib::consts::GuiControlState::*;
         use raylib::consts::GuiDefaultProperty::*;
         use raylib::consts::GuiTextAlignment::*;
-        use raylib::consts::KeyboardKey::*;
+        
         // Update
         //----------------------------------------------------------------------------------
 
         _exit_window = rl.window_should_close();
 
-        if rl.is_key_pressed(KEY_ESCAPE) {
+        if rl.is_key_pressed(crate::EXIT_KEY) {
             showMessageBox = !showMessageBox;
         }
 
-        if rl.is_key_down(KEY_LEFT_CONTROL) && rl.is_key_pressed(KEY_S) {
+        if rl.is_key_down(raylib::consts::KeyboardKey::KEY_LEFT_CONTROL) && rl.is_key_pressed(raylib::consts::KeyboardKey::KEY_S) {
             showTextInputBox = true;
         }
 
@@ -263,7 +263,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
         sliderValue = d.gui_slider(
             rrect(355, 400, 165, 20),
             Some(rstr!("TEST")),
-            Some(&rstr!("{:.2}", sliderValue as f32).unwrap()),
+            Some(&rstr!("{:.2}", sliderValue as f32)),
             sliderValue,
             -50.0,
             100.0,
@@ -271,7 +271,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
         sliderBarValue = d.gui_slider_bar(
             rrect(320, 430, 200, 20),
             None,
-            Some(&rstr!("{}", sliderBarValue).unwrap()),
+            Some(&rstr!("{}", sliderBarValue)),
             sliderBarValue,
             0.0,
             100.0,
@@ -357,7 +357,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
                 textInputFileName[..textInput.len()].clone_from_slice(&textInput);
             }
 
-            if (result == 0) || (result == 1) || (result == 2) {
+            if( result == 0) || (result == 1) || (result == 2) {
                 showTextInputBox = false;
                 textInput[0] = b'\0';
             }

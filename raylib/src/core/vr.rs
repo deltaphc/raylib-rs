@@ -36,7 +36,7 @@ impl RaylibVR {
     }
 
     /// Set stereo rendering configuration parameters
-    pub fn update_vr_configuration(
+    pub fn set_vr_configuration(
         &mut self,
         _: &RaylibThread,
         info: ffi::VrDeviceInfo,
@@ -53,7 +53,7 @@ impl RaylibVR {
 
     /// Enables or disables VR experience.
     #[inline]
-    pub fn toggle_vr_mode(&self) {
+    pub fn toggle_vr_mode(&self, _: &RaylibThread) {
         unsafe {
             ffi::ToggleVrMode();
         }
@@ -62,6 +62,9 @@ impl RaylibVR {
 
 impl Drop for RaylibVR {
     fn drop(&mut self) {
-        unsafe { ffi::CloseVrSimulator() }
+        unsafe {
+            IS_INITIALIZED.store(false, Ordering::Relaxed);
+            ffi::CloseVrSimulator()
+        }
     }
 }

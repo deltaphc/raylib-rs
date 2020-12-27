@@ -103,7 +103,7 @@ int main(void)
                 case STATE_FINISHED:
                 {
                     DrawRectangle(150, 200, 500, 60, LIME);
-                    DrawText("DATA LOADED!", 250, 210, 40, GREEN);
+                    DrawText("DATA LOADED!", 250, 210, 40, Color::GREEN);
 
                 } break;
                 default: break;

@@ -78,7 +78,7 @@ int main(void)
         if ((groundHitInfo.hit) && (groundHitInfo.distance < nearestHit.distance))
         {
             nearestHit = groundHitInfo;
-            cursorColor = GREEN;
+            cursorColor = Color::GREEN;
             hitObjectName = "Ground";
         }
 
@@ -181,9 +181,9 @@ int main(void)
                 if (hitTriangle) DrawText(FormatText("Barycenter: %3.2f %3.2f %3.2f",  bary.x, bary.y, bary.z), 10, ypos + 45, 10, BLACK);
             }
 
-            DrawText("Use Mouse to Move Camera", 10, 430, 10, GRAY);
+            DrawText("Use Mouse to Move Camera", 10, 430, 10, Color::GRAY);
 
-            DrawText("(c) Turret 3D model by Alberto Cano", screenWidth - 200, screenHeight - 20, 10, GRAY);
+            DrawText("(c) Turret 3D model by Alberto Cano", screenWidth - 200, screenHeight - 20, 10, Color::GRAY);
 
             DrawFPS(10, 10);
 

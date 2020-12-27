@@ -18269,11 +18269,11 @@ fn bindgen_test_layout_Light() {
 extern "C" {
     pub fn CreateLight(
         type_: ::std::os::raw::c_int,
-        pos: Vector3,
-        targ: Vector3,
+        position: Vector3,
+        target: Vector3,
         color: Color,
         shader: Shader,
-    );
+    ) -> Light;
 }
 extern "C" {
     pub fn UpdateLightValues(shader: Shader, light: Light);

@@ -256,14 +256,13 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
 
     // Main game loop
     return Box::new(move |rl: &mut RaylibHandle, thread: &RaylibThread| -> () {
-        use raylib::consts::KeyboardKey::*;
         // Update
         //----------------------------------------------------------------------------------
         rl.update_camera(&mut camera); // Update camera
 
-        if rl.is_key_pressed(KEY_RIGHT) {
+        if rl.is_key_pressed(raylib::consts::KeyboardKey::KEY_RIGHT) {
             current_shader += 1;
-        } else if rl.is_key_pressed(KEY_LEFT) {
+        } else if rl.is_key_pressed(raylib::consts::KeyboardKey::KEY_LEFT) {
             current_shader -= 1;
         }
 
@@ -332,7 +331,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
             //----------------------------------------------------------------------------------
         }
 
-        if rl.is_key_pressed(raylib::consts::KeyboardKey::KEY_ESCAPE) {
+        if rl.is_key_pressed(crate::EXIT_KEY) {
             unsafe {
                 rl.unload_texture(thread, texture.clone());
             }

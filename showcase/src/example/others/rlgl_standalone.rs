@@ -30,7 +30,7 @@
 *   will the authors be held liable for any damages arising from the use of this software.
 *
 *   Permission is granted to anyone to use this software for any purpose, including commercial
-*   applications, and to alter it and redistribute it freely, subject to the following restrictions:
+*   applications, and to alter it andColor::REDistribute it freely, subject to the following restrictions:
 *
 *     1. The origin of this software must not be misrepresented; you must not claim that you
 *     wrote the original software. If you use this software in a product, an acknowledgment
@@ -77,7 +77,8 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
         ffi::rlEnableDepthTest(); // Enable DEPTH_TEST for 3D
     }
 
-    let camera = Camera3D::perspective(rvec3(5.0, 5.0, 5.0), Vector3::zero(), Vector3::up(), 45.0);
+    let mut camera =
+        Camera3D::perspective(rvec3(5.0, 5.0, 5.0), Vector3::zero(), Vector3::up(), 45.0);
 
     let cube_position = Vector3::zero(); // Cube default position (center)
                                          //--------------------------------------------------------------------------------------
@@ -118,7 +119,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
 
             // Draw '2D' elements in the scene (GUI)
             //-----------------------------------------------
-            // #define RLGL_CREATE_MATRIX_MANUALLY
+            // const RLGL_CREATE_MATRIX_MANUALLY
             // #if defined(RLGL_CREATE_MATRIX_MANUALLY)
             //             mat_proj = MatrixOrtho(0.0, screen_width, screen_height, 0.0, 0.0, 1.0);
             //             mat_view = MatrixIdentity();
@@ -208,7 +209,7 @@ unsafe fn draw_cube(position: Vector3, width: f32, height: f32, length: f32, col
 
     // NOTE: Be careful! Function order matters (rotate -> scale -> translate)
     ffi::rlTranslatef(position.x, position.y, position.z);
-    //rlScalef(2.0f, 2.0f, 2.0f);
+    //rlScalef(2.0, 2.0, 2.0);
     //rlRotatef(45, 0, 1, 0);
 
     ffi::rlBegin(ffi::RL_TRIANGLES as i32);

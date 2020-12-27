@@ -71,7 +71,7 @@ int main(void)
 
             DrawRectangle(200, 200, 400, 12, LIGHTGRAY);
             DrawRectangle(200, 200, (int)timePlayed, 12, MAROON);
-            DrawRectangleLines(200, 200, 400, 12, GRAY);
+            DrawRectangleLines(200, 200, 400, 12, Color::GRAY);
 
             DrawText("PRESS SPACE TO RESTART MUSIC", 215, 250, 20, LIGHTGRAY);
             DrawText("PRESS P TO PAUSE/RESUME MUSIC", 208, 280, 20, LIGHTGRAY);

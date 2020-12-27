@@ -90,16 +90,17 @@ pub fn run(mut rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut
     return Box::new(
         move |mut rl: &mut RaylibHandle, thread: &RaylibThread| -> () {
             use raylib::consts::GestureType::*;
-            use raylib::consts::KeyboardKey::*;
-            use raylib::consts::MouseButton::*;
             // Update
             //----------------------------------------------------------------------------------
             let mouse_pos = rl.get_mouse_position();
 
             // Move between colors with keys
-            if rl.is_key_pressed(KEY_RIGHT) && color_selected < MAX_COLORS_COUNT {
+            if rl.is_key_pressed(raylib::consts::KeyboardKey::KEY_RIGHT)
+                && color_selected < MAX_COLORS_COUNT
+            {
                 color_selected += 1;
-            } else if rl.is_key_pressed(KEY_LEFT) && color_selected > 0 {
+            } else if rl.is_key_pressed(raylib::consts::KeyboardKey::KEY_LEFT) && color_selected > 0
+            {
                 color_selected -= 1;
             }
 
@@ -113,7 +114,9 @@ pub fn run(mut rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut
                 }
             }
 
-            if color_mouse_hover.is_some() && rl.is_mouse_button_pressed(MOUSE_LEFT_BUTTON) {
+            if color_mouse_hover.is_some()
+                && rl.is_mouse_button_pressed(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON)
+            {
                 color_selected = color_mouse_hover.unwrap();
                 color_selected_prev = color_selected;
             }
@@ -127,14 +130,14 @@ pub fn run(mut rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut
                 brush_size = 50;
             }
 
-            if rl.is_key_pressed(KEY_C) {
+            if rl.is_key_pressed(raylib::consts::KeyboardKey::KEY_C) {
                 // Clear render texture to clear color
                 let mut d = rl.begin_texture_mode(thread, &mut target);
                 d.clear_background(colors[0]);
             }
 
-            if rl.is_mouse_button_down(MOUSE_LEFT_BUTTON)
-                || rl.get_gesture_detected() == GESTURE_DRAG as u32
+            if rl.is_mouse_button_down(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON)
+                || rl.get_gesture_detected() == GESTURE_DRAG
             {
                 // Paint circle into render texture
                 // NOTE: To avoid discontinuous circles, we could store
@@ -151,7 +154,7 @@ pub fn run(mut rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut
                 }
             }
 
-            if rl.is_mouse_button_down(MOUSE_RIGHT_BUTTON) {
+            if rl.is_mouse_button_down(raylib::consts::MouseButton::MOUSE_RIGHT_BUTTON) {
                 color_selected = 0;
 
                 // Erase circle from render texture
@@ -178,8 +181,9 @@ pub fn run(mut rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut
 
             // Image saving logic
             // NOTE: Saving painted texture to a default named image
-            if btn_save_mouse_hover && rl.is_mouse_button_released(MOUSE_LEFT_BUTTON)
-                || rl.is_key_pressed(KEY_S)
+            if btn_save_mouse_hover
+                && rl.is_mouse_button_released(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON)
+                || rl.is_key_pressed(raylib::consts::KeyboardKey::KEY_S)
             {
                 let mut image = target.get_texture_data().unwrap();
                 image.flip_vertical();
@@ -214,7 +218,7 @@ pub fn run(mut rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut
 
             // Draw drawing circle for reference
             if mouse_pos.y > 50.0 {
-                if d.is_mouse_button_down(MOUSE_RIGHT_BUTTON) {
+                if d.is_mouse_button_down(raylib::consts::MouseButton::MOUSE_RIGHT_BUTTON) {
                     d.draw_circle_lines(
                         mouse_pos.x as i32,
                         mouse_pos.y as i32,

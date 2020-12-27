@@ -35,7 +35,7 @@ int main(void)
     InitAudioDevice();                  // Initialize audio device
 
     Color colors[14] = { ORANGE, RED, GOLD, LIME, BLUE, VIOLET, BROWN, LIGHTGRAY, PINK,
-                         YELLOW, GREEN, SKYBLUE, PURPLE, BEIGE };
+                         YELLOW, Color::GREEN, SKYBLUE, PURPLE, BEIGE };
 
     // Creates ome circles for visual effect
     CircleWave circles[MAX_CIRCLES] = { 0 };
@@ -120,7 +120,7 @@ int main(void)
             // Draw time bar
             DrawRectangle(20, screenHeight - 20 - 12, screenWidth - 40, 12, LIGHTGRAY);
             DrawRectangle(20, screenHeight - 20 - 12, (int)timePlayed, 12, MAROON);
-            DrawRectangleLines(20, screenHeight - 20 - 12, screenWidth - 40, 12, GRAY);
+            DrawRectangleLines(20, screenHeight - 20 - 12, screenWidth - 40, 12, Color::GRAY);
 
         EndDrawing();
         //----------------------------------------------------------------------------------

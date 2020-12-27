@@ -178,8 +178,12 @@ impl Image {
         }
     }
 
+    /// Get pixel data size in bytes (image or texture)
+    pub fn get_pixel_data_size(&self) -> usize {
+        unsafe { ffi::GetPixelDataSize(self.width(), self.height(), self.format() as i32) as usize }
+    }
+
     /// Gets pixel data from `image` as a Vec of Color structs.
-    #[inline]
     pub fn get_image_data(&self) -> Vec<Color> {
         unsafe {
             let image_data = ffi::GetImageData(self.0);
@@ -197,7 +201,6 @@ impl Image {
     }
 
     /// Gets normalized (`0.0` to `1.0`) pixel data from `image` as a Vec of Vector4 structs.
-    #[inline]
     pub fn get_image_data_normalized(&self) -> Vec<Vector4> {
         unsafe {
             let image_data = ffi::GetImageDataNormalized(self.0);

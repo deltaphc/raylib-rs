@@ -98,9 +98,9 @@ int main(void)
 
             ClearBackground(RAYWHITE);
 
-            DrawText("Use mouse wheel to change font size", 20, 20, 10, GRAY);
-            DrawText("Use KEY_RIGHT and KEY_LEFT to move text", 20, 40, 10, GRAY);
-            DrawText("Use 1, 2, 3 to change texture filter", 20, 60, 10, GRAY);
+            DrawText("Use mouse wheel to change font size", 20, 20, 10, Color::GRAY);
+            DrawText("Use KEY_RIGHT and KEY_LEFT to move text", 20, 40, 10, Color::GRAY);
+            DrawText("Use 1, 2, 3 to change texture filter", 20, 60, 10, Color::GRAY);
             DrawText("Drop a new TTF font for dynamic loading", 20, 80, 10, DARKGRAY);
 
             DrawTextEx(font, msg, fontPosition, fontSize, 0, BLACK);
@@ -111,7 +111,7 @@ int main(void)
             DrawRectangle(0, screenHeight - 80, screenWidth, 80, LIGHTGRAY);
             DrawText(FormatText("Font size: %02.02f", fontSize), 20, screenHeight - 50, 10, DARKGRAY);
             DrawText(FormatText("Text size: [%02.02f, %02.02f]", textSize.x, textSize.y), 20, screenHeight - 30, 10, DARKGRAY);
-            DrawText("CURRENT TEXTURE FILTER:", 250, 400, 20, GRAY);
+            DrawText("CURRENT TEXTURE FILTER:", 250, 400, 20, Color::GRAY);
 
             if (currentFontFilter == 0) DrawText("POINT", 570, 400, 20, BLACK);
             else if (currentFontFilter == 1) DrawText("BILINEAR", 570, 400, 20, BLACK);

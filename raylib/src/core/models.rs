@@ -64,7 +64,11 @@ impl RaylibHandle {
     }
 
     // Loads model from a generated mesh
-    pub fn load_model_from_mesh(&mut self, _: &RaylibThread, mesh: &Mesh) -> Result<Model, String> {
+    pub fn load_model_from_mesh(
+        &mut self,
+        _: &RaylibThread,
+        mesh: WeakMesh,
+    ) -> Result<Model, String> {
         let m = unsafe { ffi::LoadModelFromMesh(mesh.0) };
 
         if m.meshes.is_null() || m.materials.is_null() {

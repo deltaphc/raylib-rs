@@ -55,7 +55,7 @@ int main(void)
                     if (i%2 == 0) DrawRectangle(0, 85 + 40*i, screenWidth, 40, Fade(LIGHTGRAY, 0.5f));
                     else DrawRectangle(0, 85 + 40*i, screenWidth, 40, Fade(LIGHTGRAY, 0.3f));
 
-                    DrawText(droppedFiles[i], 120, 100 + 40*i, 10, GRAY);
+                    DrawText(droppedFiles[i], 120, 100 + 40*i, 10, Color::GRAY);
                 }
 
                 DrawText("Drop new files...", 100, 110 + 40*count, 20, DARKGRAY);

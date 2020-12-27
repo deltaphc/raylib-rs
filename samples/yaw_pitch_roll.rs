@@ -117,7 +117,7 @@ fn main() {
         let center_y = (framebuffer.texture().height() / 2) as f32;
         let scale_factor = 0.5;
         {
-            let mut d = d.begin_texture_mode(&mut framebuffer);
+            let mut d = d.begin_texture_mode(&thread, &mut framebuffer);
             {
                 let mut d = d.begin_blend_mode(raylib::consts::BlendMode::BLEND_ALPHA);
                 d.draw_texture_pro(

@@ -30,7 +30,7 @@ typedef enum {
 
 static const char *processText[] = {
     "NO PROCESSING",
-    "COLOR GRAYSCALE",
+    "COLOR Color::GRAYSCALE",
     "COLOR TINT",
     "COLOR INVERT",
     "COLOR CONTRAST",
@@ -93,7 +93,7 @@ int main(void)
             switch (currentProcess)
             {
                 case COLOR_GRAYSCALE: ImageColorGrayscale(&image); break;
-                case COLOR_TINT: ImageColorTint(&image, GREEN); break;
+                case COLOR_TINT: ImageColorTint(&image, Color::GREEN); break;
                 case COLOR_INVERT: ImageColorInvert(&image); break;
                 case COLOR_CONTRAST: ImageColorContrast(&image, -40); break;
                 case COLOR_BRIGHTNESS: ImageColorBrightness(&image, -80); break;
@@ -122,7 +122,7 @@ int main(void)
             for (int i = 0; i < NUM_PROCESSES; i++)
             {
                 DrawRectangleRec(selectRecs[i], (i == currentProcess) ? SKYBLUE : LIGHTGRAY);
-                DrawRectangleLines((int)selectRecs[i].x, (int) selectRecs[i].y, (int) selectRecs[i].width, (int) selectRecs[i].height, (i == currentProcess) ? BLUE : GRAY);
+                DrawRectangleLines((int)selectRecs[i].x, (int) selectRecs[i].y, (int) selectRecs[i].width, (int) selectRecs[i].height, (i == currentProcess) ? BLUE : Color::GRAY);
                 DrawText( processText[i], (int)( selectRecs[i].x + selectRecs[i].width/2 - MeasureText(processText[i], 10)/2), (int) selectRecs[i].y + 11, 10, (i == currentProcess) ? DARKBLUE : DARKGRAY);
             }
 

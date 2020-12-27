@@ -62,7 +62,7 @@ int main(void)
             EndMode3D();
 
             DrawTexture(texture, screenWidth - texture.width - 20, 20, WHITE);
-            DrawRectangleLines(screenWidth - texture.width - 20, 20, texture.width, texture.height, GREEN);
+            DrawRectangleLines(screenWidth - texture.width - 20, 20, texture.width, texture.height, Color::GREEN);
 
             DrawFPS(10, 10);
 

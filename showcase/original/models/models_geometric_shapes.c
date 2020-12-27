@@ -51,7 +51,7 @@ int main(void)
                 DrawCubeWires((Vector3){-4.0f, 0.0f, 2.0f}, 2.0f, 5.0f, 2.0f, GOLD);
                 DrawCubeWires((Vector3){-4.0f, 0.0f, -2.0f}, 3.0f, 6.0f, 2.0f, MAROON);
 
-                DrawSphere((Vector3){-1.0f, 0.0f, -2.0f}, 1.0f, GREEN);
+                DrawSphere((Vector3){-1.0f, 0.0f, -2.0f}, 1.0f, Color::GREEN);
                 DrawSphereWires((Vector3){1.0f, 0.0f, 2.0f}, 2.0f, 16, 16, LIME);
 
                 DrawCylinder((Vector3){4.0f, 0.0f, -2.0f}, 1.0f, 2.0f, 3.0f, 4, SKYBLUE);

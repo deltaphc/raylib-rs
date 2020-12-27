@@ -47,10 +47,10 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
 
     // Main game loop
     return Box::new(move |rl: &mut RaylibHandle, thread: &RaylibThread| -> () {
-        use raylib::consts::MouseButton::*;
+        
         // Update
         //----------------------------------------------------------------------------------
-        if rl.is_mouse_button_down(MOUSE_LEFT_BUTTON) {
+        if rl.is_mouse_button_down(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON) {
             // Create more bunnies
             for _ in 0..100 {
                 if bunnies_count < MAX_BUNNIES {
@@ -80,8 +80,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
             {
                 bunnies[i].speed.x *= -1.0;
             }
-            if (bunnies[i].position.y + tex_bunny.height as f32 / 2.0)
-                > rl.get_screen_height() as f32
+            if bunnies[i].position.y + tex_bunny.height as f32 / 2.0 > rl.get_screen_height() as f32
                 || (bunnies[i].position.y + tex_bunny.height as f32 / 2.0 - 40.0) < 0.0
             {
                 bunnies[i].speed.y *= -1.0;

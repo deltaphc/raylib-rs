@@ -18,7 +18,6 @@ Permission is granted to anyone to use this software for any purpose, including 
 //!
 //! Test crate for raylib functions requires nightly
 //! ```
-#![feature(optin_builtin_traits)]
 #![feature(custom_test_frameworks)]
 #![test_runner(crate::tests::test_runner)]
 #![allow(dead_code)]

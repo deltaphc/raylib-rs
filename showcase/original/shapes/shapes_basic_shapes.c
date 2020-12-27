@@ -51,7 +51,7 @@ int main(void)
 
             DrawPoly((Vector2){screenWidth/4*3, 320}, 6, 80, 0, BROWN);
 
-            DrawCircleGradient(screenWidth/4, 220, 60, GREEN, SKYBLUE);
+            DrawCircleGradient(screenWidth/4, 220, 60, Color::GREEN, SKYBLUE);
 
             // NOTE: We draw all LINES based shapes together to optimize internal drawing,
             // this way, all LINES are rendered in a single draw pass

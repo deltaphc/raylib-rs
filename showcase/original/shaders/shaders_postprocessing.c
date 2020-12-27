@@ -153,7 +153,7 @@ int main(void)
             // Draw 2d shapes and text over drawn texture
             DrawRectangle(0, 9, 580, 30, Fade(LIGHTGRAY, 0.7f));
 
-            DrawText("(c) Church 3D model by Alberto Cano", screenWidth - 200, screenHeight - 20, 10, GRAY);
+            DrawText("(c) Church 3D model by Alberto Cano", screenWidth - 200, screenHeight - 20, 10, Color::GRAY);
 
             DrawText("CURRENT POSTPRO SHADER:", 10, 15, 20, BLACK);
             DrawText(postproShaderText[currentShader], 330, 15, 20, RED);

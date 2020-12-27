@@ -24,8 +24,8 @@ int main(void)
 
     Color colors[MAX_COLORS_COUNT] = {
         DARKGRAY, MAROON, ORANGE, DARKGREEN, DARKBLUE, DARKPURPLE, DARKBROWN,
-        GRAY, RED, GOLD, LIME, BLUE, VIOLET, BROWN, LIGHTGRAY, PINK, YELLOW,
-        GREEN, SKYBLUE, PURPLE, BEIGE };
+        Color::GRAY, RED, GOLD, LIME, BLUE, VIOLET, BROWN, LIGHTGRAY, PINK, YELLOW,
+        Color::GREEN, SKYBLUE, PURPLE, BEIGE };
 
     const char *colorNames[MAX_COLORS_COUNT] = {
         "DARKGRAY", "MAROON", "ORANGE", "DARKGREEN", "DARKBLUE", "DARKPURPLE",
@@ -71,7 +71,7 @@ int main(void)
             ClearBackground(RAYWHITE);
 
             DrawText("raylib colors palette", 28, 42, 20, BLACK);
-            DrawText("press SPACE to see all colors", GetScreenWidth() - 180, GetScreenHeight() - 40, 10, GRAY);
+            DrawText("press SPACE to see all colors", GetScreenWidth() - 180, GetScreenHeight() - 40, 10, Color::GRAY);
 
             for (int i = 0; i < MAX_COLORS_COUNT; i++)    // Draw all rectangles
             {

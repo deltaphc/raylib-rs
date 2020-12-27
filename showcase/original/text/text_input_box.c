@@ -78,7 +78,7 @@ int main(void)
 
             ClearBackground(RAYWHITE);
 
-            DrawText("PLACE MOUSE OVER INPUT BOX!", 240, 140, 20, GRAY);
+            DrawText("PLACE MOUSE OVER INPUT BOX!", 240, 140, 20, Color::GRAY);
 
             DrawRectangleRec(textBox, LIGHTGRAY);
             if (mouseOnText) DrawRectangleLines(textBox.x, textBox.y, textBox.width, textBox.height, RED);
@@ -95,7 +95,7 @@ int main(void)
                     // Draw blinking underscore char
                     if (((framesCounter/20)%2) == 0) DrawText("_", textBox.x + 8 + MeasureText(name, 40), textBox.y + 12, 40, MAROON);
                 }
-                else DrawText("Press BACKSPACE to delete chars...", 230, 300, 20, GRAY);
+                else DrawText("Press BACKSPACE to delete chars...", 230, 300, 20, Color::GRAY);
             }
 
         EndDrawing();

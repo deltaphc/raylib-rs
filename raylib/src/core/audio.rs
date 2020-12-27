@@ -254,11 +254,20 @@ impl RaylibAudio {
             ffi::SetAudioStreamPitch(stream.0, pitch);
         }
     }
+
+    /// Sets pitch for audio stream (`1.0` is base level).
+    #[inline]
+    pub fn is_audio_stream_processed(&mut self, stream: &AudioStream) -> bool {
+        unsafe { ffi::IsAudioStreamProcessed(stream.0) }
+    }
 }
 
 impl Drop for RaylibAudio {
     fn drop(&mut self) {
-        unsafe { ffi::CloseAudioDevice() }
+        unsafe {
+            ffi::StopSoundMulti();
+            ffi::CloseAudioDevice();
+        }
     }
 }
 
@@ -438,12 +447,12 @@ impl AudioStream {
 
     /// Updates audio stream buffers with data.
     #[inline]
-    pub fn update_audio_stream(&mut self, data: &[impl AudioSample]) {
+    pub fn update_audio_stream<T: AudioSample>(&mut self, data: &[T]) {
         unsafe {
             ffi::UpdateAudioStream(
                 self.0,
                 data.as_ptr() as *const std::os::raw::c_void,
-                data.len() as i32,
+                (data.len() * std::mem::size_of::<T>()) as i32,
             );
         }
     }

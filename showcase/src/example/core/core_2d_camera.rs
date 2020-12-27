@@ -56,14 +56,13 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
     // Main game loop
     // Detect window close button or ESC key
     return Box::new(move |rl: &mut RaylibHandle, thread: &RaylibThread| -> () {
-        use raylib::consts::KeyboardKey::*;
         // Update
         //----------------------------------------------------------------------------------
 
         // Player movement
-        if rl.is_key_down(KEY_RIGHT) {
+        if rl.is_key_down(raylib::consts::KeyboardKey::KEY_RIGHT) {
             player.x += 2.0;
-        } else if rl.is_key_down(KEY_LEFT) {
+        } else if rl.is_key_down(raylib::consts::KeyboardKey::KEY_LEFT) {
             player.x -= 2.0;
         }
 
@@ -71,9 +70,9 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
         camera.target = Vector2::new(player.x + 20.0, player.y + 20.0);
 
         // Camera rotation controls
-        if rl.is_key_down(KEY_A) {
+        if rl.is_key_down(raylib::consts::KeyboardKey::KEY_A) {
             camera.rotation -= 1.0;
-        } else if rl.is_key_down(KEY_S) {
+        } else if rl.is_key_down(raylib::consts::KeyboardKey::KEY_S) {
             camera.rotation += 1.0;
         }
         // Limit camera rotation to 80 degrees (-40 to 40)
@@ -93,7 +92,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
         }
 
         // Camera reset (zoom and rotation)
-        if rl.is_key_pressed(KEY_R) {
+        if rl.is_key_pressed(raylib::consts::KeyboardKey::KEY_R) {
             camera.zoom = 1.0;
             camera.rotation = 0.0;
         }

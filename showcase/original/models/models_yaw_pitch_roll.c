@@ -146,7 +146,7 @@ int main(void)
 
             // Draw 2D GUI stuff
             DrawAngleGauge(texAngleGauge, 80, 70, roll, "roll", RED);
-            DrawAngleGauge(texAngleGauge, 190, 70, pitch, "pitch", GREEN);
+            DrawAngleGauge(texAngleGauge, 190, 70, pitch, "pitch", Color::GREEN);
             DrawAngleGauge(texAngleGauge, 300, 70, yaw, "yaw", SKYBLUE);
 
             DrawRectangle(30, 360, 260, 70, Fade(SKYBLUE, 0.5f));

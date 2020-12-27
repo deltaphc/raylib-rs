@@ -26,9 +26,9 @@ int main(void)
 
     // Colours to choose from
     Color colors[MAX_COLORS_COUNT] = {
-        RAYWHITE, YELLOW, GOLD, ORANGE, PINK, RED, MAROON, GREEN, LIME, DARKGREEN,
+        RAYWHITE, YELLOW, GOLD, ORANGE, PINK, RED, MAROON, Color::GREEN, LIME, DARKGREEN,
         SKYBLUE, BLUE, DARKBLUE, PURPLE, VIOLET, DARKPURPLE, BEIGE, BROWN, DARKBROWN,
-        LIGHTGRAY, GRAY, DARKGRAY, BLACK };
+        LIGHTGRAY, Color::GRAY, DARKGRAY, BLACK };
         
     // Define colorsRecs data (for every rectangle)
     Rectangle colorsRecs[MAX_COLORS_COUNT] = { 0 };
@@ -166,7 +166,7 @@ int main(void)
             // Draw drawing circle for reference
             if (mousePos.y > 50) 
             {
-                if (IsMouseButtonDown(MOUSE_RIGHT_BUTTON)) DrawCircleLines(mousePos.x, mousePos.y, brushSize, GRAY);
+                if (IsMouseButtonDown(MOUSE_RIGHT_BUTTON)) DrawCircleLines(mousePos.x, mousePos.y, brushSize, Color::GRAY);
                 else DrawCircle(GetMouseX(), GetMouseY(), brushSize, colors[colorSelected]);
             }
             

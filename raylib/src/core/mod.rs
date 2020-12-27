@@ -36,7 +36,7 @@ macro_rules! rstr {
     ($e:tt, $($arg:tt)*) => ({
         #[allow(unused_unsafe)]
         unsafe {
-          std::ffi::CString::new(format!($e, $($arg)*))
+          std::ffi::CString::new(format!($e, $($arg)*)).unwrap()
         }
     })
 }

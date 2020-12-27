@@ -103,7 +103,7 @@ int main(void)
                     DrawRectanglePro(recs[i], (Vector2){ recs[i].width/2, recs[i].height/2 }, rotation, RED);
                 }
             }
-            else if (state == 1) DrawText("PRESS [SPACE] TO PLAY AGAIN!", 240, 200, 20, GRAY);
+            else if (state == 1) DrawText("PRESS [SPACE] TO PLAY AGAIN!", 240, 200, 20, Color::GRAY);
 
         EndDrawing();
         //----------------------------------------------------------------------------------

@@ -35,19 +35,19 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
 
     // Main game loop
     return Box::new(move |rl: &mut RaylibHandle, thread: &RaylibThread| -> () {
-        use crate::consts::KeyboardKey::*;
+        
         // Update
         //----------------------------------------------------------------------------------
         audio.update_music_stream(&mut music); // Update music buffer with new stream data
 
         // Restart music playing (stop and play)
-        if rl.is_key_pressed(KEY_SPACE) {
+        if rl.is_key_pressed(raylib::consts::KeyboardKey::KEY_SPACE) {
             audio.stop_music_stream(&mut music);
             audio.play_music_stream(&mut music);
         }
 
         // Pause/Resume music playing
-        if rl.is_key_pressed(KEY_P) {
+        if rl.is_key_pressed(raylib::consts::KeyboardKey::KEY_P) {
             pause = !pause;
 
             if pause {

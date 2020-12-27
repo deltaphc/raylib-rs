@@ -82,7 +82,7 @@ int main(void)
 
             EndMode3D();
 
-            DrawText("(c) Watermill 3D model by Alberto Cano", screenWidth - 210, screenHeight - 20, 10, GRAY);
+            DrawText("(c) Watermill 3D model by Alberto Cano", screenWidth - 210, screenHeight - 20, 10, Color::GRAY);
 
             DrawFPS(10, 10);
 

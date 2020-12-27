@@ -85,7 +85,7 @@ int main(void)
 
             ClearBackground(RAYWHITE);
 
-            DrawRectangleRec(touchArea, GRAY);
+            DrawRectangleRec(touchArea, Color::GRAY);
             DrawRectangle(225, 15, screenWidth - 240, screenHeight - 30, RAYWHITE);
 
             DrawText("GESTURES TEST AREA", screenWidth - 270, screenHeight - 40, 20, Fade(GRAY, 0.5f));
@@ -99,8 +99,8 @@ int main(void)
                 else DrawText(gestureStrings[i], 35, 36 + 20*i, 10, MAROON);
             }
 
-            DrawRectangleLines(10, 29, 200, screenHeight - 50, GRAY);
-            DrawText("DETECTED GESTURES", 50, 15, 10, GRAY);
+            DrawRectangleLines(10, 29, 200, screenHeight - 50, Color::GRAY);
+            DrawText("DETECTED GESTURES", 50, 15, 10, Color::GRAY);
 
             if (currentGesture != GESTURE_NONE) DrawCircleV(touchPosition, 30, MAROON);
 

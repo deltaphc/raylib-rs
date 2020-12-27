@@ -70,7 +70,6 @@ impl Into<ffi::Camera2D> for &Camera2D {
     }
 }
 
-
 impl Camera3D {
     pub fn camera_type(&self) -> crate::consts::CameraType {
         unsafe { std::mem::transmute(self.type_.clone()) }

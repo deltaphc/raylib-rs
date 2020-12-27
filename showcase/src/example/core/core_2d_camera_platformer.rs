@@ -11,7 +11,6 @@
 *
 ********************************************************************************************/
 
-use raylib::consts::KeyboardKey::*;
 pub use raylib::prelude::*;
 
 const G: f32 = 400.0;
@@ -72,7 +71,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
     };
 
     // Store pointers to the multiple update camera functions
-    let camera_updaters = [
+    let mut camera_updaters = [
         update_camera_center,
         update_camera_center_inside_map,
         update_camera_center_smooth_follow,
@@ -82,7 +81,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
 
     let mut camera_option = 0;
 
-    let camera_description = [
+    let mut camera_description = [
         "Follow player center",
         "Follow player center, but clamp to map edges",
         "Follow player center; smoothed",
@@ -109,12 +108,12 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
             camera.zoom = 0.25;
         }
 
-        if rl.is_key_pressed(KEY_R) {
+        if rl.is_key_pressed(raylib::consts::KeyboardKey::KEY_R) {
             camera.zoom = 1.0;
             player.position = rvec2(400, 280);
         }
 
-        if rl.is_key_pressed(KEY_C) {
+        if rl.is_key_pressed(raylib::consts::KeyboardKey::KEY_C) {
             camera_option = (camera_option + 1) % camera_updaters.len();
         }
 
@@ -177,13 +176,13 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
 }
 
 fn update_player(rl: &RaylibHandle, player: &mut Player, env_items: &[EnvItem], delta: f32) {
-    if rl.is_key_down(KEY_LEFT) {
+    if rl.is_key_down(raylib::consts::KeyboardKey::KEY_LEFT) {
         player.position.x -= PLAYER_HOR_SPD * delta;
     }
-    if rl.is_key_down(KEY_RIGHT) {
+    if rl.is_key_down(raylib::consts::KeyboardKey::KEY_RIGHT) {
         player.position.x += PLAYER_HOR_SPD * delta;
     }
-    if rl.is_key_down(KEY_SPACE) && player.can_jump {
+    if rl.is_key_down(raylib::consts::KeyboardKey::KEY_SPACE) && player.can_jump {
         player.speed = -PLAYER_JUMP_SPD;
         player.can_jump = false;
     }

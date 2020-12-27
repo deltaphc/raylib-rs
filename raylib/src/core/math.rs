@@ -1746,6 +1746,12 @@ pub struct BoundingBox {
     pub max: Vector3,
 }
 
+impl BoundingBox {
+    pub fn new(min: Vector3, max: Vector3) -> BoundingBox {
+        BoundingBox { min, max }
+    }
+}
+
 impl From<ffi::BoundingBox> for BoundingBox {
     fn from(r: ffi::BoundingBox) -> BoundingBox {
         unsafe { std::mem::transmute(r) }
