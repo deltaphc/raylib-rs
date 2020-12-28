@@ -14,6 +14,221 @@ pub struct MonitorInfo {
     pub name: String,
 }
 
+#[derive(Copy, Clone, Debug, Default, PartialEq)]
+pub struct WindowState(i32);
+
+impl WindowState {
+    pub fn vsync_hint(&self) -> bool {
+        self.0 & (ffi::ConfigFlag::FLAG_VSYNC_HINT as i32) != 0
+    }
+    /// Set to try enabling V-Sync on GPU
+    pub fn set_vsync_hint(mut self, enabled: bool) -> Self {
+        if enabled {
+            // set the bit
+            self.0 |= ffi::ConfigFlag::FLAG_VSYNC_HINT as i32;
+        } else {
+            // enable the bit
+            self.0 &= !(ffi::ConfigFlag::FLAG_VSYNC_HINT as i32);
+        }
+        self
+    }
+
+    pub fn fullscreen_mode(&self) -> bool {
+        self.0 & (ffi::ConfigFlag::FLAG_FULLSCREEN_MODE as i32) != 0
+    }
+    /// Set to run program in fullscreen
+    pub fn set_fullscreen_mode(mut self, enabled: bool) -> Self {
+        if enabled {
+            // set the bit
+            self.0 |= ffi::ConfigFlag::FLAG_FULLSCREEN_MODE as i32;
+        } else {
+            // enable the bit
+            self.0 &= !(ffi::ConfigFlag::FLAG_FULLSCREEN_MODE as i32);
+        }
+        self
+    }
+
+    pub fn window_resizable(&self) -> bool {
+        self.0 & (ffi::ConfigFlag::FLAG_WINDOW_RESIZABLE as i32) != 0
+    }
+    /// Set to allow resizable window
+    pub fn set_window_resizable(mut self, enabled: bool) -> Self {
+        if enabled {
+            // set the bit
+            self.0 |= ffi::ConfigFlag::FLAG_WINDOW_RESIZABLE as i32;
+        } else {
+            // enable the bit
+            self.0 &= !(ffi::ConfigFlag::FLAG_WINDOW_RESIZABLE as i32);
+        }
+        self
+    }
+
+    pub fn window_undecorated(&self) -> bool {
+        self.0 & (ffi::ConfigFlag::FLAG_WINDOW_UNDECORATED as i32) != 0
+    }
+    /// Set to disable window decoration (frame and buttons)
+    pub fn set_window_undecorated(mut self, enabled: bool) -> Self {
+        if enabled {
+            // set the bit
+            self.0 |= ffi::ConfigFlag::FLAG_WINDOW_UNDECORATED as i32;
+        } else {
+            // enable the bit
+            self.0 &= !(ffi::ConfigFlag::FLAG_WINDOW_UNDECORATED as i32);
+        }
+        self
+    }
+
+    pub fn window_hidden(&self) -> bool {
+        self.0 & (ffi::ConfigFlag::FLAG_WINDOW_HIDDEN as i32) != 0
+    }
+    /// Set to hide window
+    pub fn set_window_hidden(mut self, enabled: bool) -> Self {
+        if enabled {
+            // set the bit
+            self.0 |= ffi::ConfigFlag::FLAG_WINDOW_HIDDEN as i32;
+        } else {
+            // enable the bit
+            self.0 &= !(ffi::ConfigFlag::FLAG_WINDOW_HIDDEN as i32);
+        }
+        self
+    }
+
+    pub fn window_minimized(&self) -> bool {
+        self.0 & (ffi::ConfigFlag::FLAG_WINDOW_MINIMIZED as i32) != 0
+    }
+    /// Set to minimize window (iconify)
+    pub fn set_window_minimized(mut self, enabled: bool) -> Self {
+        if enabled {
+            // set the bit
+            self.0 |= ffi::ConfigFlag::FLAG_WINDOW_MINIMIZED as i32;
+        } else {
+            // enable the bit
+            self.0 &= !(ffi::ConfigFlag::FLAG_WINDOW_MINIMIZED as i32);
+        }
+        self
+    }
+
+    pub fn window_maximized(&self) -> bool {
+        self.0 & (ffi::ConfigFlag::FLAG_WINDOW_MAXIMIZED as i32) != 0
+    }
+    /// Set to maximize window (expanded to monitor)
+    pub fn set_window_maximized(mut self, enabled: bool) -> Self {
+        if enabled {
+            // set the bit
+            self.0 |= ffi::ConfigFlag::FLAG_WINDOW_MAXIMIZED as i32;
+        } else {
+            // enable the bit
+            self.0 &= !(ffi::ConfigFlag::FLAG_WINDOW_MAXIMIZED as i32);
+        }
+        self
+    }
+
+    pub fn window_unfocused(&self) -> bool {
+        self.0 & (ffi::ConfigFlag::FLAG_WINDOW_UNFOCUSED as i32) != 0
+    }
+    /// Set to window non focused
+    pub fn set_window_unfocused(mut self, enabled: bool) -> Self {
+        if enabled {
+            // set the bit
+            self.0 |= ffi::ConfigFlag::FLAG_WINDOW_UNFOCUSED as i32;
+        } else {
+            // enable the bit
+            self.0 &= !(ffi::ConfigFlag::FLAG_WINDOW_UNFOCUSED as i32);
+        }
+        self
+    }
+
+    pub fn window_topmost(&self) -> bool {
+        self.0 & (ffi::ConfigFlag::FLAG_WINDOW_TOPMOST as i32) != 0
+    }
+    /// Set to window always on top
+    pub fn set_window_topmost(mut self, enabled: bool) -> Self {
+        if enabled {
+            // set the bit
+            self.0 |= ffi::ConfigFlag::FLAG_WINDOW_TOPMOST as i32;
+        } else {
+            // enable the bit
+            self.0 &= !(ffi::ConfigFlag::FLAG_WINDOW_TOPMOST as i32);
+        }
+        self
+    }
+
+    pub fn window_always_run(&self) -> bool {
+        self.0 & (ffi::ConfigFlag::FLAG_WINDOW_ALWAYS_RUN as i32) != 0
+    }
+    /// Set to allow windows running while minimized
+    pub fn set_window_always_run(mut self, enabled: bool) -> Self {
+        if enabled {
+            // set the bit
+            self.0 |= ffi::ConfigFlag::FLAG_WINDOW_ALWAYS_RUN as i32;
+        } else {
+            // enable the bit
+            self.0 &= !(ffi::ConfigFlag::FLAG_WINDOW_ALWAYS_RUN as i32);
+        }
+        self
+    }
+
+    pub fn window_transparent(&self) -> bool {
+        self.0 & (ffi::ConfigFlag::FLAG_WINDOW_TRANSPARENT as i32) != 0
+    }
+    /// Set to allow transparent framebuffer
+    pub fn set_window_transparent(mut self, enabled: bool) -> Self {
+        if enabled {
+            // set the bit
+            self.0 |= ffi::ConfigFlag::FLAG_WINDOW_TRANSPARENT as i32;
+        } else {
+            // enable the bit
+            self.0 &= !(ffi::ConfigFlag::FLAG_WINDOW_TRANSPARENT as i32);
+        }
+        self
+    }
+
+    pub fn window_highdpi(&self) -> bool {
+        self.0 & (ffi::ConfigFlag::FLAG_WINDOW_HIGHDPI as i32) != 0
+    }
+    /// Set to support HighDPI
+    pub fn set_window_highdpi(mut self, enabled: bool) -> Self {
+        if enabled {
+            // set the bit
+            self.0 |= ffi::ConfigFlag::FLAG_WINDOW_HIGHDPI as i32;
+        } else {
+            // enable the bit
+            self.0 &= !(ffi::ConfigFlag::FLAG_WINDOW_HIGHDPI as i32);
+        }
+        self
+    }
+
+    pub fn msaa(&self) -> bool {
+        self.0 & (ffi::ConfigFlag::FLAG_MSAA_4X_HINT as i32) != 0
+    }
+    /// Set to try enabling MSAA 4X
+    pub fn set_msaa(mut self, enabled: bool) -> Self {
+        if enabled {
+            // set the bit
+            self.0 |= ffi::ConfigFlag::FLAG_MSAA_4X_HINT as i32;
+        } else {
+            // enable the bit
+            self.0 &= !(ffi::ConfigFlag::FLAG_MSAA_4X_HINT as i32);
+        }
+        self
+    }
+
+    pub fn interlaced_hint(&self) -> bool {
+        self.0 & (ffi::ConfigFlag::FLAG_INTERLACED_HINT as i32) != 0
+    }
+    /// Set to try enabling interlaced video format (for V3D)
+    pub fn set_interlaced_hint(mut self, enabled: bool) -> Self {
+        if enabled {
+            // set the bit
+            self.0 |= ffi::ConfigFlag::FLAG_INTERLACED_HINT as i32;
+        } else {
+            // enable the bit
+            self.0 &= !(ffi::ConfigFlag::FLAG_INTERLACED_HINT as i32);
+        }
+        self
+    }
+}
+
 /// Get number of connected monitors
 #[inline]
 pub fn get_monitor_count() -> i32 {
@@ -276,20 +491,65 @@ impl RaylibHandle {
         }
     }
 
-    /// Show the window.
-    #[inline]
-    pub fn unhide_window(&mut self) {
-        unsafe {
-            ffi::UnhideWindow();
-        }
+    /// Set window configuration state using flags
+    pub fn set_window_state(&mut self, state: WindowState) {
+        unsafe { ffi::SetWindowState(state.0 as u32) }
     }
 
-    /// Hide the window.
-    #[inline]
-    pub fn hide_window(&mut self) {
+    /// Clear window configuration state flags
+    pub fn clear_window_state(&mut self, state: WindowState) {
+        unsafe { ffi::ClearWindowState(state.0 as u32) }
+    }
+
+    /// Get the window config state
+    pub fn get_window_state(&self) -> WindowState {
+        let mut state = WindowState::default();
         unsafe {
-            ffi::HideWindow();
+            if ffi::IsWindowState(ffi::ConfigFlag::FLAG_VSYNC_HINT as u32) {
+                state.set_vsync_hint(true);
+            }
+            if ffi::IsWindowState(ffi::ConfigFlag::FLAG_FULLSCREEN_MODE as u32) {
+                state.set_fullscreen_mode(true);
+            }
+            if ffi::IsWindowState(ffi::ConfigFlag::FLAG_WINDOW_RESIZABLE as u32) {
+                state.set_window_resizable(true);
+            }
+            if ffi::IsWindowState(ffi::ConfigFlag::FLAG_WINDOW_UNDECORATED as u32) {
+                state.set_window_undecorated(true);
+            }
+            if ffi::IsWindowState(ffi::ConfigFlag::FLAG_WINDOW_HIDDEN as u32) {
+                state.set_window_hidden(true);
+            }
+            if ffi::IsWindowState(ffi::ConfigFlag::FLAG_WINDOW_MINIMIZED as u32) {
+                state.set_window_minimized(true);
+            }
+            if ffi::IsWindowState(ffi::ConfigFlag::FLAG_WINDOW_MAXIMIZED as u32) {
+                state.set_window_maximized(true);
+            }
+            if ffi::IsWindowState(ffi::ConfigFlag::FLAG_WINDOW_UNFOCUSED as u32) {
+                state.set_window_unfocused(true);
+            }
+            if ffi::IsWindowState(ffi::ConfigFlag::FLAG_WINDOW_TOPMOST as u32) {
+                state.set_window_topmost(true);
+            }
+            if ffi::IsWindowState(ffi::ConfigFlag::FLAG_WINDOW_ALWAYS_RUN as u32) {
+                state.set_window_always_run(true);
+            }
+
+            if ffi::IsWindowState(ffi::ConfigFlag::FLAG_WINDOW_TRANSPARENT as u32) {
+                state.set_window_transparent(true);
+            }
+            if ffi::IsWindowState(ffi::ConfigFlag::FLAG_WINDOW_HIGHDPI as u32) {
+                state.set_window_highdpi(true);
+            }
+            if ffi::IsWindowState(ffi::ConfigFlag::FLAG_MSAA_4X_HINT as u32) {
+                state.set_msaa(true);
+            }
+            if ffi::IsWindowState(ffi::ConfigFlag::FLAG_INTERLACED_HINT as u32) {
+                state.set_interlaced_hint(true);
+            }
         }
+        state
     }
 
     /// Sets icon for window (only on desktop platforms).

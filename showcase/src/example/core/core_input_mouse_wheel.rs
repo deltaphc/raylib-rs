@@ -32,7 +32,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
     {
         // Update
         //----------------------------------------------------------------------------------
-        box_position_y -= rl.get_mouse_wheel_move() * scroll_speed;
+        box_position_y -= rl.get_mouse_wheel_move() as i32 * scroll_speed;
         //----------------------------------------------------------------------------------
 
         // Draw

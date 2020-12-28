@@ -49,19 +49,23 @@ fn test_model_dropping(opt: &options::Opt) {
 /// Checks that audio files are droppable after window is closed
 fn test_audio_dropping(opt: &options::Opt) {
     let ten_millis = time::Duration::from_millis(10);
-    let _w = {
+    let w = {
         let (_, _thread) = raylib::init()
             .size(opt.width, opt.height)
             .title("Drop")
             .build();
-        Wave::load_wave("static/wave.ogg").expect("couldn't load wave");
+        Wave::load_wave("static/wave.ogg").expect("couldn't load wave")
     };
     thread::sleep(ten_millis);
     let _s = {
         let (_rl, _thread) = opt.open_window("Drop Sound");
-        Sound::load_sound("static/wave.ogg").expect("couldn't load wave");
+        Sound::load_sound("static/wave.ogg").expect("couldn't load wave")
     };
     thread::sleep(ten_millis);
+
+    let _samples = w.load_wave_samples();
+    thread::sleep(ten_millis);
+
     // Broken on mac
     // let m = {
     //     let (_rl, thread) = opt.open_window("Drop Sound");

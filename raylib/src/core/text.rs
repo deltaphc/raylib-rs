@@ -108,38 +108,39 @@ impl RaylibHandle {
         Ok(Font(f))
     }
 
-    /// Loads font data for further use (see also `Font::from_data`).
-    #[inline]
-    pub fn load_font_data(
-        &mut self,
-        filename: &str,
-        font_size: i32,
-        chars: Option<&[i32]>,
-        sdf: i32,
-    ) -> Vec<ffi::CharInfo> {
-        let c_filename = CString::new(filename).unwrap();
-        unsafe {
-            let ci_arr_ptr = match chars {
-                Some(c) => ffi::LoadFontData(
-                    c_filename.as_ptr(),
-                    font_size,
-                    c.as_ptr() as *mut i32,
-                    c.len() as i32,
-                    sdf,
-                ),
-                None => {
-                    ffi::LoadFontData(c_filename.as_ptr(), font_size, std::ptr::null_mut(), 0, sdf)
-                }
-            };
-            let ci_size = if let Some(c) = chars { c.len() } else { 95 }; // raylib assumes 95 if none given
-            let mut ci_vec = Vec::with_capacity(ci_size);
-            for i in 0..ci_size {
-                ci_vec.push(*ci_arr_ptr.offset(i as isize));
-            }
-            libc::free(ci_arr_ptr as *mut libc::c_void);
-            ci_vec
-        }
-    }
+    // /// Loads font data for further use (see also `Font::from_data`).
+    // #[inline]
+    // pub fn load_font_data(
+    //     &mut self,
+    //     filename: &str,
+    //     font_size: i32,
+    //     chars: Option<&[i32]>,
+    //     sdf: i32,
+    // ) -> Vec<ffi::CharInfo> {
+    //     let c_filename = CString::new(filename).unwrap();
+    //     unsafe {
+    //         let ci_arr_ptr = match chars {
+    //             Some(c) => ffi::LoadFontData(
+    //                 c_filename.as_ptr() as *const _,
+    //                 0,
+    //                 font_size,
+    //                 c.as_ptr() as *mut i32,
+    //                 c.len() as i32,
+    //                 sdf,
+    //             ),
+    //             None => {
+    //                 ffi::LoadFontData(c_filename.as_ptr(), font_size, std::ptr::null_mut(), 0, sdf)
+    //             }
+    //         };
+    //         let ci_size = if let Some(c) = chars { c.len() } else { 95 }; // raylib assumes 95 if none given
+    //         let mut ci_vec = Vec::with_capacity(ci_size);
+    //         for i in 0..ci_size {
+    //             ci_vec.push(*ci_arr_ptr.offset(i as isize));
+    //         }
+    //         libc::free(ci_arr_ptr as *mut libc::c_void);
+    //         ci_vec
+    //     }
+    // }
 }
 
 impl RaylibFont for WeakFont {}

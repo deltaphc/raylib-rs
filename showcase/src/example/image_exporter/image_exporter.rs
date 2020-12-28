@@ -57,7 +57,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
     //--------------------------------------------------------------------------------------
 
     let mut image = Image::gen_image_color(256, 256, Color::BLACK);
-    image.draw_text(Vector2::zero(), "drop image into window", 16, Color::WHITE);
+    image.draw_text( "drop image into window", 0, 0, 16, Color::WHITE);
     let mut  texture = rl.load_texture_from_image(thread, &image).unwrap();
 
     let mut imageLoaded = true;

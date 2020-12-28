@@ -97,7 +97,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
 
     // Generate cubemap (texture with 6 quads-cube-mapping) from panorama HDR texture
     // NOTE: New texture is generated rendering to texture, shader computes the sphre->cube coordinates mapping
-    skybox.materials_mut()[0].maps_mut()[raylib::consts::MaterialMapType::MAP_CUBEMAP as usize].texture = unsafe { *rl.gen_texture_cubemap(thread, &shdrCubemap, &texHDR, 512).make_weak().as_ref()};
+    skybox.materials_mut()[0].maps_mut()[raylib::consts::MaterialMapType::MAP_CUBEMAP as usize].texture = unsafe { *rl.gen_texture_cubemap(thread, &shdrCubemap, &texHDR, 512, ffi::PixelFormat::UNCOMPRESSED_R8G8B8A8).make_weak().as_ref()};
 
 
     rl.set_camera_mode(&camera, raylib::consts::CameraMode::CAMERA_FIRST_PERSON); // Set a first person camera mode
