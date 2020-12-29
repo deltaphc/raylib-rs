@@ -96,7 +96,7 @@ impl RaylibHandle {
             }
         }
         unsafe {
-            libc::free(m_ptr as *mut libc::c_void);
+            ffi::MemFree(m_ptr as *mut libc::c_void);
         }
         Ok(m_vec)
     }
@@ -228,7 +228,7 @@ impl RaylibHandle {
             }
         }
         unsafe {
-            libc::free(m_ptr as *mut libc::c_void);
+            ffi::MemFree(m_ptr as *mut libc::c_void);
         }
         Ok(m_vec)
     }
@@ -448,7 +448,7 @@ impl Material {
             }
         }
         unsafe {
-            libc::free(m_ptr as *mut libc::c_void);
+            ffi::MemFree(m_ptr as *mut libc::c_void);
         }
         Ok(m_vec)
     }

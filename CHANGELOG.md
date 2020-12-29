@@ -1,5 +1,38 @@
 # raylib-rs Changelog
 
+## 3.5.0 (WIP)
+
+Added: SetWindowState
+Added: ClearW‌indowState
+Added: IsWindowFocused
+Added: GetWindowScaleDPI
+Added: GetMonitorRefreshRate
+Added: IsCursonOnScreen
+Added: SetMouseCursor/GetMouseCursor
+Added: Normalize
+Added: Remap
+Added: Vector2Reflect
+Added: Vector2LengthSqr
+Added: Vector2MoveTowards
+Added: UnloadFontData
+Added: LoadFontFromMemmory(ttf)
+Added: ColorAlphaBlend
+Added: GetPixelColor
+Added: SetPixelColor
+Added: LoadImageFromMemory
+Added: LoadImageAnim
+Added: DrawTextureTiled
+Added: UpdateTextureRec
+Added: UnloadImageColors,
+Added: UnloadImagePallet,
+Added: UnloadWaveSample
+Added: DrawTriangle3D
+Added: DrawTriangleStrip3D
+Added: LoadWaveFromMemory
+Added: MemAlloc() / MemFree()
+Added: UnloadFileData
+Added: UnloadFileText
+
 ## 0.10.0 (WIP)
 
 - Basic macOS support. Currently untested.

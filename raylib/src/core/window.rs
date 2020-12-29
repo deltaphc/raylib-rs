@@ -235,6 +235,17 @@ pub fn get_monitor_count() -> i32 {
     unsafe { ffi::GetMonitorCount() }
 }
 
+/// Get specified monitor refresh rate
+#[inline]
+pub fn get_monitor_refresh_rate(monitor: i32) -> i32 {
+    debug_assert!(
+        monitor < get_monitor_count() && monitor >= 0,
+        "monitor index out of range"
+    );
+
+    unsafe { ffi::GetMonitorRefreshRate(monitor) }
+}
+
 /// Get number of connected monitors
 /// Only checks that monitor index is in range in debug mode
 #[inline]
@@ -481,6 +492,30 @@ impl RaylibHandle {
     #[inline]
     pub fn is_window_fullscreen(&self) -> bool {
         unsafe { ffi::IsWindowFullscreen() }
+    }
+
+    // Check if window is currently focused (only PLATFORM_DESKTOP)
+    #[inline]
+    pub fn is_window_focused(&self) -> bool {
+        unsafe { ffi::IsWindowFocused() }
+    }
+
+    /// Check if window is currently focused (only PLATFORM_DESKTOP)
+    #[inline]
+    pub fn get_window_scale_dpi(&self) -> Vector2 {
+        unsafe { ffi::GetWindowScaleDPI().into() }
+    }
+
+    /// Check if cursor is on the current screen.
+    #[inline]
+    pub fn is_cursor_on_screen(&self) -> bool {
+        unsafe { ffi::IsCursorOnScreen() }
+    }
+
+    /// Set mouse cursor
+    #[inline]
+    pub fn set_mouse_cursor(&self, cursor: crate::consts::MouseCursor) {
+        unsafe { ffi::SetMouseCursor(cursor as i32) }
     }
 
     /// Toggles fullscreen mode (only on desktop platforms).

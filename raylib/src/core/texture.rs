@@ -7,6 +7,7 @@ use std::ffi::CString;
 use std::mem::ManuallyDrop;
 
 make_rslice!(ImagePalette, Color, ffi::UnloadImagePalette);
+make_rslice!(ImageColors, Color, ffi::UnloadImageColors);
 
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
@@ -173,11 +174,11 @@ impl Image {
     }
 
     /// Gets pixel data from `image` as a Vec of Color structs.
-    pub fn get_image_data(&self) -> crate::color::RSliceColor {
+    pub fn get_image_data(&self) -> ImageColors {
         unsafe {
             let image_data = ffi::LoadImageColors(self.0);
             let image_data_len = (self.width * self.height) as usize;
-            crate::color::RSliceColor(ManuallyDrop::new(Box::from_raw(
+            ImageColors(ManuallyDrop::new(Box::from_raw(
                 std::slice::from_raw_parts_mut(image_data as *mut _, image_data_len),
             )))
         }

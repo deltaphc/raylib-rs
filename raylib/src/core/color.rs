@@ -2,8 +2,6 @@
 use crate::core::math::{Vector3, Vector4};
 use crate::ffi;
 
-make_rslice!(RSliceColor, Color, libc::free);
-
 #[repr(C)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Default)]
 pub struct Color {
@@ -282,5 +280,11 @@ impl Color {
     #[inline]
     pub fn fade(&self, alpha: f32) -> Color {
         unsafe { ffi::Fade(self.into(), alpha).into() }
+    }
+
+    /// Color fade-in or fade-out, alpha goes from 0.0f to 1.0f
+    #[inline]
+    pub fn color_alpha_blend(dst: &Color, src: &Color, tint: &Color) -> Color {
+        unsafe { ffi::ColorAlphaBlend(dst.into(), src.into(), tint.into()).into() }
     }
 }

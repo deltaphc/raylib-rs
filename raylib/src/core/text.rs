@@ -13,6 +13,51 @@ make_thin_wrapper!(Font, ffi::Font, ffi::UnloadFont);
 make_thin_wrapper!(WeakFont, ffi::Font, no_drop);
 make_thin_wrapper!(CharInfo, ffi::CharInfo, no_drop);
 
+#[repr(transparent)]
+#[derive(Debug)]
+pub struct RSliceCharInfo(pub(crate) std::mem::ManuallyDrop<std::boxed::Box<[CharInfo]>>);
+
+impl Drop for RSliceCharInfo {
+    #[allow(unused_unsafe)]
+    fn drop(&mut self) {
+        unsafe {
+            let inner = std::mem::ManuallyDrop::take(&mut self.0);
+            let len = inner.len();
+            ffi::UnloadFontData(
+                std::boxed::Box::leak(inner).as_mut_ptr() as *mut _,
+                len as i32,
+            );
+        }
+    }
+}
+
+impl std::convert::AsRef<Box<[CharInfo]>> for RSliceCharInfo {
+    fn as_ref(&self) -> &Box<[CharInfo]> {
+        &self.0
+    }
+}
+
+impl std::convert::AsMut<Box<[CharInfo]>> for RSliceCharInfo {
+    fn as_mut(&mut self) -> &mut Box<[CharInfo]> {
+        &mut self.0
+    }
+}
+
+impl std::ops::Deref for RSliceCharInfo {
+    type Target = Box<[CharInfo]>;
+    #[inline]
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+impl std::ops::DerefMut for RSliceCharInfo {
+    #[inline]
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.0
+    }
+}
+
 // #[cfg(feature = "nightly")]
 // impl !Send for Font {}
 // #[cfg(feature = "nightly")]
@@ -108,39 +153,45 @@ impl RaylibHandle {
         Ok(Font(f))
     }
 
-    // /// Loads font data for further use (see also `Font::from_data`).
-    // #[inline]
-    // pub fn load_font_data(
-    //     &mut self,
-    //     filename: &str,
-    //     font_size: i32,
-    //     chars: Option<&[i32]>,
-    //     sdf: i32,
-    // ) -> Vec<ffi::CharInfo> {
-    //     let c_filename = CString::new(filename).unwrap();
-    //     unsafe {
-    //         let ci_arr_ptr = match chars {
-    //             Some(c) => ffi::LoadFontData(
-    //                 c_filename.as_ptr() as *const _,
-    //                 0,
-    //                 font_size,
-    //                 c.as_ptr() as *mut i32,
-    //                 c.len() as i32,
-    //                 sdf,
-    //             ),
-    //             None => {
-    //                 ffi::LoadFontData(c_filename.as_ptr(), font_size, std::ptr::null_mut(), 0, sdf)
-    //             }
-    //         };
-    //         let ci_size = if let Some(c) = chars { c.len() } else { 95 }; // raylib assumes 95 if none given
-    //         let mut ci_vec = Vec::with_capacity(ci_size);
-    //         for i in 0..ci_size {
-    //             ci_vec.push(*ci_arr_ptr.offset(i as isize));
-    //         }
-    //         libc::free(ci_arr_ptr as *mut libc::c_void);
-    //         ci_vec
-    //     }
-    // }
+    /// Loads font data for further use (see also `Font::from_data`).
+    /// Now supports .tiff
+    #[inline]
+    pub fn load_font_data(
+        &mut self,
+        data: &[u8],
+        font_size: i32,
+        chars: Option<&[i32]>,
+        sdf: i32,
+    ) -> Option<RSliceCharInfo> {
+        unsafe {
+            let ci_arr_ptr = match chars {
+                Some(c) => ffi::LoadFontData(
+                    data.as_ptr(),
+                    data.len() as i32,
+                    font_size,
+                    c.as_ptr() as *mut i32,
+                    c.len() as i32,
+                    sdf,
+                ),
+                None => ffi::LoadFontData(
+                    data.as_ptr(),
+                    data.len() as i32,
+                    font_size,
+                    std::ptr::null_mut(),
+                    0,
+                    sdf,
+                ),
+            };
+            let ci_size = if let Some(c) = chars { c.len() } else { 95 }; // raylib assumes 95 if none given
+            if ci_arr_ptr.is_null() {
+                None
+            } else {
+                Some(RSliceCharInfo(std::mem::ManuallyDrop::new(Box::from_raw(
+                    std::slice::from_raw_parts_mut(ci_arr_ptr as *mut _, ci_size),
+                ))))
+            }
+        }
+    }
 }
 
 impl RaylibFont for WeakFont {}
@@ -255,7 +306,7 @@ pub fn gen_image_font_atlas(
         let mut recs = Vec::with_capacity(chars.len());
         recs.set_len(chars.len());
         std::ptr::copy(ptr, recs.as_mut_ptr(), chars.len());
-        libc::free(ptr as *mut libc::c_void);
+        ffi::MemFree(ptr as *mut libc::c_void);
         return (img, recs);
     }
 }
