@@ -1,6 +1,6 @@
 [package]
 name = "raylib-examples"
-version = "3.0.0"
+version = "3.5.0"
 authors = ["David Ayeke"]
 edition = "2018"
 license = "Zlib"
