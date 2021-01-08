@@ -7,10 +7,17 @@ mod options;
 
 fn main() {
     let opt = options::Opt::from_args();
+    test_rslice(&opt);
     test_shader_dropping(&opt);
     test_model_dropping(&opt);
     test_audio_dropping(&opt);
     test_font_dropping(&opt);
+}
+
+fn test_rslice(opt: &options::Opt) {
+    let (mut rl, thread) = opt.open_window("Drop Allocs");
+    let img = Image::gen_image_color(256, 256, Color::RED);
+    let pallet = img.extract_palette(16);
 }
 
 /// Checks that shader files are droppable after window is closed

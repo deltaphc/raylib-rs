@@ -7,7 +7,7 @@ Added: ClearW‌indowState
 Added: IsWindowFocused
 Added: GetWindowScaleDPI
 Added: GetMonitorRefreshRate
-Added: IsCursonOnScreen
+Added: IsCursorOnScreen
 Added: SetMouseCursor/GetMouseCursor
 Added: Normalize
 Added: Remap
