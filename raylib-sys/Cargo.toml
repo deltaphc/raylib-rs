@@ -9,6 +9,11 @@ repository = "https://github.com/deltaphc/raylib-rs"
 keywords = ["bindings", "raylib", "gamedev", "ffi"]
 categories = ["external-ffi-bindings"]
 edition = "2018"
+exclude = [
+    "raylib/examples/*",
+    "raylib/projects/*",
+    "raylib/templates/*"
+]
 
 [build-dependencies]
 fs_extra = "1.1"
