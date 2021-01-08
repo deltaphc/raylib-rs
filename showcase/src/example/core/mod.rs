@@ -5,6 +5,7 @@ pub mod core_3d_camera_free;
 pub mod core_3d_camera_mode;
 pub mod core_3d_picking;
 pub mod core_basic_window;
+#[cfg(not(target_os = "macos"))]
 pub mod core_custom_logging;
 pub mod core_drop_files;
 pub mod core_input_gamepad;
