@@ -7,7 +7,9 @@
 
 # raylib-rs
 
-raylib-rs is a Rust binding for [raylib](http://www.raylib.com/) 3.0. It currently targets the _stable_ Rust toolchain, version 1.31 or higher.
+raylib-rs is a Rust binding for [raylib](http://www.raylib.com/) 3.5. It currently targets the _stable_ Rust toolchain, version 1.31 or higher.
+
+Please checkout the showcase directory to find usage examples!
 
 Though this binding tries to stay close to the simple C API, it makes some changes to be more idiomatic for Rust.
 
@@ -25,13 +27,12 @@ Though this binding tries to stay close to the simple C API, it makes some chang
 
 ## Supported Platforms
 
-   API   |    Windows         |  Linux             |    macOS           |   Web              | Android            | Raspberry Pi       |
-  -----  | ------------------ | ------------------ | ------------------ | ------------------ | ------------------ | ------------------ |
-  core   | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :construction:     |                    |                    |
-  rgui   | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |                    |                    |                    |
-  physac | :construction:     | :construction:     | :construction:     |                    |                    |                    |
-  rlgl   | :x:                | :heavy_check_mark: | :heavy_check_mark: |                    |                    |                    |
-
+| API    | Windows            | Linux              | macOS              | Web            | Android | Raspberry Pi |
+| ------ | ------------------ | ------------------ | ------------------ | -------------- | ------- | ------------ |
+| core   | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :construction: |         |              |
+| rgui   | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |                |         |              |
+| physac | :construction:     | :construction:     | :construction:     |                |         |              |
+| rlgl   | :x:                | :heavy_check_mark: | :heavy_check_mark: |                |         |              |
 
 ## Build Dependencies
 
@@ -42,8 +43,9 @@ Follow instructions for building raylib for your platform [here](https://github.
 
 ```toml
 [dependencies]
-raylib = "3.0"
+raylib = "3.5"
 ```
+
 2. Start coding!
 
 ```rust
@@ -54,10 +56,10 @@ fn main() {
         .size(640, 480)
         .title("Hello, World")
         .build();
-    
+
     while !rl.window_should_close() {
         let mut d = rl.begin_drawing(&thread);
-        
+
         d.clear_background(Color::WHITE);
         d.draw_text("Hello, world!", 12, 12, 20, Color::BLACK);
     }
@@ -67,7 +69,7 @@ fn main() {
 # Tech Notes
 
 - Structs holding resources have RAII/move semantics, including: `Image`, `Texture2D`, `RenderTexture2D`, `Font`, `Mesh`, `Shader`, `Material`, `Model`, `Wave`, `Sound`, `Music`, and `AudioStream`.
-- Functions dealing with string data take in `&str` and/or return an owned `String`, for the sake of safety. The exception to this is the gui draw functions which take &CStr to avoid per frame allocations. The `rstr!` macro helps make this easy. 
+- Functions dealing with string data take in `&str` and/or return an owned `String`, for the sake of safety. The exception to this is the gui draw functions which take &CStr to avoid per frame allocations. The `rstr!` macro helps make this easy.
 - In C, `LoadFontData` returns a pointer to a heap-allocated array of `CharInfo` structs. In this Rust binding, said array is copied into an owned `Vec<CharInfo>`, the original data is freed, and the owned Vec is returned.
 - In C, `GetDroppedFiles` returns a pointer to an array of strings owned by raylib. Again, for safety and also ease of use, this binding copies said array into a `Vec<String>` which is returned to the caller.
 - I've tried to make linking automatic, though I've only tested on Windows 10, Ubuntu, and MacOS 15. Other platforms may have other considerations.
@@ -90,4 +92,5 @@ The raylib-test crate tests the bindings by opening a window, and checking the r
 - Physac port?
 
 # Contribution & Support
+
 All contributions are welcome. Chat about raylib on [discord](https://discord.gg/VkzNHUE)
