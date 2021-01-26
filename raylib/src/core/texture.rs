@@ -4,11 +4,15 @@ use crate::core::math::{Rectangle, Vector4};
 use crate::core::{RaylibHandle, RaylibThread};
 use crate::ffi;
 use std::ffi::CString;
+use std::mem::ManuallyDrop;
+
+make_rslice!(ImagePalette, Color, ffi::UnloadImagePalette);
+make_rslice!(ImageColors, Color, ffi::UnloadImageColors);
 
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct NPatchInfo {
-    pub source_rec: Rectangle,
+    pub source: Rectangle,
     pub left: i32,
     pub top: i32,
     pub right: i32,
@@ -31,7 +35,7 @@ impl Into<ffi::NPatchInfo> for NPatchInfo {
 impl Into<ffi::NPatchInfo> for &NPatchInfo {
     fn into(self) -> ffi::NPatchInfo {
         ffi::NPatchInfo {
-            sourceRec: self.source_rec.into(),
+            source: self.source.into(),
             left: self.left,
             top: self.top,
             right: self.right,
@@ -113,20 +117,6 @@ pub trait RaylibRenderTexture2D: AsRef<ffi::RenderTexture2D> + AsMut<ffi::Render
     fn texture_mut(&mut self) -> &mut WeakTexture2D {
         unsafe { std::mem::transmute(&mut self.as_mut().texture) }
     }
-
-    fn depth(&self) -> Option<&WeakTexture2D> {
-        if self.as_ref().depthTexture {
-            return unsafe { Some(std::mem::transmute(&self.as_ref().depth)) };
-        }
-        None
-    }
-
-    fn depth_mut(&mut self) -> Option<&mut WeakTexture2D> {
-        if self.as_mut().depthTexture {
-            return unsafe { Some(std::mem::transmute(&mut self.as_mut().depth)) };
-        }
-        None
-    }
 }
 
 impl Clone for Image {
@@ -184,56 +174,26 @@ impl Image {
     }
 
     /// Gets pixel data from `image` as a Vec of Color structs.
-    pub fn get_image_data(&self) -> Vec<Color> {
+    pub fn get_image_data(&self) -> ImageColors {
         unsafe {
-            let image_data = ffi::GetImageData(self.0);
+            let image_data = ffi::LoadImageColors(self.0);
             let image_data_len = (self.width * self.height) as usize;
-            let mut safe_image_data: Vec<Color> = Vec::with_capacity(image_data_len);
-            safe_image_data.set_len(image_data_len);
-            std::ptr::copy(
-                image_data,
-                safe_image_data.as_mut_ptr() as *mut ffi::Color,
-                image_data_len,
-            );
-            libc::free(image_data as *mut libc::c_void);
-            safe_image_data
-        }
-    }
-
-    /// Gets normalized (`0.0` to `1.0`) pixel data from `image` as a Vec of Vector4 structs.
-    pub fn get_image_data_normalized(&self) -> Vec<Vector4> {
-        unsafe {
-            let image_data = ffi::GetImageDataNormalized(self.0);
-            let image_data_len = (self.width * self.height) as usize;
-            let mut safe_image_data: Vec<Vector4> = Vec::with_capacity(image_data_len);
-            safe_image_data.set_len(image_data_len);
-            std::ptr::copy(
-                image_data,
-                safe_image_data.as_mut_ptr() as *mut ffi::Vector4,
-                image_data_len,
-            );
-            libc::free(image_data as *mut libc::c_void);
-            safe_image_data
+            ImageColors(ManuallyDrop::new(Box::from_raw(
+                std::slice::from_raw_parts_mut(image_data as *mut _, image_data_len),
+            )))
         }
     }
 
     /// Extract color palette from image to maximum size
     #[inline]
-    pub fn extract_palette(&self, max_palette_size: u32) -> Vec<Color> {
+    pub fn extract_palette(&self, max_palette_size: u32) -> ImagePalette {
         unsafe {
             let mut palette_len = 0;
             let image_data =
-                ffi::ImageExtractPalette(self.0, max_palette_size as i32, &mut palette_len);
-            let mut safe_image_data: Vec<Color> = Vec::with_capacity(palette_len as usize);
-            safe_image_data.set_len(palette_len as usize);
-            std::ptr::copy(
-                image_data,
-                safe_image_data.as_mut_ptr() as *mut ffi::Color,
-                palette_len as usize,
-            );
-            // TODO replace this with raylib free
-            libc::free(image_data as *mut libc::c_void);
-            safe_image_data
+                ffi::LoadImagePalette(self.0, max_palette_size as i32, &mut palette_len);
+            ImagePalette(ManuallyDrop::new(Box::from_raw(
+                std::slice::from_raw_parts_mut(image_data as *mut _, palette_len as usize),
+            )))
         }
     }
 
@@ -485,8 +445,9 @@ impl Image {
     #[inline]
     pub fn draw_text(
         &mut self,
-        position: impl Into<ffi::Vector2>,
         text: &str,
+        pos_x: i32,
+        pos_y: i32,
         font_size: i32,
         color: impl Into<ffi::Color>,
     ) {
@@ -494,8 +455,9 @@ impl Image {
         unsafe {
             ffi::ImageDrawText(
                 &mut self.0,
-                position.into(),
                 c_text.as_ptr(),
+                pos_x,
+                pos_y,
                 font_size,
                 color.into(),
             );
@@ -506,9 +468,9 @@ impl Image {
     #[inline]
     pub fn draw_text_ex(
         &mut self,
-        position: impl Into<ffi::Vector2>,
         font: impl AsRef<ffi::Font>,
         text: &str,
+        position: impl Into<ffi::Vector2>,
         font_size: f32,
         spacing: f32,
         color: impl Into<ffi::Color>,
@@ -517,9 +479,9 @@ impl Image {
         unsafe {
             ffi::ImageDrawTextEx(
                 &mut self.0,
-                position.into(),
                 *font.as_ref(),
                 c_text.as_ptr(),
+                position.into(),
                 font_size,
                 spacing,
                 color.into(),
@@ -731,52 +693,6 @@ impl Image {
         Ok(Image(i))
     }
 
-    /// Loads image from Color array data (RGBA - 32bit).
-    pub fn load_image_ex(pixels: &[Color], width: i32, height: i32) -> Result<Image, String> {
-        let expected_len = (width * height) as usize;
-        if pixels.len() != expected_len {
-            return Err(format!(
-                "load_image_ex: Data is wrong size. Expected {}, got {}",
-                expected_len,
-                pixels.len()
-            ));
-        }
-        unsafe {
-            // An examination of Raylib source (textures.c) shows that it does not mutate the given pixels
-            // this never fails no need for null check
-            Ok(Image(ffi::LoadImageEx(
-                pixels.as_ptr() as *mut ffi::Color,
-                width,
-                height,
-            )))
-        }
-    }
-
-    /// Loads image from raw data with parameters.
-    pub fn load_image_pro(
-        data: &[u8],
-        width: i32,
-        height: i32,
-        format: crate::consts::PixelFormat,
-    ) -> Result<Image, String> {
-        let expected_len = get_pixel_data_size(width, height, format) as usize;
-        if data.len() != expected_len {
-            return Err(format!(
-                "load_image_pro: Data is wrong size. Expected {}, got {}",
-                expected_len,
-                data.len()
-            ));
-        }
-        unsafe {
-            Ok(Image(ffi::LoadImagePro(
-                data.as_ptr() as *mut std::os::raw::c_void,
-                width,
-                height,
-                format as i32,
-            )))
-        }
-    }
-
     /// Loads image from RAW file data.
     pub fn load_image_raw(
         filename: &str,
@@ -984,12 +900,14 @@ impl RaylibHandle {
         shader: impl AsRef<ffi::Shader>,
         map: impl AsRef<ffi::Texture2D>,
         size: i32,
+        format: ffi::PixelFormat,
     ) -> Texture2D {
         unsafe {
             Texture2D(ffi::GenTextureCubemap(
                 *shader.as_ref(),
                 *map.as_ref(),
                 size,
+                format as i32,
             ))
         }
     }

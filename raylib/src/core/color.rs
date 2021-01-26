@@ -254,8 +254,8 @@ impl Color {
 
     /// Returns a Color from HSV values
     #[inline]
-    pub fn color_from_hsv(hsv: Vector3) -> Color {
-        unsafe { ffi::ColorFromHSV(hsv.into()).into() }
+    pub fn color_from_hsv(hue: f32, saturation: f32, value: f32) -> Color {
+        unsafe { ffi::ColorFromHSV(hue, saturation, value).into() }
     }
 
     /// Returns color from normalized values [0..1]
@@ -280,5 +280,11 @@ impl Color {
     #[inline]
     pub fn fade(&self, alpha: f32) -> Color {
         unsafe { ffi::Fade(self.into(), alpha).into() }
+    }
+
+    /// Color fade-in or fade-out, alpha goes from 0.0f to 1.0f
+    #[inline]
+    pub fn color_alpha_blend(dst: &Color, src: &Color, tint: &Color) -> Color {
+        unsafe { ffi::ColorAlphaBlend(dst.into(), src.into(), tint.into()).into() }
     }
 }

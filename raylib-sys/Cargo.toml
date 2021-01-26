@@ -1,6 +1,6 @@
 [package]
 name = "raylib-sys"
-version = "3.0.0"
+version = "3.5.0"
 authors = ["DeltaPHC <phclem@protonmail.com>"]
 license = "Zlib"
 description = "Raw FFI bindings for Raylib"
@@ -9,6 +9,11 @@ repository = "https://github.com/deltaphc/raylib-rs"
 keywords = ["bindings", "raylib", "gamedev", "ffi"]
 categories = ["external-ffi-bindings"]
 edition = "2018"
+exclude = [
+    "raylib/examples/*",
+    "raylib/projects/*",
+    "raylib/templates/*"
+]
 
 [build-dependencies]
 fs_extra = "1.1"

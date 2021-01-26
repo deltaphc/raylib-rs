@@ -44,8 +44,8 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread)-> crate::SampleOut {
     rlights::create_light(
         LIGHT_POINT,
         rvec3(
-            rlights::LIGHT_DISTANCE as f32,
-            rlights::LIGHT_HEIGHT as f32,
+            3.5,
+            1.0,
             0.0,
         ),
         rvec3(0.0, 0.0, 0.0),
@@ -56,8 +56,8 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread)-> crate::SampleOut {
         LIGHT_POINT,
         rvec3(
             0.0,
-            rlights::LIGHT_HEIGHT as f32,
-            rlights::LIGHT_DISTANCE as f32,
+            1.0,
+            3.5,
         ),
         rvec3(0.0, 0.0, 0.0),
         rcolor(0, 255, 0, 255),
@@ -66,8 +66,8 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread)-> crate::SampleOut {
     rlights::create_light(
         LIGHT_POINT,
         rvec3(
-            -rlights::LIGHT_DISTANCE as f32,
-            rlights::LIGHT_HEIGHT as f32,
+            -3.5,
+            1.0,
             0.0,
         ),
         rvec3(0.0, 0.0, 0.0),
@@ -78,8 +78,8 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread)-> crate::SampleOut {
         LIGHT_DIRECTIONAL,
         rvec3(
             0.0,
-            rlights::LIGHT_HEIGHT as f32 * 2.0,
-            -rlights::LIGHT_DISTANCE as f32,
+            1.0 * 2.0,
+            -3.5,
         ),
         rvec3(0.0, 0.0, 0.0),
         rcolor(255, 0, 255, 255),
@@ -399,7 +399,7 @@ fn load_material_pbr(
     let texHDR = rl
         .load_texture(thread, "original/models/resources/dresden_square.hdr")
         .unwrap();
-    let cubemap = rl.gen_texture_cubemap(thread, &shdr_cubemap, &texHDR, CUBEMAP_SIZE);
+    let cubemap = rl.gen_texture_cubemap(thread, &shdr_cubemap, &texHDR, CUBEMAP_SIZE, ffi::PixelFormat::UNCOMPRESSED_R32G32B32);
     unsafe {
         *mat.maps_mut()[MAP_IRRADIANCE as usize].texture_mut() = rl
             .gen_texture_irradiance(thread, &shdr_irradiance, &cubemap, IRRADIANCE_SIZE)

@@ -223,7 +223,7 @@ impl RaylibHandle {
 
     /// Returns mouse wheel movement Y.
     #[inline]
-    pub fn get_mouse_wheel_move(&self) -> i32 {
+    pub fn get_mouse_wheel_move(&self) -> f32 {
         unsafe { ffi::GetMouseWheelMove() }
     }
 

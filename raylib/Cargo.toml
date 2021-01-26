@@ -1,6 +1,6 @@
 [package]
 name = "raylib"
-version = "3.0.0"
+version = "3.5.0"
 authors = ["DeltaPHC <phclem@protonmail.com>"]
 license = "Zlib"
 readme = "../README.md"
@@ -12,7 +12,7 @@ categories = ["api-bindings", "game-engines", "graphics"]
 edition = "2018"
 
 [dependencies]
-raylib-sys = { version = "3.0", path = "../raylib-sys" }
+raylib-sys = { version = "3.5", path = "../raylib-sys" }
 libc = "0.2.45"
 lazy_static = "1.2.0"
 

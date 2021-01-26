@@ -1,7 +1,7 @@
 //! Contains code related to drawing. Types that can be set as a surface to draw will implement the [`RaylibDraw`] trait
 use crate::core::camera::Camera3D;
 use crate::core::math::Ray;
-use crate::core::math::Vector2;
+use crate::core::math::{Vector2, Vector3};
 
 use crate::core::texture::Texture2D;
 use crate::core::vr::RaylibVR;
@@ -931,6 +931,31 @@ pub trait RaylibDraw {
         }
     }
 
+    /// Draw part of a texture (defined by a rectangle) with rotation and scale tiled into dest.
+    #[inline]
+    fn draw_texture_tiled(
+        &mut self,
+        texture: impl AsRef<ffi::Texture2D>,
+        source_rec: impl Into<ffi::Rectangle>,
+        dest_rec: impl Into<ffi::Rectangle>,
+        origin: impl Into<ffi::Vector2>,
+        rotation: f32,
+        scale: f32,
+        tint: impl Into<ffi::Color>,
+    ) {
+        unsafe {
+            ffi::DrawTextureTiled(
+                *texture.as_ref(),
+                source_rec.into(),
+                dest_rec.into(),
+                origin.into(),
+                rotation,
+                scale,
+                tint.into(),
+            )
+        }
+    }
+
     ///Draws a texture (or part of it) that stretches or shrinks nicely
     #[inline]
     fn draw_texture_n_patch(
@@ -1091,6 +1116,30 @@ pub trait RaylibDraw3D {
     fn draw_point3D(&mut self, position: impl Into<ffi::Vector3>, color: impl Into<ffi::Color>) {
         unsafe {
             ffi::DrawPoint3D(position.into(), color.into());
+        }
+    }
+
+    ///// Draw a color-filled triangle (vertex in counter-clockwise order!)
+    #[allow(non_snake_case)]
+    #[inline]
+    fn draw_triangle3D(
+        &mut self,
+        v1: impl Into<ffi::Vector3>,
+        v2: impl Into<ffi::Vector3>,
+        v3: impl Into<ffi::Vector3>,
+        color: impl Into<ffi::Color>,
+    ) {
+        unsafe {
+            ffi::DrawTriangle3D(v1.into(), v2.into(), v3.into(), color.into());
+        }
+    }
+
+    /// // Draw a triangle strip defined by points
+    #[allow(non_snake_case)]
+    #[inline]
+    fn draw_triangle_strip3D(&mut self, points: &[Vector3], color: impl Into<ffi::Color>) {
+        unsafe {
+            ffi::DrawTriangleStrip3D(points.as_ptr() as *mut _, points.len() as i32, color.into());
         }
     }
 

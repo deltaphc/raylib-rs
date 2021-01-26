@@ -122,7 +122,7 @@ pub fn run(mut rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut
             }
 
             // Change brush size
-            brush_size += rl.get_mouse_wheel_move() * 5;
+            brush_size += rl.get_mouse_wheel_move() as i32 * 5;
             if brush_size < 2 {
                 brush_size = 2;
             }

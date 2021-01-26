@@ -1,8 +1,6 @@
 use crate::core::color::Color;
 use crate::core::math::Vector3;
 use crate::ffi;
-pub use ffi::LIGHT_DISTANCE;
-pub use ffi::LIGHT_HEIGHT;
 
 pub use ffi::MAX_LIGHTS;
 

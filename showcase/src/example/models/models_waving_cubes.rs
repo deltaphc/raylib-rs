@@ -87,7 +87,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut
                                 );
     
                                 // Pick a color with a hue depending on cube position for the rainbow color effect
-                                let cubeColor = Color::color_from_hsv((rvec3( (((x + y + z)*18)%360), 0.75,0.9 )));
+                                let cubeColor = Color::color_from_hsv( (((x + y + z)*18)%360) as f32, 0.75,0.9 );
     
                                 // Calculate cube size
                                 let cubeSize = (2.4 - scale)*blockScale;

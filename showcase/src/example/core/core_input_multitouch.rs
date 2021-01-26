@@ -13,6 +13,8 @@
 
 use raylib::prelude::*;
 
+const MAX_TOUCH_POINTS: u32 = 0;
+
 pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
     // Initialization
     //--------------------------------------------------------------------------------------

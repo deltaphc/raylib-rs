@@ -43,6 +43,6 @@ pub use ffi::GuiTextAlignment;
 pub use ffi::GuiTextBoxProperty;
 pub use ffi::GuiToggleProperty;
 pub use ffi::LightType;
-pub use ffi::MAX_TOUCH_POINTS;
+pub use ffi::MouseCursor;
 pub use ffi::PI;
 pub use ffi::RAD2DEG;

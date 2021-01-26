@@ -19,6 +19,8 @@ use crate::misc::AsF32;
 use std::f32::consts::PI;
 use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssign};
 
+make_rslice!(RSliceVec4, Vector4, ffi::MemFree);
+
 #[repr(C)]
 #[derive(Default, Debug, Copy, Clone, PartialEq)]
 pub struct Vector2 {
@@ -95,6 +97,11 @@ impl Vector2 {
     /// Calculates the vector length.
     pub fn length(&self) -> f32 {
         ((self.x * self.x) + (self.y * self.y)).sqrt()
+    }
+
+    /// Calculates the vector length square (**2);
+    pub fn length_sqr(&self) -> f32 {
+        ((self.x * self.x) + (self.y * self.y))
     }
 
     /// Calculates the dot product with vector `v`.
