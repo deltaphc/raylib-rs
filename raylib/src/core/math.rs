@@ -19,13 +19,32 @@ use crate::misc::AsF32;
 use std::f32::consts::PI;
 use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssign};
 
+#[cfg(feature = "with_serde")]
+use serde::{Deserialize, Serialize};
+
 make_rslice!(RSliceVec4, Vector4, ffi::MemFree);
 
-#[repr(C)]
-#[derive(Default, Debug, Copy, Clone, PartialEq)]
-pub struct Vector2 {
-    pub x: f32,
-    pub y: f32,
+macro_rules! optional_serde_struct {
+    ($def:item) => {
+        cfg_if::cfg_if! {
+            if #[cfg(feature = "with_serde")] {
+                #[repr(C)]
+                #[derive(Default, Debug, Copy, Clone, PartialEq, Serialize, Deserialize)]
+                $def
+            } else {
+                #[repr(C)]
+                #[derive(Default, Debug, Copy, Clone, PartialEq)]
+                $def
+            }
+        }
+    }
+}
+
+optional_serde_struct! {
+    pub struct Vector2 {
+        pub x: f32,
+        pub y: f32,
+    }
 }
 
 impl From<ffi::Vector2> for Vector2 {
@@ -289,12 +308,12 @@ impl Neg for Vector2 {
     }
 }
 
-#[repr(C)]
-#[derive(Default, Debug, Copy, Clone, PartialEq)]
-pub struct Vector3 {
-    pub x: f32,
-    pub y: f32,
-    pub z: f32,
+optional_serde_struct! {
+    pub struct Vector3 {
+        pub x: f32,
+        pub y: f32,
+        pub z: f32,
+    }
 }
 
 impl From<ffi::Vector3> for Vector3 {
@@ -709,13 +728,13 @@ impl Neg for Vector3 {
     }
 }
 
-#[repr(C)]
-#[derive(Default, Debug, Copy, Clone, PartialEq)]
-pub struct Vector4 {
-    pub x: f32,
-    pub y: f32,
-    pub z: f32,
-    pub w: f32,
+optional_serde_struct! {
+    pub struct Vector4 {
+        pub x: f32,
+        pub y: f32,
+        pub z: f32,
+        pub w: f32,
+    }
 }
 pub type Quaternion = Vector4;
 
@@ -1084,25 +1103,25 @@ impl MulAssign for Quaternion {
     }
 }
 
-#[repr(C)]
-#[derive(Default, Debug, Copy, Clone, PartialEq)]
-pub struct Matrix {
-    pub m0: f32,
-    pub m4: f32,
-    pub m8: f32,
-    pub m12: f32,
-    pub m1: f32,
-    pub m5: f32,
-    pub m9: f32,
-    pub m13: f32,
-    pub m2: f32,
-    pub m6: f32,
-    pub m10: f32,
-    pub m14: f32,
-    pub m3: f32,
-    pub m7: f32,
-    pub m11: f32,
-    pub m15: f32,
+optional_serde_struct! {
+    pub struct Matrix {
+        pub m0: f32,
+        pub m4: f32,
+        pub m8: f32,
+        pub m12: f32,
+        pub m1: f32,
+        pub m5: f32,
+        pub m9: f32,
+        pub m13: f32,
+        pub m2: f32,
+        pub m6: f32,
+        pub m10: f32,
+        pub m14: f32,
+        pub m3: f32,
+        pub m7: f32,
+        pub m11: f32,
+        pub m15: f32,
+    }
 }
 
 impl From<ffi::Matrix> for Matrix {
@@ -1674,11 +1693,11 @@ impl MulAssign for Matrix {
     }
 }
 
-#[repr(C)]
-#[derive(Default, Debug, Copy, Clone, PartialEq)]
-pub struct Ray {
-    pub position: Vector3,
-    pub direction: Vector3,
+optional_serde_struct! {
+    pub struct Ray {
+        pub position: Vector3,
+        pub direction: Vector3,
+    }
 }
 
 impl From<ffi::Ray> for Ray {
@@ -1702,13 +1721,13 @@ impl Into<ffi::Ray> for &Ray {
     }
 }
 
-#[repr(C)]
-#[derive(Default, Debug, Copy, Clone, PartialEq)]
-pub struct Rectangle {
-    pub x: f32,
-    pub y: f32,
-    pub width: f32,
-    pub height: f32,
+optional_serde_struct! {
+    pub struct Rectangle {
+        pub x: f32,
+        pub y: f32,
+        pub width: f32,
+        pub height: f32,
+    }
 }
 
 impl From<ffi::Rectangle> for Rectangle {
@@ -1746,11 +1765,11 @@ impl Rectangle {
     }
 }
 
-#[repr(C)]
-#[derive(Default, Debug, Copy, Clone, PartialEq)]
-pub struct BoundingBox {
-    pub min: Vector3,
-    pub max: Vector3,
+optional_serde_struct! {
+    pub struct BoundingBox {
+        pub min: Vector3,
+        pub max: Vector3,
+    }
 }
 
 impl BoundingBox {
@@ -1780,13 +1799,13 @@ impl Into<ffi::BoundingBox> for &BoundingBox {
     }
 }
 
-#[repr(C)]
-#[derive(Default, Debug, Copy, Clone)]
-pub struct RayHitInfo {
-    pub hit: bool,
-    pub distance: f32,
-    pub position: Vector3,
-    pub normal: Vector3,
+optional_serde_struct! {
+    pub struct RayHitInfo {
+        pub hit: bool,
+        pub distance: f32,
+        pub position: Vector3,
+        pub normal: Vector3,
+    }
 }
 
 impl From<ffi::RayHitInfo> for RayHitInfo {
@@ -1812,12 +1831,12 @@ impl Into<ffi::RayHitInfo> for &RayHitInfo {
     }
 }
 
-#[repr(C)]
-#[derive(Default, Debug, Copy, Clone)]
-pub struct Transform {
-    pub translation: Vector3,
-    pub rotation: Quaternion,
-    pub scale: Vector3,
+optional_serde_struct! {
+    pub struct Transform {
+        pub translation: Vector3,
+        pub rotation: Quaternion,
+        pub scale: Vector3,
+    }
 }
 
 impl From<ffi::Transform> for Transform {
