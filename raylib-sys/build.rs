@@ -251,7 +251,8 @@ fn platform_from_target(target: &str) -> (Platform, PlatformOS) {
         // Determine PLATFORM_OS in case PLATFORM_DESKTOP selected
         if env::var("OS")
             .unwrap_or("".to_owned())
-            .contains("Windows_NT")
+            .contains("Windows_NT") || env::var("TARGET").unwrap_or("".to_owned())
+            .contains("windows")
         {
             // No uname.exe on MinGW!, but OS=Windows_NT on Windows!
             // ifeq ($(UNAME),Msys) -> Windows
