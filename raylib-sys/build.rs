@@ -84,6 +84,8 @@ fn build_with_cmake(src_path: &str) {
                 dst_lib.join("libraylib_static.a"),
                 dst_lib.join("libraylib.a"),
             ).expect("filed to create windows library");
+        } else if Path::new(&dst_lib.join("libraylib.a")).exists() {
+            // DO NOTHING
         } else {
             panic!("filed to create windows library");
         }
