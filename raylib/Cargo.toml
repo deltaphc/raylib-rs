@@ -15,10 +15,14 @@ edition = "2018"
 raylib-sys = { version = "3.5", path = "../raylib-sys" }
 libc = "0.2.45"
 lazy_static = "1.2.0"
+cfg-if = "1.0.0"
+serde = { version = "1.0.125", features = ["derive"], optional = true }
+serde_json = { version = "1.0.64", optional = true }
 
 [features]
 nightly = []
 nobuild = ["raylib-sys/nobuild"]
+with_serde = ["serde", "serde_json"]
 
 [package.metadata.docs.rs]
-features = [ "nobuild" ]
+features = ["nobuild"]
