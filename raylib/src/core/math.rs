@@ -796,6 +796,37 @@ optional_serde_struct! {
 }
 pub type Quaternion = Vector4;
 
+#[cfg(feature = "nalgebra_interop")]
+impl From<na::Vector4<f32>> for Vector4 {
+    fn from(v: na::Vector4<f32>) -> Vector4 {
+        Vector4 {
+            x: v.x,
+            y: v.y,
+            z: v.z,
+            w: v.w
+        }
+    }
+}
+
+#[cfg(feature = "nalgebra_interop")]
+impl From<na::base::coordinates::XYZW<f32>> for Vector4 {
+    fn from(v: na::base::coordinates::XYZW<f32>) -> Vector4 {
+        Vector4 {
+            x: v.x,
+            y: v.y,
+            z: v.z,
+            w: v.w
+        }
+    }
+}
+
+#[cfg(feature = "nalgebra_interop")]
+impl Into<na::Vector4<f32>> for Vector4 {
+    fn into(self) -> na::Vector4<f32> {
+        na::Vector4::new(self.x, self.y, self.z, self.w)
+    }
+}
+
 impl From<ffi::Vector4> for Vector4 {
     fn from(v: ffi::Vector4) -> Vector4 {
         unsafe { std::mem::transmute(v) }
@@ -1124,6 +1155,25 @@ impl Quaternion {
             z: mat.m2 * self.x + mat.m6 * self.y + mat.m10 * self.z + mat.m14 * self.w,
             w: mat.m3 * self.x + mat.m7 * self.y + mat.m11 * self.z + mat.m15 * self.w,
         }
+    }
+}
+
+#[cfg(feature = "nalgebra_interop")]
+impl From<na::geometry::Quaternion<f32>> for Quaternion {
+    fn from(q: na::geometry::Quaternion<f32>) -> Quaternion {
+        Quaternion {
+            x: q.coords.x,
+            y: q.coords.y,
+            z: q.coords.z,
+            w: q.coords.w
+        }
+    }
+}
+
+#[cfg(feature = "nalgebra_interop")]
+impl Into<na::geometry::Quaternion<f32>> for Quaternion {
+    fn into(self) -> na::geometry::Quaternion<f32> {
+        na::geometry::Quaternion::new(self.x, self.y, self.z, self.w)
     }
 }
 
