@@ -49,6 +49,33 @@ optional_serde_struct! {
     }
 }
 
+#[cfg(feature = "nalgebra_interop")]
+impl From<na::Vector2<f32>> for Vector2 {
+    fn from(v: na::Vector2<f32>) -> Vector2 {
+        Vector2 {
+            x: v.x,
+            y: v.y
+        }
+    }
+}
+
+#[cfg(feature = "nalgebra_interop")]
+impl From<na::base::coordinates::XY<f32>> for Vector2 {
+    fn from(v: na::base::coordinates::XY<f32>) -> Vector2 {
+        Vector2 {
+            x: v.x,
+            y: v.y
+        }
+    }
+}
+
+#[cfg(feature = "nalgebra_interop")]
+impl Into<na::Vector2<f32>> for Vector2 {
+    fn into(self) -> na::Vector2<f32> {
+        na::Vector2::new(self.x, self.y)
+    }
+}
+
 impl From<ffi::Vector2> for Vector2 {
     fn from(v: ffi::Vector2) -> Vector2 {
         unsafe { std::mem::transmute(v) }
@@ -315,6 +342,35 @@ optional_serde_struct! {
         pub x: f32,
         pub y: f32,
         pub z: f32,
+    }
+}
+
+#[cfg(feature = "nalgebra_interop")]
+impl From<na::Vector3<f32>> for Vector3 {
+    fn from(v: na::Vector3<f32>) -> Vector3 {
+        Vector3 {
+            x: v.x,
+            y: v.y,
+            z: v.z
+        }
+    }
+}
+
+#[cfg(feature = "nalgebra_interop")]
+impl From<na::base::coordinates::XYZ<f32>> for Vector3 {
+    fn from(v: na::base::coordinates::XYZ<f32>) -> Vector3 {
+        Vector3 {
+            x: v.x,
+            y: v.y,
+            z: v.z
+        }
+    }
+}
+
+#[cfg(feature = "nalgebra_interop")]
+impl Into<na::Vector3<f32>> for Vector3 {
+    fn into(self) -> na::Vector3<f32> {
+        na::Vector3::new(self.x, self.y, self.z)
     }
 }
 
