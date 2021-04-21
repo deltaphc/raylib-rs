@@ -21,6 +21,8 @@ use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssi
 
 #[cfg(feature = "with_serde")]
 use serde::{Deserialize, Serialize};
+#[cfg(feature = "nalgebra_interop")]
+use nalgebra as na;
 
 make_rslice!(RSliceVec4, Vector4, ffi::MemFree);
 
