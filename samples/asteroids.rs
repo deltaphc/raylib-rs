@@ -12,9 +12,11 @@ struct Game {
     player: Player,
     big_meteors: Vec<Meteor>,
     medium_meteors: Vec<Meteor>,
+    small_meteors: Vec<Meteor>,
     shots: Vec<Shoot>,
     destroyed_meteor_count: u32,
     medium_meteor_count: u32,
+    small_meteor_count: u32,
 }
 
 #[derive(Default)]
@@ -62,6 +64,10 @@ impl Default for Game {
         for _ in 0..MAX_MEDIUM_METEORS {
             medium_meteors.push(Meteor::default());
         }
+        let mut small_meteors = Vec::new();
+        for _ in 0..MAX_SMALL_METEORS {
+            small_meteors.push(Meteor::default());
+        }
         let mut shots = Vec::new();
         for _ in 0..MAX_SHOTS {
             shots.push(Shoot::default());
@@ -69,6 +75,7 @@ impl Default for Game {
 
         let destroyed_meteor_count = 0;
         let medium_meteor_count = 0;
+        let small_meteor_count = 0;
 
         Game {
             game_over,
@@ -77,9 +84,11 @@ impl Default for Game {
             player,
             big_meteors,
             medium_meteors,
+            small_meteors,
             shots,
             destroyed_meteor_count,
             medium_meteor_count,
+            small_meteor_count,
         }
     }
 }
@@ -88,6 +97,7 @@ const SHIP_HEIGHT : f32 = 10f32 / 0.363970f32;
 const PLAYER_SPEED : f32 = 6f32;
 const MAX_BIG_METEORS : usize = 4;
 const MAX_MEDIUM_METEORS : usize = 8;
+const MAX_SMALL_METEORS : usize = 16;
 const METEORS_SPEED : f32 = 2f32;
 const MAX_SHOTS : usize = 10;
 
@@ -123,6 +133,7 @@ fn init_game(game: &mut Game, rl: &RaylibHandle) {
 
     game.destroyed_meteor_count = 0;
     game.medium_meteor_count = 0;
+    game.small_meteor_count = 0;
 
     for shot in &mut game.shots {
         shot.position = Vector2::default();
@@ -186,6 +197,14 @@ fn init_game(game: &mut Game, rl: &RaylibHandle) {
         meteor.position = Vector2::new(-100f32, -100f32);
         meteor.speed = Vector2::default();
         meteor.radius = 20f32;
+        meteor.active = false;
+        meteor.color = Color::BLUE;
+    }
+
+    for meteor in &mut game.small_meteors {
+        meteor.position = Vector2::new(-100f32, -100f32);
+        meteor.speed = Vector2::default();
+        meteor.radius = 10f32;
         meteor.active = false;
         meteor.color = Color::BLUE;
     }
@@ -339,6 +358,39 @@ fn update_game(game: &mut Game, rl: &RaylibHandle) {
                             meteor.active = false;
                             game.destroyed_meteor_count += 1;
 
+                            for _ in 0..2 {
+                                if game.small_meteor_count % 2 == 0 {
+                                    game.small_meteors[game.small_meteor_count as usize].position =
+                                        Vector2::new(meteor.position.x, meteor.position.y);
+                                    game.small_meteors[game.small_meteor_count as usize].speed =
+                                        Vector2::new(shot.rotation.to_radians().cos() * METEORS_SPEED * -1.0,
+                                                     shot.rotation.to_radians().sin() * METEORS_SPEED * -1.0);
+                                }
+                                else {
+                                    game.small_meteors[game.small_meteor_count as usize].position =
+                                        Vector2::new(meteor.position.x, meteor.position.y);
+                                    game.small_meteors[game.small_meteor_count as usize].speed =
+                                        Vector2::new(shot.rotation.to_radians().cos() * METEORS_SPEED,
+                                                     shot.rotation.to_radians().sin() * METEORS_SPEED);
+                                }
+
+                                game.small_meteors[game.small_meteor_count as usize].active = true;
+                                game.small_meteor_count += 1;
+                            }
+
+                            break;
+                        }
+                    }
+
+                    for meteor in &mut game.small_meteors {
+                        if meteor.active &&
+                          check_collision_circles(shot.position, shot.radius, meteor.position, meteor.radius) {
+                            shot.active = false;
+                            shot.life_spawn = 0;
+
+                            meteor.active = false;
+                            game.destroyed_meteor_count += 1;
+
                             break;
                         }
                     }
@@ -357,6 +409,13 @@ fn update_game(game: &mut Game, rl: &RaylibHandle) {
             }
 
             for meteor in &game.medium_meteors {
+                if meteor.active && check_collision_circles(Vector2::new(game.player.collider.x, game.player.collider.y), game.player.collider.z,
+                                                   meteor.position, meteor.radius) {
+                                                       game.game_over = true;
+                                                   }
+            }
+
+            for meteor in &game.small_meteors {
                 if meteor.active && check_collision_circles(Vector2::new(game.player.collider.x, game.player.collider.y), game.player.collider.z,
                                                    meteor.position, meteor.radius) {
                                                        game.game_over = true;
@@ -404,9 +463,30 @@ fn update_game(game: &mut Game, rl: &RaylibHandle) {
                     }
                 }
             }
+
+            for meteor in &mut game.small_meteors {
+                if meteor.active {
+                    meteor.position.x += meteor.speed.x;
+                    meteor.position.y += meteor.speed.y;
+
+                    if meteor.position.x > width + meteor.radius {
+                        meteor.position.x = -meteor.radius;
+                    }
+                    else if meteor.position.x < 0f32 - meteor.radius {
+                        meteor.position.x = width + meteor.radius;
+                    }
+
+                    if meteor.position.y > height + meteor.radius {
+                        meteor.position.y = -meteor.radius;
+                    }
+                    else if meteor.position.y < 0f32 - meteor.radius {
+                        meteor.position.y = height + meteor.radius;
+                    }
+                }
+            }
         }
 
-        if game.destroyed_meteor_count == MAX_BIG_METEORS as u32 + MAX_MEDIUM_METEORS as u32 {
+        if game.destroyed_meteor_count == MAX_BIG_METEORS as u32 + MAX_MEDIUM_METEORS as u32 + MAX_SMALL_METEORS as u32 {
             game.victory = true;
         }
     }
@@ -445,6 +525,15 @@ fn draw_game(game: &Game, rl: &mut RaylibHandle, thread: &RaylibThread) {
         }
 
         for meteor in &game.medium_meteors {
+            if meteor.active {
+                d.draw_circle_v(meteor.position, meteor.radius, meteor.color);
+            }
+            else {
+                d.draw_circle_v(meteor.position, meteor.radius, Color::fade(&Color::LIGHTGRAY, 0.3));
+            }
+        }
+
+        for meteor in &game.small_meteors {
             if meteor.active {
                 d.draw_circle_v(meteor.position, meteor.radius, meteor.color);
             }
