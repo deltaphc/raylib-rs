@@ -10,7 +10,9 @@ struct Game {
     pause: bool,
     victory: bool,
     player: Player,
-    big_meteors : Vec<Meteor>,
+    big_meteors: Vec<Meteor>,
+    shots: Vec<Shoot>,
+    destroyed_meteor_count: u32,
 }
 
 #[derive(Default)]
@@ -32,6 +34,17 @@ struct Meteor {
     color: Color,
 }
 
+#[derive(Default)]
+struct Shoot {
+    position: Vector2,
+    speed: Vector2,
+    radius: f32,
+    rotation: f32,
+    life_spawn: u8,
+    active: bool,
+    color: Color,
+}
+
 impl Default for Game {
     fn default() -> Game {
         let game_over = false;
@@ -43,13 +56,21 @@ impl Default for Game {
         for _ in 0..MAX_BIG_METEORS {
             big_meteors.push(Meteor::default());
         }
+        let mut shots = Vec::new();
+        for _ in 0..MAX_SHOTS {
+            shots.push(Shoot::default());
+        }
+
+        let destroyed_meteor_count = 0;
 
         Game {
             game_over,
             pause,
             victory,
             player,
-            big_meteors
+            big_meteors,
+            shots,
+            destroyed_meteor_count,
         }
     }
 }
@@ -58,6 +79,7 @@ const SHIP_HEIGHT : f32 = 10f32 / 0.363970f32;
 const PLAYER_SPEED : f32 = 6f32;
 const MAX_BIG_METEORS : usize = 4;
 const METEORS_SPEED : f32 = 2f32;
+const MAX_SHOTS : usize = 10;
 
 fn main() {
     let opt = options::Opt::from_args();
@@ -88,6 +110,17 @@ fn init_game(game: &mut Game, rl: &RaylibHandle) {
                                         game.player.position.y - game.player.rotation.to_radians().cos() * (SHIP_HEIGHT / 2.5),
                                         12f32);
     game.player.color = Color::MAROON;
+
+    game.destroyed_meteor_count = 0;
+
+    for shot in &mut game.shots {
+        shot.position = Vector2::default();
+        shot.speed = Vector2::default();
+        shot.radius = 2f32;
+        shot.active = false;
+        shot.life_spawn = 0;
+        shot.color = Color::BLACK;
+    }
 
     let mut correct_range = false;
 
@@ -199,6 +232,67 @@ fn update_game(game: &mut Game, rl: &RaylibHandle) {
                 game.player.position.y = height + SHIP_HEIGHT;
             }
 
+            if rl.is_key_pressed(KEY_SPACE) {
+                for shot in &mut game.shots {
+                    if !shot.active {
+                        shot.position = Vector2::new(game.player.position.x + game.player.rotation.to_radians().sin() * SHIP_HEIGHT,
+                                                    game.player.position.y - game.player.rotation.to_radians().cos() * SHIP_HEIGHT);
+                        shot.active = true;
+                        shot.speed.x = 1.5 * game.player.rotation.to_radians().sin() * PLAYER_SPEED;
+                        shot.speed.y = 1.5 * game.player.rotation.to_radians().cos() * PLAYER_SPEED;
+                        shot.rotation = game.player.rotation;
+                        break;
+                    }
+                }
+            }
+
+            for shot in &mut game.shots {
+                if shot.active {
+                    shot.life_spawn += 1;
+
+                    shot.position.x += shot.speed.x;
+                    shot.position.y -= shot.speed.y;
+
+                    if shot.position.x > width + shot.radius {
+                        shot.active = false;
+                        shot.life_spawn = 0;
+                    }
+                    else if shot.position.x < -shot.radius {
+                        shot.active = false;
+                        shot.life_spawn = 0;
+                    }
+
+                    if shot.position.y > height + shot.radius {
+                        shot.active = false;
+                        shot.life_spawn = 0;
+                    }
+                    else if shot.position.y < -shot.radius {
+                        shot.active = false;
+                        shot.life_spawn = 0;
+                    }
+
+                    if shot.life_spawn >= 60 {
+                        shot.position = Vector2::default();
+                        shot.speed = Vector2::default();
+                        shot.life_spawn = 0;
+                        shot.active = false;
+                    }
+
+                    for meteor in &mut game.big_meteors {
+                        if meteor.active &&
+                          check_collision_circles(shot.position, shot.radius, meteor.position, meteor.radius) {
+                            shot.active = false;
+                            shot.life_spawn = 0;
+
+                            meteor.active = false;
+                            game.destroyed_meteor_count += 1;
+
+                            break;
+                        }
+                    }
+                }
+            }
+
             game.player.collider = Vector3::new(game.player.position.x + game.player.rotation.to_radians().sin() * (SHIP_HEIGHT / 2.5),
                                                 game.player.position.y - game.player.rotation.to_radians().cos() * (SHIP_HEIGHT / 2.5),
                                                 12f32);
@@ -230,6 +324,10 @@ fn update_game(game: &mut Game, rl: &RaylibHandle) {
                     }
                 }
             }
+        }
+
+        if game.destroyed_meteor_count == MAX_BIG_METEORS as u32 {
+            game.victory = true;
         }
     }
     else {
@@ -263,6 +361,12 @@ fn draw_game(game: &Game, rl: &mut RaylibHandle, thread: &RaylibThread) {
             }
             else {
                 d.draw_circle_v(meteor.position, meteor.radius, Color::fade(&Color::LIGHTGRAY, 0.3));
+            }
+        }
+
+        for shot in &game.shots {
+            if shot.active {
+                d.draw_circle_v(shot.position, shot.radius, shot.color);
             }
         }
 
