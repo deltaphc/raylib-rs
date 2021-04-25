@@ -10,6 +10,7 @@ struct Game {
     pause: bool,
     victory: bool,
     player: Player,
+    big_meteors : Vec<Meteor>,
 }
 
 #[derive(Default)]
@@ -22,6 +23,15 @@ struct Player {
     color: Color,
 }
 
+#[derive(Default)]
+struct Meteor {
+    position: Vector2,
+    speed: Vector2,
+    radius: f32,
+    active: bool,
+    color: Color,
+}
+
 impl Default for Game {
     fn default() -> Game {
         let game_over = false;
@@ -29,18 +39,25 @@ impl Default for Game {
         let victory = false;
 
         let player = Player::default();
+        let mut big_meteors = Vec::new();
+        for _ in 0..MAX_BIG_METEORS {
+            big_meteors.push(Meteor::default());
+        }
 
         Game {
             game_over,
             pause,
             victory,
-            player
+            player,
+            big_meteors
         }
     }
 }
 
 const SHIP_HEIGHT : f32 = 10f32 / 0.363970f32;
 const PLAYER_SPEED : f32 = 6f32;
+const MAX_BIG_METEORS : usize = 4;
+const METEORS_SPEED : f32 = 2f32;
 
 fn main() {
     let opt = options::Opt::from_args();
@@ -62,12 +79,64 @@ fn main() {
 
 fn init_game(game: &mut Game, rl: &RaylibHandle) {
     let (width, height) = (rl.get_screen_width() as f32, rl.get_screen_height() as f32);
+    let half_width = width / 2.0;
+    let half_height = height / 2.0;
 
-    game.player.position = Vector2::new(width / 2f32, height / 2f32 - (SHIP_HEIGHT / 2f32));
+    game.player.position = Vector2::new(half_width, half_height - (SHIP_HEIGHT / 2f32));
+    game.player.acceleration = 0f32;
     game.player.collider = Vector3::new(game.player.position.x + game.player.rotation.to_radians().sin() * (SHIP_HEIGHT / 2.5),
                                         game.player.position.y - game.player.rotation.to_radians().cos() * (SHIP_HEIGHT / 2.5),
                                         12f32);
     game.player.color = Color::MAROON;
+
+    let mut correct_range = false;
+
+    for meteor in &mut game.big_meteors {
+        let mut x: i32 = get_random_value(0, width as i32);
+
+        while !correct_range {
+            if x > half_width as i32 - 150 && x < half_width as i32 + 150 {
+                x = get_random_value(0, width as i32);
+            }
+            else {
+                correct_range = true;
+            }
+        }
+
+        correct_range = false;
+
+        let mut y: i32 = get_random_value(0, height as i32);
+
+        while !correct_range {
+            if y > half_height as i32 - 150 && y < half_height as i32 + 150 {
+                y = get_random_value(0, height as i32);
+            }
+            else {
+                correct_range = true;
+            }
+        }
+
+        correct_range = false;
+
+        let mut vel_x: i32 = get_random_value(-METEORS_SPEED as i32, METEORS_SPEED as i32);
+        let mut vel_y: i32 = get_random_value(-METEORS_SPEED as i32, METEORS_SPEED as i32);
+
+        while !correct_range {
+            if vel_x == 0 && vel_y == 0 {
+                vel_x = get_random_value(-METEORS_SPEED as i32, METEORS_SPEED as i32);
+                vel_y = get_random_value(-METEORS_SPEED as i32, METEORS_SPEED as i32);
+            }
+            else {
+                correct_range = true;
+            }
+        }
+
+        meteor.position = Vector2::new(x as f32, y as f32);
+        meteor.speed = Vector2::new(vel_x as f32, vel_y as f32);
+        meteor.radius = 40f32;
+        meteor.active = true;
+        meteor.color = Color::BLUE;
+    }
 }
 
 fn update_game(game: &mut Game, rl: &RaylibHandle) {
@@ -129,6 +198,38 @@ fn update_game(game: &mut Game, rl: &RaylibHandle) {
             else if game.player.position.y < -SHIP_HEIGHT {
                 game.player.position.y = height + SHIP_HEIGHT;
             }
+
+            game.player.collider = Vector3::new(game.player.position.x + game.player.rotation.to_radians().sin() * (SHIP_HEIGHT / 2.5),
+                                                game.player.position.y - game.player.rotation.to_radians().cos() * (SHIP_HEIGHT / 2.5),
+                                                12f32);
+
+            for meteor in &game.big_meteors {
+                if meteor.active && check_collision_circles(Vector2::new(game.player.collider.x, game.player.collider.y), game.player.collider.z,
+                                                   meteor.position, meteor.radius) {
+                                                       game.game_over = true;
+                                                   }
+            }
+
+            for meteor in &mut game.big_meteors {
+                if meteor.active {
+                    meteor.position.x += meteor.speed.x;
+                    meteor.position.y += meteor.speed.y;
+
+                    if meteor.position.x > width + meteor.radius {
+                        meteor.position.x = -meteor.radius;
+                    }
+                    else if meteor.position.x < 0f32 - meteor.radius {
+                        meteor.position.x = width + meteor.radius;
+                    }
+
+                    if meteor.position.y > height + meteor.radius {
+                        meteor.position.y = -meteor.radius;
+                    }
+                    else if meteor.position.y < 0f32 - meteor.radius {
+                        meteor.position.y = height + meteor.radius;
+                    }
+                }
+            }
         }
     }
     else {
@@ -155,6 +256,15 @@ fn draw_game(game: &Game, rl: &mut RaylibHandle, thread: &RaylibThread) {
         let v2 = Vector2::new(game.player.position.x - cosf * 10f32, game.player.position.y - sinf * 10f32);
         let v3 = Vector2::new(game.player.position.x + cosf * 10f32, game.player.position.y + sinf * 10f32);
         d.draw_triangle(v1, v2, v3, game.player.color);
+
+        for meteor in &game.big_meteors {
+            if meteor.active {
+                d.draw_circle_v(meteor.position, meteor.radius, meteor.color);
+            }
+            else {
+                d.draw_circle_v(meteor.position, meteor.radius, Color::fade(&Color::LIGHTGRAY, 0.3));
+            }
+        }
 
         if game.victory {
             d.draw_text("VICTORY", half_width - measure_text("VICTORY", 20), half_height, 20, Color::LIGHTGRAY);
