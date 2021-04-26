@@ -19,7 +19,7 @@ use std::path::{Path, PathBuf};
 use std::{env, fs};
 
 /// latest version on github's release page as of time or writing
-const LATEST_RAYLIB_VERSION: &str = "3.0.0";
+const LATEST_RAYLIB_VERSION: &str = "3.7.0";
 const LATEST_RAYLIB_API_VERSION: &str = "3";
 
 #[cfg(feature = "nobuild")]
