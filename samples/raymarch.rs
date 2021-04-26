@@ -4,7 +4,7 @@ use structopt::StructOpt;
 
 mod options;
 
-const SHADER: &str = include_str!("static/raymarching.fs");
+const SHADER: &str = "./samples/static/raymarching.fs";
 
 pub fn main() {
     let opt = options::Opt::from_args();
@@ -19,7 +19,7 @@ pub fn main() {
     );
 
     rl.set_camera_mode(&camera, CameraMode::CAMERA_FREE);
-    let mut shader = rl.load_shader_code(&thread, None, Some(SHADER));
+    let mut shader = rl.load_shade(&thread, None, Some(SHADER));
     // let s = std::fs::read_to_string("raymarch-static/raymarching.fs").expect("couldn't read");
     // println!("{}", s);
 
