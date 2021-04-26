@@ -39,43 +39,6 @@ impl RaylibHandle {
         return Ok(shader);
     }
 
-    /// Loads shader from code strings and binds default locations.
-    pub fn load_shader_code(
-        &mut self,
-        _: &RaylibThread,
-        vs_code: Option<&str>,
-        fs_code: Option<&str>,
-    ) -> Shader {
-        let c_vs_code = vs_code.map(|f| CString::new(f).unwrap());
-        let c_fs_code = fs_code.map(|f| CString::new(f).unwrap());
-        return match (c_vs_code, c_fs_code) {
-            (Some(vs), Some(fs)) => unsafe {
-                Shader(ffi::LoadShaderCode(
-                    vs.as_ptr() as *mut c_char,
-                    fs.as_ptr() as *mut c_char,
-                ))
-            },
-            (None, Some(fs)) => unsafe {
-                Shader(ffi::LoadShaderCode(
-                    std::ptr::null_mut(),
-                    fs.as_ptr() as *mut c_char,
-                ))
-            },
-            (Some(vs), None) => unsafe {
-                Shader(ffi::LoadShaderCode(
-                    vs.as_ptr() as *mut c_char,
-                    std::ptr::null_mut(),
-                ))
-            },
-            (None, None) => unsafe {
-                Shader(ffi::LoadShaderCode(
-                    std::ptr::null_mut(),
-                    std::ptr::null_mut(),
-                ))
-            },
-        };
-    }
-
     /// Get default shader. Modifying it modifies everthing that uses that shader
     pub fn get_shader_default() -> WeakShader {
         unsafe { WeakShader(ffi::GetShaderDefault()) }
