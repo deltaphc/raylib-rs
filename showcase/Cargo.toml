@@ -11,4 +11,3 @@ repository = "https://github.com/deltaphc/raylib-rs"
 
 [dependencies]
 raylib = { version = "3.7", path = "../raylib" }
-va_list = "0.1.3"

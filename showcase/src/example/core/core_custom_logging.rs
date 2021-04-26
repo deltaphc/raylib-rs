@@ -11,10 +11,10 @@
 *
 ********************************************************************************************/
 
-use raylib::prelude::*;
+use raylib::{ffi::__va_list_tag, prelude::*};
 
 // Custom logging funtion
-pub extern "C" fn log_custom(msg_type: i32, text: *const i8, args: *mut va_list::VaList) {
+pub extern "C" fn log_custom(msg_type: i32, text: *const i8, args: *mut __va_list_tag) {
     let s = unsafe { std::ffi::CStr::from_ptr(text) };
     match msg_type {
         0 => println!("[INFO] : {:?} {:?}", s, args),
