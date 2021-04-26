@@ -79,3 +79,7 @@ path = "3d_camera_first_person.rs"
 [[bin]]
 name = "model_shader"
 path = "model_shader.rs"
+
+[[bin]]
+name = "extensions"
+path = "extensions.rs"
