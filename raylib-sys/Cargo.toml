@@ -19,6 +19,7 @@ exclude = [
 fs_extra = "1.1"
 cmake = "0.1.35"
 cc = "1.0"
+bindgen = "0.58.1"
 
 
 [features]
