@@ -83,3 +83,7 @@ path = "model_shader.rs"
 [[bin]]
 name = "extensions"
 path = "extensions.rs"
+
+[[bin]]
+name = "asteroids"
+path = "./asteroids.rs"

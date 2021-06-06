@@ -5,7 +5,7 @@ use crate::core::math::{Vector2, Vector3, Vector4};
 use crate::core::{RaylibHandle, RaylibThread};
 use crate::ffi;
 use std::ffi::CString;
-use std::os::raw::c_void;
+use std::os::raw::{c_char, c_void};
 
 fn no_drop<T>(_thing: T) {}
 make_thin_wrapper!(Shader, ffi::Shader, ffi::UnloadShader);
@@ -51,19 +51,19 @@ impl RaylibHandle {
         return match (c_vs_code, c_fs_code) {
             (Some(vs), Some(fs)) => unsafe {
                 Shader(ffi::LoadShaderCode(
-                    vs.as_ptr() as *mut i8,
-                    fs.as_ptr() as *mut i8,
+                    vs.as_ptr() as *mut c_char,
+                    fs.as_ptr() as *mut c_char,
                 ))
             },
             (None, Some(fs)) => unsafe {
                 Shader(ffi::LoadShaderCode(
                     std::ptr::null_mut(),
-                    fs.as_ptr() as *mut i8,
+                    fs.as_ptr() as *mut c_char,
                 ))
             },
             (Some(vs), None) => unsafe {
                 Shader(ffi::LoadShaderCode(
-                    vs.as_ptr() as *mut i8,
+                    vs.as_ptr() as *mut c_char,
                     std::ptr::null_mut(),
                 ))
             },
