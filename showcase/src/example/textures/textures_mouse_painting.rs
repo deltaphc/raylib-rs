@@ -89,7 +89,7 @@ pub fn run(mut rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut
     // Main game loop
     return Box::new(
         move |mut rl: &mut RaylibHandle, thread: &RaylibThread| -> () {
-            use raylib::consts::GestureType::*;
+            use raylib::consts::Gestures::*;
             // Update
             //----------------------------------------------------------------------------------
             let mouse_pos = rl.get_mouse_position();

@@ -46,7 +46,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
         //----------------------------------------------------------------------------------
         if (rl.is_key_pressed(raylib::consts::KeyboardKey::KEY_SPACE))
         {
-            if (camera.camera_type() == raylib::consts::CameraType::CAMERA_PERSPECTIVE)
+            if (camera.camera_type() == raylib::consts::CameraProjection::CAMERA_PERSPECTIVE)
             {
                 camera.fovy = WIDTH_ORTHOGRAPHIC;
                 camera = Camera3D::orthographic(camera.position, camera.target, camera.up, camera.fovy);
@@ -90,8 +90,8 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
 
             d.draw_text("Press Spacebar to switch camera type", 10, d.get_screen_height() - 30, 20, Color::DARKGRAY);
 
-            if (camera.camera_type() == raylib::consts::CameraType::CAMERA_ORTHOGRAPHIC) {d.draw_text("ORTHOGRAPHIC", 10, 40, 20, Color::BLACK);}
-            else if (camera.camera_type() == raylib::consts::CameraType::CAMERA_PERSPECTIVE){ d.draw_text("PERSPECTIVE", 10, 40, 20, Color::BLACK);}
+            if (camera.camera_type() == raylib::consts::CameraProjection::CAMERA_ORTHOGRAPHIC) {d.draw_text("ORTHOGRAPHIC", 10, 40, 20, Color::BLACK);}
+            else if (camera.camera_type() == raylib::consts::CameraProjection::CAMERA_PERSPECTIVE){ d.draw_text("PERSPECTIVE", 10, 40, 20, Color::BLACK);}
 
             d.draw_fps(10, 10);
 

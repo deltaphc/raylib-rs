@@ -10,7 +10,7 @@ pub struct Camera3D {
     pub target: Vector3,
     pub up: Vector3,
     pub fovy: f32,
-    type_: ffi::CameraType,
+    projection_: ffi::CameraProjection,
 }
 pub type Camera = Camera3D;
 
@@ -33,7 +33,7 @@ impl Into<ffi::Camera3D> for &Camera3D {
             target: self.target.into(),
             up: self.up.into(),
             fovy: self.fovy,
-            type_: (self.type_ as u32) as i32,
+            projection: (self.projection_ as u32) as i32,
         }
     }
 }
@@ -71,8 +71,8 @@ impl Into<ffi::Camera2D> for &Camera2D {
 }
 
 impl Camera3D {
-    pub fn camera_type(&self) -> crate::consts::CameraType {
-        unsafe { std::mem::transmute(self.type_.clone()) }
+    pub fn camera_type(&self) -> crate::consts::CameraProjection {
+        unsafe { std::mem::transmute(self.projection_.clone()) }
     }
     /// Create a perspective camera.
     /// fovy is in degrees
@@ -82,14 +82,14 @@ impl Camera3D {
             target,
             up,
             fovy,
-            type_: ffi::CameraType::CAMERA_PERSPECTIVE,
+            projection_: ffi::CameraProjection::CAMERA_PERSPECTIVE,
         }
     }
     /// Create a orthographic camera.
     /// fovy is in degrees
     pub fn orthographic(position: Vector3, target: Vector3, up: Vector3, fovy: f32) -> Camera3D {
         let mut c = Self::perspective(position, target, up, fovy);
-        c.type_ = ffi::CameraType::CAMERA_ORTHOGRAPHIC;
+        c.projection_ = ffi::CameraProjection::CAMERA_ORTHOGRAPHIC;
         c
     }
 }

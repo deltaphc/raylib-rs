@@ -157,10 +157,10 @@ fn main() {
             rstr!("raylib [models] example - cubesmap loading and drawing"),
             example::models::models_cubicmap::run,
         ),
-        (
-            rstr!("raylib [models] example - pbr material"),
-            example::models::models_material_pbr::run,
-        ),
+        // (
+        //     rstr!("raylib [models] example - pbr material"),
+        //     example::models::models_material_pbr::run,
+        // ),
         (
             rstr!("raylib [models] example - drawing billboards"),
             example::models::models_billboard::run,
@@ -212,10 +212,10 @@ fn main() {
             ),
             example::models::models_rlgl_solar_system::run,
         ),
-        (
-            rstr!("raylib [models] example - skybox loading and drawing"),
-            example::models::models_skybox::run,
-        ),
+        // (
+        //     rstr!("raylib [models] example - skybox loading and drawing"),
+        //     example::models::models_skybox::run,
+        // ),
         (
             rstr!("raylib [models] example - waving cubes"),
             example::models::models_waving_cubes::run,

@@ -1,5 +1,5 @@
 //! Keyboard, Controller, and Mouse related functions
-use crate::consts::GestureType;
+use crate::consts::Gestures;
 use crate::core::math::Vector2;
 use crate::core::RaylibHandle;
 use crate::ffi;
@@ -64,22 +64,22 @@ impl RaylibHandle {
 
     /// Detect if a gamepad is available.
     #[inline]
-    pub fn is_gamepad_available(&self, gamepad: crate::consts::GamepadNumber) -> bool {
-        unsafe { ffi::IsGamepadAvailable(gamepad as i32) }
+    pub fn is_gamepad_available(&self, gamepad: i32) -> bool {
+        unsafe { ffi::IsGamepadAvailable(gamepad) }
     }
 
     /// Checks gamepad name (if available).
     #[inline]
-    pub fn is_gamepad_name(&self, gamepad: crate::consts::GamepadNumber, name: &str) -> bool {
+    pub fn is_gamepad_name(&self, gamepad: i32, name: &str) -> bool {
         let c_name = CString::new(name).unwrap();
-        unsafe { ffi::IsGamepadName(gamepad as i32, c_name.as_ptr()) }
+        unsafe { ffi::IsGamepadName(gamepad, c_name.as_ptr()) }
     }
 
     /// Returns gamepad internal name id.
     #[inline]
-    pub fn get_gamepad_name(&self, gamepad: crate::consts::GamepadNumber) -> Option<String> {
+    pub fn get_gamepad_name(&self, gamepad: i32) -> Option<String> {
         unsafe {
-            let name = ffi::GetGamepadName(gamepad as i32);
+            let name = ffi::GetGamepadName(gamepad);
             match name.is_null() {
                 false => Some(CStr::from_ptr(name).to_str().unwrap().to_owned()),
                 true => None,
@@ -91,40 +91,36 @@ impl RaylibHandle {
     #[inline]
     pub fn is_gamepad_button_pressed(
         &self,
-        gamepad: crate::consts::GamepadNumber,
+        gamepad: i32,
         button: crate::consts::GamepadButton,
     ) -> bool {
-        unsafe { ffi::IsGamepadButtonPressed(gamepad as i32, (button as u32) as i32) }
+        unsafe { ffi::IsGamepadButtonPressed(gamepad, (button as u32) as i32) }
     }
 
     /// Detect if a gamepad button is being pressed.
     #[inline]
     pub fn is_gamepad_button_down(
         &self,
-        gamepad: crate::consts::GamepadNumber,
+        gamepad: i32,
         button: crate::consts::GamepadButton,
     ) -> bool {
-        unsafe { ffi::IsGamepadButtonDown(gamepad as i32, (button as u32) as i32) }
+        unsafe { ffi::IsGamepadButtonDown(gamepad, (button as u32) as i32) }
     }
 
     /// Detect if a gamepad button has been released once.
     #[inline]
     pub fn is_gamepad_button_released(
         &self,
-        gamepad: crate::consts::GamepadNumber,
+        gamepad: i32,
         button: crate::consts::GamepadButton,
     ) -> bool {
-        unsafe { ffi::IsGamepadButtonReleased(gamepad as i32, (button as u32) as i32) }
+        unsafe { ffi::IsGamepadButtonReleased(gamepad, (button as u32) as i32) }
     }
 
     /// Detect if a gamepad button is NOT being pressed.
     #[inline]
-    pub fn is_gamepad_button_up(
-        &self,
-        gamepad: crate::consts::GamepadNumber,
-        button: crate::consts::GamepadButton,
-    ) -> bool {
-        unsafe { ffi::IsGamepadButtonUp(gamepad as i32, (button as u32) as i32) }
+    pub fn is_gamepad_button_up(&self, gamepad: i32, button: crate::consts::GamepadButton) -> bool {
+        unsafe { ffi::IsGamepadButtonUp(gamepad, (button as u32) as i32) }
     }
 
     /// Gets the last gamepad button pressed.
@@ -139,18 +135,14 @@ impl RaylibHandle {
 
     /// Returns gamepad axis count for a gamepad.
     #[inline]
-    pub fn get_gamepad_axis_count(&self, gamepad: crate::consts::GamepadNumber) -> i32 {
-        unsafe { ffi::GetGamepadAxisCount(gamepad as i32) }
+    pub fn get_gamepad_axis_count(&self, gamepad: i32) -> i32 {
+        unsafe { ffi::GetGamepadAxisCount(gamepad) }
     }
 
     /// Returns axis movement value for a gamepad axis.
     #[inline]
-    pub fn get_gamepad_axis_movement(
-        &self,
-        gamepad: crate::consts::GamepadNumber,
-        axis: crate::consts::GamepadAxis,
-    ) -> f32 {
-        unsafe { ffi::GetGamepadAxisMovement(gamepad as i32, axis as i32) }
+    pub fn get_gamepad_axis_movement(&self, gamepad: i32, axis: crate::consts::GamepadAxis) -> f32 {
+        unsafe { ffi::GetGamepadAxisMovement(gamepad, axis as i32) }
     }
 
     /// Detect if a mouse button has been pressed once.
@@ -255,13 +247,13 @@ impl RaylibHandle {
 
     /// Checks if a gesture have been detected.
     #[inline]
-    pub fn is_gesture_detected(&self, gesture: GestureType) -> bool {
+    pub fn is_gesture_detected(&self, gesture: Gestures) -> bool {
         unsafe { ffi::IsGestureDetected(gesture as i32) }
     }
 
     /// Gets latest detected gesture.
     #[inline]
-    pub fn get_gesture_detected(&self) -> GestureType {
+    pub fn get_gesture_detected(&self) -> Gestures {
         unsafe { std::mem::transmute(ffi::GetGestureDetected()) }
     }
 

@@ -17,7 +17,7 @@ pub struct NPatchInfo {
     pub top: i32,
     pub right: i32,
     pub bottom: i32,
-    pub type_: crate::consts::NPatchType,
+    pub layout: crate::consts::NPatchLayout,
 }
 
 impl From<ffi::NPatchInfo> for NPatchInfo {
@@ -40,7 +40,7 @@ impl Into<ffi::NPatchInfo> for &NPatchInfo {
             top: self.top,
             right: self.right,
             bottom: self.bottom,
-            type_: (self.type_ as u32) as i32,
+            layout: (self.layout as u32) as i32,
         }
     }
 }
@@ -817,7 +817,7 @@ pub trait RaylibTexture2D: AsRef<ffi::Texture2D> + AsMut<ffi::Texture2D> {
 
     /// Sets global `texture` scaling filter mode.
     #[inline]
-    fn set_texture_filter(&self, _: &RaylibThread, filter_mode: crate::consts::TextureFilterMode) {
+    fn set_texture_filter(&self, _: &RaylibThread, filter_mode: crate::consts::TextureFilter) {
         unsafe {
             ffi::SetTextureFilter(*self.as_ref(), filter_mode as i32);
         }
@@ -825,7 +825,7 @@ pub trait RaylibTexture2D: AsRef<ffi::Texture2D> + AsMut<ffi::Texture2D> {
 
     /// Sets global texture wrapping mode.
     #[inline]
-    fn set_texture_wrap(&self, _: &RaylibThread, wrap_mode: crate::consts::TextureWrapMode) {
+    fn set_texture_wrap(&self, _: &RaylibThread, wrap_mode: crate::consts::TextureWrap) {
         unsafe {
             ffi::SetTextureWrap(*self.as_ref(), wrap_mode as i32);
         }
@@ -854,9 +854,9 @@ impl RaylibHandle {
         &mut self,
         _: &RaylibThread,
         image: &Image,
-        layout: crate::consts::CubemapLayoutType,
+        layout: crate::consts::CubemapLayout,
     ) -> Result<Texture2D, String> {
-        let t = unsafe { ffi::LoadTextureCubemap(image.0, std::mem::transmute(layout)) };
+        let t = unsafe { ffi::LoadTextureCubemap(image.0, layout as i32) };
         if t.id == 0 {
             return Err(format!("failed to load image as a texture cubemap."));
         }
@@ -889,71 +889,6 @@ impl RaylibHandle {
             return Err(format!("failed to create render texture."));
         }
         Ok(RenderTexture2D(t))
-    }
-}
-
-impl RaylibHandle {
-    /// Generate cubemap texture from 2D texture
-    pub fn gen_texture_cubemap(
-        &mut self,
-        _: &RaylibThread,
-        shader: impl AsRef<ffi::Shader>,
-        map: impl AsRef<ffi::Texture2D>,
-        size: i32,
-        format: ffi::PixelFormat,
-    ) -> Texture2D {
-        unsafe {
-            Texture2D(ffi::GenTextureCubemap(
-                *shader.as_ref(),
-                *map.as_ref(),
-                size,
-                format as i32,
-            ))
-        }
-    }
-
-    /// Generate irradiance texture using cubemap data
-    pub fn gen_texture_irradiance(
-        &mut self,
-        _: &RaylibThread,
-        shader: impl AsRef<ffi::Shader>,
-        cubemap: impl AsRef<ffi::Texture2D>,
-        size: i32,
-    ) -> Texture2D {
-        unsafe {
-            Texture2D(ffi::GenTextureIrradiance(
-                *shader.as_ref(),
-                *cubemap.as_ref(),
-                size,
-            ))
-        }
-    }
-
-    /// Generate prefilter texture using cubemap data
-    pub fn gen_texture_prefilter(
-        &mut self,
-        _: &RaylibThread,
-        shader: impl AsRef<ffi::Shader>,
-        cubemap: impl AsRef<ffi::Texture2D>,
-        size: i32,
-    ) -> Texture2D {
-        unsafe {
-            Texture2D(ffi::GenTexturePrefilter(
-                *shader.as_ref(),
-                *cubemap.as_ref(),
-                size,
-            ))
-        }
-    }
-
-    /// Generate BRDF texture
-    pub fn gen_texture_brdf(
-        &mut self,
-        _: &RaylibThread,
-        shader: impl AsRef<ffi::Shader>,
-        size: i32,
-    ) -> Texture2D {
-        unsafe { Texture2D(ffi::GenTextureBRDF(*shader.as_ref(), size)) }
     }
 }
 

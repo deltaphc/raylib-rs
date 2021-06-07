@@ -43,7 +43,7 @@ pub fn run(rl
 
     // Render texture initialization, used to hold the rendering result so we can easily resize it
     let mut  target = rl.load_render_texture(&thread, game_screen_width as u32, game_screen_height as u32).unwrap();
-    target.texture().set_texture_filter(thread, raylib::consts::TextureFilterMode::FILTER_BILINEAR);
+    target.texture().set_texture_filter(thread, raylib::consts::TextureFilter::TEXTURE_FILTER_BILINEAR);
 
     let mut  colors = [Color::default(); 10];
     for i in 0..10 

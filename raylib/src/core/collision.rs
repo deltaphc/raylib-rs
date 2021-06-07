@@ -1,5 +1,5 @@
 //! Common collision handling code
-use crate::core::math::{BoundingBox, Ray, RayHitInfo, Rectangle, Vector3};
+use crate::core::math::{BoundingBox, Ray, RayHitInfo, Rectangle, Vector2, Vector3};
 use crate::core::models::Model;
 use crate::ffi;
 
@@ -72,6 +72,32 @@ pub fn check_collision_point_triangle(
     p3: impl Into<ffi::Vector2>,
 ) -> bool {
     unsafe { ffi::CheckCollisionPointTriangle(point.into(), p1.into(), p2.into(), p3.into()) }
+}
+
+/// Check the collision between two lines defined by two points each, returns collision point by reference
+#[inline]
+pub fn check_collision_lines(
+    start_pos1: impl Into<ffi::Vector2>,
+    end_pos1: impl Into<ffi::Vector2>,
+    start_pos2: impl Into<ffi::Vector2>,
+    end_pos2: impl Into<ffi::Vector2>,
+) -> Option<Vector2> {
+    let mut out = ffi::Vector2 { x: 0.0, y: 0.0 };
+
+    let collision = unsafe {
+        ffi::CheckCollisionLines(
+            start_pos1.into(),
+            end_pos1.into(),
+            start_pos2.into(),
+            end_pos2.into(),
+            &mut out,
+        )
+    };
+    if collision {
+        return Some(out.into());
+    } else {
+        return None;
+    }
 }
 
 /// Detects collision between two spheres.
@@ -149,7 +175,7 @@ pub fn check_collision_ray_sphere_ex(
 /// Gets collision info between ray and model.
 #[inline]
 pub fn get_collision_ray_model(ray: Ray, model: &Model) -> RayHitInfo {
-    unsafe { ffi::GetCollisionRayModel(ray.into(), model.0 ).into() }
+    unsafe { ffi::GetCollisionRayModel(ray.into(), model.0).into() }
 }
 
 /// Gets collision info between ray and triangle.

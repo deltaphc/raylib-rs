@@ -65,8 +65,8 @@ pub fn run(rl
 
     // Load and apply the diffuse texture (colour map)
     let texDiffuse = rl.load_texture(thread, "original/resources/plasma.png");
-    model1.materials_mut()[0].maps_mut()[raylib::consts::MaterialMapType::MAP_ALBEDO as usize].texture = texDiffuse;
-    model2.materials_mut()[0].maps_mut()[raylib::consts::MaterialMapType::MAP_ALBEDO as usize].texture = texDiffuse;
+    model1.materials_mut()[0].maps_mut()[raylib::consts::MaterialMapIndex::MATERIAL_MAP_ALBEDO as usize].texture = texDiffuse;
+    model2.materials_mut()[0].maps_mut()[raylib::consts::MaterialMapIndex::MATERIAL_MAP_ALBEDO as usize].texture = texDiffuse;
 
     // Using MAP_EMISSION as a spare slot to use for 2nd texture
     // NOTE: Don't use MAP_IRRADIANCE, MAP_PREFILTER or  MAP_CUBEMAP
@@ -74,7 +74,7 @@ pub fn run(rl
     let texMask = rl.load_texture(thread, "original/resources/mask.png");
     model1.materials_mut()[0].maps_mut()[MAP_EMISSION].texture = texMask;
     model2.materials_mut()[0].maps_mut()[MAP_EMISSION].texture = texMask;
-    shader.locs_mut()[raylib::consts::ShaderLocationIndex::LOC_MAP_EMISSION] = shader.get_shader_location( "mask");
+    shader.locs_mut()[raylib::consts::ShaderLocationIndex::SHADER_LOC_MAP_EMISSION] = shader.get_shader_location( "mask");
 
     // Frame is incremented each frame to animate the shader
     int shaderFrame = shader.get_shader_location( "frame");

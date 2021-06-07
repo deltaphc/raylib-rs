@@ -61,7 +61,6 @@ pub mod core;
 pub mod ease;
 pub mod prelude;
 pub mod rgui;
-pub mod rlights;
 
 /// The raw, unsafe FFI binding, in case you need that escape hatch or the safe layer doesn't provide something you need.
 pub mod ffi {
@@ -75,7 +74,7 @@ pub use crate::core::misc::{get_random_value, open_url};
 pub use crate::core::*;
 
 // Re-exports
-#[cfg(feature = "with_serde")]
-pub use serde;
 #[cfg(feature = "nalgebra_interop")]
 pub use nalgebra as na;
+#[cfg(feature = "with_serde")]
+pub use serde;

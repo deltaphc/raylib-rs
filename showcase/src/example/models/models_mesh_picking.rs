@@ -35,7 +35,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut
 
    let mut tower  = rl.load_model(thread, "original/model/resources/models/turret.obj").unwrap();                 // Load OBJ model
     let texture = rl.load_texture(thread, "original/models/resources/models/turret_diffuse.png").unwrap(); // Load model texture
-    tower.materials_mut()[0].maps_mut()[raylib::consts::MaterialMapType::MAP_ALBEDO as usize].texture = *texture.as_ref();                 // Set model diffuse texture
+    tower.materials_mut()[0].maps_mut()[raylib::consts::MaterialMapIndex::MATERIAL_MAP_ALBEDO as usize].texture = *texture.as_ref();                 // Set model diffuse texture
 
     let  towerPos = rvec3( 0.0, 0.0, 0.0 );                    // Set model position
     let  towerBBox = tower.meshes_mut()[0].mesh_bounding_box();   // Get mesh bounding box

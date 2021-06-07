@@ -90,7 +90,6 @@ pub fn test_runner(tests: &[&dyn Testable]) {
     let mut rl = handle.take().unwrap();
 
     rl.set_target_fps(120);
-    rl.unhide_window();
     // let sleep_time = std::time::Duration::from_millis(1000); // about 60 fps
     {
         let mut d = rl.begin_drawing(&thread);

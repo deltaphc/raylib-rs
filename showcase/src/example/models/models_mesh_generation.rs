@@ -43,7 +43,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut
 
 
     // Set checked texture as default diffuse component for all models material
-    for model in &mut models  {model.materials_mut()[0].maps_mut()[raylib::consts::MaterialMapType::MAP_ALBEDO as usize].texture = *texture.as_ref();}
+    for model in &mut models  {model.materials_mut()[0].maps_mut()[raylib::consts::MaterialMapIndex::MATERIAL_MAP_ALBEDO as usize].texture = *texture.as_ref();}
 
     // Define the camera to look into our 3d world
     let mut camera = Camera3D::perspective(rvec3( 5.0, 5.0, 5.0 ), rvec3( 0.0, 0.0, 0.0 ), rvec3( 0.0, 1.0, 0.0 ), 45.0 );

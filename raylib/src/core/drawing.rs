@@ -4,7 +4,7 @@ use crate::core::math::Ray;
 use crate::core::math::{Vector2, Vector3};
 
 use crate::core::texture::Texture2D;
-use crate::core::vr::RaylibVR;
+use crate::core::vr::VrStereoConfig;
 use crate::core::{RaylibHandle, RaylibThread};
 use crate::ffi;
 use std::convert::AsRef;
@@ -81,10 +81,10 @@ impl<'a, T> RaylibDraw for RaylibTextureMode<'a, T> {}
 
 // VR Stuff
 
-pub struct RaylibVRMode<'a, T>(&'a T, &'a RaylibVR);
+pub struct RaylibVRMode<'a, T>(&'a T, &'a mut VrStereoConfig);
 impl<'a, T> Drop for RaylibVRMode<'a, T> {
     fn drop(&mut self) {
-        unsafe { ffi::EndVrDrawing() }
+        unsafe { ffi::EndVrStereoMode() }
     }
 }
 impl<'a, T> std::ops::Deref for RaylibVRMode<'a, T> {
@@ -100,14 +100,16 @@ where
     Self: Sized,
 {
     #[must_use]
-    fn begin_vr_mode<'a>(&'a mut self, vr: &'a RaylibVR) -> RaylibVRMode<Self> {
-        unsafe { ffi::BeginVrDrawing() }
-        RaylibVRMode(self, vr)
+    fn begin_vr_stereo_mode<'a>(
+        &'a mut self,
+        vr_config: &'a mut VrStereoConfig,
+    ) -> RaylibVRMode<Self> {
+        unsafe { ffi::BeginVrStereoMode(*vr_config.as_ref()) }
+        RaylibVRMode(self, vr_config)
     }
 }
 
-// Only the DrawHandle can start a texture
-impl<'a> RaylibVRModeExt for RaylibDrawHandle<'a> {}
+impl<D: RaylibDraw> RaylibVRModeExt for D {}
 impl<'a, T> RaylibDraw for RaylibVRMode<'a, T> {}
 
 // 2D Mode
@@ -373,6 +375,26 @@ pub trait RaylibDraw {
             ffi::DrawLineBezier(start_pos.into(), end_pos.into(), thick, color.into());
         }
     }
+    /// Draw line using quadratic bezier curves with a control point
+    #[inline]
+    fn draw_line_bezier_quad(
+        &mut self,
+        start_pos: impl Into<ffi::Vector2>,
+        end_pos: impl Into<ffi::Vector2>,
+        control_pos: impl Into<ffi::Vector2>,
+        thick: f32,
+        color: impl Into<ffi::Color>,
+    ) {
+        unsafe {
+            ffi::DrawLineBezierQuad(
+                start_pos.into(),
+                end_pos.into(),
+                control_pos.into(),
+                thick,
+                color.into(),
+            );
+        }
+    }
 
     /// Draw lines sequence
     #[inline]
@@ -405,8 +427,8 @@ pub trait RaylibDraw {
         &mut self,
         center: impl Into<ffi::Vector2>,
         radius: f32,
-        start_angle: i32,
-        end_angle: i32,
+        start_angle: f32,
+        end_angle: f32,
         segments: i32,
         color: impl Into<ffi::Color>,
     ) {
@@ -428,8 +450,8 @@ pub trait RaylibDraw {
         &mut self,
         center: impl Into<ffi::Vector2>,
         radius: f32,
-        start_angle: i32,
-        end_angle: i32,
+        start_angle: f32,
+        end_angle: f32,
         segments: i32,
         color: impl Into<ffi::Color>,
     ) {
@@ -524,8 +546,8 @@ pub trait RaylibDraw {
         center: impl Into<ffi::Vector2>,
         inner_radius: f32,
         outer_radius: f32,
-        start_angle: i32,
-        end_angle: i32,
+        start_angle: f32,
+        end_angle: f32,
         segments: i32,
         color: impl Into<ffi::Color>,
     ) {
@@ -549,8 +571,8 @@ pub trait RaylibDraw {
         center: impl Into<ffi::Vector2>,
         inner_radius: f32,
         outer_radius: f32,
-        start_angle: i32,
-        end_angle: i32,
+        start_angle: f32,
+        end_angle: f32,
         segments: i32,
         color: impl Into<ffi::Color>,
     ) {
@@ -979,6 +1001,29 @@ pub trait RaylibDraw {
         }
     }
 
+    ///Draws a texture (or part of it) that stretches or shrinks nicely
+    #[inline]
+    fn draw_texture_poly(
+        &mut self,
+        texture: impl AsRef<ffi::Texture2D>,
+        center: impl Into<ffi::Vector2>,
+        points: &[Vector2],
+        texcoords: &[Vector2],
+        tint: impl Into<ffi::Color>,
+    ) {
+        assert!(points.len() == texcoords.len());
+        unsafe {
+            ffi::DrawTexturePoly(
+                *texture.as_ref(),
+                center.into(),
+                points.as_ptr() as *mut _,
+                texcoords.as_ptr() as *mut _,
+                points.len() as _,
+                tint.into(),
+            );
+        }
+    }
+
     /// Shows current FPS.
     #[inline]
     fn draw_fps(&mut self, x: i32, y: i32) {
@@ -1360,14 +1405,6 @@ pub trait RaylibDraw3D {
     fn draw_grid(&mut self, slices: i32, spacing: f32) {
         unsafe {
             ffi::DrawGrid(slices, spacing);
-        }
-    }
-
-    /// Draws a simple gizmo.
-    #[inline]
-    fn draw_gizmo(&mut self, position: impl Into<ffi::Vector3>) {
-        unsafe {
-            ffi::DrawGizmo(position.into());
         }
     }
 

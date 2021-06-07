@@ -52,7 +52,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
     let shader = rl.load_shader(thread,0, &format!("original/shaders/resources/shaders/glsl{}/grayscale.fs", GLSL_VERSION));
 
     model.materials_mut()[0].shader = shader;                     // Set shader effect to 3d model
-    model.materials_mut()[0].maps_mut()[raylib::consts::MaterialMapType::MAP_ALBEDO as usize].texture = *texture.as_ref(); // Bind texture to model
+    model.materials_mut()[0].maps_mut()[raylib::consts::MaterialMapIndex::MATERIAL_MAP_ALBEDO as usize].texture = *texture.as_ref(); // Bind texture to model
 
     let position = Vector3::zero(); // Set model position
 

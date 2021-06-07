@@ -42,8 +42,10 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
     let texture = rl
         .load_texture(thread, "original/models/resources/guy/guytex.png")
         .unwrap(); // Load model texture and set material
-    model.materials_mut()[0]
-        .set_material_texture(raylib::consts::MaterialMapType::MAP_ALBEDO, &texture);
+    model.materials_mut()[0].set_material_texture(
+        raylib::consts::MaterialMapIndex::MATERIAL_MAP_ALBEDO,
+        &texture,
+    );
 
     let position = rvec3(0.0, 0.0, 0.0); // Set model position
 
@@ -63,7 +65,6 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
         // If we don't capture texture, it won't get moved to the closure which means raylib will drop it.
         let _ = texture;
 
-        
         // Update
         //----------------------------------------------------------------------------------
         rl.update_camera(&mut camera);

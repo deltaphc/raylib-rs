@@ -36,11 +36,27 @@ mod draw_test {
         d.draw_circle(20, 20, 10.0, Color::RED);
         d.draw_circle_v(Vector2::new(40.0, 20.0), 10.0, Color::RED);
         d.draw_circle_lines(60, 20, 10.0, Color::RED);
-        d.draw_circle_sector(Vector2::new(80.0, 20.0), 10.0, 0, 90, 5, Color::RED);
-        d.draw_circle_sector_lines(Vector2::new(100.0, 20.0), 10.0, 0, 90, 5, Color::RED);
+        d.draw_circle_sector(Vector2::new(80.0, 20.0), 10.0, 0.0, 90.0, 5, Color::RED);
+        d.draw_circle_sector_lines(Vector2::new(100.0, 20.0), 10.0, 0.0, 90.0, 5, Color::RED);
         d.draw_circle_gradient(1200, 20, 10.0, Color::RED, Color::GREEN);
-        d.draw_ring(Vector2::new(40.0, 80.0), 10.0, 20.0, 0, 180, 5, Color::RED);
-        d.draw_ring_lines(Vector2::new(80.0, 80.0), 10.0, 20.0, 0, 180, 5, Color::RED);
+        d.draw_ring(
+            Vector2::new(40.0, 80.0),
+            10.0,
+            20.0,
+            0.0,
+            180.0,
+            5,
+            Color::RED,
+        );
+        d.draw_ring_lines(
+            Vector2::new(80.0, 80.0),
+            10.0,
+            20.0,
+            0.0,
+            180.0,
+            5,
+            Color::RED,
+        );
     }
 
     ray_draw_test!(test_rectangle);

@@ -41,7 +41,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut
     
     let mut model = rl.load_model(&thread, "original/models/resources/models/castle.obj").unwrap();                 // Load model
     let mut texture =  rl.load_texture(thread, "original/models/resources/models/castle_diffuse.png").unwrap(); // Load model texture
-    model.materials_mut()[0].maps_mut()[raylib::consts::MaterialMapType::MAP_ALBEDO as usize].texture = *texture.as_ref();                 // Set map diffuse texture
+    model.materials_mut()[0].maps_mut()[raylib::consts::MaterialMapIndex::MATERIAL_MAP_ALBEDO as usize].texture = *texture.as_ref();                 // Set map diffuse texture
 
     let position = rvec3( 0.0, 0.0, 0.0 );                // Set model position
  
@@ -79,7 +79,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut
                 }) 
                 {
                     model = rl.load_model(thread, &droppedFiles[0]).unwrap();     // Load new model
-                    model.materials_mut()[0].maps_mut()[raylib::consts::MaterialMapType::MAP_ALBEDO as usize].texture = *texture.as_ref(); // Set current map diffuse texture
+                    model.materials_mut()[0].maps_mut()[raylib::consts::MaterialMapIndex::MATERIAL_MAP_ALBEDO as usize].texture = *texture.as_ref(); // Set current map diffuse texture
 
                     bounds = model.meshes()[0].mesh_bounding_box();
                     
@@ -89,7 +89,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut
                 {
                     // Unload current model texture and load new one
                     texture = rl.load_texture(thread, &droppedFiles[0]).unwrap();
-                    model.materials_mut()[0].maps_mut()[raylib::consts::MaterialMapType::MAP_ALBEDO as usize].texture = *texture.as_ref();
+                    model.materials_mut()[0].maps_mut()[raylib::consts::MaterialMapIndex::MATERIAL_MAP_ALBEDO as usize].texture = *texture.as_ref();
                 }
             }
 
