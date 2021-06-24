@@ -83,11 +83,11 @@ fn build_with_cmake(src_path: &str) {
             std::fs::copy(
                 dst_lib.join("libraylib_static.a"),
                 dst_lib.join("libraylib.a"),
-            ).expect("filed to create windows library");
+            ).expect("failed to create windows library");
         } else if Path::new(&dst_lib.join("libraylib.a")).exists() {
             // DO NOTHING
         } else {
-            panic!("filed to create windows library");
+            panic!("failed to create windows library");
         }
     } // on web copy libraylib.bc to libraylib.a
     if platform == Platform::Web {
