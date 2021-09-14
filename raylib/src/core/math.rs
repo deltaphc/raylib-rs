@@ -97,6 +97,12 @@ impl Into<ffi::Vector2> for &Vector2 {
     }
 }
 
+/// A convenience function for linearly interpolating an `f32`.
+#[inline]
+pub fn lerp(v0: f32, v1: f32, amount: f32) -> f32 {
+    return v0 + amount * (v1 - v0);
+}
+
 /// A convenience function for making a new `Vector2`.
 #[inline]
 pub fn rvec2<T1: AsF32, T2: AsF32>(x: T1, y: T2) -> Vector2 {
@@ -189,6 +195,22 @@ impl Vector2 {
     /// Returns a new `Vector2` with normalized components from the current vector.
     pub fn normalized(&self) -> Vector2 {
         *self / self.length()
+    }
+
+    /// Returns a new `Vector2` with componenets linearly interpolated by `amount` towards vector `v`.
+    pub fn lerp(&self, v: Vector2, amount: f32) -> Vector2 {
+        Vector2 {
+            x: self.x + amount * (v.x - self.x),
+            y: self.y + amount * (v.y - self.y),
+        }
+    }
+
+    /// Returns a new `Vector2` with componenets clamp to a certain interval.
+    pub fn clamp(&self, min: f32, max: f32) -> Vector2 {
+        Vector2 {
+            x: self.x.clamp(min, max),
+            y: self.y.clamp(min, max),
+        }
     }
 }
 
@@ -629,6 +651,15 @@ impl Vector3 {
     /// Returns a 3-length `f32` array containing components `[x, y, z]` of the current vector.
     pub fn to_array(&self) -> [f32; 3] {
         [self.x, self.y, self.z]
+    }
+
+    /// Returns a new `Vector3` with componenets clamp to a certain interval.
+    pub fn clamp(&self, min: f32, max: f32) -> Vector3 {
+        Vector3 {
+            x: self.x.clamp(min, max),
+            y: self.y.clamp(min, max),
+            z: self.z.clamp(min, max),
+        }
     }
 }
 
@@ -1154,6 +1185,16 @@ impl Quaternion {
             y: mat.m1 * self.x + mat.m5 * self.y + mat.m9 * self.z + mat.m13 * self.w,
             z: mat.m2 * self.x + mat.m6 * self.y + mat.m10 * self.z + mat.m14 * self.w,
             w: mat.m3 * self.x + mat.m7 * self.y + mat.m11 * self.z + mat.m15 * self.w,
+        }
+    }
+
+    /// Returns a new `Quaternion` with componenets clamp to a certain interval.
+    pub fn clamp(&self, min: f32, max: f32) -> Quaternion {
+        Quaternion {
+            x: self.x.clamp(min, max),
+            y: self.y.clamp(min, max),
+            z: self.z.clamp(min, max),
+            w: self.w.clamp(min, max),
         }
     }
 }
