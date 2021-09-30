@@ -209,11 +209,11 @@ fn init_window(width: i32, height: i32, title: &str, use_log_crate: bool) -> Ray
         panic!("Attempted to initialize raylib-rs more than once!");
     } else {
         unsafe {
-            let c_title = CString::new(title).unwrap();
-            ffi::InitWindow(width, height, c_title.as_ptr());
             if use_log_crate {
                 ffi::SetTraceLogCallback(Some(log_hooks::log_callback));
             }
+            let c_title = CString::new(title).unwrap();
+            ffi::InitWindow(width, height, c_title.as_ptr());
         }
         if !unsafe { ffi::IsWindowReady() } {
             panic!("Attempting to create window failed!");
