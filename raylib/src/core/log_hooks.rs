@@ -32,15 +32,15 @@ pub unsafe extern "C" fn log_callback(
     // Handle the log level and fall back on info!
     match RaylibLogLevel::from_u32(level.try_into().unwrap()) {
         Some(level) => match level {
-            RaylibLogLevel::Trace => log::trace!("{}", formatted_message),
-            RaylibLogLevel::Debug => log::debug!("{}", formatted_message),
-            RaylibLogLevel::Warning => log::warn!("{}", formatted_message),
-            RaylibLogLevel::Error => log::error!("{}", formatted_message),
-            RaylibLogLevel::Fatal => log::error!("{}", formatted_message),
-            _ => log::info!("{}", formatted_message),
+            RaylibLogLevel::Trace => log::trace!(target:"raylib", "{}", formatted_message),
+            RaylibLogLevel::Debug => log::debug!(target:"raylib", "{}", formatted_message),
+            RaylibLogLevel::Warning => log::warn!(target:"raylib", "{}", formatted_message),
+            RaylibLogLevel::Error => log::error!(target:"raylib", "{}", formatted_message),
+            RaylibLogLevel::Fatal => log::error!(target:"raylib", "{}", formatted_message),
+            _ => log::info!(target:"raylib", "{}", formatted_message),
         },
         None => {
-            log::info!("{}", formatted_message)
+            log::info!(target:"raylib", "{}", formatted_message)
         }
     }
 }
