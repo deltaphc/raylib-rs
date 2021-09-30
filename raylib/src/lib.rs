@@ -74,6 +74,9 @@ pub use crate::core::logging::*;
 pub use crate::core::misc::{get_random_value, open_url};
 pub use crate::core::*;
 
+#[macro_use]
+extern crate num_derive;
+
 // Re-exports
 #[cfg(feature = "with_serde")]
 pub use serde;

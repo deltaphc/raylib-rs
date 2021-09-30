@@ -22,6 +22,7 @@ nalgebra = { version = "0.26", optional = true }
 num-traits = "0.2.14"
 printf = "0.1.0"
 log = "0.4.14"
+num-derive = "0.3.3"
 
 [features]
 nightly = []
