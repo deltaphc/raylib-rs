@@ -19,6 +19,9 @@ cfg-if = "1.0.0"
 serde = { version = "1.0.125", features = ["derive"], optional = true }
 serde_json = { version = "1.0.64", optional = true }
 nalgebra = { version = "0.26", optional = true }
+num-traits = "0.2.14"
+printf = "0.1.0"
+log = "0.4.14"
 
 [features]
 nightly = []
