@@ -43,7 +43,7 @@ Follow instructions for building raylib for your platform [here](https://github.
 
 ```toml
 [dependencies]
-raylib = "3.5"
+raylib = { version = "3.5", git = "https://github.com/deltaphc/raylib-rs" }
 ```
 
 2. Start coding!
