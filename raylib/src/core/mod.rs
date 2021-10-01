@@ -18,6 +18,7 @@ pub mod text;
 pub mod texture;
 pub mod vr;
 pub mod window;
+mod log_hooks;
 
 use crate::ffi;
 use std::ffi::CString;
@@ -82,6 +83,7 @@ pub struct RaylibBuilder {
     width: i32,
     height: i32,
     title: String,
+    using_log_crate: bool
 }
 
 /// Creates a `RaylibBuilder` for choosing window options before initialization.
@@ -156,6 +158,12 @@ impl RaylibBuilder {
         self
     }
 
+    /// Switches the internal logger to use the `log` crate
+    pub fn replace_logger(&mut self) -> &mut Self {
+        self.using_log_crate = true;
+        self
+    }
+
     /// Builds and initializes a Raylib window.
     ///
     /// # Panics
@@ -186,7 +194,7 @@ impl RaylibBuilder {
         unsafe {
             ffi::SetConfigFlags(flags as u32);
         }
-        let rl = init_window(self.width, self.height, &self.title);
+        let rl = init_window(self.width, self.height, &self.title, self.using_log_crate);
         (rl, RaylibThread(PhantomData))
     }
 }
@@ -196,11 +204,15 @@ impl RaylibBuilder {
 /// # Panics
 ///
 /// Attempting to initialize Raylib more than once will result in a panic.
-fn init_window(width: i32, height: i32, title: &str) -> RaylibHandle {
+fn init_window(width: i32, height: i32, title: &str, use_log_crate: bool) -> RaylibHandle {
     if IS_INITIALIZED.load(Ordering::Relaxed) {
         panic!("Attempted to initialize raylib-rs more than once!");
     } else {
         unsafe {
+            #[cfg(target_os = "linux")]
+            if use_log_crate {
+                ffi::SetTraceLogCallback(Some(log_hooks::log_callback));
+            }
             let c_title = CString::new(title).unwrap();
             ffi::InitWindow(width, height, c_title.as_ptr());
         }
