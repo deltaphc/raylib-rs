@@ -19,53 +19,31 @@ use crate::misc::AsF32;
 use std::f32::consts::PI;
 use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssign};
 
-#[cfg(feature = "with_serde")]
-use serde::{Deserialize, Serialize};
 #[cfg(feature = "nalgebra_interop")]
 use nalgebra as na;
 
 make_rslice!(RSliceVec4, Vector4, ffi::MemFree);
 
-macro_rules! optional_serde_struct {
-    ($def:item) => {
-        cfg_if::cfg_if! {
-            if #[cfg(feature = "with_serde")] {
-                #[repr(C)]
-                #[derive(Default, Debug, Copy, Clone, PartialEq, Serialize, Deserialize)]
-                $def
-            } else {
-                #[repr(C)]
-                #[derive(Default, Debug, Copy, Clone, PartialEq)]
-                $def
-            }
-        }
-    }
-}
 
-optional_serde_struct! {
-    pub struct Vector2 {
-        pub x: f32,
-        pub y: f32,
-    }
+#[repr(C)]
+#[derive(Default, Debug, Copy, Clone, PartialEq)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+pub struct Vector2 {
+    pub x: f32,
+    pub y: f32,
 }
 
 #[cfg(feature = "nalgebra_interop")]
 impl From<na::Vector2<f32>> for Vector2 {
     fn from(v: na::Vector2<f32>) -> Vector2 {
-        Vector2 {
-            x: v.x,
-            y: v.y
-        }
+        Vector2 { x: v.x, y: v.y }
     }
 }
 
 #[cfg(feature = "nalgebra_interop")]
 impl From<na::base::coordinates::XY<f32>> for Vector2 {
     fn from(v: na::base::coordinates::XY<f32>) -> Vector2 {
-        Vector2 {
-            x: v.x,
-            y: v.y
-        }
+        Vector2 { x: v.x, y: v.y }
     }
 }
 
@@ -359,12 +337,13 @@ impl Neg for Vector2 {
     }
 }
 
-optional_serde_struct! {
-    pub struct Vector3 {
-        pub x: f32,
-        pub y: f32,
-        pub z: f32,
-    }
+#[repr(C)]
+#[derive(Default, Debug, Copy, Clone, PartialEq)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+pub struct Vector3 {
+    pub x: f32,
+    pub y: f32,
+    pub z: f32,
 }
 
 #[cfg(feature = "nalgebra_interop")]
@@ -373,7 +352,7 @@ impl From<na::Vector3<f32>> for Vector3 {
         Vector3 {
             x: v.x,
             y: v.y,
-            z: v.z
+            z: v.z,
         }
     }
 }
@@ -384,7 +363,7 @@ impl From<na::base::coordinates::XYZ<f32>> for Vector3 {
         Vector3 {
             x: v.x,
             y: v.y,
-            z: v.z
+            z: v.z,
         }
     }
 }
@@ -817,14 +796,16 @@ impl Neg for Vector3 {
     }
 }
 
-optional_serde_struct! {
-    pub struct Vector4 {
-        pub x: f32,
-        pub y: f32,
-        pub z: f32,
-        pub w: f32,
-    }
+#[repr(C)]
+#[derive(Default, Debug, Copy, Clone, PartialEq)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+pub struct Vector4 {
+    pub x: f32,
+    pub y: f32,
+    pub z: f32,
+    pub w: f32,
 }
+
 pub type Quaternion = Vector4;
 
 #[cfg(feature = "nalgebra_interop")]
@@ -834,7 +815,7 @@ impl From<na::Vector4<f32>> for Vector4 {
             x: v.x,
             y: v.y,
             z: v.z,
-            w: v.w
+            w: v.w,
         }
     }
 }
@@ -846,7 +827,7 @@ impl From<na::base::coordinates::XYZW<f32>> for Vector4 {
             x: v.x,
             y: v.y,
             z: v.z,
-            w: v.w
+            w: v.w,
         }
     }
 }
@@ -1206,7 +1187,7 @@ impl From<na::geometry::Quaternion<f32>> for Quaternion {
             x: q.coords.x,
             y: q.coords.y,
             z: q.coords.z,
-            w: q.coords.w
+            w: q.coords.w,
         }
     }
 }
@@ -1252,25 +1233,26 @@ impl MulAssign for Quaternion {
     }
 }
 
-optional_serde_struct! {
-    pub struct Matrix {
-        pub m0: f32,
-        pub m4: f32,
-        pub m8: f32,
-        pub m12: f32,
-        pub m1: f32,
-        pub m5: f32,
-        pub m9: f32,
-        pub m13: f32,
-        pub m2: f32,
-        pub m6: f32,
-        pub m10: f32,
-        pub m14: f32,
-        pub m3: f32,
-        pub m7: f32,
-        pub m11: f32,
-        pub m15: f32,
-    }
+#[repr(C)]
+#[derive(Default, Debug, Copy, Clone, PartialEq)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+pub struct Matrix {
+    pub m0: f32,
+    pub m4: f32,
+    pub m8: f32,
+    pub m12: f32,
+    pub m1: f32,
+    pub m5: f32,
+    pub m9: f32,
+    pub m13: f32,
+    pub m2: f32,
+    pub m6: f32,
+    pub m10: f32,
+    pub m14: f32,
+    pub m3: f32,
+    pub m7: f32,
+    pub m11: f32,
+    pub m15: f32,
 }
 
 impl From<ffi::Matrix> for Matrix {
@@ -1842,11 +1824,12 @@ impl MulAssign for Matrix {
     }
 }
 
-optional_serde_struct! {
-    pub struct Ray {
-        pub position: Vector3,
-        pub direction: Vector3,
-    }
+#[repr(C)]
+#[derive(Default, Debug, Copy, Clone, PartialEq)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+pub struct Ray {
+    pub position: Vector3,
+    pub direction: Vector3,
 }
 
 impl From<ffi::Ray> for Ray {
@@ -1870,13 +1853,14 @@ impl Into<ffi::Ray> for &Ray {
     }
 }
 
-optional_serde_struct! {
-    pub struct Rectangle {
-        pub x: f32,
-        pub y: f32,
-        pub width: f32,
-        pub height: f32,
-    }
+#[repr(C)]
+#[derive(Default, Debug, Copy, Clone, PartialEq)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+pub struct Rectangle {
+    pub x: f32,
+    pub y: f32,
+    pub width: f32,
+    pub height: f32,
 }
 
 impl From<ffi::Rectangle> for Rectangle {
@@ -1914,11 +1898,12 @@ impl Rectangle {
     }
 }
 
-optional_serde_struct! {
-    pub struct BoundingBox {
-        pub min: Vector3,
-        pub max: Vector3,
-    }
+#[repr(C)]
+#[derive(Default, Debug, Copy, Clone, PartialEq)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+pub struct BoundingBox {
+    pub min: Vector3,
+    pub max: Vector3,
 }
 
 impl BoundingBox {
@@ -1948,13 +1933,14 @@ impl Into<ffi::BoundingBox> for &BoundingBox {
     }
 }
 
-optional_serde_struct! {
-    pub struct RayHitInfo {
-        pub hit: bool,
-        pub distance: f32,
-        pub position: Vector3,
-        pub normal: Vector3,
-    }
+#[repr(C)]
+#[derive(Default, Debug, Copy, Clone, PartialEq)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+pub struct RayHitInfo {
+    pub hit: bool,
+    pub distance: f32,
+    pub position: Vector3,
+    pub normal: Vector3,
 }
 
 impl From<ffi::RayHitInfo> for RayHitInfo {
@@ -1980,12 +1966,13 @@ impl Into<ffi::RayHitInfo> for &RayHitInfo {
     }
 }
 
-optional_serde_struct! {
-    pub struct Transform {
-        pub translation: Vector3,
-        pub rotation: Quaternion,
-        pub scale: Vector3,
-    }
+#[repr(C)]
+#[derive(Default, Debug, Copy, Clone, PartialEq)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+pub struct Transform {
+    pub translation: Vector3,
+    pub rotation: Quaternion,
+    pub scale: Vector3,
 }
 
 impl From<ffi::Transform> for Transform {
