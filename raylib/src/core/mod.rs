@@ -209,6 +209,7 @@ fn init_window(width: i32, height: i32, title: &str, use_log_crate: bool) -> Ray
         panic!("Attempted to initialize raylib-rs more than once!");
     } else {
         unsafe {
+            #[cfg(target_os = "linux")]
             if use_log_crate {
                 ffi::SetTraceLogCallback(Some(log_hooks::log_callback));
             }

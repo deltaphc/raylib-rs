@@ -20,6 +20,7 @@ enum RaylibLogLevel {
 }
 
 /// Logging callback that is passed through to raylib over the ffi boundary.
+#[cfg(target_os = "linux")]
 #[no_mangle]
 pub unsafe extern "C" fn log_callback(
     level: i32,
