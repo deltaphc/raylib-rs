@@ -189,12 +189,16 @@ impl Vector2 {
 
     /// Normalizes the vector.
     pub fn normalize(&mut self) {
-        *self /= self.length();
+        *self = self.normalized();
     }
 
     /// Returns a new `Vector2` with normalized components from the current vector.
     pub fn normalized(&self) -> Vector2 {
-        *self / self.length()
+        let length_sqr = self.length_sqr();
+        if length_sqr == 0.0 {
+            return *self;
+        }
+        *self / length_sqr.sqrt()
     }
 
     /// Returns a new `Vector2` with componenets linearly interpolated by `amount` towards vector `v`.
