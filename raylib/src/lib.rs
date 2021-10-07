@@ -74,8 +74,5 @@ pub use crate::core::logging::*;
 pub use crate::core::misc::{get_random_value, open_url};
 pub use crate::core::*;
 
-// Re-exports
-#[cfg(feature = "with_serde")]
-pub use serde;
-#[cfg(feature = "nalgebra_interop")]
-pub use nalgebra as na;
+#[cfg(feature="serde")]
+extern crate serde;

@@ -4,6 +4,7 @@ use crate::ffi;
 
 #[repr(C)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Default)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct Color {
     pub r: u8,
     pub g: u8,
