@@ -132,6 +132,12 @@ fn gen_bindings() {
         // for other platforms use bindgen and hope it works
         _ => panic!("raylib-rs not supported on your platform"),
     }
+    
+    fs::write(
+        out_dir.join("logging_wrapper_bindings.rs"),
+        include_str!("logging_wrapper_bindings.rs"),
+    )
+    .expect("failed to write logging bindings");
 }
 
 fn gen_rgui() {
@@ -156,6 +162,16 @@ fn gen_rgui() {
             .extra_warnings(false)
             .compile("rgui");
     }
+}
+
+fn gen_logging() {
+    // Compile logging wrapper
+    cc::Build::new()
+        .file("logging_wrapper.c")
+        .include(".")
+        .warnings(false)
+        .extra_warnings(false)
+        .compile("logging_wrapper");
 }
 
 #[cfg(feature = "nobuild")]
@@ -189,6 +205,7 @@ fn link(platform: Platform, platform_os: PlatformOS) {
     }
 
     println!("cargo:rustc-link-lib=static=raylib");
+    println!("cargo:rustc-link-lib=static=logging_wrapper");
 }
 
 fn main() {
@@ -204,6 +221,7 @@ fn main() {
     link(platform, platform_os);
 
     gen_rgui();
+    gen_logging();
 }
 
 // cp_raylib copy raylib to an out dir
