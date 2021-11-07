@@ -32,7 +32,7 @@ Though this binding tries to stay close to the simple C API, it makes some chang
 | core   | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :construction: |         |              |
 | rgui   | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |                |         |              |
 | physac | :construction:     | :construction:     | :construction:     |                |         |              |
-| rlgl   | :x:                | :heavy_check_mark: | :heavy_check_mark: |                |         |              |
+| rlgl   | :heavy_check_mark: | :x:                | :x:                |                |         |              |
 
 ## Build Dependencies
 
@@ -43,7 +43,7 @@ Follow instructions for building raylib for your platform [here](https://github.
 
 ```toml
 [dependencies]
-raylib = { version = "3.5", git = "https://github.com/deltaphc/raylib-rs" }
+raylib = { version = "3.7" }
 ```
 
 2. Start coding!
