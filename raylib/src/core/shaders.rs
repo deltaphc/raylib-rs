@@ -77,6 +77,7 @@ impl RaylibHandle {
     }
 
     /// Get default shader. Modifying it modifies everthing that uses that shader
+    #[cfg(not(target_os = "macos"))]
     pub fn get_shader_default() -> WeakShader {
         unsafe { WeakShader(ffi::rlGetShaderDefault()) }
     }
@@ -299,6 +300,7 @@ pub trait RaylibShader: AsRef<ffi::Shader> + AsMut<ffi::Shader> {
 impl RaylibHandle {
     /// Sets a custom projection matrix (replaces internal projection matrix).
     #[inline]
+    #[cfg(not(target_os = "macos"))]
     pub fn set_matrix_projection(&mut self, _: &RaylibThread, proj: Matrix) {
         unsafe {
             ffi::rlSetMatrixProjection(proj.into());
@@ -307,6 +309,7 @@ impl RaylibHandle {
 
     /// Sets a custom modelview matrix (replaces internal modelview matrix).
     #[inline]
+    #[cfg(not(target_os = "macos"))]
     pub fn set_matrix_modelview(&mut self, _: &RaylibThread, view: Matrix) {
         unsafe {
             ffi::rlSetMatrixModelview(view.into());
@@ -315,12 +318,14 @@ impl RaylibHandle {
 
     /// Gets internal modelview matrix.
     #[inline]
+    #[cfg(not(target_os = "macos"))]
     pub fn get_matrix_modelview(&self) -> Matrix {
         unsafe { ffi::rlGetMatrixModelview().into() }
     }
 
     /// Gets internal projection matrix.
     #[inline]
+    #[cfg(not(target_os = "macos"))]
     pub fn get_matrix_projection(&self) -> Matrix {
         unsafe { ffi::rlGetMatrixProjection().into() }
     }
