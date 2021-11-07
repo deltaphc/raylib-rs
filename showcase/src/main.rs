@@ -99,7 +99,7 @@ fn main() {
             rstr!("raylib [core] example - basic window"),
             example::core::core_basic_window::run,
         ),
-        #[cfg(not(target_os = "macos"))]
+        #[cfg(target_os = "windows")]
         (
             rstr!("raylib [core] example - custom logging"),
             example::core::core_custom_logging::run,
@@ -205,7 +205,7 @@ fn main() {
             rstr!("raylib [models] example - orthographic projection"),
             example::models::models_orthographic_projection::run,
         ),
-        #[cfg(not(target_os = "macos"))]
+        #[cfg(target_os = "windows")]
         (
             rstr!(
                 "raylib [models] example - rlgl module usage with push/pop matrix transformations"
@@ -260,7 +260,7 @@ fn main() {
             rstr!("raylib [textures] example - mouse painting"),
             example::textures::textures_mouse_painting::run,
         ),
-        #[cfg(not(target_os = "macos"))]
+        #[cfg(target_os = "windows")]
         (
             rstr!("rlgl standalone"),
             example::others::rlgl_standalone::run,

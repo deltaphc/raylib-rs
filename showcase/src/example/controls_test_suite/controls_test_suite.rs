@@ -7,7 +7,7 @@ use std::ffi::CString;
 pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
     // Initialization
     //---------------------------------------------------------------------------------------
-    // #[cfg(not(target_os = "macos"))] { // Macos has issues with high DPI
+    // #[cfg(target_os = "windows")] { // Macos has issues with high DPI
         let screen_width = 690;
         let screen_height = 560;
     

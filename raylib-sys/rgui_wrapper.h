@@ -3,7 +3,7 @@
 #define RAYGUI_SUPPORT_ICONS
 #define RLGL_IMPLEMENTATION
 #define RLGL_SUPPORT_TRACELOG
-#ifndef __APPLE__
+#if defined(_WIN32)
     #include "rlgl.h"
 #endif
 #include "raygui.h"
