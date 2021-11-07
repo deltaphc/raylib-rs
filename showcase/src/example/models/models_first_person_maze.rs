@@ -32,7 +32,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut
 
     // NOTE: By default each cube is mapped to one part of texture atlas
     let texture = unsafe { rl.load_texture(thread, "original/models/resources/cubicmap_atlas.png").unwrap().make_weak() };   // Load map texture
-    model.materials_mut()[0].maps_mut()[raylib::consts::MaterialMapType::MAP_ALBEDO as usize].texture = *texture.as_ref();             // Set map diffuse texture
+    model.materials_mut()[0].maps_mut()[raylib::consts::MaterialMapIndex::MATERIAL_MAP_ALBEDO as usize].texture = *texture.as_ref();             // Set map diffuse texture
 
     // Get map image data to be used for collision detection
     let mapPixels = imMap.get_image_data();

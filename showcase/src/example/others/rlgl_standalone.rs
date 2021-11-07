@@ -106,15 +106,15 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
             );
             let mat_view = Matrix::look_at(camera.position, camera.target, camera.up);
 
-            ffi::SetMatrixModelview(mat_view.into()); // Set internal modelview matrix (default shader)
-            ffi::SetMatrixProjection(mat_proj.into()); // Set internal projection matrix (default shader)
+            ffi::rlSetMatrixProjection(mat_view.into()); // Set internal modelview matrix (default shader)
+            ffi::rlSetMatrixProjection(mat_proj.into()); // Set internal projection matrix (default shader)
 
             draw_cube(cube_position, 2.0, 2.0, 2.0, Color::RED);
             draw_cube_wires(cube_position, 2.0, 2.0, 2.0, Color::RAYWHITE);
             draw_grid(10, 1.0);
 
             // NOTE: Internal buffers drawing (3D data)
-            ffi::rlglDraw();
+            ffi::rlDrawRenderBatchActive();
             //-----------------------------------------------
 
             // Draw '2D' elements in the scene (GUI)
@@ -145,7 +145,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
             draw_rectanglev(rvec2(10.0, 10.0), rvec2(780.0, 20.0), Color::DARKGRAY);
 
             // NOTE: Internal buffers drawing (2D data)
-            ffi::rlglDraw();
+            ffi::rlDrawRenderBatchActive();
             //-----------------------------------------------
 
             //----------------------------------------------------------------------------------

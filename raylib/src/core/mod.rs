@@ -162,7 +162,7 @@ impl RaylibBuilder {
     ///
     /// Attempting to initialize Raylib more than once will result in a panic.
     pub fn build(&self) -> (RaylibHandle, RaylibThread) {
-        use crate::consts::ConfigFlag::*;
+        use crate::consts::ConfigFlags::*;
         let mut flags = 0u32;
         if self.fullscreen_mode {
             flags |= FLAG_FULLSCREEN_MODE as u32;

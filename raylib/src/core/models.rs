@@ -212,28 +212,6 @@ pub trait RaylibModel: AsRef<ffi::Model> + AsMut<ffi::Model> {
     }
 }
 
-impl RaylibHandle {
-    /// Load meshes from model file
-    pub fn load_meshes(&mut self, _: &RaylibThread, filename: &str) -> Result<Vec<Mesh>, String> {
-        let c_filename = CString::new(filename).unwrap();
-        let mut m_size = 0;
-        let m_ptr = unsafe { ffi::LoadMeshes(c_filename.as_ptr(), &mut m_size) };
-        if m_size <= 0 {
-            return Err(format!("No meshes loaded from {}", filename));
-        }
-        let mut m_vec = Vec::with_capacity(m_size as usize);
-        for i in 0..m_size {
-            unsafe {
-                m_vec.push(Mesh(*m_ptr.offset(i as isize)));
-            }
-        }
-        unsafe {
-            ffi::MemFree(m_ptr as *mut libc::c_void);
-        }
-        Ok(m_vec)
-    }
-}
-
 impl RaylibMesh for WeakMesh {}
 impl RaylibMesh for Mesh {}
 
@@ -486,7 +464,7 @@ pub trait RaylibMaterial: AsRef<ffi::Material> + AsMut<ffi::Material> {
 
     fn set_material_texture(
         &mut self,
-        map_type: crate::consts::MaterialMapType,
+        map_type: crate::consts::MaterialMapIndex,
         texture: impl AsRef<ffi::Texture2D>,
     ) {
         unsafe {

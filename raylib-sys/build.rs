@@ -19,7 +19,7 @@ use std::path::{Path, PathBuf};
 use std::{env, fs};
 
 /// latest version on github's release page as of time or writing
-const LATEST_RAYLIB_VERSION: &str = "3.0.0";
+const LATEST_RAYLIB_VERSION: &str = "3.7.0";
 const LATEST_RAYLIB_API_VERSION: &str = "3";
 
 #[cfg(feature = "nobuild")]
@@ -58,11 +58,9 @@ fn build_with_cmake(src_path: &str) {
 
     builder
         .define("BUILD_EXAMPLES", "OFF")
-        .define("BUILD_GAMES", "OFF")
         .define("CMAKE_BUILD_TYPE", "Release")
         // turn off until this is fixed
-        .define("SUPPORT_BUSY_WAIT_LOOP", "OFF")
-        .define("STATIC", "TRUE");
+        .define("SUPPORT_BUSY_WAIT_LOOP", "OFF");
 
     match platform {
         Platform::Desktop => conf.define("PLATFORM", "Desktop"),
@@ -74,16 +72,20 @@ fn build_with_cmake(src_path: &str) {
     let dst_lib = join_cmake_lib_directory(dst);
     // on windows copy the static library to the proper file name
     if platform_os == PlatformOS::Windows {
-        if Path::new(&dst_lib.join("raylib_static.lib")).exists() {
+        if Path::new(&dst_lib.join("raylib.lib")).exists() {
+            // DO NOTHING
+        } else if Path::new(&dst_lib.join("raylib_static.lib")).exists() {
             std::fs::copy(
                 dst_lib.join("raylib_static.lib"),
                 dst_lib.join("raylib.lib"),
-            ).expect("filed to create windows library");
+            )
+            .expect("filed to create windows library");
         } else if Path::new(&dst_lib.join("libraylib_static.a")).exists() {
             std::fs::copy(
                 dst_lib.join("libraylib_static.a"),
                 dst_lib.join("libraylib.a"),
-            ).expect("failed to create windows library");
+            )
+            .expect("filed to create windows library");
         } else if Path::new(&dst_lib.join("libraylib.a")).exists() {
             // DO NOTHING
         } else {
@@ -253,8 +255,10 @@ fn platform_from_target(target: &str) -> (Platform, PlatformOS) {
         // Determine PLATFORM_OS in case PLATFORM_DESKTOP selected
         if env::var("OS")
             .unwrap_or("".to_owned())
-            .contains("Windows_NT") || env::var("TARGET").unwrap_or("".to_owned())
-            .contains("windows")
+            .contains("Windows_NT")
+            || env::var("TARGET")
+                .unwrap_or("".to_owned())
+                .contains("windows")
         {
             // No uname.exe on MinGW!, but OS=Windows_NT on Windows!
             // ifeq ($(UNAME),Msys) -> Windows

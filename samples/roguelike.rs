@@ -1573,7 +1573,7 @@ fn main_menu(rl: &mut RaylibHandle, thread: &RaylibThread, tcod: &mut Tcod) {
     let img = rl
         .load_texture_from_image(&thread, &img)
         .expect("could not load texture from image");
-    img.set_texture_wrap(thread, raylib::consts::TextureWrapMode::WRAP_CLAMP);
+    img.set_texture_wrap(thread, raylib::consts::TextureWrap::TEXTURE_WRAP_CLAMP);
 
     while !rl.window_should_close() {
         // show the background image, at twice the regular console resolution

@@ -1,6 +1,6 @@
 [package]
 name = "raylib-examples"
-version = "3.5.0"
+version = "3.7.0"
 authors = ["David Ayeke"]
 edition = "2018"
 license = "Zlib"
@@ -9,7 +9,7 @@ repository = "https://github.com/deltaphc/raylib-rs"
 
 
 [dependencies]
-raylib = { version = "3.0", path = "../raylib" }
+raylib = { version = "3.7", path = "../raylib" }
 structopt = "0.2"
 specs-derive = "0.4.1"
 rand = "0.7"
@@ -79,6 +79,10 @@ path = "3d_camera_first_person.rs"
 [[bin]]
 name = "model_shader"
 path = "model_shader.rs"
+
+[[bin]]
+name = "extensions"
+path = "extensions.rs"
 
 [[bin]]
 name = "asteroids"

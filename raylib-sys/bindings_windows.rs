@@ -89,6 +89,7 @@ pub const DEFAULT_BATCH_BUFFERS: u32 = 1;
 pub const DEFAULT_BATCH_DRAWCALLS: u32 = 256;
 pub const MAX_BATCH_ACTIVE_TEXTURES: u32 = 4;
 pub const MAX_MATRIX_STACK_SIZE: u32 = 32;
+pub const MAX_MESH_VERTEX_BUFFERS: u32 = 7;
 pub const MAX_SHADER_LOCATIONS: u32 = 32;
 pub const MAX_MATERIAL_MAPS: u32 = 12;
 pub const RL_CULL_DISTANCE_NEAR: f64 = 0.01;
@@ -97,23 +98,25 @@ pub const RL_TEXTURE_WRAP_S: u32 = 10242;
 pub const RL_TEXTURE_WRAP_T: u32 = 10243;
 pub const RL_TEXTURE_MAG_FILTER: u32 = 10240;
 pub const RL_TEXTURE_MIN_FILTER: u32 = 10241;
-pub const RL_TEXTURE_ANISOTROPIC_FILTER: u32 = 12288;
-pub const RL_FILTER_NEAREST: u32 = 9728;
-pub const RL_FILTER_LINEAR: u32 = 9729;
-pub const RL_FILTER_MIP_NEAREST: u32 = 9984;
-pub const RL_FILTER_NEAREST_MIP_LINEAR: u32 = 9986;
-pub const RL_FILTER_LINEAR_MIP_NEAREST: u32 = 9985;
-pub const RL_FILTER_MIP_LINEAR: u32 = 9987;
-pub const RL_WRAP_REPEAT: u32 = 10497;
-pub const RL_WRAP_CLAMP: u32 = 33071;
-pub const RL_WRAP_MIRROR_REPEAT: u32 = 33648;
-pub const RL_WRAP_MIRROR_CLAMP: u32 = 34626;
+pub const RL_TEXTURE_FILTER_NEAREST: u32 = 9728;
+pub const RL_TEXTURE_FILTER_LINEAR: u32 = 9729;
+pub const RL_TEXTURE_FILTER_MIP_NEAREST: u32 = 9984;
+pub const RL_TEXTURE_FILTER_NEAREST_MIP_LINEAR: u32 = 9986;
+pub const RL_TEXTURE_FILTER_LINEAR_MIP_NEAREST: u32 = 9985;
+pub const RL_TEXTURE_FILTER_MIP_LINEAR: u32 = 9987;
+pub const RL_TEXTURE_FILTER_ANISOTROPIC: u32 = 12288;
+pub const RL_TEXTURE_WRAP_REPEAT: u32 = 10497;
+pub const RL_TEXTURE_WRAP_CLAMP: u32 = 33071;
+pub const RL_TEXTURE_WRAP_MIRROR_REPEAT: u32 = 33648;
+pub const RL_TEXTURE_WRAP_MIRROR_CLAMP: u32 = 34626;
 pub const RL_MODELVIEW: u32 = 5888;
 pub const RL_PROJECTION: u32 = 5889;
 pub const RL_TEXTURE: u32 = 5890;
 pub const RL_LINES: u32 = 1;
 pub const RL_TRIANGLES: u32 = 4;
 pub const RL_QUADS: u32 = 7;
+pub const RL_UNSIGNED_BYTE: u32 = 5121;
+pub const RL_FLOAT: u32 = 5126;
 pub const RAYLIB_VERSION: &'static [u8; 4usize] = b"3.0\0";
 pub const SUPPORT_CAMERA_SYSTEM: u32 = 1;
 pub const SUPPORT_GESTURES_SYSTEM: u32 = 1;
@@ -840,9 +843,9 @@ pub const GL_INT_VEC2: u32 = 35667;
 pub const GL_INT_VEC3: u32 = 35668;
 pub const GL_INT_VEC4: u32 = 35669;
 pub const GL_BOOL: u32 = 35670;
-pub const GL_BOOL_VEC2: u32 = 35671;
-pub const GL_BOOL_VEC3: u32 = 35672;
-pub const GL_BOOL_VEC4: u32 = 35673;
+pub const GL_boolVEC2: u32 = 35671;
+pub const GL_boolVEC3: u32 = 35672;
+pub const GL_boolVEC4: u32 = 35673;
 pub const GL_FLOAT_MAT2: u32 = 35674;
 pub const GL_FLOAT_MAT3: u32 = 35675;
 pub const GL_FLOAT_MAT4: u32 = 35676;
@@ -2075,7 +2078,6 @@ pub const DEFAULT_SHADER_ATTRIB_NAME_NORMAL: &'static [u8; 13usize] = b"vertexNo
 pub const DEFAULT_SHADER_ATTRIB_NAME_COLOR: &'static [u8; 12usize] = b"vertexColor\0";
 pub const DEFAULT_SHADER_ATTRIB_NAME_TANGENT: &'static [u8; 14usize] = b"vertexTangent\0";
 pub const DEFAULT_SHADER_ATTRIB_NAME_TEXCOORD2: &'static [u8; 16usize] = b"vertexTexCoord2\0";
-pub const MAX_MIPMAP_LEVELS: u32 = 5;
 pub const RAYGUI_VERSION: &'static [u8; 8usize] = b"2.6-dev\0";
 pub const NUM_CONTROLS: u32 = 16;
 pub const NUM_PROPS_DEFAULT: u32 = 16;
@@ -2103,7 +2105,6 @@ pub const GRID_COLOR_ALPHA: f64 = 0.15;
 pub const ICON_TEXT_PADDING: u32 = 4;
 pub const TEXTSPLIT_MAX_TEXT_LENGTH: u32 = 1024;
 pub const TEXTSPLIT_MAX_TEXT_ELEMENTS: u32 = 128;
-pub const MAX_LIGHTS: u32 = 4;
 pub type va_list = __builtin_va_list;
 pub type __gnuc_va_list = __builtin_va_list;
 
@@ -2758,7 +2759,7 @@ pub struct NPatchInfo {
     pub top: ::std::os::raw::c_int,
     pub right: ::std::os::raw::c_int,
     pub bottom: ::std::os::raw::c_int,
-    pub type_: ::std::os::raw::c_int,
+    pub layout: ::std::os::raw::c_int,
 }
 #[test]
 fn bindgen_test_layout_NPatchInfo() {
@@ -2823,13 +2824,13 @@ fn bindgen_test_layout_NPatchInfo() {
         )
     );
     assert_eq!(
-        unsafe { &(*(::std::ptr::null::<NPatchInfo>())).type_ as *const _ as usize },
+        unsafe { &(*(::std::ptr::null::<NPatchInfo>())).layout as *const _ as usize },
         32usize,
         concat!(
             "Offset of field: ",
             stringify!(NPatchInfo),
             "::",
-            stringify!(type_)
+            stringify!(layout)
         )
     );
 }
@@ -2995,7 +2996,7 @@ pub struct Camera3D {
     pub target: Vector3,
     pub up: Vector3,
     pub fovy: f32,
-    pub type_: ::std::os::raw::c_int,
+    pub projection: ::std::os::raw::c_int,
 }
 #[test]
 fn bindgen_test_layout_Camera3D() {
@@ -3050,13 +3051,13 @@ fn bindgen_test_layout_Camera3D() {
         )
     );
     assert_eq!(
-        unsafe { &(*(::std::ptr::null::<Camera3D>())).type_ as *const _ as usize },
+        unsafe { &(*(::std::ptr::null::<Camera3D>())).projection as *const _ as usize },
         40usize,
         concat!(
             "Offset of field: ",
             stringify!(Camera3D),
             "::",
-            stringify!(type_)
+            stringify!(projection)
         )
     );
 }
@@ -3398,13 +3399,13 @@ fn bindgen_test_layout_MaterialMap() {
 pub struct Material {
     pub shader: Shader,
     pub maps: *mut MaterialMap,
-    pub params: *mut f32,
+    pub params: [f32; 4usize],
 }
 #[test]
 fn bindgen_test_layout_Material() {
     assert_eq!(
         ::std::mem::size_of::<Material>(),
-        32usize,
+        40usize,
         concat!("Size of: ", stringify!(Material))
     );
     assert_eq!(
@@ -4232,9 +4233,116 @@ fn bindgen_test_layout_VrDeviceInfo() {
         )
     );
 }
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct VrStereoConfig {
+    pub projection: [Matrix; 2usize],
+    pub viewOffset: [Matrix; 2usize],
+    pub leftLensCenter: [f32; 2usize],
+    pub rightLensCenter: [f32; 2usize],
+    pub leftScreenCenter: [f32; 2usize],
+    pub rightScreenCenter: [f32; 2usize],
+    pub scale: [f32; 2usize],
+    pub scaleIn: [f32; 2usize],
+}
+#[test]
+fn bindgen_test_layout_VrStereoConfig() {
+    assert_eq!(
+        ::std::mem::size_of::<VrStereoConfig>(),
+        304usize,
+        concat!("Size of: ", stringify!(VrStereoConfig))
+    );
+    assert_eq!(
+        ::std::mem::align_of::<VrStereoConfig>(),
+        4usize,
+        concat!("Alignment of ", stringify!(VrStereoConfig))
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<VrStereoConfig>())).projection as *const _ as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(VrStereoConfig),
+            "::",
+            stringify!(projection)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<VrStereoConfig>())).viewOffset as *const _ as usize },
+        128usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(VrStereoConfig),
+            "::",
+            stringify!(viewOffset)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<VrStereoConfig>())).leftLensCenter as *const _ as usize },
+        256usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(VrStereoConfig),
+            "::",
+            stringify!(leftLensCenter)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<VrStereoConfig>())).rightLensCenter as *const _ as usize },
+        264usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(VrStereoConfig),
+            "::",
+            stringify!(rightLensCenter)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<VrStereoConfig>())).leftScreenCenter as *const _ as usize },
+        272usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(VrStereoConfig),
+            "::",
+            stringify!(leftScreenCenter)
+        )
+    );
+    assert_eq!(
+        unsafe {
+            &(*(::std::ptr::null::<VrStereoConfig>())).rightScreenCenter as *const _ as usize
+        },
+        280usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(VrStereoConfig),
+            "::",
+            stringify!(rightScreenCenter)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<VrStereoConfig>())).scale as *const _ as usize },
+        288usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(VrStereoConfig),
+            "::",
+            stringify!(scale)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<VrStereoConfig>())).scaleIn as *const _ as usize },
+        296usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(VrStereoConfig),
+            "::",
+            stringify!(scaleIn)
+        )
+    );
+}
 #[repr(i32)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum ConfigFlag {
+pub enum ConfigFlags {
     FLAG_VSYNC_HINT = 64,
     FLAG_FULLSCREEN_MODE = 2,
     FLAG_WINDOW_RESIZABLE = 4,
@@ -4252,7 +4360,7 @@ pub enum ConfigFlag {
 }
 #[repr(i32)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum TraceLogType {
+pub enum TraceLogLevel {
     LOG_ALL = 0,
     LOG_TRACE = 1,
     LOG_DEBUG = 2,
@@ -4262,9 +4370,13 @@ pub enum TraceLogType {
     LOG_FATAL = 6,
     LOG_NONE = 7,
 }
+impl KeyboardKey {
+    pub const KEY_MENU: KeyboardKey = KeyboardKey::KEY_R;
+}
 #[repr(i32)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub enum KeyboardKey {
+    KEY_NULL = 0,
     KEY_APOSTROPHE = 39,
     KEY_COMMA = 44,
     KEY_MINUS = 45,
@@ -4370,12 +4482,7 @@ pub enum KeyboardKey {
     KEY_KP_ADD = 334,
     KEY_KP_ENTER = 335,
     KEY_KP_EQUAL = 336,
-}
-#[repr(i32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum AndroidButton {
     KEY_BACK = 4,
-    KEY_MENU = 82,
     KEY_VOLUME_UP = 24,
     KEY_VOLUME_DOWN = 25,
 }
@@ -4400,14 +4507,6 @@ pub enum MouseCursor {
     MOUSE_CURSOR_RESIZE_NESW = 8,
     MOUSE_CURSOR_RESIZE_ALL = 9,
     MOUSE_CURSOR_NOT_ALLOWED = 10,
-}
-#[repr(i32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum GamepadNumber {
-    GAMEPAD_PLAYER1 = 0,
-    GAMEPAD_PLAYER2 = 1,
-    GAMEPAD_PLAYER3 = 2,
-    GAMEPAD_PLAYER4 = 3,
 }
 #[repr(i32)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
@@ -4443,113 +4542,114 @@ pub enum GamepadAxis {
 }
 #[repr(i32)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+pub enum MaterialMapIndex {
+    MATERIAL_MAP_ALBEDO = 0,
+    MATERIAL_MAP_METALNESS = 1,
+    MATERIAL_MAP_NORMAL = 2,
+    MATERIAL_MAP_ROUGHNESS = 3,
+    MATERIAL_MAP_OCCLUSION = 4,
+    MATERIAL_MAP_EMISSION = 5,
+    MATERIAL_MAP_HEIGHT = 6,
+    MATERIAL_MAP_BRDG = 7,
+    MATERIAL_MAP_CUBEMAP = 8,
+    MATERIAL_MAP_IRRADIANCE = 9,
+    MATERIAL_MAP_PREFILTER = 10,
+}
+#[repr(i32)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub enum ShaderLocationIndex {
-    LOC_VERTEX_POSITION = 0,
-    LOC_VERTEX_TEXCOORD01 = 1,
-    LOC_VERTEX_TEXCOORD02 = 2,
-    LOC_VERTEX_NORMAL = 3,
-    LOC_VERTEX_TANGENT = 4,
-    LOC_VERTEX_COLOR = 5,
-    LOC_MATRIX_MVP = 6,
-    LOC_MATRIX_MODEL = 7,
-    LOC_MATRIX_VIEW = 8,
-    LOC_MATRIX_PROJECTION = 9,
-    LOC_VECTOR_VIEW = 10,
-    LOC_COLOR_DIFFUSE = 11,
-    LOC_COLOR_SPECULAR = 12,
-    LOC_COLOR_AMBIENT = 13,
-    LOC_MAP_ALBEDO = 14,
-    LOC_MAP_METALNESS = 15,
-    LOC_MAP_NORMAL = 16,
-    LOC_MAP_ROUGHNESS = 17,
-    LOC_MAP_OCCLUSION = 18,
-    LOC_MAP_EMISSION = 19,
-    LOC_MAP_HEIGHT = 20,
-    LOC_MAP_CUBEMAP = 21,
-    LOC_MAP_IRRADIANCE = 22,
-    LOC_MAP_PREFILTER = 23,
-    LOC_MAP_BRDF = 24,
+    SHADER_LOC_VERTEX_POSITION = 0,
+    SHADER_LOC_VERTEX_TEXCOORD01 = 1,
+    SHADER_LOC_VERTEX_TEXCOORD02 = 2,
+    SHADER_LOC_VERTEX_NORMAL = 3,
+    SHADER_LOC_VERTEX_TANGENT = 4,
+    SHADER_LOC_VERTEX_COLOR = 5,
+    SHADER_LOC_MATRIX_MVP = 6,
+    SHADER_LOC_MATRIX_VIEW = 7,
+    SHADER_LOC_MATRIX_PROJECTION = 8,
+    SHADER_LOC_MATRIX_MODEL = 9,
+    SHADER_LOC_MATRIX_NORMAL = 10,
+    SHADER_LOC_VECTOR_VIEW = 11,
+    SHADER_LOC_COLOR_DIFFUSE = 12,
+    SHADER_LOC_COLOR_SPECULAR = 13,
+    SHADER_LOC_COLOR_AMBIENT = 14,
+    SHADER_LOC_MAP_ALBEDO = 15,
+    SHADER_LOC_MAP_METALNESS = 16,
+    SHADER_LOC_MAP_NORMAL = 17,
+    SHADER_LOC_MAP_ROUGHNESS = 18,
+    SHADER_LOC_MAP_OCCLUSION = 19,
+    SHADER_LOC_MAP_EMISSION = 20,
+    SHADER_LOC_MAP_HEIGHT = 21,
+    SHADER_LOC_MAP_CUBEMAP = 22,
+    SHADER_LOC_MAP_IRRADIANCE = 23,
+    SHADER_LOC_MAP_PREFILTER = 24,
+    SHADER_LOC_MAP_BRDF = 25,
 }
 #[repr(i32)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub enum ShaderUniformDataType {
-    UNIFORM_FLOAT = 0,
-    UNIFORM_VEC2 = 1,
-    UNIFORM_VEC3 = 2,
-    UNIFORM_VEC4 = 3,
-    UNIFORM_INT = 4,
-    UNIFORM_IVEC2 = 5,
-    UNIFORM_IVEC3 = 6,
-    UNIFORM_IVEC4 = 7,
-    UNIFORM_SAMPLER2D = 8,
-}
-#[repr(i32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum MaterialMapType {
-    MAP_ALBEDO = 0,
-    MAP_METALNESS = 1,
-    MAP_NORMAL = 2,
-    MAP_ROUGHNESS = 3,
-    MAP_OCCLUSION = 4,
-    MAP_EMISSION = 5,
-    MAP_HEIGHT = 6,
-    MAP_CUBEMAP = 7,
-    MAP_IRRADIANCE = 8,
-    MAP_PREFILTER = 9,
-    MAP_BRDF = 10,
+    SHADER_UNIFORM_FLOAT = 0,
+    SHADER_UNIFORM_VEC2 = 1,
+    SHADER_UNIFORM_VEC3 = 2,
+    SHADER_UNIFORM_VEC4 = 3,
+    SHADER_UNIFORM_INT = 4,
+    SHADER_UNIFORM_IVEC2 = 5,
+    SHADER_UNIFORM_IVEC3 = 6,
+    SHADER_UNIFORM_IVEC4 = 7,
+    SHADER_UNIFORM_SAMPLER2D = 8,
 }
 #[repr(i32)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub enum PixelFormat {
-    UNCOMPRESSED_GRAYSCALE = 1,
-    UNCOMPRESSED_GRAY_ALPHA = 2,
-    UNCOMPRESSED_R5G6B5 = 3,
-    UNCOMPRESSED_R8G8B8 = 4,
-    UNCOMPRESSED_R5G5B5A1 = 5,
-    UNCOMPRESSED_R4G4B4A4 = 6,
-    UNCOMPRESSED_R8G8B8A8 = 7,
-    UNCOMPRESSED_R32 = 8,
-    UNCOMPRESSED_R32G32B32 = 9,
-    UNCOMPRESSED_R32G32B32A32 = 10,
-    COMPRESSED_DXT1_RGB = 11,
-    COMPRESSED_DXT1_RGBA = 12,
-    COMPRESSED_DXT3_RGBA = 13,
-    COMPRESSED_DXT5_RGBA = 14,
-    COMPRESSED_ETC1_RGB = 15,
-    COMPRESSED_ETC2_RGB = 16,
-    COMPRESSED_ETC2_EAC_RGBA = 17,
-    COMPRESSED_PVRT_RGB = 18,
-    COMPRESSED_PVRT_RGBA = 19,
-    COMPRESSED_ASTC_4x4_RGBA = 20,
-    COMPRESSED_ASTC_8x8_RGBA = 21,
+    PIXELFORMAT_UNCOMPRESSED_GRAYSCALE = 1,
+    PIXELFORMAT_UNCOMPRESSED_GRAY_ALPHA = 2,
+    PIXELFORMAT_UNCOMPRESSED_R5G6B5 = 3,
+    PIXELFORMAT_UNCOMPRESSED_R8G8B8 = 4,
+    PIXELFORMAT_UNCOMPRESSED_R5G5B5A1 = 5,
+    PIXELFORMAT_UNCOMPRESSED_R4G4B4A4 = 6,
+    PIXELFORMAT_PIXELFORMAT_UNCOMPRESSED_R8G8B8A8 = 7,
+    PIXELFORMAT_UNCOMPRESSED_R32 = 8,
+    PIXELFORMAT_UNCOMPRESSED_R32G32B32 = 9,
+    PIXELFORMAT_UNCOMPRESSED_R32G32B32A32 = 10,
+    PIXELFORMAT_COMPRESSED_DXT1_RGB = 11,
+    PIXELFORMAT_COMPRESSED_DXT1_RGBA = 12,
+    PIXELFORMAT_COMPRESSED_DXT3_RGBA = 13,
+    PIXELFORMAT_COMPRESSED_DXT5_RGBA = 14,
+    PIXELFORMAT_COMPRESSED_ETC1_RGB = 15,
+    PIXELFORMAT_COMPRESSED_ETC2_RGB = 16,
+    PIXELFORMAT_COMPRESSED_ETC2_EAC_RGBA = 17,
+    PIXELFORMAT_COMPRESSED_PVRT_RGB = 18,
+    PIXELFORMAT_COMPRESSED_PVRT_RGBA = 19,
+    PIXELFORMAT_COMPRESSED_ASTC_4x4_RGBA = 20,
+    PIXELFORMAT_COMPRESSED_ASTC_8x8_RGBA = 21,
 }
 #[repr(i32)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum TextureFilterMode {
-    FILTER_POINT = 0,
-    FILTER_BILINEAR = 1,
-    FILTER_TRILINEAR = 2,
-    FILTER_ANISOTROPIC_4X = 3,
-    FILTER_ANISOTROPIC_8X = 4,
-    FILTER_ANISOTROPIC_16X = 5,
+pub enum TextureFilter {
+    TEXTURE_FILTER_POINT = 0,
+    TEXTURE_FILTER_BILINEAR = 1,
+    TEXTURE_FILTER_TRILINEAR = 2,
+    TEXTURE_FILTER_ANISOTROPIC_4X = 3,
+    TEXTURE_FILTER_ANISOTROPIC_8X = 4,
+    TEXTURE_FILTER_ANISOTROPIC_16X = 5,
 }
 #[repr(i32)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum TextureWrapMode {
-    WRAP_REPEAT = 0,
-    WRAP_CLAMP = 1,
-    WRAP_MIRROR_REPEAT = 2,
-    WRAP_MIRROR_CLAMP = 3,
+pub enum TextureWrap {
+    TEXTURE_WRAP_REPEAT = 0,
+    TEXTURE_WRAP_CLAMP = 1,
+    TEXTURE_WRAP_MIRROR_REPEAT = 2,
+    TEXTURE_WRAP_MIRROR_CLAMP = 3,
 }
 #[repr(i32)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum CubemapLayoutType {
-    CUBEMAP_AUTO_DETECT = 0,
-    CUBEMAP_LINE_VERTICAL = 1,
-    CUBEMAP_LINE_HORIZONTAL = 2,
-    CUBEMAP_CROSS_THREE_BY_FOUR = 3,
-    CUBEMAP_CROSS_FOUR_BY_THREE = 4,
-    CUBEMAP_PANORAMA = 5,
+pub enum CubemapLayout {
+    CUBEMAP_LAYOUT_AUTO_DETECT = 0,
+    CUBEMAP_LAYOUT_LINE_VERTICAL = 1,
+    CUBEMAP_LAYOUT_LINE_HORIZONTAL = 2,
+    CUBEMAP_LAYOUT_CROSS_THREE_BY_FOUR = 3,
+    CUBEMAP_LAYOUT_CROSS_FOUR_BY_THREE = 4,
+    CUBEMAP_LAYOUT_PANORAMA = 5,
 }
 #[repr(i32)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
@@ -4570,7 +4670,7 @@ pub enum BlendMode {
 }
 #[repr(i32)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum GestureType {
+pub enum Gestures {
     GESTURE_NONE = 0,
     GESTURE_TAP = 1,
     GESTURE_DOUBLETAP = 2,
@@ -4594,23 +4694,45 @@ pub enum CameraMode {
 }
 #[repr(i32)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum CameraType {
+pub enum CameraProjection {
     CAMERA_PERSPECTIVE = 0,
     CAMERA_ORTHOGRAPHIC = 1,
 }
 #[repr(i32)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum NPatchType {
-    NPT_9PATCH = 0,
-    NPT_3PATCH_VERTICAL = 1,
-    NPT_3PATCH_HORIZONTAL = 2,
+pub enum NPatchLayout {
+    NPATCH_NINE_PATCH = 0,
+    NPATCH_THREE_PATCH_VERTICAL = 1,
+    NPATCH_THREE_PATCH_HORIZONTAL = 2,
 }
 pub type TraceLogCallback = ::std::option::Option<
     unsafe extern "C" fn(
-        logType: ::std::os::raw::c_int,
+        logLevel: ::std::os::raw::c_int,
         text: *const ::std::os::raw::c_char,
         args: va_list,
     ),
+>;
+pub type LoadFileDataCallback = ::std::option::Option<
+    unsafe extern "C" fn(
+        fileName: *const ::std::os::raw::c_char,
+        bytesRead: *mut ::std::os::raw::c_uint,
+    ) -> *mut ::std::os::raw::c_uchar,
+>;
+pub type SaveFileDataCallback = ::std::option::Option<
+    unsafe extern "C" fn(
+        fileName: *const ::std::os::raw::c_char,
+        data: *mut ::std::os::raw::c_void,
+        bytesToWrite: ::std::os::raw::c_uint,
+    ) -> bool,
+>;
+pub type LoadFileTextCallback = ::std::option::Option<
+    unsafe extern "C" fn(fileName: *const ::std::os::raw::c_char) -> *mut ::std::os::raw::c_char,
+>;
+pub type SaveFileTextCallback = ::std::option::Option<
+    unsafe extern "C" fn(
+        fileName: *const ::std::os::raw::c_char,
+        text: *mut ::std::os::raw::c_char,
+    ) -> bool,
 >;
 extern "C" {
     pub fn InitWindow(
@@ -4698,6 +4820,9 @@ extern "C" {
     pub fn GetMonitorCount() -> ::std::os::raw::c_int;
 }
 extern "C" {
+    pub fn GetCurrentMonitor() -> ::std::os::raw::c_int;
+}
+extern "C" {
     pub fn GetMonitorPosition(monitor: ::std::os::raw::c_int) -> Vector2;
 }
 extern "C" {
@@ -4776,6 +4901,18 @@ extern "C" {
     pub fn EndTextureMode();
 }
 extern "C" {
+    pub fn BeginShaderMode(shader: Shader);
+}
+extern "C" {
+    pub fn EndShaderMode();
+}
+extern "C" {
+    pub fn BeginBlendMode(mode: ::std::os::raw::c_int);
+}
+extern "C" {
+    pub fn EndBlendMode();
+}
+extern "C" {
     pub fn BeginScissorMode(
         x: ::std::os::raw::c_int,
         y: ::std::os::raw::c_int,
@@ -4785,6 +4922,72 @@ extern "C" {
 }
 extern "C" {
     pub fn EndScissorMode();
+}
+extern "C" {
+    pub fn BeginVrStereoMode(config: VrStereoConfig);
+}
+extern "C" {
+    pub fn EndVrStereoMode();
+}
+extern "C" {
+    pub fn LoadVrStereoConfig(device: VrDeviceInfo) -> VrStereoConfig;
+}
+extern "C" {
+    pub fn UnloadVrStereoConfig(config: VrStereoConfig);
+}
+extern "C" {
+    pub fn LoadShader(
+        vsFileName: *const ::std::os::raw::c_char,
+        fsFileName: *const ::std::os::raw::c_char,
+    ) -> Shader;
+}
+extern "C" {
+    pub fn LoadShaderFromMemory(
+        vsCode: *const ::std::os::raw::c_char,
+        fsCode: *const ::std::os::raw::c_char,
+    ) -> Shader;
+}
+extern "C" {
+    pub fn GetShaderLocation(
+        shader: Shader,
+        uniformName: *const ::std::os::raw::c_char,
+    ) -> ::std::os::raw::c_int;
+}
+extern "C" {
+    pub fn GetShaderLocationAttrib(
+        shader: Shader,
+        attribName: *const ::std::os::raw::c_char,
+    ) -> ::std::os::raw::c_int;
+}
+extern "C" {
+    pub fn SetShaderValue(
+        shader: Shader,
+        locIndex: ::std::os::raw::c_int,
+        value: *const ::std::os::raw::c_void,
+        uniformType: ::std::os::raw::c_int,
+    );
+}
+extern "C" {
+    pub fn SetShaderValueV(
+        shader: Shader,
+        locIndex: ::std::os::raw::c_int,
+        value: *const ::std::os::raw::c_void,
+        uniformType: ::std::os::raw::c_int,
+        count: ::std::os::raw::c_int,
+    );
+}
+extern "C" {
+    pub fn SetShaderValueMatrix(shader: Shader, locIndex: ::std::os::raw::c_int, mat: Matrix);
+}
+extern "C" {
+    pub fn SetShaderValueTexture(
+        shader: Shader,
+        locIndex: ::std::os::raw::c_int,
+        texture: Texture2D,
+    );
+}
+extern "C" {
+    pub fn UnloadShader(shader: Shader);
 }
 extern "C" {
     pub fn GetMouseRay(mousePosition: Vector2, camera: Camera) -> Ray;
@@ -4825,34 +5028,49 @@ extern "C" {
     pub fn GetTime() -> f64;
 }
 extern "C" {
-    pub fn SetConfigFlags(flags: ::std::os::raw::c_uint);
-}
-extern "C" {
-    pub fn SetTraceLogLevel(logType: ::std::os::raw::c_int);
-}
-extern "C" {
-    pub fn SetTraceLogExit(logType: ::std::os::raw::c_int);
-}
-extern "C" {
-    pub fn SetTraceLogCallback(callback: TraceLogCallback);
-}
-extern "C" {
-    pub fn TraceLog(logType: ::std::os::raw::c_int, text: *const ::std::os::raw::c_char, ...);
-}
-extern "C" {
-    pub fn MemAlloc(size: ::std::os::raw::c_int) -> *mut ::std::os::raw::c_void;
-}
-extern "C" {
-    pub fn MemFree(ptr: *mut ::std::os::raw::c_void);
+    pub fn GetRandomValue(
+        min: ::std::os::raw::c_int,
+        max: ::std::os::raw::c_int,
+    ) -> ::std::os::raw::c_int;
 }
 extern "C" {
     pub fn TakeScreenshot(fileName: *const ::std::os::raw::c_char);
 }
 extern "C" {
-    pub fn GetRandomValue(
-        min: ::std::os::raw::c_int,
-        max: ::std::os::raw::c_int,
-    ) -> ::std::os::raw::c_int;
+    pub fn SetConfigFlags(flags: ::std::os::raw::c_uint);
+}
+extern "C" {
+    pub fn TraceLog(logLevel: ::std::os::raw::c_int, text: *const ::std::os::raw::c_char, ...);
+}
+extern "C" {
+    pub fn SetTraceLogLevel(logLevel: ::std::os::raw::c_int);
+}
+extern "C" {
+    pub fn MemAlloc(size: ::std::os::raw::c_int) -> *mut ::std::os::raw::c_void;
+}
+extern "C" {
+    pub fn MemRealloc(
+        ptr: *mut ::std::os::raw::c_void,
+        size: ::std::os::raw::c_int,
+    ) -> *mut ::std::os::raw::c_void;
+}
+extern "C" {
+    pub fn MemFree(ptr: *mut ::std::os::raw::c_void);
+}
+extern "C" {
+    pub fn SetTraceLogCallback(callback: TraceLogCallback);
+}
+extern "C" {
+    pub fn SetLoadFileDataCallback(callback: LoadFileDataCallback);
+}
+extern "C" {
+    pub fn SetSaveFileDataCallback(callback: SaveFileDataCallback);
+}
+extern "C" {
+    pub fn SetLoadFileTextCallback(callback: LoadFileTextCallback);
+}
+extern "C" {
+    pub fn SetSaveFileTextCallback(callback: SaveFileTextCallback);
 }
 extern "C" {
     pub fn LoadFileData(
@@ -5036,6 +5254,9 @@ extern "C" {
     ) -> f32;
 }
 extern "C" {
+    pub fn SetGamepadMappings(mappings: *const ::std::os::raw::c_char) -> ::std::os::raw::c_int;
+}
+extern "C" {
     pub fn IsMouseButtonPressed(button: ::std::os::raw::c_int) -> bool;
 }
 extern "C" {
@@ -5069,9 +5290,6 @@ extern "C" {
     pub fn GetMouseWheelMove() -> f32;
 }
 extern "C" {
-    pub fn GetMouseCursor() -> ::std::os::raw::c_int;
-}
-extern "C" {
     pub fn SetMouseCursor(cursor: ::std::os::raw::c_int);
 }
 extern "C" {
@@ -5084,7 +5302,7 @@ extern "C" {
     pub fn GetTouchPosition(index: ::std::os::raw::c_int) -> Vector2;
 }
 extern "C" {
-    pub fn SetGesturesEnabled(gestureFlags: ::std::os::raw::c_uint);
+    pub fn SetGesturesEnabled(flags: ::std::os::raw::c_uint);
 }
 extern "C" {
     pub fn IsGestureDetected(gesture: ::std::os::raw::c_int) -> bool;
@@ -5136,6 +5354,9 @@ extern "C" {
     );
 }
 extern "C" {
+    pub fn SetShapesTexture(texture: Texture2D, source: Rectangle);
+}
+extern "C" {
     pub fn DrawPixel(posX: ::std::os::raw::c_int, posY: ::std::os::raw::c_int, color: Color);
 }
 extern "C" {
@@ -5160,6 +5381,15 @@ extern "C" {
     pub fn DrawLineBezier(startPos: Vector2, endPos: Vector2, thick: f32, color: Color);
 }
 extern "C" {
+    pub fn DrawLineBezierQuad(
+        startPos: Vector2,
+        endPos: Vector2,
+        controlPos: Vector2,
+        thick: f32,
+        color: Color,
+    );
+}
+extern "C" {
     pub fn DrawLineStrip(points: *mut Vector2, pointsCount: ::std::os::raw::c_int, color: Color);
 }
 extern "C" {
@@ -5174,8 +5404,8 @@ extern "C" {
     pub fn DrawCircleSector(
         center: Vector2,
         radius: f32,
-        startAngle: ::std::os::raw::c_int,
-        endAngle: ::std::os::raw::c_int,
+        startAngle: f32,
+        endAngle: f32,
         segments: ::std::os::raw::c_int,
         color: Color,
     );
@@ -5184,8 +5414,8 @@ extern "C" {
     pub fn DrawCircleSectorLines(
         center: Vector2,
         radius: f32,
-        startAngle: ::std::os::raw::c_int,
-        endAngle: ::std::os::raw::c_int,
+        startAngle: f32,
+        endAngle: f32,
         segments: ::std::os::raw::c_int,
         color: Color,
     );
@@ -5233,8 +5463,8 @@ extern "C" {
         center: Vector2,
         innerRadius: f32,
         outerRadius: f32,
-        startAngle: ::std::os::raw::c_int,
-        endAngle: ::std::os::raw::c_int,
+        startAngle: f32,
+        endAngle: f32,
         segments: ::std::os::raw::c_int,
         color: Color,
     );
@@ -5244,8 +5474,8 @@ extern "C" {
         center: Vector2,
         innerRadius: f32,
         outerRadius: f32,
-        startAngle: ::std::os::raw::c_int,
-        endAngle: ::std::os::raw::c_int,
+        startAngle: f32,
+        endAngle: f32,
         segments: ::std::os::raw::c_int,
         color: Color,
     );
@@ -5732,7 +5962,7 @@ extern "C" {
     pub fn LoadTextureFromImage(image: Image) -> Texture2D;
 }
 extern "C" {
-    pub fn LoadTextureCubemap(image: Image, layoutType: ::std::os::raw::c_int) -> TextureCubemap;
+    pub fn LoadTextureCubemap(image: Image, layout: ::std::os::raw::c_int) -> TextureCubemap;
 }
 extern "C" {
     pub fn LoadRenderTexture(
@@ -5766,10 +5996,10 @@ extern "C" {
     pub fn GenTextureMipmaps(texture: *mut Texture2D);
 }
 extern "C" {
-    pub fn SetTextureFilter(texture: Texture2D, filterMode: ::std::os::raw::c_int);
+    pub fn SetTextureFilter(texture: Texture2D, filter: ::std::os::raw::c_int);
 }
 extern "C" {
-    pub fn SetTextureWrap(texture: Texture2D, wrapMode: ::std::os::raw::c_int);
+    pub fn SetTextureWrap(texture: Texture2D, wrap: ::std::os::raw::c_int);
 }
 extern "C" {
     pub fn DrawTexture(
@@ -5831,6 +6061,16 @@ extern "C" {
         dest: Rectangle,
         origin: Vector2,
         rotation: f32,
+        tint: Color,
+    );
+}
+extern "C" {
+    pub fn DrawTexturePoly(
+        texture: Texture2D,
+        center: Vector2,
+        points: *mut Vector2,
+        texcoords: *mut Vector2,
+        pointsCount: ::std::os::raw::c_int,
         tint: Color,
     );
 }
@@ -6211,9 +6451,6 @@ extern "C" {
     pub fn DrawGrid(slices: ::std::os::raw::c_int, spacing: f32);
 }
 extern "C" {
-    pub fn DrawGizmo(position: Vector3);
-}
-extern "C" {
     pub fn LoadModel(fileName: *const ::std::os::raw::c_char) -> Model;
 }
 extern "C" {
@@ -6226,10 +6463,27 @@ extern "C" {
     pub fn UnloadModelKeepMeshes(model: Model);
 }
 extern "C" {
-    pub fn LoadMeshes(
-        fileName: *const ::std::os::raw::c_char,
-        meshCount: *mut ::std::os::raw::c_int,
-    ) -> *mut Mesh;
+    pub fn UploadMesh(mesh: *mut Mesh, dynamic: bool);
+}
+extern "C" {
+    pub fn UpdateMeshBuffer(
+        mesh: Mesh,
+        index: ::std::os::raw::c_int,
+        data: *mut ::std::os::raw::c_void,
+        dataSize: ::std::os::raw::c_int,
+        offset: ::std::os::raw::c_int,
+    );
+}
+extern "C" {
+    pub fn DrawMesh(mesh: Mesh, material: Material, transform: Matrix);
+}
+extern "C" {
+    pub fn DrawMeshInstanced(
+        mesh: Mesh,
+        material: Material,
+        transforms: *mut Matrix,
+        instances: ::std::os::raw::c_int,
+    );
 }
 extern "C" {
     pub fn UnloadMesh(mesh: Mesh);
@@ -6274,6 +6528,9 @@ extern "C" {
 }
 extern "C" {
     pub fn UnloadModelAnimation(anim: ModelAnimation);
+}
+extern "C" {
+    pub fn UnloadModelAnimations(animations: *mut ModelAnimation, count: ::std::os::raw::c_uint);
 }
 extern "C" {
     pub fn IsModelAnimationValid(model: Model, anim: ModelAnimation) -> bool;
@@ -6339,9 +6596,6 @@ extern "C" {
 }
 extern "C" {
     pub fn MeshBinormals(mesh: *mut Mesh);
-}
-extern "C" {
-    pub fn MeshNormalsSmooth(mesh: *mut Mesh);
 }
 extern "C" {
     pub fn DrawModel(model: Model, position: Vector3, scale: f32, tint: Color);
@@ -6430,148 +6684,6 @@ extern "C" {
 }
 extern "C" {
     pub fn GetCollisionRayGround(ray: Ray, groundHeight: f32) -> RayHitInfo;
-}
-extern "C" {
-    pub fn LoadShader(
-        vsFileName: *const ::std::os::raw::c_char,
-        fsFileName: *const ::std::os::raw::c_char,
-    ) -> Shader;
-}
-extern "C" {
-    pub fn LoadShaderCode(
-        vsCode: *const ::std::os::raw::c_char,
-        fsCode: *const ::std::os::raw::c_char,
-    ) -> Shader;
-}
-extern "C" {
-    pub fn UnloadShader(shader: Shader);
-}
-extern "C" {
-    pub fn GetShaderDefault() -> Shader;
-}
-extern "C" {
-    pub fn GetTextureDefault() -> Texture2D;
-}
-extern "C" {
-    pub fn GetShapesTexture() -> Texture2D;
-}
-extern "C" {
-    pub fn GetShapesTextureRec() -> Rectangle;
-}
-extern "C" {
-    pub fn SetShapesTexture(texture: Texture2D, source: Rectangle);
-}
-extern "C" {
-    pub fn GetShaderLocation(
-        shader: Shader,
-        uniformName: *const ::std::os::raw::c_char,
-    ) -> ::std::os::raw::c_int;
-}
-extern "C" {
-    pub fn GetShaderLocationAttrib(
-        shader: Shader,
-        attribName: *const ::std::os::raw::c_char,
-    ) -> ::std::os::raw::c_int;
-}
-extern "C" {
-    pub fn SetShaderValue(
-        shader: Shader,
-        uniformLoc: ::std::os::raw::c_int,
-        value: *const ::std::os::raw::c_void,
-        uniformType: ::std::os::raw::c_int,
-    );
-}
-extern "C" {
-    pub fn SetShaderValueV(
-        shader: Shader,
-        uniformLoc: ::std::os::raw::c_int,
-        value: *const ::std::os::raw::c_void,
-        uniformType: ::std::os::raw::c_int,
-        count: ::std::os::raw::c_int,
-    );
-}
-extern "C" {
-    pub fn SetShaderValueMatrix(shader: Shader, uniformLoc: ::std::os::raw::c_int, mat: Matrix);
-}
-extern "C" {
-    pub fn SetShaderValueTexture(
-        shader: Shader,
-        uniformLoc: ::std::os::raw::c_int,
-        texture: Texture2D,
-    );
-}
-extern "C" {
-    pub fn SetMatrixProjection(proj: Matrix);
-}
-extern "C" {
-    pub fn SetMatrixModelview(view: Matrix);
-}
-extern "C" {
-    pub fn GetMatrixModelview() -> Matrix;
-}
-extern "C" {
-    pub fn GetMatrixProjection() -> Matrix;
-}
-extern "C" {
-    pub fn GenTextureCubemap(
-        shader: Shader,
-        panorama: Texture2D,
-        size: ::std::os::raw::c_int,
-        format: ::std::os::raw::c_int,
-    ) -> TextureCubemap;
-}
-extern "C" {
-    pub fn GenTextureIrradiance(
-        shader: Shader,
-        cubemap: TextureCubemap,
-        size: ::std::os::raw::c_int,
-    ) -> TextureCubemap;
-}
-extern "C" {
-    pub fn GenTexturePrefilter(
-        shader: Shader,
-        cubemap: TextureCubemap,
-        size: ::std::os::raw::c_int,
-    ) -> TextureCubemap;
-}
-extern "C" {
-    pub fn GenTextureBRDF(shader: Shader, size: ::std::os::raw::c_int) -> Texture2D;
-}
-extern "C" {
-    pub fn BeginShaderMode(shader: Shader);
-}
-extern "C" {
-    pub fn EndShaderMode();
-}
-extern "C" {
-    pub fn BeginBlendMode(mode: ::std::os::raw::c_int);
-}
-extern "C" {
-    pub fn EndBlendMode();
-}
-extern "C" {
-    pub fn InitVrSimulator();
-}
-extern "C" {
-    pub fn CloseVrSimulator();
-}
-extern "C" {
-    pub fn UpdateVrTracking(camera: *mut Camera);
-}
-extern "C" {
-    pub fn SetVrConfiguration(info: VrDeviceInfo, distortion: Shader);
-}
-extern "C" {
-    pub fn IsVrSimulatorReady() -> bool;
-}
-extern "C" {
-    pub fn ToggleVrMode();
-}
-extern "C" {
-    pub fn BeginVrDrawing();
-}
-extern "C" {
-    pub fn EndVrDrawing();
 }
 extern "C" {
     pub fn InitAudioDevice();
@@ -6678,10 +6790,20 @@ extern "C" {
     pub fn LoadMusicStream(fileName: *const ::std::os::raw::c_char) -> Music;
 }
 extern "C" {
+    pub fn LoadMusicStreamFromMemory(
+        fileType: *const ::std::os::raw::c_char,
+        data: *mut ::std::os::raw::c_uchar,
+        dataSize: ::std::os::raw::c_int,
+    ) -> Music;
+}
+extern "C" {
     pub fn UnloadMusicStream(music: Music);
 }
 extern "C" {
     pub fn PlayMusicStream(music: Music);
+}
+extern "C" {
+    pub fn IsMusicPlaying(music: Music) -> bool;
 }
 extern "C" {
     pub fn UpdateMusicStream(music: Music);
@@ -6694,9 +6816,6 @@ extern "C" {
 }
 extern "C" {
     pub fn ResumeMusicStream(music: Music);
-}
-extern "C" {
-    pub fn IsMusicPlaying(music: Music) -> bool;
 }
 extern "C" {
     pub fn SetMusicVolume(music: Music, volume: f32);
@@ -8035,7 +8154,7 @@ pub enum FramebufferAttachType {
 }
 #[repr(i32)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum FramebufferTexType {
+pub enum FramebufferAttachTextureType {
     RL_ATTACHMENT_CUBEMAP_POSITIVE_X = 0,
     RL_ATTACHMENT_CUBEMAP_NEGATIVE_X = 1,
     RL_ATTACHMENT_CUBEMAP_POSITIVE_Y = 2,
@@ -8044,6 +8163,285 @@ pub enum FramebufferTexType {
     RL_ATTACHMENT_CUBEMAP_NEGATIVE_Z = 5,
     RL_ATTACHMENT_TEXTURE2D = 100,
     RL_ATTACHMENT_RENDERBUFFER = 200,
+}
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct VertexBuffer {
+    pub elementsCount: ::std::os::raw::c_int,
+    pub vCounter: ::std::os::raw::c_int,
+    pub tcCounter: ::std::os::raw::c_int,
+    pub cCounter: ::std::os::raw::c_int,
+    pub vertices: *mut f32,
+    pub texcoords: *mut f32,
+    pub colors: *mut ::std::os::raw::c_uchar,
+    pub indices: *mut ::std::os::raw::c_uint,
+    pub vaoId: ::std::os::raw::c_uint,
+    pub vboId: [::std::os::raw::c_uint; 4usize],
+}
+#[test]
+fn bindgen_test_layout_VertexBuffer() {
+    assert_eq!(
+        ::std::mem::size_of::<VertexBuffer>(),
+        72usize,
+        concat!("Size of: ", stringify!(VertexBuffer))
+    );
+    assert_eq!(
+        ::std::mem::align_of::<VertexBuffer>(),
+        8usize,
+        concat!("Alignment of ", stringify!(VertexBuffer))
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<VertexBuffer>())).elementsCount as *const _ as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(VertexBuffer),
+            "::",
+            stringify!(elementsCount)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<VertexBuffer>())).vCounter as *const _ as usize },
+        4usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(VertexBuffer),
+            "::",
+            stringify!(vCounter)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<VertexBuffer>())).tcCounter as *const _ as usize },
+        8usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(VertexBuffer),
+            "::",
+            stringify!(tcCounter)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<VertexBuffer>())).cCounter as *const _ as usize },
+        12usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(VertexBuffer),
+            "::",
+            stringify!(cCounter)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<VertexBuffer>())).vertices as *const _ as usize },
+        16usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(VertexBuffer),
+            "::",
+            stringify!(vertices)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<VertexBuffer>())).texcoords as *const _ as usize },
+        24usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(VertexBuffer),
+            "::",
+            stringify!(texcoords)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<VertexBuffer>())).colors as *const _ as usize },
+        32usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(VertexBuffer),
+            "::",
+            stringify!(colors)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<VertexBuffer>())).indices as *const _ as usize },
+        40usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(VertexBuffer),
+            "::",
+            stringify!(indices)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<VertexBuffer>())).vaoId as *const _ as usize },
+        48usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(VertexBuffer),
+            "::",
+            stringify!(vaoId)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<VertexBuffer>())).vboId as *const _ as usize },
+        52usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(VertexBuffer),
+            "::",
+            stringify!(vboId)
+        )
+    );
+}
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct DrawCall {
+    pub mode: ::std::os::raw::c_int,
+    pub vertexCount: ::std::os::raw::c_int,
+    pub vertexAlignment: ::std::os::raw::c_int,
+    pub textureId: ::std::os::raw::c_uint,
+}
+#[test]
+fn bindgen_test_layout_DrawCall() {
+    assert_eq!(
+        ::std::mem::size_of::<DrawCall>(),
+        16usize,
+        concat!("Size of: ", stringify!(DrawCall))
+    );
+    assert_eq!(
+        ::std::mem::align_of::<DrawCall>(),
+        4usize,
+        concat!("Alignment of ", stringify!(DrawCall))
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<DrawCall>())).mode as *const _ as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(DrawCall),
+            "::",
+            stringify!(mode)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<DrawCall>())).vertexCount as *const _ as usize },
+        4usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(DrawCall),
+            "::",
+            stringify!(vertexCount)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<DrawCall>())).vertexAlignment as *const _ as usize },
+        8usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(DrawCall),
+            "::",
+            stringify!(vertexAlignment)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<DrawCall>())).textureId as *const _ as usize },
+        12usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(DrawCall),
+            "::",
+            stringify!(textureId)
+        )
+    );
+}
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct RenderBatch {
+    pub buffersCount: ::std::os::raw::c_int,
+    pub currentBuffer: ::std::os::raw::c_int,
+    pub vertexBuffer: *mut VertexBuffer,
+    pub draws: *mut DrawCall,
+    pub drawsCounter: ::std::os::raw::c_int,
+    pub currentDepth: f32,
+}
+#[test]
+fn bindgen_test_layout_RenderBatch() {
+    assert_eq!(
+        ::std::mem::size_of::<RenderBatch>(),
+        32usize,
+        concat!("Size of: ", stringify!(RenderBatch))
+    );
+    assert_eq!(
+        ::std::mem::align_of::<RenderBatch>(),
+        8usize,
+        concat!("Alignment of ", stringify!(RenderBatch))
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<RenderBatch>())).buffersCount as *const _ as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(RenderBatch),
+            "::",
+            stringify!(buffersCount)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<RenderBatch>())).currentBuffer as *const _ as usize },
+        4usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(RenderBatch),
+            "::",
+            stringify!(currentBuffer)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<RenderBatch>())).vertexBuffer as *const _ as usize },
+        8usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(RenderBatch),
+            "::",
+            stringify!(vertexBuffer)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<RenderBatch>())).draws as *const _ as usize },
+        16usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(RenderBatch),
+            "::",
+            stringify!(draws)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<RenderBatch>())).drawsCounter as *const _ as usize },
+        24usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(RenderBatch),
+            "::",
+            stringify!(drawsCounter)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<RenderBatch>())).currentDepth as *const _ as usize },
+        28usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(RenderBatch),
+            "::",
+            stringify!(currentDepth)
+        )
+    );
+}
+#[repr(i32)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+pub enum ShaderAttributeDataType {
+    SHADER_ATTRIB_FLOAT = 0,
+    SHADER_ATTRIB_VEC2 = 1,
+    SHADER_ATTRIB_VEC3 = 2,
+    SHADER_ATTRIB_VEC4 = 3,
 }
 extern "C" {
     pub fn rlMatrixMode(mode: ::std::os::raw::c_int);
@@ -8119,10 +8517,43 @@ extern "C" {
     pub fn rlColor4f(x: f32, y: f32, z: f32, w: f32);
 }
 extern "C" {
+    pub fn rlEnableVertexArray(vaoId: ::std::os::raw::c_uint) -> bool;
+}
+extern "C" {
+    pub fn rlDisableVertexArray();
+}
+extern "C" {
+    pub fn rlEnableVertexBuffer(id: ::std::os::raw::c_uint);
+}
+extern "C" {
+    pub fn rlDisableVertexBuffer();
+}
+extern "C" {
+    pub fn rlEnableVertexBufferElement(id: ::std::os::raw::c_uint);
+}
+extern "C" {
+    pub fn rlDisableVertexBufferElement();
+}
+extern "C" {
+    pub fn rlEnableVertexAttribute(index: ::std::os::raw::c_uint);
+}
+extern "C" {
+    pub fn rlDisableVertexAttribute(index: ::std::os::raw::c_uint);
+}
+extern "C" {
+    pub fn rlActiveTextureSlot(slot: ::std::os::raw::c_int);
+}
+extern "C" {
     pub fn rlEnableTexture(id: ::std::os::raw::c_uint);
 }
 extern "C" {
     pub fn rlDisableTexture();
+}
+extern "C" {
+    pub fn rlEnableTextureCubemap(id: ::std::os::raw::c_uint);
+}
+extern "C" {
+    pub fn rlDisableTextureCubemap();
 }
 extern "C" {
     pub fn rlTextureParameters(
@@ -8194,6 +8625,15 @@ extern "C" {
     pub fn rlDisableSmoothLines();
 }
 extern "C" {
+    pub fn rlEnableStereoRender();
+}
+extern "C" {
+    pub fn rlDisableStereoRender();
+}
+extern "C" {
+    pub fn rlIsStereoRenderEnabled() -> bool;
+}
+extern "C" {
     pub fn rlClearColor(
         r: ::std::os::raw::c_uchar,
         g: ::std::os::raw::c_uchar,
@@ -8205,20 +8645,17 @@ extern "C" {
     pub fn rlClearScreenBuffers();
 }
 extern "C" {
-    pub fn rlUpdateBuffer(
-        bufferId: ::std::os::raw::c_int,
-        data: *mut ::std::os::raw::c_void,
-        dataSize: ::std::os::raw::c_int,
-    );
+    pub fn rlCheckErrors();
 }
 extern "C" {
-    pub fn rlLoadAttribBuffer(
-        vaoId: ::std::os::raw::c_uint,
-        shaderLoc: ::std::os::raw::c_int,
-        buffer: *mut ::std::os::raw::c_void,
-        size: ::std::os::raw::c_int,
-        dynamic: bool,
-    ) -> ::std::os::raw::c_uint;
+    pub fn rlSetBlendMode(mode: ::std::os::raw::c_int);
+}
+extern "C" {
+    pub fn rlSetBlendFactors(
+        glSrcFactor: ::std::os::raw::c_int,
+        glDstFactor: ::std::os::raw::c_int,
+        glEquation: ::std::os::raw::c_int,
+    );
 }
 extern "C" {
     pub fn rlglInit(width: ::std::os::raw::c_int, height: ::std::os::raw::c_int);
@@ -8227,29 +8664,126 @@ extern "C" {
     pub fn rlglClose();
 }
 extern "C" {
-    pub fn rlglDraw();
-}
-extern "C" {
-    pub fn rlCheckErrors();
+    pub fn rlLoadExtensions(loader: *mut ::std::os::raw::c_void);
 }
 extern "C" {
     pub fn rlGetVersion() -> ::std::os::raw::c_int;
 }
 extern "C" {
-    pub fn rlCheckBufferLimit(vCount: ::std::os::raw::c_int) -> bool;
+    pub fn rlGetFramebufferWidth() -> ::std::os::raw::c_int;
 }
 extern "C" {
-    pub fn rlSetDebugMarker(text: *const ::std::os::raw::c_char);
+    pub fn rlGetFramebufferHeight() -> ::std::os::raw::c_int;
 }
 extern "C" {
-    pub fn rlSetBlendMode(
-        glSrcFactor: ::std::os::raw::c_int,
-        glDstFactor: ::std::os::raw::c_int,
-        glEquation: ::std::os::raw::c_int,
+    pub fn rlGetShaderDefault() -> Shader;
+}
+extern "C" {
+    pub fn rlGetTextureDefault() -> Texture2D;
+}
+extern "C" {
+    pub fn rlLoadRenderBatch(
+        numBuffers: ::std::os::raw::c_int,
+        bufferElements: ::std::os::raw::c_int,
+    ) -> RenderBatch;
+}
+extern "C" {
+    pub fn rlUnloadRenderBatch(batch: RenderBatch);
+}
+extern "C" {
+    pub fn rlDrawRenderBatch(batch: *mut RenderBatch);
+}
+extern "C" {
+    pub fn rlSetRenderBatchActive(batch: *mut RenderBatch);
+}
+extern "C" {
+    pub fn rlDrawRenderBatchActive();
+}
+extern "C" {
+    pub fn rlCheckRenderBatchLimit(vCount: ::std::os::raw::c_int) -> bool;
+}
+extern "C" {
+    pub fn rlSetTexture(id: ::std::os::raw::c_uint);
+}
+extern "C" {
+    pub fn rlLoadVertexArray() -> ::std::os::raw::c_uint;
+}
+extern "C" {
+    pub fn rlLoadVertexBuffer(
+        buffer: *mut ::std::os::raw::c_void,
+        size: ::std::os::raw::c_int,
+        dynamic: bool,
+    ) -> ::std::os::raw::c_uint;
+}
+extern "C" {
+    pub fn rlLoadVertexBufferElement(
+        buffer: *mut ::std::os::raw::c_void,
+        size: ::std::os::raw::c_int,
+        dynamic: bool,
+    ) -> ::std::os::raw::c_uint;
+}
+extern "C" {
+    pub fn rlUpdateVertexBuffer(
+        bufferId: ::std::os::raw::c_int,
+        data: *mut ::std::os::raw::c_void,
+        dataSize: ::std::os::raw::c_int,
+        offset: ::std::os::raw::c_int,
     );
 }
 extern "C" {
-    pub fn rlLoadExtensions(loader: *mut ::std::os::raw::c_void);
+    pub fn rlUnloadVertexArray(vaoId: ::std::os::raw::c_uint);
+}
+extern "C" {
+    pub fn rlUnloadVertexBuffer(vboId: ::std::os::raw::c_uint);
+}
+extern "C" {
+    pub fn rlSetVertexAttribute(
+        index: ::std::os::raw::c_uint,
+        compSize: ::std::os::raw::c_int,
+        type_: ::std::os::raw::c_int,
+        normalized: bool,
+        stride: ::std::os::raw::c_int,
+        pointer: *mut ::std::os::raw::c_void,
+    );
+}
+extern "C" {
+    pub fn rlSetVertexAttributeDivisor(
+        index: ::std::os::raw::c_uint,
+        divisor: ::std::os::raw::c_int,
+    );
+}
+extern "C" {
+    pub fn rlSetVertexAttributeDefault(
+        locIndex: ::std::os::raw::c_int,
+        value: *const ::std::os::raw::c_void,
+        attribType: ::std::os::raw::c_int,
+        count: ::std::os::raw::c_int,
+    );
+}
+extern "C" {
+    pub fn rlDrawVertexArray(offset: ::std::os::raw::c_int, count: ::std::os::raw::c_int);
+}
+extern "C" {
+    pub fn rlDrawVertexArrayElements(
+        offset: ::std::os::raw::c_int,
+        count: ::std::os::raw::c_int,
+        buffer: *mut ::std::os::raw::c_void,
+    );
+}
+extern "C" {
+    pub fn rlDrawVertexArrayInstanced(
+        offset: ::std::os::raw::c_int,
+        count: ::std::os::raw::c_int,
+        instances: ::std::os::raw::c_int,
+    );
+}
+extern "C" {
+    pub fn rlDrawVertexArrayElementsInstanced(
+        offset: ::std::os::raw::c_int,
+        count: ::std::os::raw::c_int,
+        buffer: *mut ::std::os::raw::c_void,
+        instances: ::std::os::raw::c_int,
+    );
 }
 extern "C" {
     pub fn rlLoadTexture(
@@ -8320,6 +8854,7 @@ extern "C" {
         texId: ::std::os::raw::c_uint,
         attachType: ::std::os::raw::c_int,
         texType: ::std::os::raw::c_int,
+        mipLevel: ::std::os::raw::c_int,
     );
 }
 extern "C" {
@@ -8329,32 +8864,87 @@ extern "C" {
     pub fn rlUnloadFramebuffer(id: ::std::os::raw::c_uint);
 }
 extern "C" {
-    pub fn rlLoadMesh(mesh: *mut Mesh, dynamic: bool);
+    pub fn rlLoadShaderCode(
+        vsCode: *const ::std::os::raw::c_char,
+        fsCode: *const ::std::os::raw::c_char,
+    ) -> ::std::os::raw::c_uint;
 }
 extern "C" {
-    pub fn rlUpdateMesh(mesh: Mesh, buffer: ::std::os::raw::c_int, count: ::std::os::raw::c_int);
+    pub fn rlCompileShader(
+        shaderCode: *const ::std::os::raw::c_char,
+        type_: ::std::os::raw::c_int,
+    ) -> ::std::os::raw::c_uint;
 }
 extern "C" {
-    pub fn rlUpdateMeshAt(
-        mesh: Mesh,
-        buffer: ::std::os::raw::c_int,
+    pub fn rlLoadShaderProgram(
+        vShaderId: ::std::os::raw::c_uint,
+        fShaderId: ::std::os::raw::c_uint,
+    ) -> ::std::os::raw::c_uint;
+}
+extern "C" {
+    pub fn rlUnloadShaderProgram(id: ::std::os::raw::c_uint);
+}
+extern "C" {
+    pub fn rlGetLocationUniform(
+        shaderId: ::std::os::raw::c_uint,
+        uniformName: *const ::std::os::raw::c_char,
+    ) -> ::std::os::raw::c_int;
+}
+extern "C" {
+    pub fn rlGetLocationAttrib(
+        shaderId: ::std::os::raw::c_uint,
+        attribName: *const ::std::os::raw::c_char,
+    ) -> ::std::os::raw::c_int;
+}
+extern "C" {
+    pub fn rlSetUniform(
+        locIndex: ::std::os::raw::c_int,
+        value: *const ::std::os::raw::c_void,
+        uniformType: ::std::os::raw::c_int,
         count: ::std::os::raw::c_int,
-        index: ::std::os::raw::c_int,
     );
 }
 extern "C" {
-    pub fn rlDrawMesh(mesh: Mesh, material: Material, transform: Matrix);
+    pub fn rlSetUniformMatrix(locIndex: ::std::os::raw::c_int, mat: Matrix);
 }
 extern "C" {
-    pub fn rlDrawMeshInstanced(
-        mesh: Mesh,
-        material: Material,
-        transforms: *mut Matrix,
-        count: ::std::os::raw::c_int,
-    );
+    pub fn rlSetUniformSampler(locIndex: ::std::os::raw::c_int, textureId: ::std::os::raw::c_uint);
 }
 extern "C" {
-    pub fn rlUnloadMesh(mesh: Mesh);
+    pub fn rlSetShader(shader: Shader);
+}
+extern "C" {
+    pub fn rlGetMatrixModelview() -> Matrix;
+}
+extern "C" {
+    pub fn rlGetMatrixProjection() -> Matrix;
+}
+extern "C" {
+    pub fn rlGetMatrixTransform() -> Matrix;
+}
+extern "C" {
+    pub fn rlGetMatrixProjectionStereo(eye: ::std::os::raw::c_int) -> Matrix;
+}
+extern "C" {
+    pub fn rlGetMatrixViewOffsetStereo(eye: ::std::os::raw::c_int) -> Matrix;
+}
+extern "C" {
+    pub fn rlSetMatrixProjection(proj: Matrix);
+}
+extern "C" {
+    pub fn rlSetMatrixModelview(view: Matrix);
+}
+extern "C" {
+    pub fn rlSetMatrixProjectionStereo(right: Matrix, left: Matrix);
+}
+extern "C" {
+    pub fn rlSetMatrixViewOffsetStereo(right: Matrix, left: Matrix);
+}
+extern "C" {
+    pub fn rlLoadDrawCube();
+}
+extern "C" {
+    pub fn rlLoadDrawQuad();
 }
 extern "C" {
     pub fn _calloc_base(_Count: size_t, _Size: size_t) -> *mut ::std::os::raw::c_void;
@@ -15886,355 +16476,11 @@ extern "C" {
 }
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
-pub struct VertexBuffer {
-    pub elementsCount: ::std::os::raw::c_int,
-    pub vCounter: ::std::os::raw::c_int,
-    pub tcCounter: ::std::os::raw::c_int,
-    pub cCounter: ::std::os::raw::c_int,
-    pub vertices: *mut f32,
-    pub texcoords: *mut f32,
-    pub colors: *mut ::std::os::raw::c_uchar,
-    pub indices: *mut ::std::os::raw::c_uint,
-    pub vaoId: ::std::os::raw::c_uint,
-    pub vboId: [::std::os::raw::c_uint; 4usize],
-}
-#[test]
-fn bindgen_test_layout_VertexBuffer() {
-    assert_eq!(
-        ::std::mem::size_of::<VertexBuffer>(),
-        72usize,
-        concat!("Size of: ", stringify!(VertexBuffer))
-    );
-    assert_eq!(
-        ::std::mem::align_of::<VertexBuffer>(),
-        8usize,
-        concat!("Alignment of ", stringify!(VertexBuffer))
-    );
-    assert_eq!(
-        unsafe { &(*(::std::ptr::null::<VertexBuffer>())).elementsCount as *const _ as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(VertexBuffer),
-            "::",
-            stringify!(elementsCount)
-        )
-    );
-    assert_eq!(
-        unsafe { &(*(::std::ptr::null::<VertexBuffer>())).vCounter as *const _ as usize },
-        4usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(VertexBuffer),
-            "::",
-            stringify!(vCounter)
-        )
-    );
-    assert_eq!(
-        unsafe { &(*(::std::ptr::null::<VertexBuffer>())).tcCounter as *const _ as usize },
-        8usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(VertexBuffer),
-            "::",
-            stringify!(tcCounter)
-        )
-    );
-    assert_eq!(
-        unsafe { &(*(::std::ptr::null::<VertexBuffer>())).cCounter as *const _ as usize },
-        12usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(VertexBuffer),
-            "::",
-            stringify!(cCounter)
-        )
-    );
-    assert_eq!(
-        unsafe { &(*(::std::ptr::null::<VertexBuffer>())).vertices as *const _ as usize },
-        16usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(VertexBuffer),
-            "::",
-            stringify!(vertices)
-        )
-    );
-    assert_eq!(
-        unsafe { &(*(::std::ptr::null::<VertexBuffer>())).texcoords as *const _ as usize },
-        24usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(VertexBuffer),
-            "::",
-            stringify!(texcoords)
-        )
-    );
-    assert_eq!(
-        unsafe { &(*(::std::ptr::null::<VertexBuffer>())).colors as *const _ as usize },
-        32usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(VertexBuffer),
-            "::",
-            stringify!(colors)
-        )
-    );
-    assert_eq!(
-        unsafe { &(*(::std::ptr::null::<VertexBuffer>())).indices as *const _ as usize },
-        40usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(VertexBuffer),
-            "::",
-            stringify!(indices)
-        )
-    );
-    assert_eq!(
-        unsafe { &(*(::std::ptr::null::<VertexBuffer>())).vaoId as *const _ as usize },
-        48usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(VertexBuffer),
-            "::",
-            stringify!(vaoId)
-        )
-    );
-    assert_eq!(
-        unsafe { &(*(::std::ptr::null::<VertexBuffer>())).vboId as *const _ as usize },
-        52usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(VertexBuffer),
-            "::",
-            stringify!(vboId)
-        )
-    );
-}
-#[repr(C)]
-#[derive(Debug, Copy, Clone)]
-pub struct DrawCall {
-    pub mode: ::std::os::raw::c_int,
-    pub vertexCount: ::std::os::raw::c_int,
-    pub vertexAlignment: ::std::os::raw::c_int,
-    pub textureId: ::std::os::raw::c_uint,
-}
-#[test]
-fn bindgen_test_layout_DrawCall() {
-    assert_eq!(
-        ::std::mem::size_of::<DrawCall>(),
-        16usize,
-        concat!("Size of: ", stringify!(DrawCall))
-    );
-    assert_eq!(
-        ::std::mem::align_of::<DrawCall>(),
-        4usize,
-        concat!("Alignment of ", stringify!(DrawCall))
-    );
-    assert_eq!(
-        unsafe { &(*(::std::ptr::null::<DrawCall>())).mode as *const _ as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(DrawCall),
-            "::",
-            stringify!(mode)
-        )
-    );
-    assert_eq!(
-        unsafe { &(*(::std::ptr::null::<DrawCall>())).vertexCount as *const _ as usize },
-        4usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(DrawCall),
-            "::",
-            stringify!(vertexCount)
-        )
-    );
-    assert_eq!(
-        unsafe { &(*(::std::ptr::null::<DrawCall>())).vertexAlignment as *const _ as usize },
-        8usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(DrawCall),
-            "::",
-            stringify!(vertexAlignment)
-        )
-    );
-    assert_eq!(
-        unsafe { &(*(::std::ptr::null::<DrawCall>())).textureId as *const _ as usize },
-        12usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(DrawCall),
-            "::",
-            stringify!(textureId)
-        )
-    );
-}
-#[repr(C)]
-#[derive(Debug, Copy, Clone)]
-pub struct RenderBatch {
-    pub buffersCount: ::std::os::raw::c_int,
-    pub currentBuffer: ::std::os::raw::c_int,
-    pub vertexBuffer: *mut VertexBuffer,
-    pub draws: *mut DrawCall,
-    pub drawsCounter: ::std::os::raw::c_int,
-    pub currentDepth: f32,
-}
-#[test]
-fn bindgen_test_layout_RenderBatch() {
-    assert_eq!(
-        ::std::mem::size_of::<RenderBatch>(),
-        32usize,
-        concat!("Size of: ", stringify!(RenderBatch))
-    );
-    assert_eq!(
-        ::std::mem::align_of::<RenderBatch>(),
-        8usize,
-        concat!("Alignment of ", stringify!(RenderBatch))
-    );
-    assert_eq!(
-        unsafe { &(*(::std::ptr::null::<RenderBatch>())).buffersCount as *const _ as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(RenderBatch),
-            "::",
-            stringify!(buffersCount)
-        )
-    );
-    assert_eq!(
-        unsafe { &(*(::std::ptr::null::<RenderBatch>())).currentBuffer as *const _ as usize },
-        4usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(RenderBatch),
-            "::",
-            stringify!(currentBuffer)
-        )
-    );
-    assert_eq!(
-        unsafe { &(*(::std::ptr::null::<RenderBatch>())).vertexBuffer as *const _ as usize },
-        8usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(RenderBatch),
-            "::",
-            stringify!(vertexBuffer)
-        )
-    );
-    assert_eq!(
-        unsafe { &(*(::std::ptr::null::<RenderBatch>())).draws as *const _ as usize },
-        16usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(RenderBatch),
-            "::",
-            stringify!(draws)
-        )
-    );
-    assert_eq!(
-        unsafe { &(*(::std::ptr::null::<RenderBatch>())).drawsCounter as *const _ as usize },
-        24usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(RenderBatch),
-            "::",
-            stringify!(drawsCounter)
-        )
-    );
-    assert_eq!(
-        unsafe { &(*(::std::ptr::null::<RenderBatch>())).currentDepth as *const _ as usize },
-        28usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(RenderBatch),
-            "::",
-            stringify!(currentDepth)
-        )
-    );
-}
-#[repr(C)]
-#[derive(Debug, Copy, Clone)]
-pub struct VrStereoConfig {
-    pub distortionShader: Shader,
-    pub eyesProjection: [Matrix; 2usize],
-    pub eyesViewOffset: [Matrix; 2usize],
-    pub eyeViewportRight: [::std::os::raw::c_int; 4usize],
-    pub eyeViewportLeft: [::std::os::raw::c_int; 4usize],
-}
-#[test]
-fn bindgen_test_layout_VrStereoConfig() {
-    assert_eq!(
-        ::std::mem::size_of::<VrStereoConfig>(),
-        304usize,
-        concat!("Size of: ", stringify!(VrStereoConfig))
-    );
-    assert_eq!(
-        ::std::mem::align_of::<VrStereoConfig>(),
-        8usize,
-        concat!("Alignment of ", stringify!(VrStereoConfig))
-    );
-    assert_eq!(
-        unsafe { &(*(::std::ptr::null::<VrStereoConfig>())).distortionShader as *const _ as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(VrStereoConfig),
-            "::",
-            stringify!(distortionShader)
-        )
-    );
-    assert_eq!(
-        unsafe { &(*(::std::ptr::null::<VrStereoConfig>())).eyesProjection as *const _ as usize },
-        16usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(VrStereoConfig),
-            "::",
-            stringify!(eyesProjection)
-        )
-    );
-    assert_eq!(
-        unsafe { &(*(::std::ptr::null::<VrStereoConfig>())).eyesViewOffset as *const _ as usize },
-        144usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(VrStereoConfig),
-            "::",
-            stringify!(eyesViewOffset)
-        )
-    );
-    assert_eq!(
-        unsafe { &(*(::std::ptr::null::<VrStereoConfig>())).eyeViewportRight as *const _ as usize },
-        272usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(VrStereoConfig),
-            "::",
-            stringify!(eyeViewportRight)
-        )
-    );
-    assert_eq!(
-        unsafe { &(*(::std::ptr::null::<VrStereoConfig>())).eyeViewportLeft as *const _ as usize },
-        288usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(VrStereoConfig),
-            "::",
-            stringify!(eyeViewportLeft)
-        )
-    );
-}
-#[repr(C)]
-#[derive(Debug, Copy, Clone)]
 pub struct rlglData {
     pub currentBatch: *mut RenderBatch,
     pub defaultBatch: RenderBatch,
     pub State: rlglData__bindgen_ty_1,
     pub ExtSupported: rlglData__bindgen_ty_2,
-    pub Vr: rlglData__bindgen_ty_3,
 }
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
@@ -16247,14 +16493,15 @@ pub struct rlglData__bindgen_ty_1 {
     pub transformRequired: bool,
     pub stack: [Matrix; 32usize],
     pub stackCounter: ::std::os::raw::c_int,
-    pub shapesTexture: Texture2D,
-    pub shapesTextureRec: Rectangle,
     pub defaultTextureId: ::std::os::raw::c_uint,
     pub activeTextureId: [::std::os::raw::c_uint; 4usize],
     pub defaultVShaderId: ::std::os::raw::c_uint,
     pub defaultFShaderId: ::std::os::raw::c_uint,
     pub defaultShader: Shader,
     pub currentShader: Shader,
+    pub stereoRender: bool,
+    pub projectionStereo: [Matrix; 2usize],
+    pub viewOffsetStereo: [Matrix; 2usize],
     pub currentBlendMode: ::std::os::raw::c_int,
     pub glBlendSrcFactor: ::std::os::raw::c_int,
     pub glBlendDstFactor: ::std::os::raw::c_int,
@@ -16266,7 +16513,7 @@ pub struct rlglData__bindgen_ty_1 {
 fn bindgen_test_layout_rlglData__bindgen_ty_1() {
     assert_eq!(
         ::std::mem::size_of::<rlglData__bindgen_ty_1>(),
-        2384usize,
+        2616usize,
         concat!("Size of: ", stringify!(rlglData__bindgen_ty_1))
     );
     assert_eq!(
@@ -16372,33 +16619,9 @@ fn bindgen_test_layout_rlglData__bindgen_ty_1() {
     );
     assert_eq!(
         unsafe {
-            &(*(::std::ptr::null::<rlglData__bindgen_ty_1>())).shapesTexture as *const _ as usize
-        },
-        2264usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(rlglData__bindgen_ty_1),
-            "::",
-            stringify!(shapesTexture)
-        )
-    );
-    assert_eq!(
-        unsafe {
-            &(*(::std::ptr::null::<rlglData__bindgen_ty_1>())).shapesTextureRec as *const _ as usize
-        },
-        2284usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(rlglData__bindgen_ty_1),
-            "::",
-            stringify!(shapesTextureRec)
-        )
-    );
-    assert_eq!(
-        unsafe {
             &(*(::std::ptr::null::<rlglData__bindgen_ty_1>())).defaultTextureId as *const _ as usize
         },
-        2300usize,
+        2264usize,
         concat!(
             "Offset of field: ",
             stringify!(rlglData__bindgen_ty_1),
@@ -16410,7 +16633,7 @@ fn bindgen_test_layout_rlglData__bindgen_ty_1() {
         unsafe {
             &(*(::std::ptr::null::<rlglData__bindgen_ty_1>())).activeTextureId as *const _ as usize
         },
-        2304usize,
+        2268usize,
         concat!(
             "Offset of field: ",
             stringify!(rlglData__bindgen_ty_1),
@@ -16422,7 +16645,7 @@ fn bindgen_test_layout_rlglData__bindgen_ty_1() {
         unsafe {
             &(*(::std::ptr::null::<rlglData__bindgen_ty_1>())).defaultVShaderId as *const _ as usize
         },
-        2320usize,
+        2284usize,
         concat!(
             "Offset of field: ",
             stringify!(rlglData__bindgen_ty_1),
@@ -16434,7 +16657,7 @@ fn bindgen_test_layout_rlglData__bindgen_ty_1() {
         unsafe {
             &(*(::std::ptr::null::<rlglData__bindgen_ty_1>())).defaultFShaderId as *const _ as usize
         },
-        2324usize,
+        2288usize,
         concat!(
             "Offset of field: ",
             stringify!(rlglData__bindgen_ty_1),
@@ -16446,7 +16669,7 @@ fn bindgen_test_layout_rlglData__bindgen_ty_1() {
         unsafe {
             &(*(::std::ptr::null::<rlglData__bindgen_ty_1>())).defaultShader as *const _ as usize
         },
-        2328usize,
+        2296usize,
         concat!(
             "Offset of field: ",
             stringify!(rlglData__bindgen_ty_1),
@@ -16458,7 +16681,7 @@ fn bindgen_test_layout_rlglData__bindgen_ty_1() {
         unsafe {
             &(*(::std::ptr::null::<rlglData__bindgen_ty_1>())).currentShader as *const _ as usize
         },
-        2344usize,
+        2312usize,
         concat!(
             "Offset of field: ",
             stringify!(rlglData__bindgen_ty_1),
@@ -16468,9 +16691,45 @@ fn bindgen_test_layout_rlglData__bindgen_ty_1() {
     );
     assert_eq!(
         unsafe {
+            &(*(::std::ptr::null::<rlglData__bindgen_ty_1>())).stereoRender as *const _ as usize
+        },
+        2328usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(rlglData__bindgen_ty_1),
+            "::",
+            stringify!(stereoRender)
+        )
+    );
+    assert_eq!(
+        unsafe {
+            &(*(::std::ptr::null::<rlglData__bindgen_ty_1>())).projectionStereo as *const _ as usize
+        },
+        2332usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(rlglData__bindgen_ty_1),
+            "::",
+            stringify!(projectionStereo)
+        )
+    );
+    assert_eq!(
+        unsafe {
+            &(*(::std::ptr::null::<rlglData__bindgen_ty_1>())).viewOffsetStereo as *const _ as usize
+        },
+        2460usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(rlglData__bindgen_ty_1),
+            "::",
+            stringify!(viewOffsetStereo)
+        )
+    );
+    assert_eq!(
+        unsafe {
             &(*(::std::ptr::null::<rlglData__bindgen_ty_1>())).currentBlendMode as *const _ as usize
         },
-        2360usize,
+        2588usize,
         concat!(
             "Offset of field: ",
             stringify!(rlglData__bindgen_ty_1),
@@ -16482,7 +16741,7 @@ fn bindgen_test_layout_rlglData__bindgen_ty_1() {
         unsafe {
             &(*(::std::ptr::null::<rlglData__bindgen_ty_1>())).glBlendSrcFactor as *const _ as usize
         },
-        2364usize,
+        2592usize,
         concat!(
             "Offset of field: ",
             stringify!(rlglData__bindgen_ty_1),
@@ -16494,7 +16753,7 @@ fn bindgen_test_layout_rlglData__bindgen_ty_1() {
         unsafe {
             &(*(::std::ptr::null::<rlglData__bindgen_ty_1>())).glBlendDstFactor as *const _ as usize
         },
-        2368usize,
+        2596usize,
         concat!(
             "Offset of field: ",
             stringify!(rlglData__bindgen_ty_1),
@@ -16507,7 +16766,7 @@ fn bindgen_test_layout_rlglData__bindgen_ty_1() {
             &(*(::std::ptr::null::<rlglData__bindgen_ty_1>())).glad_glBlendEquation as *const _
                 as usize
         },
-        2372usize,
+        2600usize,
         concat!(
             "Offset of field: ",
             stringify!(rlglData__bindgen_ty_1),
@@ -16519,7 +16778,7 @@ fn bindgen_test_layout_rlglData__bindgen_ty_1() {
         unsafe {
             &(*(::std::ptr::null::<rlglData__bindgen_ty_1>())).framebufferWidth as *const _ as usize
         },
-        2376usize,
+        2604usize,
         concat!(
             "Offset of field: ",
             stringify!(rlglData__bindgen_ty_1),
@@ -16532,7 +16791,7 @@ fn bindgen_test_layout_rlglData__bindgen_ty_1() {
             &(*(::std::ptr::null::<rlglData__bindgen_ty_1>())).framebufferHeight as *const _
                 as usize
         },
-        2380usize,
+        2608usize,
         concat!(
             "Offset of field: ",
             stringify!(rlglData__bindgen_ty_1),
@@ -16545,6 +16804,7 @@ fn bindgen_test_layout_rlglData__bindgen_ty_1() {
 #[derive(Debug, Copy, Clone)]
 pub struct rlglData__bindgen_ty_2 {
     pub vao: bool,
+    pub instancing: bool,
     pub texNPOT: bool,
     pub texDepth: bool,
     pub texFloat32: bool,
@@ -16555,8 +16815,7 @@ pub struct rlglData__bindgen_ty_2 {
     pub texCompASTC: bool,
     pub texMirrorClamp: bool,
     pub texAnisoFilter: bool,
-    pub debugMarker: bool,
-    pub maxAnisotropicLevel: f32,
+    pub maxAnisotropyLevel: f32,
     pub maxDepthBits: ::std::os::raw::c_int,
 }
 #[test]
@@ -16582,8 +16841,20 @@ fn bindgen_test_layout_rlglData__bindgen_ty_2() {
         )
     );
     assert_eq!(
-        unsafe { &(*(::std::ptr::null::<rlglData__bindgen_ty_2>())).texNPOT as *const _ as usize },
+        unsafe {
+            &(*(::std::ptr::null::<rlglData__bindgen_ty_2>())).instancing as *const _ as usize
+        },
         4usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(rlglData__bindgen_ty_2),
+            "::",
+            stringify!(instancing)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<rlglData__bindgen_ty_2>())).texNPOT as *const _ as usize },
+        8usize,
         concat!(
             "Offset of field: ",
             stringify!(rlglData__bindgen_ty_2),
@@ -16593,7 +16864,7 @@ fn bindgen_test_layout_rlglData__bindgen_ty_2() {
     );
     assert_eq!(
         unsafe { &(*(::std::ptr::null::<rlglData__bindgen_ty_2>())).texDepth as *const _ as usize },
-        8usize,
+        12usize,
         concat!(
             "Offset of field: ",
             stringify!(rlglData__bindgen_ty_2),
@@ -16605,7 +16876,7 @@ fn bindgen_test_layout_rlglData__bindgen_ty_2() {
         unsafe {
             &(*(::std::ptr::null::<rlglData__bindgen_ty_2>())).texFloat32 as *const _ as usize
         },
-        12usize,
+        16usize,
         concat!(
             "Offset of field: ",
             stringify!(rlglData__bindgen_ty_2),
@@ -16617,7 +16888,7 @@ fn bindgen_test_layout_rlglData__bindgen_ty_2() {
         unsafe {
             &(*(::std::ptr::null::<rlglData__bindgen_ty_2>())).texCompDXT as *const _ as usize
         },
-        16usize,
+        20usize,
         concat!(
             "Offset of field: ",
             stringify!(rlglData__bindgen_ty_2),
@@ -16629,7 +16900,7 @@ fn bindgen_test_layout_rlglData__bindgen_ty_2() {
         unsafe {
             &(*(::std::ptr::null::<rlglData__bindgen_ty_2>())).texCompETC1 as *const _ as usize
         },
-        20usize,
+        24usize,
         concat!(
             "Offset of field: ",
             stringify!(rlglData__bindgen_ty_2),
@@ -16641,7 +16912,7 @@ fn bindgen_test_layout_rlglData__bindgen_ty_2() {
         unsafe {
             &(*(::std::ptr::null::<rlglData__bindgen_ty_2>())).texCompETC2 as *const _ as usize
         },
-        24usize,
+        28usize,
         concat!(
             "Offset of field: ",
             stringify!(rlglData__bindgen_ty_2),
@@ -16653,7 +16924,7 @@ fn bindgen_test_layout_rlglData__bindgen_ty_2() {
         unsafe {
             &(*(::std::ptr::null::<rlglData__bindgen_ty_2>())).texCompPVRT as *const _ as usize
         },
-        28usize,
+        32usize,
         concat!(
             "Offset of field: ",
             stringify!(rlglData__bindgen_ty_2),
@@ -16665,7 +16936,7 @@ fn bindgen_test_layout_rlglData__bindgen_ty_2() {
         unsafe {
             &(*(::std::ptr::null::<rlglData__bindgen_ty_2>())).texCompASTC as *const _ as usize
         },
-        32usize,
+        36usize,
         concat!(
             "Offset of field: ",
             stringify!(rlglData__bindgen_ty_2),
@@ -16677,7 +16948,7 @@ fn bindgen_test_layout_rlglData__bindgen_ty_2() {
         unsafe {
             &(*(::std::ptr::null::<rlglData__bindgen_ty_2>())).texMirrorClamp as *const _ as usize
         },
-        36usize,
+        40usize,
         concat!(
             "Offset of field: ",
             stringify!(rlglData__bindgen_ty_2),
@@ -16689,7 +16960,7 @@ fn bindgen_test_layout_rlglData__bindgen_ty_2() {
         unsafe {
             &(*(::std::ptr::null::<rlglData__bindgen_ty_2>())).texAnisoFilter as *const _ as usize
         },
-        40usize,
+        44usize,
         concat!(
             "Offset of field: ",
             stringify!(rlglData__bindgen_ty_2),
@@ -16699,19 +16970,7 @@ fn bindgen_test_layout_rlglData__bindgen_ty_2() {
     );
     assert_eq!(
         unsafe {
-            &(*(::std::ptr::null::<rlglData__bindgen_ty_2>())).debugMarker as *const _ as usize
-        },
-        44usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(rlglData__bindgen_ty_2),
-            "::",
-            stringify!(debugMarker)
-        )
-    );
-    assert_eq!(
-        unsafe {
-            &(*(::std::ptr::null::<rlglData__bindgen_ty_2>())).maxAnisotropicLevel as *const _
+            &(*(::std::ptr::null::<rlglData__bindgen_ty_2>())).maxAnisotropyLevel as *const _
                 as usize
         },
         48usize,
@@ -16719,7 +16978,7 @@ fn bindgen_test_layout_rlglData__bindgen_ty_2() {
             "Offset of field: ",
             stringify!(rlglData__bindgen_ty_2),
             "::",
-            stringify!(maxAnisotropicLevel)
+            stringify!(maxAnisotropyLevel)
         )
     );
     assert_eq!(
@@ -16735,91 +16994,11 @@ fn bindgen_test_layout_rlglData__bindgen_ty_2() {
         )
     );
 }
-#[repr(C)]
-#[derive(Debug, Copy, Clone)]
-pub struct rlglData__bindgen_ty_3 {
-    pub config: VrStereoConfig,
-    pub stereoFboId: ::std::os::raw::c_uint,
-    pub stereoTexId: ::std::os::raw::c_uint,
-    pub simulatorReady: bool,
-    pub stereoRender: bool,
-}
-#[test]
-fn bindgen_test_layout_rlglData__bindgen_ty_3() {
-    assert_eq!(
-        ::std::mem::size_of::<rlglData__bindgen_ty_3>(),
-        320usize,
-        concat!("Size of: ", stringify!(rlglData__bindgen_ty_3))
-    );
-    assert_eq!(
-        ::std::mem::align_of::<rlglData__bindgen_ty_3>(),
-        8usize,
-        concat!("Alignment of ", stringify!(rlglData__bindgen_ty_3))
-    );
-    assert_eq!(
-        unsafe { &(*(::std::ptr::null::<rlglData__bindgen_ty_3>())).config as *const _ as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(rlglData__bindgen_ty_3),
-            "::",
-            stringify!(config)
-        )
-    );
-    assert_eq!(
-        unsafe {
-            &(*(::std::ptr::null::<rlglData__bindgen_ty_3>())).stereoFboId as *const _ as usize
-        },
-        304usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(rlglData__bindgen_ty_3),
-            "::",
-            stringify!(stereoFboId)
-        )
-    );
-    assert_eq!(
-        unsafe {
-            &(*(::std::ptr::null::<rlglData__bindgen_ty_3>())).stereoTexId as *const _ as usize
-        },
-        308usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(rlglData__bindgen_ty_3),
-            "::",
-            stringify!(stereoTexId)
-        )
-    );
-    assert_eq!(
-        unsafe {
-            &(*(::std::ptr::null::<rlglData__bindgen_ty_3>())).simulatorReady as *const _ as usize
-        },
-        312usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(rlglData__bindgen_ty_3),
-            "::",
-            stringify!(simulatorReady)
-        )
-    );
-    assert_eq!(
-        unsafe {
-            &(*(::std::ptr::null::<rlglData__bindgen_ty_3>())).stereoRender as *const _ as usize
-        },
-        316usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(rlglData__bindgen_ty_3),
-            "::",
-            stringify!(stereoRender)
-        )
-    );
-}
 #[test]
 fn bindgen_test_layout_rlglData() {
     assert_eq!(
         ::std::mem::size_of::<rlglData>(),
-        2800usize,
+        2712usize,
         concat!("Size of: ", stringify!(rlglData))
     );
     assert_eq!(
@@ -16859,22 +17038,12 @@ fn bindgen_test_layout_rlglData() {
     );
     assert_eq!(
         unsafe { &(*(::std::ptr::null::<rlglData>())).ExtSupported as *const _ as usize },
-        2424usize,
+        2656usize,
         concat!(
             "Offset of field: ",
             stringify!(rlglData),
             "::",
             stringify!(ExtSupported)
-        )
-    );
-    assert_eq!(
-        unsafe { &(*(::std::ptr::null::<rlglData>())).Vr as *const _ as usize },
-        2480usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(rlglData),
-            "::",
-            stringify!(Vr)
         )
     );
 }
@@ -17691,152 +17860,6 @@ extern "C" {
         loadIconsName: bool,
     ) -> *mut *mut ::std::os::raw::c_char;
 }
-#[repr(C)]
-#[derive(Debug, Copy, Clone)]
-pub struct Light {
-    pub type_: ::std::os::raw::c_int,
-    pub position: Vector3,
-    pub target: Vector3,
-    pub color: Color,
-    pub enabled: bool,
-    pub enabledLoc: ::std::os::raw::c_int,
-    pub typeLoc: ::std::os::raw::c_int,
-    pub posLoc: ::std::os::raw::c_int,
-    pub targetLoc: ::std::os::raw::c_int,
-    pub colorLoc: ::std::os::raw::c_int,
-}
-#[test]
-fn bindgen_test_layout_Light() {
-    assert_eq!(
-        ::std::mem::size_of::<Light>(),
-        56usize,
-        concat!("Size of: ", stringify!(Light))
-    );
-    assert_eq!(
-        ::std::mem::align_of::<Light>(),
-        4usize,
-        concat!("Alignment of ", stringify!(Light))
-    );
-    assert_eq!(
-        unsafe { &(*(::std::ptr::null::<Light>())).type_ as *const _ as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(Light),
-            "::",
-            stringify!(type_)
-        )
-    );
-    assert_eq!(
-        unsafe { &(*(::std::ptr::null::<Light>())).position as *const _ as usize },
-        4usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(Light),
-            "::",
-            stringify!(position)
-        )
-    );
-    assert_eq!(
-        unsafe { &(*(::std::ptr::null::<Light>())).target as *const _ as usize },
-        16usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(Light),
-            "::",
-            stringify!(target)
-        )
-    );
-    assert_eq!(
-        unsafe { &(*(::std::ptr::null::<Light>())).color as *const _ as usize },
-        28usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(Light),
-            "::",
-            stringify!(color)
-        )
-    );
-    assert_eq!(
-        unsafe { &(*(::std::ptr::null::<Light>())).enabled as *const _ as usize },
-        32usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(Light),
-            "::",
-            stringify!(enabled)
-        )
-    );
-    assert_eq!(
-        unsafe { &(*(::std::ptr::null::<Light>())).enabledLoc as *const _ as usize },
-        36usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(Light),
-            "::",
-            stringify!(enabledLoc)
-        )
-    );
-    assert_eq!(
-        unsafe { &(*(::std::ptr::null::<Light>())).typeLoc as *const _ as usize },
-        40usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(Light),
-            "::",
-            stringify!(typeLoc)
-        )
-    );
-    assert_eq!(
-        unsafe { &(*(::std::ptr::null::<Light>())).posLoc as *const _ as usize },
-        44usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(Light),
-            "::",
-            stringify!(posLoc)
-        )
-    );
-    assert_eq!(
-        unsafe { &(*(::std::ptr::null::<Light>())).targetLoc as *const _ as usize },
-        48usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(Light),
-            "::",
-            stringify!(targetLoc)
-        )
-    );
-    assert_eq!(
-        unsafe { &(*(::std::ptr::null::<Light>())).colorLoc as *const _ as usize },
-        52usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(Light),
-            "::",
-            stringify!(colorLoc)
-        )
-    );
-}
-#[repr(i32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum LightType {
-    LIGHT_DIRECTIONAL = 0,
-    LIGHT_POINT = 1,
-}
-extern "C" {
-    pub fn CreateLight(
-        type_: ::std::os::raw::c_int,
-        position: Vector3,
-        target: Vector3,
-        color: Color,
-        shader: Shader,
-    ) -> Light;
-}
-extern "C" {
-    pub fn UpdateLightValues(shader: Shader, light: Light);
-}
-pub const lightsCount: ::std::os::raw::c_int = 0;
 pub type __builtin_va_list = *mut ::std::os::raw::c_char;
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]

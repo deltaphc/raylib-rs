@@ -60,48 +60,48 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
 
         d.clear_background(Color::RAYWHITE);
 
-        if d.is_gamepad_available(raylib::consts::GamepadNumber::GAMEPAD_PLAYER1)
+        if d.is_gamepad_available(0)
         {
-            d.draw_text(&format!("GP1: {}", d.get_gamepad_name(raylib::consts::GamepadNumber::GAMEPAD_PLAYER1).unwrap()), 10, 10, 10, Color::BLACK);
+            d.draw_text(&format!("GP1: {}", d.get_gamepad_name(0).unwrap()), 10, 10, 10, Color::BLACK);
 
-            if d.is_gamepad_name(raylib::consts::GamepadNumber::GAMEPAD_PLAYER1, XBOX360_NAME_ID)
+            if d.is_gamepad_name(0, XBOX360_NAME_ID)
             {
                 d.draw_texture(&tex_xbox_pad, 0, 0, Color::DARKGRAY);
 
                 // Draw buttons: xbox home
-                if d.is_gamepad_button_down(raylib::consts::GamepadNumber::GAMEPAD_PLAYER1, raylib::consts::GamepadButton::GAMEPAD_BUTTON_MIDDLE)
+                if d.is_gamepad_button_down(0, raylib::consts::GamepadButton::GAMEPAD_BUTTON_MIDDLE)
                 {
 
                     d.draw_circle(394, 89, 19.0,Color::RED);
                 }
 
                 // Draw buttons: basic
-                if d.is_gamepad_button_down(raylib::consts::GamepadNumber::GAMEPAD_PLAYER1, raylib::consts::GamepadButton::GAMEPAD_BUTTON_MIDDLE_RIGHT)
+                if d.is_gamepad_button_down(0, raylib::consts::GamepadButton::GAMEPAD_BUTTON_MIDDLE_RIGHT)
                     {
                         d.draw_circle(436, 150, 9.0,Color::RED);
 
                     }
-                if d.is_gamepad_button_down(raylib::consts::GamepadNumber::GAMEPAD_PLAYER1, raylib::consts::GamepadButton::GAMEPAD_BUTTON_MIDDLE_LEFT)
+                if d.is_gamepad_button_down(0, raylib::consts::GamepadButton::GAMEPAD_BUTTON_MIDDLE_LEFT)
                     {
 
                         d.draw_circle(352, 150, 9.0,Color::RED);
                     }
-                if d.is_gamepad_button_down(raylib::consts::GamepadNumber::GAMEPAD_PLAYER1, raylib::consts::GamepadButton::GAMEPAD_BUTTON_RIGHT_FACE_LEFT)
+                if d.is_gamepad_button_down(0, raylib::consts::GamepadButton::GAMEPAD_BUTTON_RIGHT_FACE_LEFT)
                     {
 
                         d.draw_circle(501, 151, 15.0, Color::BLUE);
                     }
-                if d.is_gamepad_button_down(raylib::consts::GamepadNumber::GAMEPAD_PLAYER1, raylib::consts::GamepadButton::GAMEPAD_BUTTON_RIGHT_FACE_DOWN)
+                if d.is_gamepad_button_down(0, raylib::consts::GamepadButton::GAMEPAD_BUTTON_RIGHT_FACE_DOWN)
                     {
 
                         d.draw_circle(536, 187, 15.0, Color::LIME);
                     }
-                if d.is_gamepad_button_down(raylib::consts::GamepadNumber::GAMEPAD_PLAYER1, raylib::consts::GamepadButton::GAMEPAD_BUTTON_RIGHT_FACE_RIGHT)
+                if d.is_gamepad_button_down(0, raylib::consts::GamepadButton::GAMEPAD_BUTTON_RIGHT_FACE_RIGHT)
                     {
 
                         d.draw_circle(572, 151, 15.0, Color::MAROON);
                     }
-                if d.is_gamepad_button_down(raylib::consts::GamepadNumber::GAMEPAD_PLAYER1, raylib::consts::GamepadButton::GAMEPAD_BUTTON_RIGHT_FACE_UP)
+                if d.is_gamepad_button_down(0, raylib::consts::GamepadButton::GAMEPAD_BUTTON_RIGHT_FACE_UP)
                     {
 
                         d.draw_circle(536, 115, 15.0, Color::GOLD);
@@ -110,34 +110,34 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
                 // Draw buttons: d-pad
                 d.draw_rectangle(317, 202, 19, 71, Color::BLACK);
                 d.draw_rectangle(293, 228, 69, 19, Color::BLACK);
-                if d.is_gamepad_button_down(raylib::consts::GamepadNumber::GAMEPAD_PLAYER1, raylib::consts::GamepadButton::GAMEPAD_BUTTON_LEFT_FACE_UP)
+                if d.is_gamepad_button_down(0, raylib::consts::GamepadButton::GAMEPAD_BUTTON_LEFT_FACE_UP)
                     {
 
                         d.draw_rectangle(317, 202, 19, 26,Color::RED);
                     }
-                if d.is_gamepad_button_down(raylib::consts::GamepadNumber::GAMEPAD_PLAYER1, raylib::consts::GamepadButton::GAMEPAD_BUTTON_LEFT_FACE_DOWN)
+                if d.is_gamepad_button_down(0, raylib::consts::GamepadButton::GAMEPAD_BUTTON_LEFT_FACE_DOWN)
                     {
 
                         d.draw_rectangle(317, 202 + 45, 19, 26,Color::RED);
                     }
-                if d.is_gamepad_button_down(raylib::consts::GamepadNumber::GAMEPAD_PLAYER1, raylib::consts::GamepadButton::GAMEPAD_BUTTON_LEFT_FACE_LEFT)
+                if d.is_gamepad_button_down(0, raylib::consts::GamepadButton::GAMEPAD_BUTTON_LEFT_FACE_LEFT)
                     {
 
                         d.draw_rectangle(292, 228, 25, 19,Color::RED);
                     }
-                if d.is_gamepad_button_down(raylib::consts::GamepadNumber::GAMEPAD_PLAYER1, raylib::consts::GamepadButton::GAMEPAD_BUTTON_LEFT_FACE_RIGHT)
+                if d.is_gamepad_button_down(0, raylib::consts::GamepadButton::GAMEPAD_BUTTON_LEFT_FACE_RIGHT)
                     {
 
                         d.draw_rectangle(292 + 44, 228, 26, 19,Color::RED);
                     }
 
                 // Draw buttons: left-right back
-                if d.is_gamepad_button_down(raylib::consts::GamepadNumber::GAMEPAD_PLAYER1, raylib::consts::GamepadButton::GAMEPAD_BUTTON_LEFT_TRIGGER_1)
+                if d.is_gamepad_button_down(0, raylib::consts::GamepadButton::GAMEPAD_BUTTON_LEFT_TRIGGER_1)
                     {
 
                         d.draw_circle(259, 61, 20.0,Color::RED);
                     }
-                if d.is_gamepad_button_down(raylib::consts::GamepadNumber::GAMEPAD_PLAYER1, raylib::consts::GamepadButton::GAMEPAD_BUTTON_RIGHT_TRIGGER_1)
+                if d.is_gamepad_button_down(0, raylib::consts::GamepadButton::GAMEPAD_BUTTON_RIGHT_TRIGGER_1)
                     {
 
                         d.draw_circle(536, 61, 20.0,Color::RED);
@@ -146,62 +146,62 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
                 // Draw axis: left joystick
                 d.draw_circle(259, 152, 39.0, Color::BLACK);
                 d.draw_circle(259, 152, 34.0, Color::LIGHTGRAY);
-                d.draw_circle(259 + (d.get_gamepad_axis_movement(raylib::consts::GamepadNumber::GAMEPAD_PLAYER1, raylib::consts::GamepadAxis::GAMEPAD_AXIS_LEFT_X) * 20.0) as i32,
-                           152 - (d.get_gamepad_axis_movement(raylib::consts::GamepadNumber::GAMEPAD_PLAYER1, raylib::consts::GamepadAxis::GAMEPAD_AXIS_LEFT_Y) * 2.00) as i32, 25.0, Color::BLACK);
+                d.draw_circle(259 + (d.get_gamepad_axis_movement(0, raylib::consts::GamepadAxis::GAMEPAD_AXIS_LEFT_X) * 20.0) as i32,
+                           152 - (d.get_gamepad_axis_movement(0, raylib::consts::GamepadAxis::GAMEPAD_AXIS_LEFT_Y) * 2.00) as i32, 25.0, Color::BLACK);
 
                 // Draw axis: right joystick
                 d.draw_circle(461, 237, 38.0, Color::BLACK);
                 d.draw_circle(461, 237, 33.0, Color::LIGHTGRAY);
-                d.draw_circle(461 + (d.get_gamepad_axis_movement(raylib::consts::GamepadNumber::GAMEPAD_PLAYER1, raylib::consts::GamepadAxis::GAMEPAD_AXIS_RIGHT_X) * 20.0) as i32,
-                           237 - (d.get_gamepad_axis_movement(raylib::consts::GamepadNumber::GAMEPAD_PLAYER1, raylib::consts::GamepadAxis::GAMEPAD_AXIS_RIGHT_Y) * 20.0) as i32, 25.0, Color::BLACK);
+                d.draw_circle(461 + (d.get_gamepad_axis_movement(0, raylib::consts::GamepadAxis::GAMEPAD_AXIS_RIGHT_X) * 20.0) as i32,
+                           237 - (d.get_gamepad_axis_movement(0, raylib::consts::GamepadAxis::GAMEPAD_AXIS_RIGHT_Y) * 20.0) as i32, 25.0, Color::BLACK);
 
                 // Draw axis: left-right triggers
                 d.draw_rectangle(170, 30, 15, 70, Color::GRAY);
                 d.draw_rectangle(604, 30, 15, 70, Color::GRAY);
-                d.draw_rectangle(170, 30, 15, (((1.0 + d.get_gamepad_axis_movement(raylib::consts::GamepadNumber::GAMEPAD_PLAYER1, raylib::consts::GamepadAxis::GAMEPAD_AXIS_LEFT_TRIGGER)) / 2.0) * 70.0) as i32,Color::RED);
-                d.draw_rectangle(604, 30, 15, (((1.0 + d.get_gamepad_axis_movement(raylib::consts::GamepadNumber::GAMEPAD_PLAYER1, raylib::consts::GamepadAxis::GAMEPAD_AXIS_RIGHT_TRIGGER)) / 2.0) * 70.0) as i32,Color::RED);
+                d.draw_rectangle(170, 30, 15, (((1.0 + d.get_gamepad_axis_movement(0, raylib::consts::GamepadAxis::GAMEPAD_AXIS_LEFT_TRIGGER)) / 2.0) * 70.0) as i32,Color::RED);
+                d.draw_rectangle(604, 30, 15, (((1.0 + d.get_gamepad_axis_movement(0, raylib::consts::GamepadAxis::GAMEPAD_AXIS_RIGHT_TRIGGER)) / 2.0) * 70.0) as i32,Color::RED);
 
-                //d.draw_text(format!("Xbox axis LT: %02.02f", d.get_gamepad_axis_movement(raylib::consts::GamepadNumber::GAMEPAD_PLAYER1, raylib::consts::GamepadAxis::GAMEPAD_AXIS_LEFT_TRIGGER)), 10, 40, 10, Color::BLACK);
-                //d.draw_text(format!("Xbox axis RT: %02.02f", d.get_gamepad_axis_movement(raylib::consts::GamepadNumber::GAMEPAD_PLAYER1, raylib::consts::GamepadAxis::GAMEPAD_AXIS_RIGHT_TRIGGER)), 10, 60, 10, Color::BLACK);
+                //d.draw_text(format!("Xbox axis LT: %02.02f", d.get_gamepad_axis_movement(0, raylib::consts::GamepadAxis::GAMEPAD_AXIS_LEFT_TRIGGER)), 10, 40, 10, Color::BLACK);
+                //d.draw_text(format!("Xbox axis RT: %02.02f", d.get_gamepad_axis_movement(0, raylib::consts::GamepadAxis::GAMEPAD_AXIS_RIGHT_TRIGGER)), 10, 60, 10, Color::BLACK);
             }
-            else if d.is_gamepad_name(raylib::consts::GamepadNumber::GAMEPAD_PLAYER1, PS3_NAME_ID)
+            else if d.is_gamepad_name(0, PS3_NAME_ID)
             {
                 d.draw_texture(&tex_ps3_pad, 0, 0, Color::DARKGRAY);
 
                 // Draw buttons: ps
-                if d.is_gamepad_button_down(raylib::consts::GamepadNumber::GAMEPAD_PLAYER1, raylib::consts::GamepadButton::GAMEPAD_BUTTON_MIDDLE)
+                if d.is_gamepad_button_down(0, raylib::consts::GamepadButton::GAMEPAD_BUTTON_MIDDLE)
                     {
 
                         d.draw_circle(396, 222, 13.0,Color::RED);
                     }
 
                 // Draw buttons: basic
-                if d.is_gamepad_button_down(raylib::consts::GamepadNumber::GAMEPAD_PLAYER1, raylib::consts::GamepadButton::GAMEPAD_BUTTON_MIDDLE_LEFT)
+                if d.is_gamepad_button_down(0, raylib::consts::GamepadButton::GAMEPAD_BUTTON_MIDDLE_LEFT)
                     {
 
                         d.draw_rectangle(328, 170, 32, 13,Color::RED);
                     }
-                if d.is_gamepad_button_down(raylib::consts::GamepadNumber::GAMEPAD_PLAYER1, raylib::consts::GamepadButton::GAMEPAD_BUTTON_MIDDLE_RIGHT)
+                if d.is_gamepad_button_down(0, raylib::consts::GamepadButton::GAMEPAD_BUTTON_MIDDLE_RIGHT)
                     {
 
                         d.draw_triangle(rvec2(436, 168), rvec2(436, 185), rvec2(464, 177),Color::RED);
                     }
-                if d.is_gamepad_button_down(raylib::consts::GamepadNumber::GAMEPAD_PLAYER1, raylib::consts::GamepadButton::GAMEPAD_BUTTON_RIGHT_FACE_UP)
+                if d.is_gamepad_button_down(0, raylib::consts::GamepadButton::GAMEPAD_BUTTON_RIGHT_FACE_UP)
                     {
 
                         d.draw_circle(557, 144, 13.0, Color::LIME);
                     }
-                if d.is_gamepad_button_down(raylib::consts::GamepadNumber::GAMEPAD_PLAYER1, raylib::consts::GamepadButton::GAMEPAD_BUTTON_RIGHT_FACE_RIGHT)
+                if d.is_gamepad_button_down(0, raylib::consts::GamepadButton::GAMEPAD_BUTTON_RIGHT_FACE_RIGHT)
                     {
 
                         d.draw_circle(586, 173, 13.0,Color::RED);
                     }
-                if d.is_gamepad_button_down(raylib::consts::GamepadNumber::GAMEPAD_PLAYER1, raylib::consts::GamepadButton::GAMEPAD_BUTTON_RIGHT_FACE_DOWN)
+                if d.is_gamepad_button_down(0, raylib::consts::GamepadButton::GAMEPAD_BUTTON_RIGHT_FACE_DOWN)
                     {
 
                         d.draw_circle(557, 203, 13.0, Color::VIOLET);
                     }
-                if d.is_gamepad_button_down(raylib::consts::GamepadNumber::GAMEPAD_PLAYER1, raylib::consts::GamepadButton::GAMEPAD_BUTTON_RIGHT_FACE_LEFT)
+                if d.is_gamepad_button_down(0, raylib::consts::GamepadButton::GAMEPAD_BUTTON_RIGHT_FACE_LEFT)
                     {
 
                         d.draw_circle(527, 173, 13.0, Color::PINK);
@@ -210,34 +210,34 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
                 // Draw buttons: d-pad
                 d.draw_rectangle(225, 132, 24, 84, Color::BLACK);
                 d.draw_rectangle(195, 161, 84, 25, Color::BLACK);
-                if d.is_gamepad_button_down(raylib::consts::GamepadNumber::GAMEPAD_PLAYER1, raylib::consts::GamepadButton::GAMEPAD_BUTTON_LEFT_FACE_UP)
+                if d.is_gamepad_button_down(0, raylib::consts::GamepadButton::GAMEPAD_BUTTON_LEFT_FACE_UP)
                     {
 
                         d.draw_rectangle(225, 132, 24, 29,Color::RED);
                     }
-                if d.is_gamepad_button_down(raylib::consts::GamepadNumber::GAMEPAD_PLAYER1, raylib::consts::GamepadButton::GAMEPAD_BUTTON_LEFT_FACE_DOWN)
+                if d.is_gamepad_button_down(0, raylib::consts::GamepadButton::GAMEPAD_BUTTON_LEFT_FACE_DOWN)
                     {
 
                         d.draw_rectangle(225, 132 + 54, 24, 30,Color::RED);
                     }
-                if d.is_gamepad_button_down(raylib::consts::GamepadNumber::GAMEPAD_PLAYER1, raylib::consts::GamepadButton::GAMEPAD_BUTTON_LEFT_FACE_LEFT)
+                if d.is_gamepad_button_down(0, raylib::consts::GamepadButton::GAMEPAD_BUTTON_LEFT_FACE_LEFT)
                     {
 
                         d.draw_rectangle(195, 161, 30, 25,Color::RED);
                     }
-                if d.is_gamepad_button_down(raylib::consts::GamepadNumber::GAMEPAD_PLAYER1, raylib::consts::GamepadButton::GAMEPAD_BUTTON_LEFT_FACE_RIGHT)
+                if d.is_gamepad_button_down(0, raylib::consts::GamepadButton::GAMEPAD_BUTTON_LEFT_FACE_RIGHT)
                     {
 
                         d.draw_rectangle(195 + 54, 161, 30, 25,Color::RED);
                     }
 
                 // Draw buttons: left-right back buttons
-                if d.is_gamepad_button_down(raylib::consts::GamepadNumber::GAMEPAD_PLAYER1, raylib::consts::GamepadButton::GAMEPAD_BUTTON_LEFT_TRIGGER_1)
+                if d.is_gamepad_button_down(0, raylib::consts::GamepadButton::GAMEPAD_BUTTON_LEFT_TRIGGER_1)
                     {
 
                         d.draw_circle(239, 82, 20.0,Color::RED);
                     }
-                if d.is_gamepad_button_down(raylib::consts::GamepadNumber::GAMEPAD_PLAYER1, raylib::consts::GamepadButton::GAMEPAD_BUTTON_RIGHT_TRIGGER_1)
+                if d.is_gamepad_button_down(0, raylib::consts::GamepadButton::GAMEPAD_BUTTON_RIGHT_TRIGGER_1)
                     {
 
                         d.draw_circle(557, 82, 20.0,Color::RED);
@@ -246,20 +246,20 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
                 // Draw axis: left joystick
                 d.draw_circle(319, 255, 35.0, Color::BLACK);
                 d.draw_circle(319, 255, 31.0, Color::LIGHTGRAY);
-                d.draw_circle(319 + (d.get_gamepad_axis_movement(raylib::consts::GamepadNumber::GAMEPAD_PLAYER1, raylib::consts::GamepadAxis::GAMEPAD_AXIS_LEFT_X) * 20.0) as i32,
-                           255 + (d.get_gamepad_axis_movement(raylib::consts::GamepadNumber::GAMEPAD_PLAYER1, raylib::consts::GamepadAxis::GAMEPAD_AXIS_LEFT_Y) * 20.0) as i32, 25.0, Color::BLACK);
+                d.draw_circle(319 + (d.get_gamepad_axis_movement(0, raylib::consts::GamepadAxis::GAMEPAD_AXIS_LEFT_X) * 20.0) as i32,
+                           255 + (d.get_gamepad_axis_movement(0, raylib::consts::GamepadAxis::GAMEPAD_AXIS_LEFT_Y) * 20.0) as i32, 25.0, Color::BLACK);
 
                 // Draw axis: right joystick
                 d.draw_circle(475, 255, 35.0, Color::BLACK);
                 d.draw_circle(475, 255, 31.0, Color::LIGHTGRAY);
-                d.draw_circle(475 + (d.get_gamepad_axis_movement(raylib::consts::GamepadNumber::GAMEPAD_PLAYER1, raylib::consts::GamepadAxis::GAMEPAD_AXIS_RIGHT_X) * 20.0) as i32,
-                           255 + (d.get_gamepad_axis_movement(raylib::consts::GamepadNumber::GAMEPAD_PLAYER1, raylib::consts::GamepadAxis::GAMEPAD_AXIS_RIGHT_Y) * 20.0) as i32, 25.0, Color::BLACK);
+                d.draw_circle(475 + (d.get_gamepad_axis_movement(0, raylib::consts::GamepadAxis::GAMEPAD_AXIS_RIGHT_X) * 20.0) as i32,
+                           255 + (d.get_gamepad_axis_movement(0, raylib::consts::GamepadAxis::GAMEPAD_AXIS_RIGHT_Y) * 20.0) as i32, 25.0, Color::BLACK);
 
                 // Draw axis: left-right triggers
                 d.draw_rectangle(169, 48, 15, 70, Color::GRAY);
                 d.draw_rectangle(611, 48, 15, 70, Color::GRAY);
-                d.draw_rectangle(169, 48, 15, (((1.0 - d.get_gamepad_axis_movement(raylib::consts::GamepadNumber::GAMEPAD_PLAYER1, raylib::consts::GamepadAxis::GAMEPAD_AXIS_LEFT_TRIGGER)) / 2.0) * 70.0) as i32,Color::RED);
-                d.draw_rectangle(611, 48, 15, (((1.0 - d.get_gamepad_axis_movement(raylib::consts::GamepadNumber::GAMEPAD_PLAYER1, raylib::consts::GamepadAxis::GAMEPAD_AXIS_RIGHT_TRIGGER)) / 2.0) * 70.0) as i32,Color::RED);
+                d.draw_rectangle(169, 48, 15, (((1.0 - d.get_gamepad_axis_movement(0, raylib::consts::GamepadAxis::GAMEPAD_AXIS_LEFT_TRIGGER)) / 2.0) * 70.0) as i32,Color::RED);
+                d.draw_rectangle(611, 48, 15, (((1.0 - d.get_gamepad_axis_movement(0, raylib::consts::GamepadAxis::GAMEPAD_AXIS_RIGHT_TRIGGER)) / 2.0) * 70.0) as i32,Color::RED);
             }
             else
             {
@@ -268,11 +268,11 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
                 // TODO: Draw generic gamepad
             }
 
-            d.draw_text(&format!("DETECTED AXIS [{}]:", d.get_gamepad_axis_count(raylib::consts::GamepadNumber::GAMEPAD_PLAYER1)), 10, 50, 10, Color::MAROON);
+            d.draw_text(&format!("DETECTED AXIS [{}]:", d.get_gamepad_axis_count(0)), 10, 50, 10, Color::MAROON);
 
-            for i in 0..d.get_gamepad_axis_count(raylib::consts::GamepadNumber::GAMEPAD_PLAYER1)
+            for i in 0..d.get_gamepad_axis_count(0)
             {
-                d.draw_text(&format!("AXIS {}: {:.02}", i, d.get_gamepad_axis_movement(raylib::consts::GamepadNumber::GAMEPAD_PLAYER1, unsafe {std::mem::transmute(i)})), 20, 70 + 20 * i, 10, Color::DARKGRAY);
+                d.draw_text(&format!("AXIS {}: {:.02}", i, d.get_gamepad_axis_movement(0, unsafe {std::mem::transmute(i)})), 20, 70 + 20 * i, 10, Color::DARKGRAY);
             }
 
             if let Some(button) = d.get_gamepad_button_pressed()

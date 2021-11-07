@@ -40,7 +40,7 @@ impl RaylibHandle {
     }
 
     /// Loads shader from code strings and binds default locations.
-    pub fn load_shader_code(
+    pub fn load_shader_from_memory(
         &mut self,
         _: &RaylibThread,
         vs_code: Option<&str>,
@@ -50,25 +50,25 @@ impl RaylibHandle {
         let c_fs_code = fs_code.map(|f| CString::new(f).unwrap());
         return match (c_vs_code, c_fs_code) {
             (Some(vs), Some(fs)) => unsafe {
-                Shader(ffi::LoadShaderCode(
+                Shader(ffi::LoadShaderFromMemory(
                     vs.as_ptr() as *mut c_char,
                     fs.as_ptr() as *mut c_char,
                 ))
             },
             (None, Some(fs)) => unsafe {
-                Shader(ffi::LoadShaderCode(
+                Shader(ffi::LoadShaderFromMemory(
                     std::ptr::null_mut(),
                     fs.as_ptr() as *mut c_char,
                 ))
             },
             (Some(vs), None) => unsafe {
-                Shader(ffi::LoadShaderCode(
+                Shader(ffi::LoadShaderFromMemory(
                     vs.as_ptr() as *mut c_char,
                     std::ptr::null_mut(),
                 ))
             },
             (None, None) => unsafe {
-                Shader(ffi::LoadShaderCode(
+                Shader(ffi::LoadShaderFromMemory(
                     std::ptr::null_mut(),
                     std::ptr::null_mut(),
                 ))
@@ -77,8 +77,9 @@ impl RaylibHandle {
     }
 
     /// Get default shader. Modifying it modifies everthing that uses that shader
+    #[cfg(not(target_os = "macos"))]
     pub fn get_shader_default() -> WeakShader {
-        unsafe { WeakShader(ffi::GetShaderDefault()) }
+        unsafe { WeakShader(ffi::rlGetShaderDefault()) }
     }
 }
 
@@ -88,84 +89,84 @@ pub trait ShaderV {
 }
 
 impl ShaderV for f32 {
-    const UNIFORM_TYPE: ShaderUniformDataType = ShaderUniformDataType::UNIFORM_FLOAT;
+    const UNIFORM_TYPE: ShaderUniformDataType = ShaderUniformDataType::SHADER_UNIFORM_FLOAT;
     unsafe fn value(&self) -> *const c_void {
         self as *const f32 as *const c_void
     }
 }
 
 impl ShaderV for Vector2 {
-    const UNIFORM_TYPE: ShaderUniformDataType = ShaderUniformDataType::UNIFORM_VEC2;
+    const UNIFORM_TYPE: ShaderUniformDataType = ShaderUniformDataType::SHADER_UNIFORM_VEC2;
     unsafe fn value(&self) -> *const c_void {
         self as *const Vector2 as *const c_void
     }
 }
 
 impl ShaderV for Vector3 {
-    const UNIFORM_TYPE: ShaderUniformDataType = ShaderUniformDataType::UNIFORM_VEC3;
+    const UNIFORM_TYPE: ShaderUniformDataType = ShaderUniformDataType::SHADER_UNIFORM_VEC3;
     unsafe fn value(&self) -> *const c_void {
         self as *const Vector3 as *const c_void
     }
 }
 
 impl ShaderV for Vector4 {
-    const UNIFORM_TYPE: ShaderUniformDataType = ShaderUniformDataType::UNIFORM_VEC4;
+    const UNIFORM_TYPE: ShaderUniformDataType = ShaderUniformDataType::SHADER_UNIFORM_VEC4;
     unsafe fn value(&self) -> *const c_void {
         self as *const Vector4 as *const c_void
     }
 }
 
 impl ShaderV for i32 {
-    const UNIFORM_TYPE: ShaderUniformDataType = ShaderUniformDataType::UNIFORM_INT;
+    const UNIFORM_TYPE: ShaderUniformDataType = ShaderUniformDataType::SHADER_UNIFORM_INT;
     unsafe fn value(&self) -> *const c_void {
         self as *const i32 as *const c_void
     }
 }
 
 impl ShaderV for [i32; 2] {
-    const UNIFORM_TYPE: ShaderUniformDataType = ShaderUniformDataType::UNIFORM_IVEC2;
+    const UNIFORM_TYPE: ShaderUniformDataType = ShaderUniformDataType::SHADER_UNIFORM_IVEC2;
     unsafe fn value(&self) -> *const c_void {
         self.as_ptr() as *const c_void
     }
 }
 
 impl ShaderV for [i32; 3] {
-    const UNIFORM_TYPE: ShaderUniformDataType = ShaderUniformDataType::UNIFORM_IVEC3;
+    const UNIFORM_TYPE: ShaderUniformDataType = ShaderUniformDataType::SHADER_UNIFORM_IVEC3;
     unsafe fn value(&self) -> *const c_void {
         self.as_ptr() as *const c_void
     }
 }
 
 impl ShaderV for [i32; 4] {
-    const UNIFORM_TYPE: ShaderUniformDataType = ShaderUniformDataType::UNIFORM_IVEC4;
+    const UNIFORM_TYPE: ShaderUniformDataType = ShaderUniformDataType::SHADER_UNIFORM_IVEC4;
     unsafe fn value(&self) -> *const c_void {
         self.as_ptr() as *const c_void
     }
 }
 
 impl ShaderV for [f32; 2] {
-    const UNIFORM_TYPE: ShaderUniformDataType = ShaderUniformDataType::UNIFORM_VEC2;
+    const UNIFORM_TYPE: ShaderUniformDataType = ShaderUniformDataType::SHADER_UNIFORM_VEC2;
     unsafe fn value(&self) -> *const c_void {
         self.as_ptr() as *const c_void
     }
 }
 
 impl ShaderV for [f32; 3] {
-    const UNIFORM_TYPE: ShaderUniformDataType = ShaderUniformDataType::UNIFORM_VEC3;
+    const UNIFORM_TYPE: ShaderUniformDataType = ShaderUniformDataType::SHADER_UNIFORM_VEC3;
     unsafe fn value(&self) -> *const c_void {
         self.as_ptr() as *const c_void
     }
 }
 
 impl ShaderV for [f32; 4] {
-    const UNIFORM_TYPE: ShaderUniformDataType = ShaderUniformDataType::UNIFORM_VEC4;
+    const UNIFORM_TYPE: ShaderUniformDataType = ShaderUniformDataType::SHADER_UNIFORM_VEC4;
     unsafe fn value(&self) -> *const c_void {
         self.as_ptr() as *const c_void
     }
 }
 
 impl ShaderV for &[i32] {
-    const UNIFORM_TYPE: ShaderUniformDataType = ShaderUniformDataType::UNIFORM_SAMPLER2D;
+    const UNIFORM_TYPE: ShaderUniformDataType = ShaderUniformDataType::SHADER_UNIFORM_SAMPLER2D;
     unsafe fn value(&self) -> *const c_void {
         self.as_ptr() as *const c_void
     }
@@ -299,29 +300,33 @@ pub trait RaylibShader: AsRef<ffi::Shader> + AsMut<ffi::Shader> {
 impl RaylibHandle {
     /// Sets a custom projection matrix (replaces internal projection matrix).
     #[inline]
+    #[cfg(not(target_os = "macos"))]
     pub fn set_matrix_projection(&mut self, _: &RaylibThread, proj: Matrix) {
         unsafe {
-            ffi::SetMatrixProjection(proj.into());
+            ffi::rlSetMatrixProjection(proj.into());
         }
     }
 
     /// Sets a custom modelview matrix (replaces internal modelview matrix).
     #[inline]
+    #[cfg(not(target_os = "macos"))]
     pub fn set_matrix_modelview(&mut self, _: &RaylibThread, view: Matrix) {
         unsafe {
-            ffi::SetMatrixModelview(view.into());
+            ffi::rlSetMatrixModelview(view.into());
         }
     }
 
     /// Gets internal modelview matrix.
     #[inline]
+    #[cfg(not(target_os = "macos"))]
     pub fn get_matrix_modelview(&self) -> Matrix {
-        unsafe { ffi::GetMatrixModelview().into() }
+        unsafe { ffi::rlGetMatrixModelview().into() }
     }
 
     /// Gets internal projection matrix.
     #[inline]
+    #[cfg(not(target_os = "macos"))]
     pub fn get_matrix_projection(&self) -> Matrix {
-        unsafe { ffi::GetMatrixProjection().into() }
+        unsafe { ffi::rlGetMatrixProjection().into() }
     }
 }

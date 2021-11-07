@@ -79,7 +79,7 @@ pub fn run(rl
 
     let model = rl.load_model(&thread, "original/models/resources/models/church.obj");                 // Load OBJ model
     let texture = rl.load_texture(thread, "original/shaders/resources/models/church_diffuse.png"); // Load model texture (diffuse map)
-    model.materials_mut()[0].maps_mut()[raylib::consts::MaterialMapType::MAP_ALBEDO as usize].texture = *texture.as_ref();                 // Set model diffuse texture
+    model.materials_mut()[0].maps_mut()[raylib::consts::MaterialMapIndex::MATERIAL_MAP_ALBEDO as usize].texture = *texture.as_ref();                 // Set model diffuse texture
 
     let position = Vector3::zero(); // Set model position
 

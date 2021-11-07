@@ -1,70 +1,65 @@
 //! Vr related functions
 use crate::core::camera::Camera3D;
-use crate::core::RaylibThread;
+use crate::core::{RaylibHandle, RaylibThread};
 use crate::ffi;
 use std::sync::atomic::{AtomicBool, Ordering};
 
-static IS_INITIALIZED: AtomicBool = AtomicBool::new(false);
+make_thin_wrapper!(
+    VrStereoConfig,
+    ffi::VrStereoConfig,
+    ffi::UnloadVrStereoConfig
+);
 
-/// This token is used to indicate VR is initialized
-#[derive(Debug)]
-pub struct RaylibVR(());
-// #[cfg(feature = "nightly")]
-// impl !Send for RaylibVR {}
-// #[cfg(feature = "nightly")]
-// impl !Sync for RaylibVR {}
+#[repr(C)]
+#[derive(Debug, Copy, Clone, PartialEq)]
+pub struct VrDeviceInfo {
+    pub h_resolution: i32,                // Horizontal resolution in pixels
+    pub v_esolution: i32,                 // Vertical resolution in pixels
+    pub h_screen_size: f32,               // Horizontal size in meters
+    pub v_screen_size: f32,               // Vertical size in meters
+    pub v_screen_center: f32,             // Screen center in meters
+    pub eye_to_screen_distance: f32,      // Distance between eye and display in meters
+    pub lens_separation_distance: f32,    // Lens separation distance in meters
+    pub interpupillary_distance: f32,     // IPD (distance between pupils) in meters
+    pub lens_distortion_values: [f32; 4], // Lens distortion constant parameters
+    pub chroma_ab_correction: [f32; 4],   // Chromatic aberration correction parameters
+}
 
-impl RaylibVR {
-    pub fn init_vr_simulator(_: &RaylibThread) -> RaylibVR {
-        if IS_INITIALIZED.load(Ordering::Relaxed) {
-            panic!("Attempted to initialize vr mode  more than once");
-        } else {
-            unsafe {
-                ffi::InitVrSimulator();
-            }
-            IS_INITIALIZED.store(true, Ordering::Relaxed);
-            RaylibVR(())
-        }
+impl From<ffi::VrDeviceInfo> for VrDeviceInfo {
+    fn from(v: ffi::VrDeviceInfo) -> VrDeviceInfo {
+        unsafe { std::mem::transmute(v) }
     }
-    /// Updates VR tracking (position and orientation) and camera.
-    pub fn update_vr_tracking(&mut self, camera: &mut Camera3D) {
-        unsafe {
-            let mut fficam: ffi::Camera3D = (*camera).into();
-            ffi::UpdateVrTracking(&mut fficam);
-            *camera = fficam.into();
-        }
-    }
+}
 
-    /// Set stereo rendering configuration parameters
-    pub fn set_vr_configuration(
-        &mut self,
-        _: &RaylibThread,
-        info: ffi::VrDeviceInfo,
-        distortion: impl AsRef<ffi::Shader>,
-    ) {
-        unsafe { ffi::SetVrConfiguration(info, *distortion.as_ref()) }
+impl Into<ffi::VrDeviceInfo> for VrDeviceInfo {
+    fn into(self) -> ffi::VrDeviceInfo {
+        unsafe { std::mem::transmute(self) }
     }
+}
 
-    /// Detects if VR simulator is ready.
-    #[inline]
-    pub fn is_vr_simulator_ready(&self) -> bool {
-        unsafe { ffi::IsVrSimulatorReady() }
-    }
-
-    /// Enables or disables VR experience.
-    #[inline]
-    pub fn toggle_vr_mode(&self, _: &RaylibThread) {
-        unsafe {
-            ffi::ToggleVrMode();
+impl Into<ffi::VrDeviceInfo> for &VrDeviceInfo {
+    fn into(self) -> ffi::VrDeviceInfo {
+        ffi::VrDeviceInfo {
+            hResolution: self.h_resolution,      // Horizontal resolution in pixels
+            vResolution: self.v_esolution,       // Vertical resolution in pixels
+            hScreenSize: self.h_screen_size,     // Horizontal size in meters
+            vScreenSize: self.v_screen_size,     // Vertical size in meters
+            vScreenCenter: self.v_screen_center, // Screen center in meters
+            eyeToScreenDistance: self.eye_to_screen_distance, // Distance between eye and display in meters
+            lensSeparationDistance: self.lens_separation_distance, // Lens separation distance in meters
+            interpupillaryDistance: self.interpupillary_distance, // IPD (distance between pupils) in meters
+            lensDistortionValues: self.lens_distortion_values, // Lens distortion constant parameters
+            chromaAbCorrection: self.chroma_ab_correction,
         }
     }
 }
 
-impl Drop for RaylibVR {
-    fn drop(&mut self) {
-        unsafe {
-            IS_INITIALIZED.store(false, Ordering::Relaxed);
-            ffi::CloseVrSimulator()
-        }
+impl RaylibHandle {
+    pub fn load_vr_stereo_config(
+        &mut self,
+        _: &RaylibThread,
+        device: impl Into<ffi::VrDeviceInfo>,
+    ) -> VrStereoConfig {
+        return VrStereoConfig(unsafe { ffi::LoadVrStereoConfig(device.into()) });
     }
 }

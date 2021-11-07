@@ -19,7 +19,7 @@ pub fn main() {
     );
 
     rl.set_camera_mode(&camera, CameraMode::CAMERA_FREE);
-    let mut shader = rl.load_shader_code(&thread, None, Some(SHADER));
+    let mut shader = rl.load_shader_from_memory(&thread, None, Some(SHADER));
     // let s = std::fs::read_to_string("raymarch-static/raymarching.fs").expect("couldn't read");
     // println!("{}", s);
 
