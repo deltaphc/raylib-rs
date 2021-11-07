@@ -7,6 +7,7 @@ use std::os::raw::c_char;
 
 // MonitorInfo grabs the sizes (virtual and physical) of your monitor
 #[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct MonitorInfo {
     pub width: i32,
     pub height: i32,
@@ -16,6 +17,7 @@ pub struct MonitorInfo {
 }
 
 #[derive(Copy, Clone, Debug, Default, PartialEq)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct WindowState(i32);
 
 impl WindowState {

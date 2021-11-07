@@ -89,7 +89,7 @@ fn build_with_cmake(src_path: &str) {
         } else if Path::new(&dst_lib.join("libraylib.a")).exists() {
             // DO NOTHING
         } else {
-            panic!("filed to create windows library");
+            panic!("failed to create windows library");
         }
     } // on web copy libraylib.bc to libraylib.a
     if platform == Platform::Web {

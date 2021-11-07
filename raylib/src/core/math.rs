@@ -76,6 +76,27 @@ impl Into<na::Vector2<f32>> for Vector2 {
     }
 }
 
+#[cfg(feature = "nalgebra_interop")]
+impl From<na::Vector2<f32>> for Vector2 {
+    fn from(v: na::Vector2<f32>) -> Vector2 {
+        Vector2 { x: v.x, y: v.y }
+    }
+}
+
+#[cfg(feature = "nalgebra_interop")]
+impl From<na::base::coordinates::XY<f32>> for Vector2 {
+    fn from(v: na::base::coordinates::XY<f32>) -> Vector2 {
+        Vector2 { x: v.x, y: v.y }
+    }
+}
+
+#[cfg(feature = "nalgebra_interop")]
+impl Into<na::Vector2<f32>> for Vector2 {
+    fn into(self) -> na::Vector2<f32> {
+        na::Vector2::new(self.x, self.y)
+    }
+}
+
 impl From<ffi::Vector2> for Vector2 {
     fn from(v: ffi::Vector2) -> Vector2 {
         unsafe { std::mem::transmute(v) }
@@ -95,6 +116,12 @@ impl Into<ffi::Vector2> for &Vector2 {
             y: self.y,
         }
     }
+}
+
+/// A convenience function for linearly interpolating an `f32`.
+#[inline]
+pub fn lerp(v0: f32, v1: f32, amount: f32) -> f32 {
+    return v0 + amount * (v1 - v0);
 }
 
 /// A convenience function for making a new `Vector2`.
@@ -183,12 +210,32 @@ impl Vector2 {
 
     /// Normalizes the vector.
     pub fn normalize(&mut self) {
-        *self /= self.length();
+        *self = self.normalized();
     }
 
     /// Returns a new `Vector2` with normalized components from the current vector.
     pub fn normalized(&self) -> Vector2 {
-        *self / self.length()
+        let length_sqr = self.length_sqr();
+        if length_sqr == 0.0 {
+            return *self;
+        }
+        *self / length_sqr.sqrt()
+    }
+
+    /// Returns a new `Vector2` with componenets linearly interpolated by `amount` towards vector `v`.
+    pub fn lerp(&self, v: Vector2, amount: f32) -> Vector2 {
+        Vector2 {
+            x: self.x + amount * (v.x - self.x),
+            y: self.y + amount * (v.y - self.y),
+        }
+    }
+
+    /// Returns a new `Vector2` with componenets clamp to a certain interval.
+    pub fn clamp(&self, min: f32, max: f32) -> Vector2 {
+        Vector2 {
+            x: self.x.clamp(min, max),
+            y: self.y.clamp(min, max),
+        }
     }
 }
 
@@ -363,6 +410,35 @@ impl From<na::base::coordinates::XYZ<f32>> for Vector3 {
             x: v.x,
             y: v.y,
             z: v.z
+        }
+    }
+}
+
+#[cfg(feature = "nalgebra_interop")]
+impl Into<na::Vector3<f32>> for Vector3 {
+    fn into(self) -> na::Vector3<f32> {
+        na::Vector3::new(self.x, self.y, self.z)
+    }
+}
+
+#[cfg(feature = "nalgebra_interop")]
+impl From<na::Vector3<f32>> for Vector3 {
+    fn from(v: na::Vector3<f32>) -> Vector3 {
+        Vector3 {
+            x: v.x,
+            y: v.y,
+            z: v.z,
+        }
+    }
+}
+
+#[cfg(feature = "nalgebra_interop")]
+impl From<na::base::coordinates::XYZ<f32>> for Vector3 {
+    fn from(v: na::base::coordinates::XYZ<f32>) -> Vector3 {
+        Vector3 {
+            x: v.x,
+            y: v.y,
+            z: v.z,
         }
     }
 }
@@ -630,6 +706,15 @@ impl Vector3 {
     pub fn to_array(&self) -> [f32; 3] {
         [self.x, self.y, self.z]
     }
+
+    /// Returns a new `Vector3` with componenets clamp to a certain interval.
+    pub fn clamp(&self, min: f32, max: f32) -> Vector3 {
+        Vector3 {
+            x: self.x.clamp(min, max),
+            y: self.y.clamp(min, max),
+            z: self.z.clamp(min, max),
+        }
+    }
 }
 
 impl From<(f32, f32, f32)> for Vector3 {
@@ -794,6 +879,7 @@ optional_serde_struct! {
         pub w: f32,
     }
 }
+
 pub type Quaternion = Vector4;
 
 #[cfg(feature = "nalgebra_interop")]
@@ -1155,6 +1241,35 @@ impl Quaternion {
             z: mat.m2 * self.x + mat.m6 * self.y + mat.m10 * self.z + mat.m14 * self.w,
             w: mat.m3 * self.x + mat.m7 * self.y + mat.m11 * self.z + mat.m15 * self.w,
         }
+    }
+
+    /// Returns a new `Quaternion` with componenets clamp to a certain interval.
+    pub fn clamp(&self, min: f32, max: f32) -> Quaternion {
+        Quaternion {
+            x: self.x.clamp(min, max),
+            y: self.y.clamp(min, max),
+            z: self.z.clamp(min, max),
+            w: self.w.clamp(min, max),
+        }
+    }
+}
+
+#[cfg(feature = "nalgebra_interop")]
+impl From<na::geometry::Quaternion<f32>> for Quaternion {
+    fn from(q: na::geometry::Quaternion<f32>) -> Quaternion {
+        Quaternion {
+            x: q.coords.x,
+            y: q.coords.y,
+            z: q.coords.z,
+            w: q.coords.w,
+        }
+    }
+}
+
+#[cfg(feature = "nalgebra_interop")]
+impl Into<na::geometry::Quaternion<f32>> for Quaternion {
+    fn into(self) -> na::geometry::Quaternion<f32> {
+        na::geometry::Quaternion::new(self.x, self.y, self.z, self.w)
     }
 }
 
