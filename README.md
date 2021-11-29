@@ -76,15 +76,8 @@ fn main() {
 
 ## Building from source
 
-1. Clone repository
-2. Initalize submodules
-
-```txt
-git submodule init
-git submodule update
-```
-
-3. `cargo build`
+1. Clone repository: `git clone --recurse-submodules`
+2. `cargo build`
 
 ## Cross-compiling using `cross`
 
