@@ -74,6 +74,11 @@ fn main() {
 - In C, `GetDroppedFiles` returns a pointer to an array of strings owned by raylib. Again, for safety and also ease of use, this binding copies said array into a `Vec<String>` which is returned to the caller.
 - I've tried to make linking automatic, though I've only tested on Windows 10, Ubuntu, and MacOS 15. Other platforms may have other considerations.
 
+## Building from source
+
+1. Clone repository: `git clone --recurse-submodules`
+2. `cargo build`
+
 ## Cross-compiling using `cross`
 
 The [@rust-embedded](https://github.com/rust-embedded) project provides a handy tool called [`cross`](https://github.com/rust-embedded/cross) that uses docker to cross-compile any cargo project to one of their many [supported platforms](https://github.com/rust-embedded/cross#supported-targets). This tool makes it easy to cross-compile `raylib-rs` for binary distribution (in cases where you are producing a pre-compiled game for example).
