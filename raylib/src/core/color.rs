@@ -287,6 +287,6 @@ impl Color {
     pub const SLATEGRAY: Color = Color::new(112, 128, 144, 255);
     pub const DARKSLATEGRAY: Color = Color::new(47, 79, 79, 255);
     pub const BLACK: Color = Color::new(0, 0, 0, 255);
-	pub const BLANK: Color = Color::new(0, 0, 0, 0);
+    pub const BLANK: Color = Color::new(0, 0, 0, 0);
     pub const RAYWHITE: Color = Color::new(245, 245, 245, 255);
 }
