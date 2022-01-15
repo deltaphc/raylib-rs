@@ -79,13 +79,13 @@ fn build_with_cmake(src_path: &str) {
                 dst_lib.join("raylib_static.lib"),
                 dst_lib.join("raylib.lib"),
             )
-            .expect("filed to create windows library");
+            .expect("failed to create windows library");
         } else if Path::new(&dst_lib.join("libraylib_static.a")).exists() {
             std::fs::copy(
                 dst_lib.join("libraylib_static.a"),
                 dst_lib.join("libraylib.a"),
             )
-            .expect("filed to create windows library");
+            .expect("failed to create windows library");
         } else if Path::new(&dst_lib.join("libraylib.a")).exists() {
             // DO NOTHING
         } else {
@@ -94,7 +94,7 @@ fn build_with_cmake(src_path: &str) {
     } // on web copy libraylib.bc to libraylib.a
     if platform == Platform::Web {
         std::fs::copy(dst_lib.join("libraylib.bc"), dst_lib.join("libraylib.a"))
-            .expect("filed to create wasm library");
+            .expect("failed to create wasm library");
     }
     // println!("cmake build {}", c.display());
     println!("cargo:rustc-link-search=native={}", dst_lib.display());
