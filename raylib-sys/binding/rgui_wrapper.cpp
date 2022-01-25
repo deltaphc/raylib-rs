@@ -1,5 +1,4 @@
-#include "raylib.h"
-#define RICONS_IMPLEMENTATION
+#include "../raylib/src/raylib.h"
 #define RAYGUI_IMPLEMENTATION
 #define RAYGUI_SUPPORT_ICONS
 #define RLGL_IMPLEMENTATION

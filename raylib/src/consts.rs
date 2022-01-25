@@ -8,7 +8,7 @@ pub use ffi::ConfigFlags;
 pub use ffi::CubemapLayout;
 pub use ffi::GamepadAxis;
 pub use ffi::GamepadButton;
-pub use ffi::Gestures;
+pub use ffi::Gesture;
 pub use ffi::KeyboardKey;
 pub use ffi::MaterialMapIndex;
 pub use ffi::MouseButton;

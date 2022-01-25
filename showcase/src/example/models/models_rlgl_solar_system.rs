@@ -75,34 +75,34 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut
 
             {
                 let mut d = d.begin_mode3D(&camera);
-    
+
                 unsafe {
                     ffi::rlPushMatrix();
                         ffi::rlScalef(sunRadius, sunRadius, sunRadius);          // Scale Sun
                         DrawSphereBasic(Color::GOLD);                              // Draw the Sun
                     ffi::rlPopMatrix();
-    
+
                     ffi::rlPushMatrix();
                         ffi::rlRotatef(earthOrbitRotation, 0.0, 1.0, 0.0);    // Rotation for Earth orbit around Sun
                         ffi::rlTranslatef(earthOrbitRadius, 0.0, 0.0);         // Translation for Earth orbit
                         ffi::rlRotatef(-earthOrbitRotation, 0.0, 1.0, 0.0);   // Rotation for Earth orbit around Sun inverted
-    
+
                         ffi::rlPushMatrix();
                             ffi::rlRotatef(earthRotation, 0.25, 1.0, 0.0);       // Rotation for Earth itself
                             ffi::rlScalef(earthRadius, earthRadius, earthRadius);// Scale Earth
-    
+
                             DrawSphereBasic(Color::BLUE);                          // Draw the Earth
                         ffi::rlPopMatrix();
-    
+
                         ffi::rlRotatef(moonOrbitRotation, 0.0, 1.0, 0.0);     // Rotation for Moon orbit around Earth
                         ffi::rlTranslatef(moonOrbitRadius, 0.0, 0.0);          // Translation for Moon orbit
                         ffi::rlRotatef(-moonOrbitRotation, 0.0, 1.0, 0.0);    // Rotation for Moon orbit around Earth inverted
                         ffi::rlRotatef(moonRotation, 0.0, 1.0, 0.0);          // Rotation for Moon itself
                         ffi::rlScalef(moonRadius, moonRadius, moonRadius);       // Scale Moon
-    
+
                         DrawSphereBasic(Color::LIGHTGRAY);                         // Draw the Moon
                     ffi::rlPopMatrix();
-                    
+
                 }
     
                     // Some reference elements (not affected by previous matrix transformations)
@@ -129,33 +129,36 @@ fn DrawSphereBasic(color: Color)
     let slices = 16;
 
     unsafe {
+        ffi::rlCheckRenderBatchLimit((rings + 2) * slices * 6);
+
         ffi::rlBegin(ffi::RL_TRIANGLES as i32);
             ffi::rlColor4ub(color.r, color.g, color.b, color.a);
-    
+
             for i in 0..(rings + 2)
             {
                 for j in 0..slices
                 {
-                    let deg2rad: f32 = 0.017453292519943295;
+                    let deg2rad: f32 = consts::DEG2RAD as f32;
+
                     ffi::rlVertex3f((deg2rad*(270+(180/(rings + 1))*i) as f32).cos()*(deg2rad*(j*360/slices) as f32).sin(),
-                               (deg2rad*(270+(180/(rings + 1))*i) as f32).sin(),
-                               (deg2rad*(270+(180/(rings + 1))*i) as f32).cos()*(deg2rad*((j*360/slices) as f32).cos()));
+                                    (deg2rad*(270+(180/(rings + 1))*i) as f32).sin(),
+                                    (deg2rad*(270+(180/(rings + 1))*i) as f32).cos()*(deg2rad*((j*360/slices) as f32).cos()));
                     ffi::rlVertex3f((deg2rad*(270+(180/(rings + 1))*(i+1)) as f32).cos()*(deg2rad*((j+1)*360/slices) as f32).sin(),
-                               (deg2rad*(270+(180/(rings + 1))*(i+1)) as f32).sin(),
-                               (deg2rad*(270+(180/(rings + 1))*(i+1)) as f32).cos()*(deg2rad*((j+1)*360/slices) as f32).cos());
+                                    (deg2rad*(270+(180/(rings + 1))*(i+1)) as f32).sin(),
+                                    (deg2rad*(270+(180/(rings + 1))*(i+1)) as f32).cos()*(deg2rad*((j+1)*360/slices) as f32).cos());
                     ffi::rlVertex3f((deg2rad*(270+(180/(rings + 1))*(i+1)) as f32).cos()*(deg2rad*(j*360/slices) as f32).sin(),
-                               (deg2rad*(270+(180/(rings + 1))*(i+1)) as f32).sin(),
-                               (deg2rad*(270+(180/(rings + 1))*(i+1)) as f32).cos()*(deg2rad*((j*360/slices) as f32).cos()));
-    
+                                    (deg2rad*(270+(180/(rings + 1))*(i+1)) as f32).sin(),
+                                    (deg2rad*(270+(180/(rings + 1))*(i+1)) as f32).cos()*(deg2rad*((j*360/slices) as f32).cos()));
+
                     ffi::rlVertex3f((deg2rad*(270+(180/(rings + 1))*i) as f32).cos()*(deg2rad*(j*360/slices) as f32).sin(),
-                               (deg2rad*(270+(180/(rings + 1))*i) as f32).sin(),
-                               (deg2rad*(270+(180/(rings + 1))*i) as f32).cos()*(deg2rad*(j*360/slices) as f32).cos());
+                                    (deg2rad*(270+(180/(rings + 1))*i) as f32).sin(),
+                                    (deg2rad*(270+(180/(rings + 1))*i) as f32).cos()*(deg2rad*(j*360/slices) as f32).cos());
                     ffi::rlVertex3f((deg2rad*(270+(180/(rings + 1))*(i)) as f32).cos()*(deg2rad*((j+1)*360/slices) as f32).sin(),
-                               (deg2rad*(270+(180/(rings + 1))*(i)) as f32).sin(),
-                               (deg2rad*(270+(180/(rings + 1))*(i)) as f32).cos()*(deg2rad*((j+1)*360/slices) as f32).cos());
+                                    (deg2rad*(270+(180/(rings + 1))*(i)) as f32).sin(),
+                                    (deg2rad*(270+(180/(rings + 1))*(i)) as f32).cos()*(deg2rad*((j+1)*360/slices) as f32).cos());
                     ffi::rlVertex3f((deg2rad*(270+(180/(rings + 1))*(i+1)) as f32).cos()*(deg2rad*((j+1)*360/slices) as f32).sin(),
-                               (deg2rad*(270+(180/(rings + 1))*(i+1)) as f32).sin(),
-                               (deg2rad*(270+(180/(rings + 1))*(i+1)) as f32).cos()*(deg2rad*((j+1)*360/slices) as f32).cos());
+                                    (deg2rad*(270+(180/(rings + 1))*(i+1)) as f32).sin(),
+                                    (deg2rad*(270+(180/(rings + 1))*(i+1)) as f32).cos()*(deg2rad*((j+1)*360/slices) as f32).cos());
                 }
             }
         ffi::rlEnd();

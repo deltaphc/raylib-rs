@@ -29,8 +29,8 @@ pub fn open_url(url: &str) {
 }
 
 impl RaylibHandle {
-    pub fn get_screen_data(&mut self, _: &RaylibThread) -> Image {
-        unsafe { Image(ffi::GetScreenData()) }
+    pub fn load_image_from_screen(&mut self, _: &RaylibThread) -> Image {
+        unsafe { Image(ffi::LoadImageFromScreen()) }
     }
 
     /// Takes a screenshot of current screen (saved a .png)

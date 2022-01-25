@@ -50,7 +50,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
         
         // Update
         //----------------------------------------------------------------------------------
-        if rl.is_mouse_button_down(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON) {
+        if rl.is_mouse_button_down(raylib::consts::MouseButton::MOUSE_BUTTON_LEFT) {
             // Create more bunnies
             for _ in 0..100 {
                 if bunnies_count < MAX_BUNNIES {

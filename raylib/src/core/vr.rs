@@ -1,8 +1,6 @@
 //! Vr related functions
-use crate::core::camera::Camera3D;
 use crate::core::{RaylibHandle, RaylibThread};
 use crate::ffi;
-use std::sync::atomic::{AtomicBool, Ordering};
 
 make_thin_wrapper!(
     VrStereoConfig,
