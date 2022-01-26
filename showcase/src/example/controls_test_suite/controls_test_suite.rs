@@ -101,7 +101,10 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
         // Update
         //----------------------------------------------------------------------------------
 
-        _exit_window = rl.window_should_close();
+        #[cfg(not(target_arch = "wasm32"))]
+        {
+            _exit_window = rl.window_should_close();
+        }
 
         if rl.is_key_pressed(crate::EXIT_KEY) {
             showMessageBox = !showMessageBox;

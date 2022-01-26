@@ -14,13 +14,6 @@ thread_local! (static APP: RefCell<Option<Box<dyn FnMut() -> bool>>> = RefCell::
 pub const EXIT_KEY: raylib::consts::KeyboardKey = raylib::consts::KeyboardKey::KEY_ESCAPE;
 
 fn main() {
-    // Set the emscripten main loop before setting up raylib so that raylib has something
-    // to configure
-    // #[cfg(target_arch = "wasm32")]
-    // unsafe {
-    //     wasm::emscripten_set_main_loop(wasm::_nothing_wasm, 0, 1);
-    // }
-
     let title = "Showcase";
     let screen_width = 800;
     let screen_height = 640;
@@ -313,7 +306,10 @@ fn main() {
                 }
             }
         };
+        #[cfg(not(target_arch = "wasm32"))]
         return rl.window_should_close();
+        #[cfg(target_arch = "wasm32")]
+        return false;
     });
 
     APP.with(|app| {
@@ -363,6 +359,4 @@ mod wasm {
     pub extern "C" fn _update_wasm() {
         super::update();
     }
-
-    pub extern "C" fn _nothing_wasm() {}
 }

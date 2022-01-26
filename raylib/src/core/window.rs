@@ -474,6 +474,7 @@ impl RaylibHandle {
 // Window handling functions
 impl RaylibHandle {
     /// Checks if `KEY_ESCAPE` or Close icon was pressed.
+    /// Do not call on web unless you are compiling with asyncify.
     #[inline]
     pub fn window_should_close(&self) -> bool {
         unsafe { ffi::WindowShouldClose() }
