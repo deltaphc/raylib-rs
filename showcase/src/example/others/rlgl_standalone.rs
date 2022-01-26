@@ -106,7 +106,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
             );
             let mat_view = Matrix::look_at(camera.position, camera.target, camera.up);
 
-            ffi::rlSetMatrixProjection(mat_view.into()); // Set internal modelview matrix (default shader)
+            ffi::rlSetMatrixModelview(mat_view.into()); // Set internal modelview matrix (default shader)
             ffi::rlSetMatrixProjection(mat_proj.into()); // Set internal projection matrix (default shader)
 
             draw_cube(cube_position, 2.0, 2.0, 2.0, Color::RED);

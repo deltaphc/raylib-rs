@@ -18,7 +18,7 @@ Permission is granted to anyone to use this software for any purpose, including 
 extern crate bindgen;
 
 use std::path::{Path, PathBuf};
-use std::{env, fs};
+use std::env;
 
 /// latest version on github's release page as of time or writing
 const LATEST_RAYLIB_VERSION: &str = "3.7.0";
@@ -67,7 +67,7 @@ fn build_with_cmake(src_path: &str) {
 
     match platform {
         Platform::Desktop => conf.define("PLATFORM", "Desktop"),
-        Platform::Web => conf.define("PLATFORM", "Web"),
+        Platform::Web => conf.define("PLATFORM", "Web").define("CMAKE_C_FLAGS", "-s ASYNCIFY"),
         Platform::RPI => conf.define("PLATFORM", "Raspberry Pi"),
     };
 

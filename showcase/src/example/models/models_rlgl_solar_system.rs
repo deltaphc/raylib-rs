@@ -142,13 +142,13 @@ fn DrawSphereBasic(color: Color)
 
                     ffi::rlVertex3f((deg2rad*(270+(180/(rings + 1))*i) as f32).cos()*(deg2rad*(j*360/slices) as f32).sin(),
                                     (deg2rad*(270+(180/(rings + 1))*i) as f32).sin(),
-                                    (deg2rad*(270+(180/(rings + 1))*i) as f32).cos()*(deg2rad*((j*360/slices) as f32).cos()));
+                                    (deg2rad*(270+(180/(rings + 1))*i) as f32).cos()*(deg2rad*(j*360/slices) as f32).cos());
                     ffi::rlVertex3f((deg2rad*(270+(180/(rings + 1))*(i+1)) as f32).cos()*(deg2rad*((j+1)*360/slices) as f32).sin(),
                                     (deg2rad*(270+(180/(rings + 1))*(i+1)) as f32).sin(),
                                     (deg2rad*(270+(180/(rings + 1))*(i+1)) as f32).cos()*(deg2rad*((j+1)*360/slices) as f32).cos());
                     ffi::rlVertex3f((deg2rad*(270+(180/(rings + 1))*(i+1)) as f32).cos()*(deg2rad*(j*360/slices) as f32).sin(),
                                     (deg2rad*(270+(180/(rings + 1))*(i+1)) as f32).sin(),
-                                    (deg2rad*(270+(180/(rings + 1))*(i+1)) as f32).cos()*(deg2rad*((j*360/slices) as f32).cos()));
+                                    (deg2rad*(270+(180/(rings + 1))*(i+1)) as f32).cos()*(deg2rad*(j*360/slices) as f32).cos());
 
                     ffi::rlVertex3f((deg2rad*(270+(180/(rings + 1))*i) as f32).cos()*(deg2rad*(j*360/slices) as f32).sin(),
                                     (deg2rad*(270+(180/(rings + 1))*i) as f32).sin(),

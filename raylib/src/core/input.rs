@@ -180,6 +180,12 @@ impl RaylibHandle {
         unsafe { ffi::GetMousePosition().into() }
     }
 
+    /// Returns mouse delta between frames.
+    #[inline]
+    pub fn get_mouse_delta(&self) -> Vector2 {
+        unsafe { ffi::GetMouseDelta().into() }
+    }
+
     /// Sets mouse position.
     #[inline]
     pub fn set_mouse_position(&mut self, position: impl Into<Vector2>) {
@@ -248,6 +254,12 @@ impl RaylibHandle {
     #[inline]
     pub fn get_gesture_detected(&self) -> Gesture {
         unsafe { std::mem::transmute(ffi::GetGestureDetected()) }
+    }
+
+    /// Get touch point identifier for given index
+    #[inline]
+    pub fn get_touch_point_id(&self, index: u32) -> i32 {
+        unsafe { ffi::GetTouchPointId(index as i32) }
     }
 
     /// Gets touch points count.

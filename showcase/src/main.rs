@@ -198,7 +198,6 @@ fn main() {
             rstr!("raylib [models] example - orthographic projection"),
             example::models::models_orthographic_projection::run,
         ),
-        #[cfg(target_os = "windows")]
         (
             rstr!(
                 "raylib [models] example - rlgl module usage with push/pop matrix transformations"
@@ -253,7 +252,6 @@ fn main() {
             rstr!("raylib [textures] example - mouse painting"),
             example::textures::textures_mouse_painting::run,
         ),
-        #[cfg(target_os = "windows")]
         (
             rstr!("rlgl standalone"),
             example::others::rlgl_standalone::run,
@@ -278,7 +276,7 @@ fn main() {
                     let list: Vec<_> = samples.iter().map(|(s, _)| *s).collect();
 
                     list_view_active = d.gui_list_view_ex(
-                        rrect(100.0, y_margin, 600, box_length),
+                        rrect(100.0, y_margin as f32, 600 as f32, box_length as f32),
                         list.as_slice(),
                         &mut list_view_focus,
                         &mut list_view_scroll_index,
