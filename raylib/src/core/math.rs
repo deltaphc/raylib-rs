@@ -165,6 +165,18 @@ impl Vector2 {
         Vector2 { x, y }
     }
 
+    /// Returns a new `Vector2` with both components set to zero.
+    #[inline]
+    pub const fn zero() -> Vector2 {
+        Vector2 { x: 0.0, y: 0.0 }
+    }
+
+    /// Returns a new `Vector2` with both components set to one.
+    #[inline]
+    pub const fn one() -> Vector2 {
+        Vector2 { x: 1.0, y: 1.0 }
+    }
+   
     /// Calculates the vector length.
     pub fn length(&self) -> f32 {
         ((self.x * self.x) + (self.y * self.y)).sqrt()
