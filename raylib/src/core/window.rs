@@ -4,6 +4,8 @@ use crate::core::{RaylibHandle, RaylibThread};
 use crate::ffi;
 use std::ffi::{CStr, CString, IntoStringError, NulError};
 use std::os::raw::c_char;
+#[cfg(feature = "serde")]
+use serde::{Serialize, Deserialize};
 
 // MonitorInfo grabs the sizes (virtual and physical) of your monitor
 #[derive(Clone, Debug)]
