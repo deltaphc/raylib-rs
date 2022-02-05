@@ -2,6 +2,9 @@
 use crate::core::math::{Vector3, Vector4};
 use crate::ffi;
 
+#[cfg(feature = "with_serde")]
+use serde::{Deserialize, Serialize};
+
 #[repr(C)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Default)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
@@ -127,7 +130,7 @@ impl Color {
 
     /// Returns a Color struct from hexadecimal value
     #[inline]
-    pub fn get_color(hex_value: i32) -> Color {
+    pub fn get_color(hex_value: u32) -> Color {
         unsafe { ffi::GetColor(hex_value).into() }
     }
 
@@ -192,6 +195,7 @@ impl Color {
     pub const DARKORCHID: Color = Color::new(153, 50, 204, 255);
     pub const DARKMAGENTA: Color = Color::new(139, 0, 139, 255);
     pub const PURPLE: Color = Color::new(128, 0, 128, 255);
+    pub const DARKPURPLE: Color = Color::new(112, 31, 126, 255);
     pub const INDIGO: Color = Color::new(75, 0, 130, 255);
     pub const SLATEBLUE: Color = Color::new(106, 90, 205, 255);
     pub const DARKSLATEBLUE: Color = Color::new(72, 61, 139, 255);
@@ -259,6 +263,7 @@ impl Color {
     pub const SADDLEBROWN: Color = Color::new(139, 69, 19, 255);
     pub const SIENNA: Color = Color::new(160, 82, 45, 255);
     pub const BROWN: Color = Color::new(165, 42, 42, 255);
+    pub const DARKBROWN: Color = Color::new(76, 63, 47, 255);
     pub const MAROON: Color = Color::new(128, 0, 0, 255);
     pub const WHITE: Color = Color::new(255, 255, 255, 255);
     pub const SNOW: Color = Color::new(255, 250, 250, 255);

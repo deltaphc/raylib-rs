@@ -14,6 +14,7 @@ use std::fs::File;
 use std::io::{Read, Write};
 use structopt::StructOpt;
 use tcod::map::{FovAlgorithm, Map as FovMap};
+use crate::KeyboardKey::KEY_A;
 
 mod options;
 
@@ -933,7 +934,7 @@ fn play_game(
         // handle game logic
         level_up(rl, thread, game, objects);
 
-        if rl.is_mouse_button_pressed(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON) {
+        if rl.is_mouse_button_pressed(raylib::consts::MouseButton::MOUSE_BUTTON_LEFT) {
             tcod.mouse = rl.get_mouse_position();
         }
 
@@ -1802,14 +1803,14 @@ fn target_tile(
         let (x, y) = (pos.x as i32 / TILE_WIDTH, pos.y as i32 / TILE_HEIGHT);
         let in_fov = (x < MAP_WIDTH) && (y < MAP_HEIGHT) && tcod.fov.is_in_fov(x, y);
         let in_range = max_range.map_or(true, |range| objects[PLAYER].distance(x, y) <= range);
-        if rl.is_mouse_button_pressed(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON)
+        if rl.is_mouse_button_pressed(raylib::consts::MouseButton::MOUSE_BUTTON_LEFT)
             && in_fov
             && in_range
         {
             return Some((x, y));
         }
 
-        if rl.is_mouse_button_pressed(raylib::consts::MouseButton::MOUSE_RIGHT_BUTTON) {
+        if rl.is_mouse_button_pressed(raylib::consts::MouseButton::MOUSE_BUTTON_RIGHT) {
             return None;
         }
         // ...
@@ -1893,7 +1894,7 @@ fn menu<T: AsRef<str>>(
     if let Some(pressed_key) = pressed_key {
         dbg!(pressed_key);
         use std::num::Wrapping;
-        let index = Wrapping(pressed_key) - Wrapping('a' as u32);
+        let index = Wrapping(pressed_key) - Wrapping(KEY_A as u32);
         let index: u32 = index.0;
         if (index as usize) < options.len() {
             Some(index as usize)

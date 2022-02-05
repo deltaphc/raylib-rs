@@ -5,6 +5,9 @@ use crate::ffi;
 use std::ffi::{CStr, CString, IntoStringError, NulError};
 use std::os::raw::c_char;
 
+#[cfg(feature = "with_serde")]
+use serde::{Deserialize, Serialize};
+
 // MonitorInfo grabs the sizes (virtual and physical) of your monitor
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
@@ -474,6 +477,7 @@ impl RaylibHandle {
 // Window handling functions
 impl RaylibHandle {
     /// Checks if `KEY_ESCAPE` or Close icon was pressed.
+    /// Do not call on web unless you are compiling with asyncify.
     #[inline]
     pub fn window_should_close(&self) -> bool {
         unsafe { ffi::WindowShouldClose() }

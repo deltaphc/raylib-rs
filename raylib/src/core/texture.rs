@@ -1,6 +1,6 @@
 //! Image and texture related functions
 use crate::core::color::Color;
-use crate::core::math::{Rectangle, Vector4};
+use crate::core::math::Rectangle;
 use crate::core::{RaylibHandle, RaylibThread};
 use crate::ffi;
 use std::ffi::CString;
@@ -659,22 +659,6 @@ impl Image {
         unsafe { Image(ffi::GenImageWhiteNoise(width, height, factor)) }
     }
 
-    /// Generates an Image containing perlin noise.
-    #[inline]
-    pub fn gen_image_perlin_noise(
-        width: i32,
-        height: i32,
-        offset_x: i32,
-        offset_y: i32,
-        scale: f32,
-    ) -> Image {
-        unsafe {
-            Image(ffi::GenImagePerlinNoise(
-                width, height, offset_x, offset_y, scale,
-            ))
-        }
-    }
-
     /// Generates an Image using a cellular algorithm. Bigger `tile_size` means bigger cells.
     #[inline]
     pub fn gen_image_cellular(width: i32, height: i32, tile_size: i32) -> Image {
@@ -812,8 +796,8 @@ pub trait RaylibTexture2D: AsRef<ffi::Texture2D> + AsMut<ffi::Texture2D> {
     /// Gets pixel data from GPU texture and returns an `Image`.
     /// Fairly sure this would never fail. If it does wrap in result.
     #[inline]
-    fn get_texture_data(&self) -> Result<Image, String> {
-        let i = unsafe { ffi::GetTextureData(*self.as_ref()) };
+    fn load_image(&self) -> Result<Image, String> {
+        let i = unsafe { ffi::LoadImageFromTexture(*self.as_ref()) };
         if i.data.is_null() {
             return Err(format!("Texture cannot be rendered to an image"));
         }

@@ -15,6 +15,6 @@ mod core_test {
         let mut handle = TEST_HANDLE.write().unwrap();
         let rl = handle.as_mut().unwrap();
         // make sure it doesn't seg fault
-        let _ = rl.get_screen_data(t);
+        let _ = rl.load_image_from_screen(t);
     }
 }

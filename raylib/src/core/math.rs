@@ -176,7 +176,7 @@ impl Vector2 {
 
     /// Calculates the vector length square (**2);
     pub fn length_sqr(&self) -> f32 {
-        ((self.x * self.x) + (self.y * self.y))
+        (self.x * self.x) + (self.y * self.y)
     }
 
     /// Calculates the dot product with vector `v`.
@@ -2023,33 +2023,33 @@ impl Into<ffi::BoundingBox> for &BoundingBox {
 }
 
 optional_serde_struct! {
-    pub struct RayHitInfo {
+    pub struct RayCollision {
         pub hit: bool,
         pub distance: f32,
-        pub position: Vector3,
+        pub point: Vector3,
         pub normal: Vector3,
     }
 }
 
-impl From<ffi::RayHitInfo> for RayHitInfo {
-    fn from(r: ffi::RayHitInfo) -> RayHitInfo {
+impl From<ffi::RayCollision> for RayCollision {
+    fn from(r: ffi::RayCollision) -> RayCollision {
         unsafe { std::mem::transmute(r) }
     }
 }
 
-impl Into<ffi::RayHitInfo> for RayHitInfo {
-    fn into(self) -> ffi::RayHitInfo {
+impl Into<ffi::RayCollision> for RayCollision {
+    fn into(self) -> ffi::RayCollision {
         unsafe { std::mem::transmute(self) }
     }
 }
 
-impl Into<ffi::RayHitInfo> for &RayHitInfo {
-    fn into(self) -> ffi::RayHitInfo {
-        ffi::RayHitInfo {
-            hit: self.hit,
-            distance: self.distance,
-            position: self.position.into(),
-            normal: self.normal.into(),
+impl Into<ffi::RayCollision> for &RayCollision {
+    fn into(self) -> ffi::RayCollision {
+        ffi::RayCollision {
+            hit: self.hit.into(),
+            distance: self.distance.into(),
+            point: self.point.into(),
+            normal: self.normal.into()
         }
     }
 }

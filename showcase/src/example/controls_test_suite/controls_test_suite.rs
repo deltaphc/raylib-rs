@@ -101,7 +101,10 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
         // Update
         //----------------------------------------------------------------------------------
 
-        _exit_window = rl.window_should_close();
+        #[cfg(not(target_arch = "wasm32"))]
+        {
+            _exit_window = rl.window_should_close();
+        }
 
         if rl.is_key_pressed(crate::EXIT_KEY) {
             showMessageBox = !showMessageBox;
@@ -127,7 +130,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
         //----------------------------------------------------------------------------------
         let mut d = rl.begin_drawing(&thread);
         let hex = d.gui_get_style(DEFAULT, BACKGROUND_COLOR as i32);
-        d.clear_background(Color::get_color(hex));
+        d.clear_background(Color::get_color(hex as u32));
 
         // raygui: controls drawing
         //----------------------------------------------------------------------------------
@@ -172,7 +175,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
 
         d.gui_set_style(BUTTON, TEXT_ALIGNMENT as i32, GUI_TEXT_ALIGN_CENTER as i32);
 
-        let itext = d.gui_icon_text(RICON_FILE_SAVE, Some(rstr!("Save File")));
+        let itext = d.gui_icon_text(RAYGUI_ICON_FILE_SAVE, Some(rstr!("Save File")));
         let itext = CString::new(itext).unwrap();
         if d.gui_button(rrect(25, 255, 125, 30), Some(&itext)) {
             showTextInputBox = true;
@@ -308,7 +311,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
                 d.get_screen_height(),
                 Color::RAYWHITE.fade(0.8),
             );
-            let itext = d.gui_icon_text(RICON_EXIT, Some(rstr!("Close Window")));
+            let itext = d.gui_icon_text(RAYGUI_ICON_EXIT, Some(rstr!("Close Window")));
             let itext = CString::new(itext).unwrap();
             let result = d.gui_message_box(
                 rrect(
@@ -337,7 +340,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
                 d.get_screen_height(),
                 Color::RAYWHITE.fade(0.8),
             );
-            let itext = unsafe { d.gui_icon_text(RICON_FILE_SAVE, Some(rstr!("Save file as..."))) };
+            let itext = unsafe { d.gui_icon_text(RAYGUI_ICON_FILE_SAVE, Some(rstr!("Save file as..."))) };
             let itext = CString::new(itext).unwrap();
             let result = d.gui_text_input_box(
                 rrect(
