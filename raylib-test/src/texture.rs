@@ -117,8 +117,6 @@ mod texture_test {
         g.export_image("test_out/generated_checked.png");
         let g = Image::gen_image_white_noise(64, 64, 0.7);
         g.export_image("test_out/generated_white.png");
-        let g = Image::gen_image_perlin_noise(64, 64, 0, 0, 0.7);
-        g.export_image("test_out/generated_perlin.png");
         let g = Image::gen_image_cellular(64, 64, 4);
         g.export_image("test_out/generated_cellular.png");
     }
