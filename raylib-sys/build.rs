@@ -15,12 +15,14 @@ Permission is granted to anyone to use this software for any purpose, including 
 */
 #![allow(dead_code)]
 
+extern crate bindgen;
+
 use std::path::{Path, PathBuf};
 use std::{env, fs};
 
 /// latest version on github's release page as of time or writing
-const LATEST_RAYLIB_VERSION: &str = "3.7.0";
-const LATEST_RAYLIB_API_VERSION: &str = "3";
+const LATEST_RAYLIB_VERSION: &str = "4.0.0";
+const LATEST_RAYLIB_API_VERSION: &str = "400";
 
 #[cfg(feature = "nobuild")]
 fn build_with_cmake(_src_path: &str) {}
@@ -91,11 +93,12 @@ fn build_with_cmake(src_path: &str) {
         } else {
             panic!("failed to create windows library");
         }
-    } // on web copy libraylib.bc to libraylib.a
-    if platform == Platform::Web {
+    } else if platform == Platform::Web {
+        // on web copy libraylib.bc to libraylib.a
         std::fs::copy(dst_lib.join("libraylib.bc"), dst_lib.join("libraylib.a"))
             .expect("failed to create wasm library");
     }
+
     // println!("cmake build {}", c.display());
     println!("cargo:rustc-link-search=native={}", dst_lib.display());
 }
@@ -106,34 +109,31 @@ fn gen_bindings() {
         PathBuf::from(env::var("OUT_DIR").expect("Cargo build scripts always have an OUT_DIR"));
 
     let (platform, platform_os) = platform_from_target(&target);
+    let bindings = bindgen::Builder::default()
+        .header("rgui_wrapper.h")
+        .parse_callbacks(Box::new(bindgen::CargoCallbacks))
+        .rustified_enum(".+")
+        .clang_arg("-std=c11")
+        .clang_arg(format!("-I{}/raygui/src", out_dir.display()))
+        .clang_arg(format!("-I{}/raylib/src", out_dir.display()))
+        .generate()
+        .expect("Unable to generate bindings!");
 
     // Generate bindings
-    match (platform, platform_os) {
-        (_, PlatformOS::Windows) => {
-            fs::write(
-                out_dir.join("bindings.rs"),
-                include_str!("bindings_windows.rs"),
-            )
-            .expect("failed to write bindings");
-        }
-        (_, PlatformOS::Linux) => {
-            fs::write(
-                out_dir.join("bindings.rs"),
-                include_str!("bindings_linux.rs"),
-            )
-            .expect("failed to write bindings");
-        }
-        (_, PlatformOS::OSX) => {
-            fs::write(out_dir.join("bindings.rs"), include_str!("bindings_osx.rs"))
-                .expect("failed to write bindings");
-        }
-        (Platform::Web, _) => {
-            fs::write(out_dir.join("bindings.rs"), include_str!("bindings_web.rs"))
-                .expect("failed to write bindings");
-        }
+    let bindings_source_file = match (platform, platform_os) {
+        (_, PlatformOS::Windows) => "bindings_windows.rs",
+        (_, PlatformOS::Linux) => "bindings_linux.rs",
+        (_, PlatformOS::OSX) => "bindings_osx.rs",
+        (Platform::Web, _) => "bindings_web.rs",
         // for other platforms use bindgen and hope it works
         _ => panic!("raylib-rs not supported on your platform"),
-    }
+    };
+
+    bindings
+        .write_to_file(bindings_source_file)
+        .expect("Couldn't write bindings!");
+
+    fs::copy(bindings_source_file, out_dir.join("bindings.rs")).expect("failed to write bindings");
 }
 
 fn gen_rgui() {
@@ -142,7 +142,8 @@ fn gen_rgui() {
     {
         cc::Build::new()
             .file("rgui_wrapper.cpp")
-            .include(".")
+            .include("raylib/src")
+            .include("raygui/src")
             .warnings(false)
             // .flag("-std=c99")
             .extra_warnings(false)
@@ -152,7 +153,8 @@ fn gen_rgui() {
     {
         cc::Build::new()
             .file("rgui_wrapper.c")
-            .include(".")
+            .include("raylib/src")
+            .include("raygui/src")
             .warnings(false)
             // .flag("-std=c99")
             .extra_warnings(false)
@@ -199,26 +201,35 @@ fn main() {
 
     // Donwload raylib source
     let src = cp_raylib();
+    println!("cargo:warning={} copied", &src);
+
     build_with_cmake(&src);
+    println!("cargo:warning={} built", &src);
 
     gen_bindings();
+    println!("cargo:warning={} bindings generated", target);
 
     link(platform, platform_os);
+    println!("cargo:warning={} linked", target);
 
     gen_rgui();
+    println!("cargo:warning={} rgui built", target);
 }
 
 // cp_raylib copy raylib to an out dir
 fn cp_raylib() -> String {
     let out = env::var("OUT_DIR").unwrap();
-    let out = Path::new(&out); //.join("raylib_source");
+    let out = Path::new(&out);
 
     let mut options = fs_extra::dir::CopyOptions::new();
     options.skip_exist = true;
-    fs_extra::dir::copy("raylib", &out, &options).expect(&format!(
-        "failed to copy raylib source to {}",
-        &out.to_string_lossy()
-    ));
+
+    for source_dir in ["raylib", "raygui"] {
+        fs_extra::dir::copy(source_dir, &out, &options).expect(&format!(
+            "failed to copy raylib source to {}",
+            &out.to_string_lossy()
+        ));
+    }
 
     out.join("raylib").to_string_lossy().to_string()
 }

@@ -1,6 +1,6 @@
 [package]
 name = "raylib-sys"
-version = "3.7.0"
+version = "4.0.0"
 authors = ["DeltaPHC <phclem@protonmail.com>"]
 license = "Zlib"
 description = "Raw FFI bindings for Raylib"
@@ -16,6 +16,7 @@ exclude = [
 ]
 
 [build-dependencies]
+bindgen = "0.59.2"
 fs_extra = "1.1"
 cmake = "0.1.35"
 cc = "1.0"
