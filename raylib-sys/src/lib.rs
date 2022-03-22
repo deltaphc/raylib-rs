@@ -1,7 +1,9 @@
 #![allow(non_upper_case_globals)]
 #![allow(non_camel_case_types)]
 #![allow(non_snake_case)]
-include!(concat!(env!("OUT_DIR"), "/bindings.rs"));
 
-#[cfg(target_os = "macos")]
-pub const MAX_MATERIAL_MAPS: u32 = 12;
+mod bindings;
+
+pub use bindings::*;
+
+pub const MAX_SHADER_LOCATIONS: u32 = bindings::RL_MAX_SHADER_LOCATIONS;

@@ -17,8 +17,9 @@ Permission is granted to anyone to use this software for any purpose, including 
 
 extern crate bindgen;
 
+use std::collections::HashSet;
+use std::env;
 use std::path::{Path, PathBuf};
-use std::{env, fs};
 
 /// latest version on github's release page as of time or writing
 const LATEST_RAYLIB_VERSION: &str = "4.0.0";
@@ -103,24 +104,51 @@ fn build_with_cmake(src_path: &str) {
     println!("cargo:rustc-link-search=native={}", dst_lib.display());
 }
 
+#[derive(Debug)]
+struct IgnoreMacros(HashSet<String>);
+
+impl bindgen::callbacks::ParseCallbacks for IgnoreMacros {
+    fn will_parse_macro(&self, name: &str) -> bindgen::callbacks::MacroParsingBehavior {
+        if self.0.contains(name) {
+            bindgen::callbacks::MacroParsingBehavior::Ignore
+        } else {
+            bindgen::callbacks::MacroParsingBehavior::Default
+        }
+    }
+}
+
 fn gen_bindings() {
     let target = env::var("TARGET").expect("Cargo build scripts always have TARGET");
     let out_dir =
         PathBuf::from(env::var("OUT_DIR").expect("Cargo build scripts always have an OUT_DIR"));
 
     let (platform, platform_os) = platform_from_target(&target);
+    let ignored_macros = IgnoreMacros(
+        vec![
+            "FP_INFINITE".into(),
+            "FP_NAN".into(),
+            "FP_NORMAL".into(),
+            "FP_SUBNORMAL".into(),
+            "FP_ZERO".into(),
+        ]
+        .into_iter()
+        .collect(),
+    );
+
     let bindings = bindgen::Builder::default()
-        .header("rgui_wrapper.h")
+        .header("rgui_wrapper/rgui_wrapper.h")
         .parse_callbacks(Box::new(bindgen::CargoCallbacks))
+        .parse_callbacks(Box::new(ignored_macros))
         .rustified_enum(".+")
         .clang_arg("-std=c11")
+        .clang_arg(format!("-I{}/rgui_wrapper", out_dir.display()))
         .clang_arg(format!("-I{}/raygui/src", out_dir.display()))
         .clang_arg(format!("-I{}/raylib/src", out_dir.display()))
         .generate()
         .expect("Unable to generate bindings!");
 
     // Generate bindings
-    let bindings_source_file = match (platform, platform_os) {
+    let _bindings_source_file = match (platform, platform_os) {
         (_, PlatformOS::Windows) => "bindings_windows.rs",
         (_, PlatformOS::Linux) => "bindings_linux.rs",
         (_, PlatformOS::OSX) => "bindings_osx.rs",
@@ -129,11 +157,13 @@ fn gen_bindings() {
         _ => panic!("raylib-rs not supported on your platform"),
     };
 
+    // let bindings_source_file = out_dir.join(bindings_source_file);
+
     bindings
-        .write_to_file(bindings_source_file)
+        .write_to_file("src/bindings.rs")
         .expect("Couldn't write bindings!");
 
-    fs::copy(bindings_source_file, out_dir.join("bindings.rs")).expect("failed to write bindings");
+    // std::fs::copy(bindings_source_file, out_dir.join("bindings.rs")).expect("failed to write bindings");
 }
 
 fn gen_rgui() {
@@ -141,7 +171,8 @@ fn gen_rgui() {
     #[cfg(target_os = "windows")]
     {
         cc::Build::new()
-            .file("rgui_wrapper.cpp")
+            .file("rgui_wrapper/rgui_wrapper.cpp")
+            .include("rgui_wrapper")
             .include("raylib/src")
             .include("raygui/src")
             .warnings(false)
@@ -152,7 +183,8 @@ fn gen_rgui() {
     #[cfg(not(target_os = "windows"))]
     {
         cc::Build::new()
-            .file("rgui_wrapper.c")
+            .file("rgui_wrapper/rgui_wrapper.c")
+            .include("rgui_wrapper")
             .include("raylib/src")
             .include("raygui/src")
             .warnings(false)
@@ -201,19 +233,12 @@ fn main() {
 
     // Donwload raylib source
     let src = cp_raylib();
-    println!("cargo:warning={} copied", &src);
 
     build_with_cmake(&src);
-    println!("cargo:warning={} built", &src);
-
     gen_bindings();
-    println!("cargo:warning={} bindings generated", target);
-
     link(platform, platform_os);
-    println!("cargo:warning={} linked", target);
 
     gen_rgui();
-    println!("cargo:warning={} rgui built", target);
 }
 
 // cp_raylib copy raylib to an out dir
@@ -224,7 +249,7 @@ fn cp_raylib() -> String {
     let mut options = fs_extra::dir::CopyOptions::new();
     options.skip_exist = true;
 
-    for source_dir in ["raylib", "raygui"] {
+    for source_dir in ["rgui_wrapper", "raylib", "raygui"] {
         fs_extra::dir::copy(source_dir, &out, &options).expect(&format!(
             "failed to copy raylib source to {}",
             &out.to_string_lossy()
