@@ -10,27 +10,6 @@ mod texture_test {
         i.export_image_as_code("test_out/billboard_code.h");
     }
 
-    #[test]
-    fn test_image_load_ex() {
-        let mut col = Vec::new();
-        for _ in 0..32 {
-            for _ in 0..32 {
-                col.push(Color::RED);
-            }
-        }
-        let i = Image::load_image_ex(&col, 32, 32).expect("failed to load binary image");
-        assert_eq!(
-            i.get_image_data().len(),
-            32 * 32,
-            "failed to read pixels of image"
-        );
-        assert_eq!(
-            i.get_image_data_normalized().len(),
-            32 * 32,
-            "failed to read pixels of image normalized"
-        );
-    }
-
     ray_test!(test_texture_load);
     fn test_texture_load(thread: &RaylibThread) {
         let i =
@@ -75,9 +54,10 @@ mod texture_test {
             }
         }
 
-        let mut i = Image::load_image_ex(&col, 32, 32).expect("failed to load binary image");
-        let mut canvas = Image::load_image_ex(&blank, 32, 32).expect("failed to load canvas image");
-        let mask = Image::load_image_ex(&alpha, 32, 32).expect("failed to load alpha image");
+        let mut i = Image::gen_image_color(32, 32, Color::RED);
+        let mut canvas = Image::gen_image_color(32, 32, Color::BLANK);
+        // let mask = Image::load_image_ex(&alpha, 32, 32).expect("failed to load alpha image");
+        let mask = Image::gen_image_checked(32, 32, 8, 8, Color::WHITE, Color::BLANK);
 
         let mut c = i.clone();
 
