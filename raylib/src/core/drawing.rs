@@ -718,7 +718,7 @@ pub trait RaylibDraw {
     fn draw_rectangle_lines_ex(
         &mut self,
         rec: impl Into<ffi::Rectangle>,
-        line_thick: i32,
+        line_thick: f32,
         color: impl Into<ffi::Color>,
     ) {
         unsafe {
@@ -746,7 +746,7 @@ pub trait RaylibDraw {
         rec: impl Into<ffi::Rectangle>,
         roundness: f32,
         segments: i32,
-        line_thickness: i32,
+        line_thickness: f32,
         color: impl Into<ffi::Color>,
     ) {
         unsafe {
@@ -1068,66 +1068,6 @@ pub trait RaylibDraw {
                 font_size,
                 spacing,
                 tint.into(),
-            );
-        }
-    }
-
-    /// Draws text using `font` and additional parameters.
-    #[inline]
-    fn draw_text_rec(
-        &mut self,
-        font: impl AsRef<ffi::Font>,
-        text: &str,
-        rec: impl Into<ffi::Rectangle>,
-        font_size: f32,
-        spacing: f32,
-        word_wrap: bool,
-        tint: impl Into<ffi::Color>,
-    ) {
-        let c_text = CString::new(text).unwrap();
-        unsafe {
-            ffi::DrawTextRec(
-                *font.as_ref(),
-                c_text.as_ptr(),
-                rec.into(),
-                font_size,
-                spacing,
-                word_wrap,
-                tint.into(),
-            );
-        }
-    }
-
-    /// Draws text using `font` and additional parameters.
-    #[inline]
-    fn draw_text_rec_ex(
-        &mut self,
-        font: impl AsRef<ffi::Font>,
-        text: &str,
-        rec: impl Into<ffi::Rectangle>,
-        font_size: f32,
-        spacing: f32,
-        word_wrap: bool,
-        tint: impl Into<ffi::Color>,
-        select_start: i32,
-        select_length: i32,
-        select_text: impl Into<ffi::Color>,
-        select_back: impl Into<ffi::Color>,
-    ) {
-        let c_text = CString::new(text).unwrap();
-        unsafe {
-            ffi::DrawTextRecEx(
-                *font.as_ref(),
-                c_text.as_ptr(),
-                rec.into(),
-                font_size,
-                spacing,
-                word_wrap,
-                tint.into(),
-                select_start,
-                select_length,
-                select_text.into(),
-                select_back.into(),
             );
         }
     }
@@ -1517,7 +1457,7 @@ pub trait RaylibDraw3D {
         texture: &Texture2D,
         source_rec: impl Into<ffi::Rectangle>,
         center: impl Into<ffi::Vector3>,
-        size: f32,
+        size: impl Into<ffi::Vector2>,
         tint: impl Into<ffi::Color>,
     ) {
         unsafe {
@@ -1526,7 +1466,7 @@ pub trait RaylibDraw3D {
                 texture.0,
                 source_rec.into(),
                 center.into(),
-                size,
+                size.into(),
                 tint.into(),
             );
         }

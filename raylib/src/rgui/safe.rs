@@ -228,40 +228,6 @@ pub trait RaylibDrawGui {
             )
         }
     }
-    /// Image button control, returns true when clicked
-    #[inline]
-    fn gui_image_button(
-        &mut self,
-        bounds: impl Into<ffi::Rectangle>,
-        text: Option<&CStr>,
-        texture: impl AsRef<ffi::Texture>,
-    ) -> bool {
-        unsafe {
-            ffi::GuiImageButton(
-                bounds.into(),
-                text.map(CStr::as_ptr).unwrap_or(std::ptr::null()),
-                *texture.as_ref(),
-            )
-        }
-    }
-    /// Image button extended control, returns true when clicked
-    #[inline]
-    fn gui_image_button_ex(
-        &mut self,
-        bounds: impl Into<ffi::Rectangle>,
-        text: Option<&CStr>,
-        texture: impl AsRef<ffi::Texture>,
-        tex_source: impl Into<ffi::Rectangle>,
-    ) -> bool {
-        unsafe {
-            ffi::GuiImageButtonEx(
-                bounds.into(),
-                text.map(CStr::as_ptr).unwrap_or(std::ptr::null()),
-                *texture.as_ref(),
-                tex_source.into(),
-            )
-        }
-    }
     /// Toggle Button control, returns true when active
     #[inline]
     fn gui_toggle(

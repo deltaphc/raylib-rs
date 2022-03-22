@@ -374,24 +374,24 @@ pub trait RaylibMesh: AsRef<ffi::Mesh> + AsMut<ffi::Mesh> {
 
     /// Computes mesh bounding box limits.
     #[inline]
-    fn mesh_bounding_box(&self) -> BoundingBox {
-        unsafe { ffi::MeshBoundingBox(*self.as_ref()).into() }
+    fn get_mesh_bounding_box(&self) -> BoundingBox {
+        unsafe { ffi::GetMeshBoundingBox(*self.as_ref()).into() }
     }
 
     /// Computes mesh tangents.
     // NOTE: New VBO for tangents is generated at default location and also binded to mesh VAO
     #[inline]
-    fn mesh_tangents(&mut self, _: &RaylibThread) {
+    fn gen_mesh_tangents(&mut self, _: &RaylibThread) {
         unsafe {
-            ffi::MeshTangents(self.as_mut());
+            ffi::GenMeshTangents(self.as_mut());
         }
     }
 
     /// Computes mesh binormals.
     #[inline]
-    fn mesh_binormals(&mut self) {
+    fn gen_mesh_binormals(&mut self) {
         unsafe {
-            ffi::MeshBinormals(self.as_mut());
+            ffi::GenMeshBinormals(self.as_mut());
         }
     }
 
