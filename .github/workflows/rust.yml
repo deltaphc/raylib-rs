@@ -9,7 +9,20 @@ jobs:
 
     steps:
     - uses: actions/checkout@v1
+    - name: Setup Environment
+      run: | 
+        sudo apt-get update -qq
+        sudo apt-get install gcc-multilib
+        sudo apt-get install -y --no-install-recommends libglfw3 libglfw3-dev libx11-dev libxcursor-dev libxrandr-dev libxinerama-dev libxi-dev libxext-dev libxfixes-dev libsdl2-dev
+    - name: Configure nightly toolchain
+      run: rustup install --no-self-update nightly
+    - name: Initialize submodules
+      run: git submodule update --init
     - name: Build
-      run: cd raylib && cargo build --verbose --features nobuild
+      run: cargo build --workspace --verbose --exclude raylib-test
+    - name: Run tests
+      run: cargo +nightly test --workspace --verbose --exclude raylib-test
     # - name: Run tests [Requires window system]
-      # run: cargo test -p raylib-test --verbose
+    #   run: |
+    #     export DISPLAY=:0
+    #     cargo +nightly test -p raylib-test --verbose
