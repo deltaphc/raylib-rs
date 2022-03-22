@@ -2,11 +2,11 @@
 use crate::ffi;
 
 /// Compress data (DEFLATE algorythm)
-/// Currently broken.
 /// ```rust
 /// use raylib::prelude::*;
 /// let data = compress_data(b"1111111111");
-/// assert!(data.is_err());
+/// let expected: &[u8] = &[61, 193, 33, 1, 0, 0, 0, 128, 160, 77, 254, 63, 103, 3, 98];
+/// assert_eq!(data, Ok(expected));
 /// ```
 pub fn compress_data(data: &[u8]) -> Result<&'static [u8], String> {
     let mut out_length: i32 = 0;
@@ -22,11 +22,12 @@ pub fn compress_data(data: &[u8]) -> Result<&'static [u8], String> {
 }
 
 /// Decompress data (DEFLATE algorythm)
-/// Currently broken.
 /// ```rust
 /// use raylib::prelude::*;
-/// let data = compress_data(b"1111111111");
-/// assert!(data.is_err());
+/// let input: &[u8] = &[61, 193, 33, 1, 0, 0, 0, 128, 160, 77, 254, 63, 103, 3, 98];
+/// let expected: &[u8] = b"1111111111";
+/// let data = decompress_data(input);
+/// assert_eq!(data, Ok(expected));
 /// ```
 pub fn decompress_data(data: &[u8]) -> Result<&'static [u8], String> {
     let mut out_length: i32 = 0;
