@@ -8,7 +8,7 @@ use std::ffi::CString;
 /// ```rust
 /// use raylib::*;
 /// fn main() {
-///     let r = get_random_value(0, 10);
+///     let r = get_random_value::<i32>(0, 10);
 ///     println!("random value: {}", r);
 /// }
 pub fn get_random_value<T: From<i32>>(min: i32, max: i32) -> T {

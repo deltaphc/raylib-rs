@@ -41,10 +41,8 @@ pub fn run(mut rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut
         Color::DARKBLUE,
         Color::PURPLE,
         Color::VIOLET,
-        Color::DARKPURPLE,
         Color::BEIGE,
         Color::BROWN,
-        Color::DARKBROWN,
         Color::LIGHTGRAY,
         Color::GRAY,
         Color::DARKGRAY,
@@ -66,7 +64,7 @@ pub fn run(mut rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut
     let mut color_mouse_hover = None;
     let mut brush_size = 20;
 
-    let btn_save_rec = rrect(750, 10, 40, 30);
+    let btn_save_rec = rrect::<i32, i32, i32, i32>(750, 10, 40, 30);
     let mut btn_save_mouse_hover = false;
     let mut show_save_message = false;
     let mut save_message_counter = 0;
@@ -211,8 +209,8 @@ pub fn run(mut rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut
             // NOTE: Render texture must be y-flipped due to default OpenGL coordinates (left-bottom)
             d.draw_texture_rec(
                 &target,
-                rrect(0, 0, target.texture.width, -target.texture.height),
-                rvec2(0, 0),
+                rrect::<i32, i32, i32, i32>(0, 0, target.texture.width, -target.texture.height),
+                rvec2::<i32, i32>(0, 0),
                 Color::WHITE,
             );
 
