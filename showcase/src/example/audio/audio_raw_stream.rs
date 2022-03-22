@@ -53,7 +53,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
     // Computed size in samples of the sine wave
     let mut waveLength = 1;
 
-    let mut position = rvec2(0, 0);
+    let mut position = rvec2::<i32, i32>(0, 0);
 
     rl.set_target_fps(30); // Set our game to run at 30 frames-per-second
                            //--------------------------------------------------------------------------------------
@@ -68,7 +68,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
         // Sample mouse input.
         mousePosition = rl.get_mouse_position();
 
-        if rl.is_mouse_button_down(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON)
+        if rl.is_mouse_button_down(raylib::consts::MouseButton::MOUSE_BUTTON_LEFT)
         {
             let fp = mousePosition.y;
             frequency = 40.0 + fp;

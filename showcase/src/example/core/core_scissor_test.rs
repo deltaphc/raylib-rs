@@ -22,7 +22,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
     rl.set_window_title(thread, "raylib [core] example - scissor test");
     rl.set_window_size(screen_width, screen_height);
 
-    let mut scissor_area = rrect(0, 0, 300, 300);
+    let mut scissor_area = rrect::<i32, i32, i32, i32>(0, 0, 300, 300);
     let mut scissor_mode = true;
 
     rl.set_target_fps(60); // Set our game to run at 60 frames-per-second
@@ -30,7 +30,6 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
 
     // Main game loop
     return Box::new(move |rl: &mut RaylibHandle, thread: &RaylibThread| -> () {
-        
         // Update
         //----------------------------------------------------------------------------------
         if rl.is_key_pressed(raylib::consts::KeyboardKey::KEY_S) {
@@ -88,7 +87,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
             );
         }
 
-        d.draw_rectangle_lines_ex(scissor_area, 1, Color::BLACK);
+        d.draw_rectangle_lines_ex(scissor_area, 1.0, Color::BLACK);
         d.draw_text("Press S to toggle scissor test", 10, 10, 20, Color::BLACK);
 
         //----------------------------------------------------------------------------------

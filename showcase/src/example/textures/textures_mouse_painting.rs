@@ -87,7 +87,7 @@ pub fn run(mut rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut
     // Main game loop
     return Box::new(
         move |mut rl: &mut RaylibHandle, thread: &RaylibThread| -> () {
-            use raylib::consts::Gestures::*;
+            use raylib::consts::Gesture::*;
             // Update
             //----------------------------------------------------------------------------------
             let mouse_pos = rl.get_mouse_position();
@@ -113,7 +113,7 @@ pub fn run(mut rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut
             }
 
             if color_mouse_hover.is_some()
-                && rl.is_mouse_button_pressed(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON)
+                && rl.is_mouse_button_pressed(raylib::consts::MouseButton::MOUSE_BUTTON_LEFT)
             {
                 color_selected = color_mouse_hover.unwrap();
                 color_selected_prev = color_selected;
@@ -134,7 +134,7 @@ pub fn run(mut rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut
                 d.clear_background(colors[0]);
             }
 
-            if rl.is_mouse_button_down(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON)
+            if rl.is_mouse_button_down(raylib::consts::MouseButton::MOUSE_BUTTON_LEFT)
                 || rl.get_gesture_detected() == GESTURE_DRAG
             {
                 // Paint circle into render texture
@@ -152,7 +152,7 @@ pub fn run(mut rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut
                 }
             }
 
-            if rl.is_mouse_button_down(raylib::consts::MouseButton::MOUSE_RIGHT_BUTTON) {
+            if rl.is_mouse_button_down(raylib::consts::MouseButton::MOUSE_BUTTON_RIGHT) {
                 color_selected = 0;
 
                 // Erase circle from render texture
@@ -180,7 +180,7 @@ pub fn run(mut rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut
             // Image saving logic
             // NOTE: Saving painted texture to a default named image
             if btn_save_mouse_hover
-                && rl.is_mouse_button_released(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON)
+                && rl.is_mouse_button_released(raylib::consts::MouseButton::MOUSE_BUTTON_LEFT)
                 || rl.is_key_pressed(raylib::consts::KeyboardKey::KEY_S)
             {
                 let mut image = target.get_texture_data().unwrap();
@@ -216,7 +216,7 @@ pub fn run(mut rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut
 
             // Draw drawing circle for reference
             if mouse_pos.y > 50.0 {
-                if d.is_mouse_button_down(raylib::consts::MouseButton::MOUSE_RIGHT_BUTTON) {
+                if d.is_mouse_button_down(raylib::consts::MouseButton::MOUSE_BUTTON_RIGHT) {
                     d.draw_circle_lines(
                         mouse_pos.x as i32,
                         mouse_pos.y as i32,
@@ -257,14 +257,14 @@ pub fn run(mut rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut
                     colors_recs[color_selected].width + 4.0,
                     colors_recs[color_selected].height + 4.0,
                 ),
-                2,
+                2.0,
                 Color::BLACK,
             );
 
             // Draw save image button
             d.draw_rectangle_lines_ex(
                 btn_save_rec,
-                2,
+                2.0,
                 if btn_save_mouse_hover {
                     Color::RED
                 } else {

@@ -64,7 +64,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
         {
             d.draw_text(&format!("GP1: {}", d.get_gamepad_name(0).unwrap()), 10, 10, 10, Color::BLACK);
 
-            if d.is_gamepad_name(0, XBOX360_NAME_ID)
+            if d.get_gamepad_name(0).map(|name| name == XBOX360_NAME_ID).unwrap_or(false)
             {
                 d.draw_texture(&tex_xbox_pad, 0, 0, Color::DARKGRAY);
 
@@ -164,7 +164,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
                 //d.draw_text(format!("Xbox axis LT: %02.02f", d.get_gamepad_axis_movement(0, raylib::consts::GamepadAxis::GAMEPAD_AXIS_LEFT_TRIGGER)), 10, 40, 10, Color::BLACK);
                 //d.draw_text(format!("Xbox axis RT: %02.02f", d.get_gamepad_axis_movement(0, raylib::consts::GamepadAxis::GAMEPAD_AXIS_RIGHT_TRIGGER)), 10, 60, 10, Color::BLACK);
             }
-            else if d.is_gamepad_name(0, PS3_NAME_ID)
+            else if d.get_gamepad_name(0).map(|name| name == PS3_NAME_ID).unwrap_or(false)
             {
                 d.draw_texture(&tex_ps3_pad, 0, 0, Color::DARKGRAY);
 
@@ -184,7 +184,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
                 if d.is_gamepad_button_down(0, raylib::consts::GamepadButton::GAMEPAD_BUTTON_MIDDLE_RIGHT)
                     {
 
-                        d.draw_triangle(rvec2(436, 168), rvec2(436, 185), rvec2(464, 177),Color::RED);
+                        d.draw_triangle(rvec2::<i32, i32>(436, 168), rvec2::<i32, i32>(436, 185), rvec2::<i32, i32>(464, 177),Color::RED);
                     }
                 if d.is_gamepad_button_down(0, raylib::consts::GamepadButton::GAMEPAD_BUTTON_RIGHT_FACE_UP)
                     {

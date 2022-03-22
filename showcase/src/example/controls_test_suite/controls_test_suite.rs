@@ -68,7 +68,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
 
     let mut toggleGroupActive = 0;
 
-    let mut viewScroll = rvec2(0, 0);
+    let mut viewScroll = rvec2::<i32, i32>(0, 0);
     //----------------------------------------------------------------------------------
 
     // Custom GUI font loading
@@ -127,7 +127,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
         //----------------------------------------------------------------------------------
         let mut d = rl.begin_drawing(&thread);
         let hex = d.gui_get_style(DEFAULT, BACKGROUND_COLOR as i32);
-        d.clear_background(Color::get_color(hex));
+        d.clear_background(Color::get_color(hex as u32));
 
         // raygui: controls drawing
         //----------------------------------------------------------------------------------
@@ -139,14 +139,14 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
         // First GUI column
         //GuiSetStyle(CHECKBOX, TEXT_ALIGNMENT, GUI_TEXT_ALIGN_LEFT);
         forceSquaredChecked = d.gui_check_box(
-            rrect(25, 108, 15, 15),
+            rrect::<i32, i32, i32, i32>(25, 108, 15, 15),
             Some(rstr!("FORCE CHECK!")),
             forceSquaredChecked,
         );
 
         d.gui_set_style(TEXTBOX, TEXT_ALIGNMENT as i32, GUI_TEXT_ALIGN_CENTER as i32);
         if d.gui_spinner(
-            rrect(25, 135, 125, 30),
+            rrect::<i32, i32, i32, i32>(25, 135, 125, 30),
             None,
             &mut spinner001Value,
             0,
@@ -156,7 +156,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
             spinnerEditMode = !spinnerEditMode;
         }
         if d.gui_value_box(
-            rrect(25, 175, 125, 30),
+            rrect::<i32, i32, i32, i32>(25, 175, 125, 30),
             None,
             &mut valueBox002Value,
             0,
@@ -166,34 +166,34 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
             valueBoxEditMode = !valueBoxEditMode;
         }
         d.gui_set_style(TEXTBOX, TEXT_ALIGNMENT as i32, GUI_TEXT_ALIGN_LEFT as i32);
-        if d.gui_text_box(rrect(25, 215, 125, 30), &mut textBoxText, textBoxEditMode) {
+        if d.gui_text_box(rrect::<i32, i32, i32, i32>(25, 215, 125, 30), &mut textBoxText, textBoxEditMode) {
             textBoxEditMode = !textBoxEditMode;
         }
 
         d.gui_set_style(BUTTON, TEXT_ALIGNMENT as i32, GUI_TEXT_ALIGN_CENTER as i32);
 
-        let itext = d.gui_icon_text(RICON_FILE_SAVE, Some(rstr!("Save File")));
+        let itext = d.gui_icon_text(RAYGUI_ICON_FILE_SAVE, Some(rstr!("Save File")));
         let itext = CString::new(itext).unwrap();
-        if d.gui_button(rrect(25, 255, 125, 30), Some(&itext)) {
+        if d.gui_button(rrect::<i32, i32, i32, i32>(25, 255, 125, 30), Some(&itext)) {
             showTextInputBox = true;
         }
 
-        d.gui_group_box(rrect(25, 310, 125, 150), Some(rstr!("STATES")));
+        d.gui_group_box(rrect::<i32, i32, i32, i32>(25, 310, 125, 150), Some(rstr!("STATES")));
 
         d.gui_lock();
         d.gui_set_state(GUI_STATE_NORMAL);
-        if d.gui_button(rrect(30, 320, 115, 30), Some(rstr!("NORMAL"))) {}
+        if d.gui_button(rrect::<i32, i32, i32, i32>(30, 320, 115, 30), Some(rstr!("NORMAL"))) {}
         d.gui_set_state(GUI_STATE_FOCUSED);
-        if d.gui_button(rrect(30, 355, 115, 30), Some(rstr!("FOCUSED"))) {}
+        if d.gui_button(rrect::<i32, i32, i32, i32>(30, 355, 115, 30), Some(rstr!("FOCUSED"))) {}
         d.gui_set_state(GUI_STATE_PRESSED);
-        if d.gui_button(rrect(30, 390, 115, 30), Some(rstr!("#15#PRESSED"))) {}
+        if d.gui_button(rrect::<i32, i32, i32, i32>(30, 390, 115, 30), Some(rstr!("#15#PRESSED"))) {}
         d.gui_set_state(GUI_STATE_DISABLED);
-        if d.gui_button(rrect(30, 425, 115, 30), Some(rstr!("DISABLED"))) {}
+        if d.gui_button(rrect::<i32, i32, i32, i32>(30, 425, 115, 30), Some(rstr!("DISABLED"))) {}
         d.gui_set_state(GUI_STATE_NORMAL);
         d.gui_unlock();
 
         comboBoxActive = d.gui_combo_box(
-            rrect(25, 470, 125, 30),
+            rrect::<i32, i32, i32, i32>(25, 470, 125, 30),
             Some(rstr!("ONE;TWO;THREE;FOUR")),
             comboBoxActive,
         );
@@ -205,7 +205,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
             GUI_TEXT_ALIGN_LEFT as i32,
         );
         if d.gui_dropdown_box(
-            rrect(25, 65, 125, 30),
+            rrect::<i32, i32, i32, i32>(25, 65, 125, 30),
             Some(rstr!("#01#ONE;#02#TWO;#03#THREE;#04#FOUR")),
             &mut dropdownBox001Active,
             dropDown001EditMode,
@@ -219,7 +219,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
             GUI_TEXT_ALIGN_CENTER as i32,
         );
         if d.gui_dropdown_box(
-            rrect(25, 25, 125, 30),
+            rrect::<i32, i32, i32, i32>(25, 25, 125, 30),
             Some(rstr!("ONE;TWO;THREE")),
             &mut dropdownBox000Active,
             dropDown000EditMode,
@@ -229,7 +229,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
 
         // Second GUI column
         listViewActive = d.gui_list_view(
-            rrect(165, 25, 140, 140),
+            rrect::<i32, i32, i32, i32>(165, 25, 140, 140),
             Some(rstr!(
                 "Charmander;Bulbasaur;#18#Squirtel;Pikachu;Eevee;Pidgey"
             )),
@@ -237,7 +237,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
             listViewActive,
         );
         listViewExActive = d.gui_list_view_ex(
-            rrect(165, 180, 140, 200),
+            rrect::<i32, i32, i32, i32>(165, 180, 140, 200),
             &listViewExList,
             &mut listViewExFocus,
             &mut listViewExScrollIndex,
@@ -245,23 +245,23 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
         );
 
         toggleGroupActive = d.gui_toggle_group(
-            rrect(165, 400, 140, 25),
+            rrect::<i32, i32, i32, i32>(165, 400, 140, 25),
             Some(rstr!("#1#ONE\n#3#TWO\n#8#THREE\n#23#")),
             toggleGroupActive,
         );
 
         // Third GUI column
         if d.gui_text_box_multi(
-            rrect(320, 25, 225, 140),
+            rrect::<i32, i32, i32, i32>(320, 25, 225, 140),
             &mut multiTextBoxText,
             multiTextBoxEditMode,
         ) {
             multiTextBoxEditMode = !multiTextBoxEditMode;
         }
-        colorPickerValue = d.gui_color_picker(rrect(320, 185, 196, 192), colorPickerValue);
+        colorPickerValue = d.gui_color_picker(rrect::<i32, i32, i32, i32>(320, 185, 196, 192), colorPickerValue);
 
         sliderValue = d.gui_slider(
-            rrect(355, 400, 165, 20),
+            rrect::<i32, i32, i32, i32>(355, 400, 165, 20),
             Some(rstr!("TEST")),
             Some(&rstr!("{:.2}", sliderValue as f32)),
             sliderValue,
@@ -269,7 +269,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
             100.0,
         );
         sliderBarValue = d.gui_slider_bar(
-            rrect(320, 430, 200, 20),
+            rrect::<i32, i32, i32, i32>(320, 430, 200, 20),
             None,
             Some(&rstr!("{}", sliderBarValue)),
             sliderBarValue,
@@ -277,7 +277,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
             100.0,
         );
         progressValue = d.gui_progress_bar(
-            rrect(320, 460, 200, 20),
+            rrect::<i32, i32, i32, i32>(320, 460, 200, 20),
             None,
             None,
             progressValue,
@@ -287,18 +287,18 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
 
         // NOTE: View rectangle could be used to perform some scissor test
         let (_view, nextScroll) = d.gui_scroll_panel(
-            rrect(560, 25, 100, 160),
-            rrect(560, 25, 200, 400),
+            rrect::<i32, i32, i32, i32>(560, 25, 100, 160),
+            rrect::<i32, i32, i32, i32>(560, 25, 200, 400),
             viewScroll,
         );
         viewScroll = nextScroll.into();
 
         d.gui_status_bar(
-            rrect(0, d.get_screen_height() - 20, d.get_screen_width(), 20),
+            rrect::<i32, i32, i32, i32>(0, d.get_screen_height() - 20, d.get_screen_width(), 20),
             Some(rstr!("This is a status bar")),
         );
 
-        alphaValue = d.gui_color_bar_alpha(rrect(320, 490, 200, 30), alphaValue);
+        alphaValue = d.gui_color_bar_alpha(rrect::<i32, i32, i32, i32>(320, 490, 200, 30), alphaValue);
 
         if showMessageBox {
             d.draw_rectangle(
@@ -308,10 +308,10 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
                 d.get_screen_height(),
                 Color::RAYWHITE.fade(0.8),
             );
-            let itext = d.gui_icon_text(RICON_EXIT, Some(rstr!("Close Window")));
+            let itext = d.gui_icon_text(RAYGUI_ICON_EXIT, Some(rstr!("Close Window")));
             let itext = CString::new(itext).unwrap();
             let result = d.gui_message_box(
-                rrect(
+                rrect::<i32, i32, i32, i32>(
                     d.get_screen_width() / 2 - 125,
                     d.get_screen_height() / 2 - 50,
                     250,
@@ -337,10 +337,10 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
                 d.get_screen_height(),
                 Color::RAYWHITE.fade(0.8),
             );
-            let itext = unsafe { d.gui_icon_text(RICON_FILE_SAVE, Some(rstr!("Save file as..."))) };
+            let itext = unsafe { d.gui_icon_text(RAYGUI_ICON_FILE_SAVE, Some(rstr!("Save file as..."))) };
             let itext = CString::new(itext).unwrap();
             let result = d.gui_text_input_box(
-                rrect(
+                rrect::<i32, i32, i32, i32>(
                     d.get_screen_width() / 2 - 120,
                     d.get_screen_height() / 2 - 60,
                     240,
