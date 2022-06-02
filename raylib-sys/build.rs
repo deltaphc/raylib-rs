@@ -188,7 +188,13 @@ fn link(platform: Platform, platform_os: PlatformOS) {
     }
     if platform == Platform::Web {
         println!("cargo:rustc-link-lib=glfw");
-    }
+    } else if platform == Platform::RPI {
+        println!("cargo:rustc-link-search=/opt/vc/lib");
+        println!("cargo:rustc-link-lib=bcm_host");
+        println!("cargo:rustc-link-lib=brcmEGL");
+        println!("cargo:rustc-link-lib=brcmGLESv2");
+        println!("cargo:rustc-link-lib=vcos");
+   }
 
     println!("cargo:rustc-link-lib=static=raylib");
 }
