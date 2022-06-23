@@ -51,6 +51,16 @@ impl RaylibHandle {
         None
     }
 
+    /// Gets latest char (unicode) pressed
+    #[inline]
+    pub fn get_char_pressed(&mut self) -> Option<char> {
+        let char_code = unsafe { ffi::GetCharPressed() };
+        if char_code > 0 {
+            return char::from_u32(char_code as i32);
+        }
+        None
+    }
+
     /// Sets a custom key to exit program (default is ESC).
     // #[inline]
     pub fn set_exit_key(&mut self, key: Option<crate::consts::KeyboardKey>) {
