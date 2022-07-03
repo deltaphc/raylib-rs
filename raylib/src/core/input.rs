@@ -56,7 +56,7 @@ impl RaylibHandle {
     pub fn get_char_pressed(&mut self) -> Option<char> {
         let char_code = unsafe { ffi::GetCharPressed() };
         if char_code > 0 {
-            return char::from_u32(char_code as i32);
+            return char::from_u32(char_code as u32);
         }
         None
     }
