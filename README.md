@@ -86,7 +86,7 @@ fn main() {
 `libglfw3-dev wayland-devel libxkbcommon-devel wayland-protocols wayland-protocols-devel libecm-dev`
 ###### Note that this may not be a comprehensive list, please add details for your distribution or expand on these packages if you believe this to be incomplete.
 
-4. Enable wayland by adding `features=["wayland"]` to your dependency defenition
+4. Enable wayland by adding `features=["wayland"]` to your dependency definition
 
 ## Cross-compiling using `cross`
 

@@ -25,6 +25,7 @@ nightly = []
 nobuild = ["raylib-sys/nobuild"]
 with_serde = ["serde", "serde_json"]
 nalgebra_interop = ["nalgebra"]
+wayland = ["raylib-sys/wayland"]
 
 [package.metadata.docs.rs]
 features = ["nobuild"]
