@@ -555,7 +555,7 @@ impl RaylibHandle {
 
     /// Get the window config state
     pub fn get_window_state(&self) -> WindowState {
-        let mut state = WindowState::default();
+        let state = WindowState::default();
         unsafe {
             if ffi::IsWindowState(ffi::ConfigFlags::FLAG_VSYNC_HINT as u32) {
                 state.set_vsync_hint(true);

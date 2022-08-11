@@ -1,6 +1,6 @@
 //! Image and texture related functions
 use crate::core::color::Color;
-use crate::core::math::{Rectangle, Vector4};
+use crate::core::math::Rectangle;
 use crate::core::{RaylibHandle, RaylibThread};
 use crate::ffi;
 use std::ffi::CString;
