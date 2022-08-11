@@ -38,9 +38,6 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
 
     audio.play_audio_stream(&mut stream); // Start processing stream buffer (no data loaded currently)
 
-    // Position read in to determine next frequency
-    let mut mousePosition = rvec2(-100.0, -100.0);
-
     // Cycles per second (hz)
     let mut frequency = 440.0;
 
@@ -66,11 +63,11 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
         //----------------------------------------------------------------------------------
 
         // Sample mouse input.
-        mousePosition = rl.get_mouse_position();
+        let mouse_position = rl.get_mouse_position();
 
         if rl.is_mouse_button_down(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON)
         {
-            let fp = mousePosition.y;
+            let fp = mouse_position.y;
             frequency = 40.0 + fp;
         }
 
@@ -121,7 +118,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
                 }
 
                 // Write the slice
-                &mut writeBuf[writeCursor..writeCursor+writeLength].copy_from_slice(&data[readCursor..readCursor+writeLength]);
+                let _ = &mut writeBuf[writeCursor..writeCursor+writeLength].copy_from_slice(&data[readCursor..readCursor+writeLength]);
                 // memcpy(writeBuf + writeCursor, data + readCursor, writeLength * sizeof(short));
 
                 // Update cursors and loop audio

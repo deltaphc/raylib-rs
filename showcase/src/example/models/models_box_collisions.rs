@@ -22,19 +22,16 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut
     rl.set_window_size(screen_width, screen_height);
 
     // Define the camera to look into our 3d world
-    let mut camera = Camera::perspective( rvec3( 0.0, 10.0, 10.0 ), rvec3( 0.0, 0.0, 0.0 ), rvec3( 0.0, 1.0, 0.0 ), 45.0 );
+    let camera = Camera::perspective( rvec3( 0.0, 10.0, 10.0 ), rvec3( 0.0, 0.0, 0.0 ), rvec3( 0.0, 1.0, 0.0 ), 45.0 );
 
     let mut playerPosition = rvec3( 0.0, 1.0, 2.0 );
     let playerSize = rvec3( 1.0, 2.0, 1.0 );
-    let mut playerColor = Color::GREEN;
 
     let enemyBoxPos = rvec3( -4.0, 1.0, 0.0 );
     let enemyBoxSize = rvec3( 2.0, 2.0, 2.0 );
 
     let enemySpherePos = rvec3( 4.0, 0.0, 0.0 );
     let enemySphereSize = 1.5;
-
-    let mut collision = false;
 
     rl.set_target_fps(60);               // Set our game to run at 60 frames-per-second
     //--------------------------------------------------------------------------------------
@@ -51,7 +48,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut
         else if (rl.is_key_down(raylib::consts::KeyboardKey::KEY_DOWN)) {playerPosition.z += 0.2;}
         else if (rl.is_key_down(raylib::consts::KeyboardKey::KEY_UP)){ playerPosition.z -= 0.2;}
 
-        collision = false;
+        let mut collision = false;
 
         // Check collisions player vs enemy-box
         if 
@@ -78,8 +75,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut
                                      playerPosition.z + playerSize.z/2.0 )).check_collision_box_sphere(
             enemySpherePos, enemySphereSize) {collision = true;}
 
-        if (collision){ playerColor = Color::RED;}
-        else {playerColor = Color::GREEN;}
+        let playerColor = if collision { Color::RED } else { Color::GREEN };
         //----------------------------------------------------------------------------------
 
         // Draw

@@ -38,7 +38,6 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut
     let mapPixels = imMap.get_image_data();
 
     let mapPosition = rvec3( -16.0, 0.0, -8.0 );  // Set model position
-    let playerPosition = camera.position;       // Set player position
 
     rl.set_camera_mode(&camera, raylib::consts::CameraMode::CAMERA_FIRST_PERSON);     // Set camera mode
 

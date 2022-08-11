@@ -337,7 +337,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
                 d.get_screen_height(),
                 Color::RAYWHITE.fade(0.8),
             );
-            let itext = unsafe { d.gui_icon_text(RICON_FILE_SAVE, Some(rstr!("Save file as..."))) };
+            let itext = d.gui_icon_text(RICON_FILE_SAVE, Some(rstr!("Save file as...")));
             let itext = CString::new(itext).unwrap();
             let result = d.gui_text_input_box(
                 rrect(

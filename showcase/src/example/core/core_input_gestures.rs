@@ -23,14 +23,12 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
     rl.set_window_size(screen_width, screen_height);
     rl.set_window_title(thread, "raylib [core] example - input gestures");
 
-    let mut touch_position = rvec2(0, 0);
     let touch_area = rrect(220, 10, screen_width - 230, screen_height - 20);
 
     let mut gestures_count = 0;
     let mut gesture_strings = [raylib::consts::Gestures::GESTURE_NONE; MAX_GESTURE_STRINGS];
 
     let mut current_gesture = GESTURE_NONE;
-    let mut last_gesture = GESTURE_NONE;
 
     //SetGesturesEnabled(0b0000000000001001);   // Enable only some gestures to be detected
 
@@ -43,9 +41,9 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
     {
         // Update
         //----------------------------------------------------------------------------------
-        last_gesture = current_gesture;
+        let last_gesture = current_gesture;
         current_gesture = rl.get_gesture_detected();
-        touch_position = rl.get_touch_position(0);
+        let touch_position = rl.get_touch_position(0);
 
         if touch_area.check_collision_point_rec(touch_position) && (current_gesture != GESTURE_NONE)
         {

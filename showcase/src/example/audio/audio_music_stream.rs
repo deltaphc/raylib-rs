@@ -27,7 +27,6 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
 
     audio.play_music_stream(&mut music);
 
-    let mut time_played = 0.0;
     let mut pause = false;
 
     rl.set_target_fps(60); // Set our game to run at 60 frames-per-second
@@ -58,7 +57,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
         }
 
         // Get time_played scaled to bar dimensions (400 pixels)
-        time_played =
+        let time_played =
             audio.get_music_time_played(&music) / audio.get_music_time_length(&music) * 400.0;
 
         if time_played > 400.0 {

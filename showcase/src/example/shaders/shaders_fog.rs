@@ -71,7 +71,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
         )
         .unwrap()
     };
-    let mut texture = rl
+    let texture = rl
         .load_texture(thread, "original/shaders/resources/texel_checker.png")
         .unwrap();
 
@@ -120,7 +120,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
 
     // Using just 1 point lights
     create_light(
-        LightType::LIGHT_POINT,
+        LightType::LightPoint,
         rvec3(0, 2, 6),
         Vector3::zero(),
         Color::WHITE,
@@ -210,13 +210,13 @@ const MAX_LIGHTS: u32 = 4;
 #[repr(i32)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub enum LightType {
-    LIGHT_DIRECTIONAL = 0,
-    LIGHT_POINT = 1,
+    LightDirectional = 0,
+    LightPoint = 1,
 }
 
 impl Default for LightType {
     fn default() -> Self {
-        Self::LIGHT_DIRECTIONAL
+        Self::LightDirectional
     }
 }
 

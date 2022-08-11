@@ -32,14 +32,10 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
 
 
     // General variables
-    let mut mousePosition = Vector2::default();
     let  mut windowPosition = rvec2(500, 200);
-    let  mut panOffset = mousePosition;
     let mut  dragWindow = false;
 
     rl.set_window_position(windowPosition.x as i32, windowPosition.y as i32);
-
-    let mut  exitWindow = false;
 
     rl.set_target_fps(60);
     //--------------------------------------------------------------------------------------
@@ -49,7 +45,8 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
     {
         // Update
         //----------------------------------------------------------------------------------
-        mousePosition = rl.get_mouse_position();
+        let mousePosition = rl.get_mouse_position();
+        let mut panOffset = mousePosition;
 
         if rl.is_mouse_button_pressed(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON)
         {
@@ -80,7 +77,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
 
         d.clear_background(Color::RAYWHITE);
 
-        exitWindow = d.gui_window_box(rrect(0, 0, screen_width, screen_height), Some(rstr!("PORTABLE WINDOW")));
+        let _ = d.gui_window_box(rrect(0, 0, screen_width, screen_height), Some(rstr!("PORTABLE WINDOW")));
 
         d.draw_text(&format!("Mouse Position: [ {:.0}, {:.0} ]", mousePosition.x, mousePosition.y), 10, 40, 10, Color::DARKGRAY);
 

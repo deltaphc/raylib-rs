@@ -20,8 +20,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
     rl.set_window_size(screen_width, screen_height);
     rl.set_window_title(thread, "raylib [core] example - mouse input");
 
-    let mut ballPosition = rvec2(-100.0, -100.0);
-    let mut ballColor = Color::DARKBLUE;
+    let mut ball_color = Color::DARKBLUE;
 
     rl.set_target_fps(60); // Set our game to run at 60 frames-per-second
                            //---------------------------------------------------------------------------------------
@@ -32,22 +31,22 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
     {
         // Update
         //----------------------------------------------------------------------------------
-        ballPosition = rl.get_mouse_position();
+        let ball_position = rl.get_mouse_position();
 
         if rl.is_mouse_button_pressed(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON)
             {
 
-                ballColor = Color::MAROON;
+                ball_color = Color::MAROON;
             }
         else if rl.is_mouse_button_pressed(raylib::consts::MouseButton::MOUSE_MIDDLE_BUTTON)
             {
 
-                ballColor = Color::LIME;
+                ball_color = Color::LIME;
             }
         else if rl.is_mouse_button_pressed(raylib::consts::MouseButton::MOUSE_RIGHT_BUTTON)
             {
 
-                ballColor = Color::DARKBLUE;
+                ball_color = Color::DARKBLUE;
             }
         //----------------------------------------------------------------------------------
 
@@ -57,7 +56,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
 
         d.clear_background(Color::RAYWHITE);
 
-        d.draw_circle_v(ballPosition, 40.0, ballColor);
+        d.draw_circle_v(ball_position, 40.0, ball_color);
 
         d.draw_text("move ball with mouse and click mouse button to change color", 10, 10, 20, Color::DARKGRAY);
 
