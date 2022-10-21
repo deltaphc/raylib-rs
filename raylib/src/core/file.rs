@@ -12,7 +12,7 @@ impl RaylibHandle {
     }
 
     /// Gets dropped filenames.
-    pub fn get_dropped_files(&self) -> Vec<String> {
+    pub fn load_dropped_files(&self) -> Vec<String> {
         let mut v = Vec::new();
         unsafe {
             let mut count: i32 = 0;
@@ -31,7 +31,7 @@ impl RaylibHandle {
 
     // / Clears dropped files paths buffer.
     #[inline]
-    pub fn clear_dropped_files(&mut self) {
+    pub fn unload_dropped_files(&mut self) {
         unsafe {
             // we need to pass the dropfiles file var but i would need to move it first
             //ffi::UnloadDroppedFiles();

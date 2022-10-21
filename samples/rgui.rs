@@ -123,13 +123,13 @@ pub fn main() {
         // }
 
         // if rl.is_file_dropped() {
-        //     let droppedFiles = rl.get_dropped_files();
+        //     let droppedFiles = rl.load_dropped_files();
 
         //     if (droppedFiles.len() > 0) && droppedFiles[0].ends_with(".rgs") {
         //         rl.gui_load_style(Some(&CString::new(droppedFiles[0].clone()).unwrap()));
         //     }
 
-        //     rl.clear_dropped_files();
+        //     rl.unload_dropped_files();
         // }
 
         //----------------------------------------------------------------------------------

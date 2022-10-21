@@ -77,7 +77,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
         //----------------------------------------------------------------------------------
         if rl.is_file_dropped()
         {
-            let droppedFiles = rl.get_dropped_files();
+            let droppedFiles = rl.load_dropped_files();
 
             if droppedFiles.len() == 1
             {
@@ -104,7 +104,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
                 }
             }
 
-            rl.clear_dropped_files();
+            rl.unload_dropped_files();
         }
 
         if btnExport

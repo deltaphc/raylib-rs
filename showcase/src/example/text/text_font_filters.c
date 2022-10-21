@@ -87,7 +87,7 @@ pub fn run(rl
         if rl.is_file_dropped()
         {
             int count = 0;
-            char **droppedFiles = rl.get_dropped_files(&count);
+            char **droppedFiles = rl.load_dropped_files(&count);
 
             // NOTE: We only support first ttf file dropped
             if IsFileExtension(droppedFiles[0], ".ttf")

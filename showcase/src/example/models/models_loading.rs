@@ -67,7 +67,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut
         // Load new models/textures on drag&drop
         if (rl.is_file_dropped())
         {
-            let droppedFiles = rl.get_dropped_files();
+            let droppedFiles = rl.load_dropped_files();
 
             if (droppedFiles.len() == 1) // Only support one file dropped
             {
@@ -93,7 +93,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut
                 }
             }
 
-            rl.clear_dropped_files();    // Clear internal buffers
+            rl.unload_dropped_files();    // Clear internal buffers
         }
 
         // Select model on mouse click
