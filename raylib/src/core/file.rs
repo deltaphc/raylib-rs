@@ -16,7 +16,7 @@ impl RaylibHandle {
         let mut v = Vec::new();
         unsafe {
             let mut count: i32 = 0;
-            let dropfiles = ffi::LoadDroppedFiles(&mut count);
+            let dropfiles = ffi::LoadDroppedFiles();
             for i in 0..count {
                 let filestr = CStr::from_ptr(*dropfiles.offset(i as isize))
                     .to_str()
