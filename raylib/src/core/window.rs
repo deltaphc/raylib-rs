@@ -189,6 +189,7 @@ impl WindowState {
         self
     }
 
+
     pub fn window_highdpi(&self) -> bool {
         self.0 & (ffi::ConfigFlags::FLAG_WINDOW_HIGHDPI as i32) != 0
     }
@@ -654,6 +655,14 @@ impl RaylibHandle {
     pub fn set_window_size(&mut self, width: i32, height: i32) {
         unsafe {
             ffi::SetWindowSize(width, height);
+        }
+    }
+
+    /// Set window opacity, value opacity is between 0.0 and 1.0
+    #[inline]
+    pub fn set_window_opacity(&mut self, opacity: f32) {
+        unsafe {
+            ffi::SetWindowOpacity(opacity)
         }
     }
 
