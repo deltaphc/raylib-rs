@@ -8,7 +8,7 @@
 
 # raylib-rs
 
-raylib-rs is a Rust binding for [raylib](http://www.raylib.com/) 4.2.0. It currently targets the _stable_ Rust toolchain, version 1.31 or higher.
+raylib-rs is a Rust binding for [raylib](http://www.raylib.com/) 4.5.0-dev. It currently targets the _stable_ Rust toolchain, version 1.31 or higher.
 
 Please checkout the showcase directory to find usage examples!
 
