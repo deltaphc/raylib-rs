@@ -91,7 +91,7 @@ int main(void)
                 }
             }
 
-            ClearDroppedFiles();    // Clear internal buffers
+            UnloadDroppedFiles();    // Clear internal buffers
         }
 
         // Select model on mouse click

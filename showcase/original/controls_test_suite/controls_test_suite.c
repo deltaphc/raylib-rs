@@ -132,7 +132,7 @@ int main()
             
             if ((dropsCount > 0) && IsFileExtension(droppedFiles[0], ".rgs")) GuiLoadStyle(droppedFiles[0]);
             
-            ClearDroppedFiles();    // Clear internal buffers
+            UnloadDroppedFiles();    // Clear internal buffers
         }
         //----------------------------------------------------------------------------------
 

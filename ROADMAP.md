@@ -199,7 +199,7 @@ SetWindowSize - only if FLAG_WINDOW_RESIZABLE is set
 
 GetFileNameWithoutExt - memory should be freed
 GetDirectoryFiles && ClearDirectoryFiles - memory should be freed
-LoadDroppedFiles && ClearDroppedFiles - free memory
+LoadDroppedFiles && UnloadDroppedFiles - free memory
 
 
 ## Unsafe

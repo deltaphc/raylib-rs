@@ -87,7 +87,7 @@ int main(void)
             {
                 UnloadFont(font);
                 font = LoadFontEx(droppedFiles[0], fontSize, 0, 0);
-                ClearDroppedFiles();
+                UnloadDroppedFiles();
             }
         }
         //----------------------------------------------------------------------------------
@@ -123,7 +123,7 @@ int main(void)
 
     // De-Initialization
     //--------------------------------------------------------------------------------------
-    ClearDroppedFiles();        // Clear internal buffers
+    UnloadDroppedFiles();        // Clear internal buffers
 
     UnloadFont(font);           // Font unloading
 

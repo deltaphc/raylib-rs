@@ -32,7 +32,7 @@ impl RaylibHandle {
     #[inline]
     pub fn clear_dropped_files(&mut self) {
         unsafe {
-            ffi::ClearDroppedFiles();
+            ffi::UnloadDroppedFiles();
         }
     }
 }

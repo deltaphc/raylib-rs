@@ -94,7 +94,7 @@ pub fn run(rl
             {
                 UnloadFont(font);
                 font = LoadFontEx(droppedFiles[0], fontSize, 0, 0);
-                ClearDroppedFiles();
+                UnloadDroppedFiles();
             }
         }
         //----------------------------------------------------------------------------------
@@ -133,7 +133,7 @@ pub fn run(rl
 
     // De-Initialization
     //--------------------------------------------------------------------------------------
-    ClearDroppedFiles(); // Clear internal buffers
+    UnloadDroppedFiles(); // Clear internal buffers
 
     UnloadFont(font); // Font unloading
 

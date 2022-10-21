@@ -112,7 +112,7 @@ const RAYGUI_IMPLEMENTATION const RAYGUI_SUPPORT_RICONS
                 importWindowActive = true;
             }
 
-            ClearDroppedFiles();
+            UnloadDroppedFiles();
         }
 
         // Check if load button has been pressed

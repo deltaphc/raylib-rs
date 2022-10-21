@@ -163,7 +163,7 @@ int main(int argc, char **argv)
                 }
             }
             
-            ClearDroppedFiles();
+            UnloadDroppedFiles();
         }
         
         // Convert text to hex representation and draw it on screen

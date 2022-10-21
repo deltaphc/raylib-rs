@@ -109,7 +109,7 @@ int main()
                 importWindowActive = true;
             }
 
-            ClearDroppedFiles();
+            UnloadDroppedFiles();
         }
         
         // Check if load button has been pressed
