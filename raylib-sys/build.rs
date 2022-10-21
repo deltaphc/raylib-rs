@@ -21,8 +21,8 @@ use std::path::{Path, PathBuf};
 use std::env;
 
 /// latest version on github's release page as of time or writing
-const LATEST_RAYLIB_VERSION: &str = "3.7.0";
-const LATEST_RAYLIB_API_VERSION: &str = "3";
+const LATEST_RAYLIB_VERSION: &str = "4.2.0";
+const LATEST_RAYLIB_API_VERSION: &str = "4";
 
 #[cfg(feature = "nobuild")]
 fn build_with_cmake(_src_path: &str) {}
