@@ -35,7 +35,7 @@ int main(void)
         //----------------------------------------------------------------------------------
         if (IsFileDropped())
         {
-            droppedFiles = GetDroppedFiles(&count);
+            droppedFiles = LoadDroppedFiles(&count);
         }
         //----------------------------------------------------------------------------------
 

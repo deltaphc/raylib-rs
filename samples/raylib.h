@@ -1026,7 +1026,7 @@ extern "C"
     RLAPI void ClearDirectoryFiles(void);                              // Clear directory files paths buffers (free memory)
     RLAPI bool ChangeDirectory(const char *dir);                       // Change working directory, returns true if success
     RLAPI bool IsFileDropped(void);                                    // Check if a file has been dropped into window
-    RLAPI char **GetDroppedFiles(int *count);                          // Get dropped files names (memory should be freed)
+    RLAPI char **LoadDroppedFiles(int *count);                          // Get dropped files names (memory should be freed)
     RLAPI void ClearDroppedFiles(void);                                // Clear dropped files paths buffer (free memory)
     RLAPI long GetFileModTime(const char *fileName);                   // Get file modification time (last write time)
 
