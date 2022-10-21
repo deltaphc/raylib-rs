@@ -146,11 +146,6 @@ pub fn get_ray_collision_sphere(
     unsafe { ffi::GetRayCollisionSphere(ray.into(), sphere_position.into(), sphere_radius).into() }
 }
 
-/// Gets collision info between ray and model.
-#[inline]
-pub fn get_ray_collision_model(ray: Ray, model: &Model) -> RayCollision {
-    unsafe { ffi::GetRayCollisionModel(ray.into(), model.0).into() }
-}
 
 /// Gets collision info between ray and triangle.
 #[inline]
