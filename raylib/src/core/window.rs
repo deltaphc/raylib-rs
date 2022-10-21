@@ -665,13 +665,6 @@ impl RaylibHandle {
             ffi::SetWindowOpacity(opacity)
         }
     }
-
-    /// Gets current screen width.
-    #[inline]
-    pub fn get_screen_width(&self) -> i32 {
-        unsafe { ffi::GetScreenWidth() }
-    }
-
     /// Gets current screen height.
     #[inline]
     pub fn get_screen_height(&self) -> i32 {
