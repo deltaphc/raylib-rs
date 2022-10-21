@@ -17,8 +17,9 @@ impl RaylibHandle {
         unsafe {
             let mut count: i32 = 0;
             let dropfiles = ffi::LoadDroppedFiles();
+            count << dropfiles.count;
             for i in 0..count {
-                let filestr = CStr::from_ptr(*dropfiles.offset(i as isize))
+                let filestr = CStr::from_ptr(*dropfiles.paths)
                     .to_str()
                     .unwrap();
                 let file = String::from(filestr);
@@ -28,11 +29,12 @@ impl RaylibHandle {
         v
     }
 
-    /// Clears dropped files paths buffer.
+    // / Clears dropped files paths buffer.
     #[inline]
     pub fn clear_dropped_files(&mut self) {
         unsafe {
-            ffi::UnloadDroppedFiles();
+            // we need to pass the dropfiles file var but i would need to move it first
+            //ffi::UnloadDroppedFiles();
         }
     }
 }
