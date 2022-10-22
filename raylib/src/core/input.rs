@@ -212,10 +212,16 @@ impl RaylibHandle {
         }
     }
 
-    /// Returns mouse wheel movement Y.
+    /// Get mouse wheel movement for X or Y, whichever is larger
     #[inline]
     pub fn get_mouse_wheel_move(&self) -> f32 {
         unsafe { ffi::GetMouseWheelMove() }
+    }
+    
+    /// Get mouse wheel movement for both X and Y
+    #[inline]
+    pub fn get_mouse_wheel_move_v(&self) -> f32 {
+        unsafe { ffi::GetMouseWheelMoveV()}
     }
 
     /// Returns touch position X for touch point 0 (relative to screen size).
