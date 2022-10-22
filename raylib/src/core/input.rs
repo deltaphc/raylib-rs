@@ -220,7 +220,7 @@ impl RaylibHandle {
     
     /// Get mouse wheel movement for both X and Y
     #[inline]
-    pub fn get_mouse_wheel_move_v(&self) -> f32 {
+    pub fn get_mouse_wheel_move_v(&self) -> raylib_sys::Vector2 {
         unsafe { ffi::GetMouseWheelMoveV()}
     }
 
