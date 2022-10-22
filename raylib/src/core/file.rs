@@ -29,12 +29,13 @@ impl RaylibHandle {
         v
     }
 
-    // / Clears dropped files paths buffer.
+    /// Clears dropped files paths buffer.
     #[inline]
     pub fn unload_dropped_files(&mut self) {
         unsafe {
-            // we need to pass the dropfiles file var but i would need to move it first
-            //ffi::UnloadDroppedFiles();
+            // TODO add abiltiy to load from optional command line arguments
+            let dropfiles = ffi::LoadDroppedFiles();
+            ffi::UnloadDroppedFiles(dropfiles);
         }
     }
 }
