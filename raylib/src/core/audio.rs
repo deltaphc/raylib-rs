@@ -295,6 +295,16 @@ impl Wave {
         Ok(Wave(w))
     }
 
+    pub fn load_wave_from_mem(filetype: &str, bytes: &Vec<u8>, size: i32) -> Result<Wave, String> {
+        let c_filetype = CString::new(filetype).unwrap();
+        let c_bytes = bytes.as_ptr();
+        let w = unsafe { ffi::LoadWaveFromMemory(c_filetype.as_ptr(), c_bytes, size) };
+        if w.data.is_null() {
+            return Err(format!("Wave data is null. Check provided buffer data"));
+        };
+        Ok(Wave(w))
+    }
+
     /// Export wave file. Extension must be .wav or .raw
     #[inline]
     pub fn export_wave(&self, filename: &str) -> bool {
