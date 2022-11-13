@@ -387,14 +387,6 @@ pub trait RaylibMesh: AsRef<ffi::Mesh> + AsMut<ffi::Mesh> {
         }
     }
 
-    /// Computes mesh binormals.
-    #[inline]
-    fn gen_mesh_binormals(&mut self) {
-        unsafe {
-            ffi::GenMeshBinormals(self.as_mut());
-        }
-    }
-
     /// Exports mesh as an OBJ file.
     #[inline]
     fn export_mesh(&self, filename: &str) {

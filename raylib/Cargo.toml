@@ -13,7 +13,7 @@ edition = "2018"
 
 [dependencies]
 raylib-sys = { version = "= 4.2.0", path = "../raylib-sys" }
-libc = "0.2.45"
+libc = "0.2.137"
 lazy_static = "1.2.0"
 cfg-if = "1.0.0"
 serde = { version = "1.0.125", features = ["derive"], optional = true }
