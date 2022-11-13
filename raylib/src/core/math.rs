@@ -154,18 +154,26 @@ pub fn rrect<T1: AsF32, T2: AsF32, T3: AsF32, T4: AsF32>(
 }
 
 impl Vector2 {
+    /// Constant `Vector2` with both components set to zero.
+    const ZERO: Vector2 = Vector2 { x: 0.0, y: 0.0 };
+
+    /// Constant `Vector2` with both components set to one.
+    const ONE: Vector2 = Vector2 { x: 1.0, y: 1.0 };
+    
     /// Returns a new `Vector2` with specified components.
     pub const fn new(x: f32, y: f32) -> Vector2 {
         Vector2 { x, y }
     }
 
     /// Returns a new `Vector2` with both components set to zero.
-    pub fn zero() -> Vector2 {
+    #[inline]
+    pub const fn zero() -> Vector2 {
         Vector2 { x: 0.0, y: 0.0 }
     }
 
     /// Returns a new `Vector2` with both components set to one.
-    pub fn one() -> Vector2 {
+    #[inline]
+    pub const fn one() -> Vector2 {
         Vector2 { x: 1.0, y: 1.0 }
     }
 

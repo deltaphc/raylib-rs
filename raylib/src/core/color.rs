@@ -1,6 +1,8 @@
 //! [`Color`] manipulation helpers
 use crate::core::math::{Vector3, Vector4};
 use crate::ffi;
+#[cfg(feature = "serde")]
+use serde::{Deserialize, Serialize};
 
 #[cfg(feature = "with_serde")]
 use serde::{Deserialize, Serialize};

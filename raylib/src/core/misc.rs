@@ -4,6 +4,17 @@ use crate::core::{RaylibHandle, RaylibThread};
 use crate::ffi;
 use std::ffi::CString;
 
+/// Returns a random value between min and max (both included)
+/// ```rust
+/// use raylib::*;
+/// fn main() {
+///     let r = get_random_value::<i32>(0, 10);
+///     println!("random value: {}", r);
+/// }
+pub fn get_random_value<T: From<i32>>(min: i32, max: i32) -> T {
+    unsafe { (ffi::GetRandomValue(min, max) as i32).into() }
+}
+
 /// Open URL with default system browser (if available)
 /// ```ignore
 /// use raylib::*;
@@ -45,7 +56,9 @@ impl RaylibHandle {
 
     /// Set the seed for random number generation
     pub fn set_random_seed(&mut self, seed: u32) {
-        unsafe { ffi::SetRandomSeed(seed); }
+        unsafe {
+            ffi::SetRandomSeed(seed);
+        }
     }
 }
 

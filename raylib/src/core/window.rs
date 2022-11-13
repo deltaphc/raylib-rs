@@ -2,6 +2,8 @@
 use crate::core::math::{Matrix, Ray, Vector2};
 use crate::core::{RaylibHandle, RaylibThread};
 use crate::ffi;
+#[cfg(feature = "serde")]
+use serde::{Deserialize, Serialize};
 use std::ffi::{CStr, CString, IntoStringError, NulError};
 use std::os::raw::c_char;
 
@@ -504,7 +506,7 @@ impl RaylibHandle {
     /// Checks if window has been hidden.
     #[inline]
     pub fn is_window_hidden(&self) -> bool {
-        unsafe { ffi::IsWindowResized() }
+        unsafe { ffi::IsWindowHidden() }
     }
 
     /// Returns whether or not window is in fullscreen mode
