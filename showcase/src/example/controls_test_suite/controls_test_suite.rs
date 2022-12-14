@@ -126,7 +126,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
         // Draw
         //----------------------------------------------------------------------------------
         let mut d = rl.begin_drawing(&thread);
-        let hex = d.gui_get_style(DEFAULT, BACKGROUND_COLOR as i32);
+        let hex = d.gui_get_style(DEFAULT, BACKGROUND_COLOR as u32);
         d.clear_background(Color::get_color(hex));
 
         // raygui: controls drawing
