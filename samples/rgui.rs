@@ -101,13 +101,13 @@ pub fn main() {
     while !exitWindow
     // Detect window close button or ESC key
     {
-        
+
         use raylib::consts::GuiControl::*;
         use raylib::consts::GuiControlProperty::*;
-        
-        
+
+
         use raylib::consts::GuiTextAlignment::*;
-        
+
         // Update
         //----------------------------------------------------------------------------------
 
@@ -164,7 +164,7 @@ pub fn main() {
             ffi::GuiSetStyle(
                 TEXTBOX as i32,
                 TEXT_ALIGNMENT as i32,
-                GUI_TEXT_ALIGN_CENTER as i32,
+                TEXT_ALIGN_CENTER as i32,
             );
         }
         // dbg!(spinnerEditMode);
