@@ -15,27 +15,16 @@ impl RaylibHandle {
     pub fn load_dropped_files(&self) -> Vec<String> {
         let mut v = Vec::new();
         unsafe {
-            let mut count: i32 = 0;
             let dropfiles = ffi::LoadDroppedFiles();
-            count << dropfiles.count;
-            for i in 0..count {
-                let filestr = CStr::from_ptr(*dropfiles.paths)
+            for i in 0..dropfiles.count {
+                let filestr = CStr::from_ptr(*dropfiles.paths.offset(i as isize))
                     .to_str()
                     .unwrap();
                 let file = String::from(filestr);
                 v.push(file);
             }
+            ffi::UnloadDroppedFiles(dropfiles)
         }
         v
-    }
-
-    /// Clears dropped files paths buffer.
-    #[inline]
-    pub fn unload_dropped_files(&mut self) {
-        unsafe {
-            // TODO add abiltiy to load from optional command line arguments
-            let dropfiles = ffi::LoadDroppedFiles();
-            ffi::UnloadDroppedFiles(dropfiles);
-        }
     }
 }

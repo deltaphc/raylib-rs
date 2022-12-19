@@ -2,7 +2,8 @@
 use crate::core::math::{BoundingBox, Ray, Rectangle, Vector2};
 use crate::core::models::Model;
 use crate::ffi;
-use crate::math::RayCollision;
+use crate::math::{Matrix, RayCollision};
+use crate::models::Mesh;
 
 impl Rectangle {
     /// Check collision between two rectangles
@@ -146,6 +147,11 @@ pub fn get_ray_collision_sphere(
     unsafe { ffi::GetRayCollisionSphere(ray.into(), sphere_position.into(), sphere_radius).into() }
 }
 
+/// Gets collision info between ray and model.
+#[inline]
+pub fn get_ray_collision_mesh(ray: Ray, model: &Mesh, transform: &Matrix) -> RayCollision {
+    unsafe { ffi::GetRayCollisionMesh(ray.into(), model.0, transform.into()).into() }
+}
 
 /// Gets collision info between ray and triangle.
 #[inline]
@@ -167,5 +173,7 @@ pub fn get_ray_collision_quad(
     p3: impl Into<ffi::Vector3>,
     p4: impl Into<ffi::Vector3>,
 ) -> RayCollision {
-    unsafe { ffi::GetRayCollisionQuad(ray.into(), p1.into(), p2.into(), p3.into(), p4.into()).into() }
+    unsafe {
+        ffi::GetRayCollisionQuad(ray.into(), p1.into(), p2.into(), p3.into(), p4.into()).into()
+    }
 }

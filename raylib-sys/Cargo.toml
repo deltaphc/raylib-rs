@@ -16,10 +16,10 @@ exclude = [
 ]
 
 [build-dependencies]
-fs_extra = "1.1"
-cmake = "0.1.35"
+fs_extra = "1.2"
+cmake = "0.1.49"
 cc = "1.0"
-bindgen = "0.53.1"
+bindgen = "0.61.0"
 
 [features]
 default = []

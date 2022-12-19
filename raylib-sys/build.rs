@@ -17,8 +17,8 @@ Permission is granted to anyone to use this software for any purpose, including 
 
 extern crate bindgen;
 
-use std::path::{Path, PathBuf};
 use std::env;
+use std::path::{Path, PathBuf};
 
 /// latest version on github's release page as of time or writing
 const LATEST_RAYLIB_VERSION: &str = "4.2.0";
@@ -29,6 +29,8 @@ fn build_with_cmake(_src_path: &str) {}
 
 #[cfg(not(feature = "nobuild"))]
 fn build_with_cmake(src_path: &str) {
+    use cmake::build;
+
     // CMake uses different lib directories on different systems.
     // I do not know how CMake determines what directory to use,
     // so we will check a few possibilities and use whichever is present.
@@ -47,15 +49,17 @@ fn build_with_cmake(src_path: &str) {
     let (platform, platform_os) = platform_from_target(&target);
 
     let mut conf = cmake::Config::new(src_path);
-    let builder;
+    let mut builder;
     #[cfg(debug_assertions)]
     {
         builder = conf.profile("Debug");
+        builder = builder.define("CMAKE_BUILD_TYPE", "Debug")
     }
 
     #[cfg(not(debug_assertions))]
     {
         builder = conf.profile("Release");
+        builder = builder.define("CMAKE_BUILD_TYPE", "Release")
     }
 
     builder
@@ -75,7 +79,7 @@ fn build_with_cmake(src_path: &str) {
     // This seems redundant, but I felt it was needed incase raylib changes it's default
     #[cfg(not(feature = "wayland"))]
     builder.define("USE_WAYLAND", "OFF");
-    
+
     // Scope implementing flags for forcing OpenGL version
     // See all possible flags at https://github.com/raysan5/raylib/wiki/CMake-Build-Options
     {
@@ -103,7 +107,9 @@ fn build_with_cmake(src_path: &str) {
 
     match platform {
         Platform::Desktop => conf.define("PLATFORM", "Desktop"),
-        Platform::Web => conf.define("PLATFORM", "Web").define("CMAKE_C_FLAGS", "-s ASYNCIFY"),
+        Platform::Web => conf
+            .define("PLATFORM", "Web")
+            .define("CMAKE_C_FLAGS", "-s ASYNCIFY"),
         Platform::RPI => conf.define("PLATFORM", "Raspberry Pi"),
     };
 
@@ -148,7 +154,7 @@ fn gen_bindings() {
     let plat = match platform {
         Platform::Desktop => "-DPLATFORM_DESKTOP",
         Platform::RPI => "-DPLATFORM_RPI",
-        Platform::Web => "-DPLATFORM_WEB"
+        Platform::Web => "-DPLATFORM_WEB",
     };
 
     let mut builder = bindgen::Builder::default()
@@ -184,7 +190,7 @@ fn gen_rgui() {
     {
         cc::Build::new()
             .file("binding/rgui_wrapper.cpp")
-            .include(".")
+            .include("binding")
             .warnings(false)
             // .flag("-std=c99")
             .extra_warnings(false)
@@ -194,7 +200,7 @@ fn gen_rgui() {
     {
         cc::Build::new()
             .file("binding/rgui_wrapper.c")
-            .include(".")
+            .include("binding")
             .warnings(false)
             // .flag("-std=c99")
             .extra_warnings(false)
@@ -248,7 +254,7 @@ fn link(platform: Platform, platform_os: PlatformOS) {
         println!("cargo:rustc-link-lib=brcmEGL");
         println!("cargo:rustc-link-lib=brcmGLESv2");
         println!("cargo:rustc-link-lib=vcos");
-   }
+    }
 
     println!("cargo:rustc-link-lib=static=raylib");
 }
