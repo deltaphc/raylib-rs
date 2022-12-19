@@ -1,2 +1,2 @@
 [workspace]
-members = ["raylib", "raylib-sys"]
+members = ["raylib", "raylib-sys", "raylib-test"]
