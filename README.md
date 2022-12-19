@@ -74,11 +74,20 @@ fn main() {
 - In C, `LoadFontData` returns a pointer to a heap-allocated array of `CharInfo` structs. In this Rust binding, said array is copied into an owned `Vec<CharInfo>`, the original data is freed, and the owned Vec is returned.
 - In C, `LoadDroppedFiles` returns a pointer to an array of strings owned by raylib. Again, for safety and also ease of use, this binding copies said array into a `Vec<String>` which is returned to the caller.
 - I've tried to make linking automatic, though I've only tested on Windows 10, Ubuntu, and MacOS 15. Other platforms may have other considerations.
+- OpenGL 3.3, 2.1, and ES 2.0 may be forced via adding `["opengl_33"]`, `["opengl_21"]` or `["opengl_es_20]` to the `features` array in your Cargo.toml dependency definition.
 
 ## Building from source
 
 1. Clone repository: `git clone --recurse-submodules`
 2. `cargo build`
+
+### If building for Wayland on Linux
+
+3. Install these packages:  
+`libglfw3-dev wayland-devel libxkbcommon-devel wayland-protocols wayland-protocols-devel libecm-dev`
+###### Note that this may not be a comprehensive list, please add details for your distribution or expand on these packages if you believe this to be incomplete.
+
+4. Enable wayland by adding `features=["wayland"]` to your dependency definition
 
 ## Cross-compiling using `cross`
 

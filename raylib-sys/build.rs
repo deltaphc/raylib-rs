@@ -65,6 +65,42 @@ fn build_with_cmake(src_path: &str) {
         // turn off until this is fixed
         .define("SUPPORT_BUSY_WAIT_LOOP", "OFF");
 
+    // Enable wayland cmake flag if feature is specified
+    #[cfg(feature = "wayland")]
+    {
+        builder.define("USE_WAYLAND", "ON");
+        builder.define("USE_EXTERNAL_GLFW", "ON"); // Necessary for wayland support in my testing
+    }
+
+    // This seems redundant, but I felt it was needed incase raylib changes it's default
+    #[cfg(not(feature = "wayland"))]
+    builder.define("USE_WAYLAND", "OFF");
+    
+    // Scope implementing flags for forcing OpenGL version
+    // See all possible flags at https://github.com/raysan5/raylib/wiki/CMake-Build-Options
+    {
+        #[cfg(feature = "opengl_33")]
+        builder.define("OPENGL_VERSION", "3.3");
+
+        #[cfg(feature = "opengl_21")]
+        builder.define("OPENGL_VERSION", "2.1");
+
+        // #[cfg(feature = "opengl_11")]
+        // builder.define("OPENGL_VERSION", "1.1");
+
+        #[cfg(feature = "opengl_es_20")]
+        builder.define("OPENGL_VERSION", "ES 2.0");
+
+        // Once again felt this was necessary incase a default was changed :)
+        #[cfg(not(any(
+            feature = "opengl_33",
+            feature = "opengl_21",
+            // feature = "opengl_11",
+            feature = "opengl_es_20"
+        )))]
+        builder.define("OPENGL_VERSION", "OFF");
+    }
+
     match platform {
         Platform::Desktop => conf.define("PLATFORM", "Desktop"),
         Platform::Web => conf.define("PLATFORM", "Web").define("CMAKE_C_FLAGS", "-s ASYNCIFY"),
@@ -179,8 +215,20 @@ fn link(platform: Platform, platform_os: PlatformOS) {
             println!("cargo:rustc-link-lib=dylib=shell32");
         }
         PlatformOS::Linux => {
-            println!("cargo:rustc-link-search=/usr/local/lib");
-            println!("cargo:rustc-link-lib=X11");
+            // X11 linking
+            #[cfg(not(feature = "wayland"))]
+            {
+                println!("cargo:rustc-link-search=/usr/local/lib");
+                println!("cargo:rustc-link-lib=X11");
+            }
+
+            // Wayland linking
+            #[cfg(feature = "wayland")]
+            {
+                println!("cargo:rustc-link-search=/usr/local/lib");
+                println!("cargo:rustc-link-lib=wayland-client");
+                println!("cargo:rustc-link-lib=glfw"); // Link against locally installed glfw
+            }
         }
         PlatformOS::OSX => {
             println!("cargo:rustc-link-search=native=/usr/local/lib");
@@ -194,7 +242,13 @@ fn link(platform: Platform, platform_os: PlatformOS) {
     }
     if platform == Platform::Web {
         println!("cargo:rustc-link-lib=glfw");
-    }
+    } else if platform == Platform::RPI {
+        println!("cargo:rustc-link-search=/opt/vc/lib");
+        println!("cargo:rustc-link-lib=bcm_host");
+        println!("cargo:rustc-link-lib=brcmEGL");
+        println!("cargo:rustc-link-lib=brcmGLESv2");
+        println!("cargo:rustc-link-lib=vcos");
+   }
 
     println!("cargo:rustc-link-lib=static=raylib");
 }
