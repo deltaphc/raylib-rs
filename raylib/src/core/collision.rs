@@ -149,7 +149,7 @@ pub fn get_ray_collision_sphere(
 
 /// Gets collision info between ray and model.
 #[inline]
-pub fn get_ray_collision_mesh(ray: Ray, model: &Mesh, transform: &Matrix) -> RayCollision {
+pub fn get_ray_collision_model(ray: Ray, model: &Mesh, transform: &Matrix) -> RayCollision {
     unsafe { ffi::GetRayCollisionMesh(ray.into(), model.0, transform.into()).into() }
 }
 
