@@ -20,12 +20,6 @@ impl<T: AsRef<str>> IntoCStr for T {
     }
 }
 
-impl IntoCStr for Option<&CStr> {
-    fn as_cstr_ptr(&self) -> *const std::os::raw::c_char {
-        self.map(CStr::as_ptr).unwrap_or(std::ptr::null())
-    }
-}
-
 /// Global gui modification functions
 impl RaylibHandle {
     /// Enable gui controls (global state)
