@@ -11,12 +11,24 @@ pub trait IntoCStr {
     fn as_cstr_ptr(&self) -> *const std::os::raw::c_char;
 }
 
-impl<T: AsRef<str>> IntoCStr for T {
+impl IntoCStr for dyn AsRef<str> {
     fn as_cstr_ptr(&self) -> *const std::os::raw::c_char {
         std::ffi::CString::new(self.as_ref())
             .unwrap()
             .as_c_str()
             .as_ptr()
+    }
+}
+
+impl IntoCStr for dyn AsRef<CStr> {
+    fn as_cstr_ptr(&self) -> *const std::os::raw::c_char {
+        self.as_ref().as_ptr()
+    }
+}
+
+impl IntoCStr for Option<&CStr> {
+    fn as_cstr_ptr(&self) -> *const std::os::raw::c_char {
+        self.map(CStr::as_ptr).unwrap_or(std::ptr::null())
     }
 }
 
