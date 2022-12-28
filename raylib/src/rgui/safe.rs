@@ -32,6 +32,12 @@ impl IntoCStr for Option<&CStr> {
     }
 }
 
+impl IntoCStr for &str {
+    fn as_cstr_ptr(&self) -> *const std::os::raw::c_char {
+        self.as_ptr() as *const std::os::raw::c_char
+    }
+}
+
 /// Global gui modification functions
 impl RaylibHandle {
     /// Enable gui controls (global state)
