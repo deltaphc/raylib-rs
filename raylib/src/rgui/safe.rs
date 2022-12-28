@@ -5,7 +5,7 @@ use crate::core::text::WeakFont;
 use crate::core::RaylibHandle;
 use crate::ffi;
 
-use std::ffi::CStr;
+use std::ffi::{CStr, CString};
 
 pub trait IntoCStr {
     fn as_cstr_ptr(&self) -> *const std::os::raw::c_char;
@@ -34,7 +34,7 @@ impl IntoCStr for Option<&CStr> {
 
 impl IntoCStr for &str {
     fn as_cstr_ptr(&self) -> *const std::os::raw::c_char {
-        self.as_ptr() as *const std::os::raw::c_char
+        CString::new(self).unwrap().as_ptr()
     }
 }
 
