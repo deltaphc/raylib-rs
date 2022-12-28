@@ -5,13 +5,13 @@ use crate::core::text::WeakFont;
 use crate::core::RaylibHandle;
 use crate::ffi;
 
-use std::ffi::{CStr, CString};
+use std::ffi::CStr;
 
 pub trait IntoCStr {
     fn as_cstr_ptr(&self) -> *const std::os::raw::c_char;
 }
 
-impl IntoCStr for dyn AsRef<str> {
+impl<T: AsRef<str>> IntoCStr for T {
     fn as_cstr_ptr(&self) -> *const std::os::raw::c_char {
         std::ffi::CString::new(self.as_ref())
             .unwrap()
@@ -20,7 +20,7 @@ impl IntoCStr for dyn AsRef<str> {
     }
 }
 
-impl IntoCStr for dyn AsRef<CStr> {
+impl<T: AsRef<CStr>> IntoCStr for T {
     fn as_cstr_ptr(&self) -> *const std::os::raw::c_char {
         self.as_ref().as_ptr()
     }
@@ -29,12 +29,6 @@ impl IntoCStr for dyn AsRef<CStr> {
 impl IntoCStr for Option<&CStr> {
     fn as_cstr_ptr(&self) -> *const std::os::raw::c_char {
         self.map(CStr::as_ptr).unwrap_or(std::ptr::null())
-    }
-}
-
-impl IntoCStr for &str {
-    fn as_cstr_ptr(&self) -> *const std::os::raw::c_char {
-        CString::new(self).unwrap().as_ptr()
     }
 }
 
