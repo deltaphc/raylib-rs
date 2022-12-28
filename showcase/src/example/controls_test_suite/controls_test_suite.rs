@@ -433,7 +433,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
 
         d.gui_set_style(BUTTON, TEXT_ALIGNMENT as i32, TEXT_ALIGN_CENTER as i32);
 
-        let itext = d.gui_icon_text(ICON_FILE_SAVE, Some(rstr!("Save File")));
+        let itext = d.gui_icon_text(RAYGUI_ICON_FILE_SAVE, Some(rstr!("Save File")));
         let itext = CString::new(itext).unwrap();
         if d.gui_button(rrect(25, 255, 125, 30), Some(&itext)) {
             showTextInputBox = true;
@@ -598,7 +598,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
                 d.get_screen_height(),
                 Color::RAYWHITE.fade(0.8),
             );
-            let itext = unsafe { d.gui_icon_text(ICON_FILE_SAVE, Some(rstr!("Save file as..."))) };
+            let itext = unsafe { d.gui_icon_text(RAYGUI_ICON_FILE_SAVE, Some(rstr!("Save file as..."))) };
             let itext = CString::new(itext).unwrap();
             let result = d.gui_text_input_box(
                 rrect(
