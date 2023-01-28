@@ -94,7 +94,7 @@ impl Camera3D {
     }
 }
 
-impl RaylibHandle {
+impl RaylibHandle<'_> {
     /// Sets camera mode.
     #[inline]
     pub fn set_camera_mode(

@@ -7,10 +7,10 @@ use crate::ffi;
 
 use std::convert::{AsMut, AsRef};
 use std::ffi::CString;
+use std::mem::ManuallyDrop;
 
 fn no_drop<T>(_thing: T) {}
-make_thin_wrapper!(Font, ffi::Font, ffi::UnloadFont);
-make_thin_wrapper!(WeakFont, ffi::Font, no_drop);
+make_bound_thin_wrapper!(Font, ffi::Font, ffi::UnloadFont, RaylibHandle<'bind>);
 make_thin_wrapper!(GlyphInfo, ffi::GlyphInfo, no_drop);
 
 #[repr(transparent)]
@@ -67,13 +67,7 @@ impl std::ops::DerefMut for RSliceGlyphInfo {
 // #[cfg(feature = "nightly")]
 // unsafe impl Sync for WeakFont {}
 
-impl AsRef<ffi::Texture2D> for Font {
-    fn as_ref(&self) -> &ffi::Texture2D {
-        return &self.0.texture;
-    }
-}
-
-impl AsRef<ffi::Texture2D> for WeakFont {
+impl<'bind, 'a> AsRef<ffi::Texture2D> for Font<'bind, 'a> {
     fn as_ref(&self) -> &ffi::Texture2D {
         return &self.0.texture;
     }
@@ -86,14 +80,14 @@ pub enum FontLoadEx<'a> {
     Chars(&'a [i32]),
 }
 
-impl RaylibHandle {
-    pub fn unload_font(&mut self, font: WeakFont) {
-        unsafe { ffi::UnloadFont(font.0) };
-    }
-
+impl<'bind> RaylibHandle<'_> {
     /// Loads font from file into GPU memory (VRAM).
     #[inline]
-    pub fn load_font(&mut self, _: &RaylibThread, filename: &str) -> Result<Font, String> {
+    pub fn load_font(
+        &'bind self,
+        _: &RaylibThread,
+        filename: &str,
+    ) -> Result<Font<'bind, '_>, String> {
         let c_filename = CString::new(filename).unwrap();
         let f = unsafe { ffi::LoadFont(c_filename.as_ptr()) };
         if f.glyphs.is_null() || f.texture.id == 0 {
@@ -102,18 +96,18 @@ impl RaylibHandle {
                 filename
             ));
         }
-        Ok(Font(f))
+        Ok(unsafe { Font::from_raw(f) })
     }
 
     /// Loads font from file with extended parameters.
     #[inline]
     pub fn load_font_ex(
-        &mut self,
+        &'bind self,
         _: &RaylibThread,
         filename: &str,
         font_size: i32,
         chars: FontLoadEx,
-    ) -> Result<Font, String> {
+    ) -> Result<Font<'bind, '_>, String> {
         let c_filename = CString::new(filename).unwrap();
         let f = unsafe {
             match chars {
@@ -134,30 +128,30 @@ impl RaylibHandle {
                 filename
             ));
         }
-        Ok(Font(f))
+        Ok(unsafe { Font::from_raw(f) })
     }
 
     /// Load font from Image (XNA style)
     #[inline]
     pub fn load_font_from_image(
-        &mut self,
+        &'bind self,
         _: &RaylibThread,
         image: &Image,
         key: impl Into<ffi::Color>,
         first_char: i32,
-    ) -> Result<Font, String> {
+    ) -> Result<Font<'bind, '_>, String> {
         let f = unsafe { ffi::LoadFontFromImage(image.0, key.into(), first_char) };
         if f.glyphs.is_null() {
             return Err(format!("Error loading font from image."));
         }
-        Ok(Font(f))
+        Ok(unsafe { Font::from_raw(f) })
     }
 
     /// Loads font data for further use (see also `Font::from_data`).
     /// Now supports .tiff
     #[inline]
     pub fn load_font_data(
-        &mut self,
+        &self,
         data: &[u8],
         font_size: i32,
         chars: Option<&[i32]>,
@@ -194,8 +188,7 @@ impl RaylibHandle {
     }
 }
 
-impl RaylibFont for WeakFont {}
-impl RaylibFont for Font {}
+impl RaylibFont for Font<'_, '_> {}
 
 pub trait RaylibFont: AsRef<ffi::Font> + AsMut<ffi::Font> {
     fn base_size(&self) -> i32 {
@@ -222,19 +215,15 @@ pub trait RaylibFont: AsRef<ffi::Font> + AsMut<ffi::Font> {
     }
 }
 
-impl Font {
-    pub fn make_weak(self) -> WeakFont {
-        let w = WeakFont(self.0);
-        std::mem::forget(self);
-        return w;
-    }
+impl<'a, 'bind> Font<'bind, 'a> {
     /// Returns a new `Font` using provided `GlyphInfo` data and parameters.
     fn from_data(
+        &'bind mut self,
         chars: &[ffi::GlyphInfo],
         base_size: i32,
         padding: i32,
         pack_method: i32,
-    ) -> Result<Font, String> {
+    ) -> Result<Font<'bind, 'a>, String> {
         let f = unsafe {
             let mut f = std::mem::zeroed::<Font>();
             f.baseSize = base_size;
@@ -311,11 +300,11 @@ pub fn gen_image_font_atlas(
     }
 }
 
-impl RaylibHandle {
+impl<'bind, 'a> RaylibHandle<'_> {
     /// Gets the default font.
     #[inline]
-    pub fn get_font_default(&self) -> WeakFont {
-        WeakFont(unsafe { ffi::GetFontDefault() })
+    pub fn get_font_default(&'bind self) -> ManuallyDrop<Font<'bind, 'a>> {
+        ManuallyDrop::new(unsafe { Font::from_raw(ffi::GetFontDefault()) })
     }
 }
 

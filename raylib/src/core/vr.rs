@@ -52,9 +52,9 @@ impl Into<ffi::VrDeviceInfo> for &VrDeviceInfo {
     }
 }
 
-impl RaylibHandle {
+impl RaylibHandle<'_> {
     pub fn load_vr_stereo_config(
-        &mut self,
+        &self,
         _: &RaylibThread,
         device: impl Into<ffi::VrDeviceInfo>,
     ) -> VrStereoConfig {

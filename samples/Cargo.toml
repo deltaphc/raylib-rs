@@ -2,14 +2,14 @@
 name = "raylib-examples"
 version = "4.0.0"
 authors = ["David Ayeke"]
-edition = "2018"
+edition = "2021"
 license = "Zlib"
 readme = "../README.md"
 repository = "https://github.com/deltaphc/raylib-rs"
 
 
 [dependencies]
-raylib = { version = "4.0", path = "../raylib" }
+raylib = { version = "4.5", path = "../raylib" }
 structopt = "0.2"
 specs-derive = "0.4.1"
 rand = "0.7"

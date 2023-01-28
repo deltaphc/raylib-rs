@@ -5,85 +5,75 @@ use crate::core::math::{Vector2, Vector3, Vector4};
 use crate::core::{RaylibHandle, RaylibThread};
 use crate::ffi;
 use std::ffi::CString;
+use std::mem::ManuallyDrop;
 use std::os::raw::{c_char, c_void};
 
-fn no_drop<T>(_thing: T) {}
-make_thin_wrapper!(Shader, ffi::Shader, ffi::UnloadShader);
-make_thin_wrapper!(WeakShader, ffi::Shader, no_drop);
+make_bound_thin_wrapper!(Shader, ffi::Shader, ffi::UnloadShader, RaylibHandle<'bind>);
 
 // #[cfg(feature = "nightly")]
 // impl !Send for Shader {}
 // #[cfg(feature = "nightly")]
 // unsafe impl Sync for Shader {}
 
-impl RaylibHandle {
+impl<'bind, 'a, 'rl> RaylibHandle<'rl> {
     /// Loads a custom shader and binds default locations.
     pub fn load_shader(
-        &mut self,
+        &'bind self,
         _: &RaylibThread,
         vs_filename: Option<&str>,
         fs_filename: Option<&str>,
-    ) -> Result<Shader, String> {
+    ) -> Result<Shader<'bind, 'a>, String> {
         let c_vs_filename = vs_filename.map(|f| CString::new(f).unwrap());
         let c_fs_filename = fs_filename.map(|f| CString::new(f).unwrap());
 
         // Trust me, I have tried ALL the RUST option ergonamics. This is the only way
         // to get this to work without raylib breaking for whatever reason
         let shader = match (c_vs_filename, c_fs_filename) {
-            (Some(vs), Some(fs)) => unsafe { Shader(ffi::LoadShader(vs.as_ptr(), fs.as_ptr())) },
-            (None, Some(fs)) => unsafe { Shader(ffi::LoadShader(std::ptr::null(), fs.as_ptr())) },
-            (Some(vs), None) => unsafe { Shader(ffi::LoadShader(vs.as_ptr(), std::ptr::null())) },
-            (None, None) => unsafe { Shader(ffi::LoadShader(std::ptr::null(), std::ptr::null())) },
+            (Some(vs), Some(fs)) => unsafe { ffi::LoadShader(vs.as_ptr(), fs.as_ptr()) },
+            (None, Some(fs)) => unsafe { ffi::LoadShader(std::ptr::null(), fs.as_ptr()) },
+            (Some(vs), None) => unsafe { ffi::LoadShader(vs.as_ptr(), std::ptr::null()) },
+            (None, None) => unsafe { ffi::LoadShader(std::ptr::null(), std::ptr::null()) },
         };
 
-        return Ok(shader);
+        Ok(unsafe { Shader::from_raw(shader) })
     }
 
     /// Loads shader from code strings and binds default locations.
     pub fn load_shader_from_memory(
-        &mut self,
+        &'bind self,
         _: &RaylibThread,
         vs_code: Option<&str>,
         fs_code: Option<&str>,
-    ) -> Shader {
+    ) -> Shader<'bind, 'a> {
         let c_vs_code = vs_code.map(|f| CString::new(f).unwrap());
         let c_fs_code = fs_code.map(|f| CString::new(f).unwrap());
-        return match (c_vs_code, c_fs_code) {
-            (Some(vs), Some(fs)) => unsafe {
-                Shader(ffi::LoadShaderFromMemory(
+
+        unsafe {
+            Shader::from_raw(match (c_vs_code, c_fs_code) {
+                (Some(vs), Some(fs)) => ffi::LoadShaderFromMemory(
                     vs.as_ptr() as *mut c_char,
                     fs.as_ptr() as *mut c_char,
-                ))
-            },
-            (None, Some(fs)) => unsafe {
-                Shader(ffi::LoadShaderFromMemory(
-                    std::ptr::null_mut(),
-                    fs.as_ptr() as *mut c_char,
-                ))
-            },
-            (Some(vs), None) => unsafe {
-                Shader(ffi::LoadShaderFromMemory(
-                    vs.as_ptr() as *mut c_char,
-                    std::ptr::null_mut(),
-                ))
-            },
-            (None, None) => unsafe {
-                Shader(ffi::LoadShaderFromMemory(
-                    std::ptr::null_mut(),
-                    std::ptr::null_mut(),
-                ))
-            },
-        };
+                ),
+                (None, Some(fs)) => {
+                    ffi::LoadShaderFromMemory(std::ptr::null_mut(), fs.as_ptr() as *mut c_char)
+                }
+                (Some(vs), None) => {
+                    ffi::LoadShaderFromMemory(vs.as_ptr() as *mut c_char, std::ptr::null_mut())
+                }
+                (None, None) => {
+                    ffi::LoadShaderFromMemory(std::ptr::null_mut(), std::ptr::null_mut())
+                }
+            })
+        }
     }
 
     /// Get default shader. Modifying it modifies everthing that uses that shader
-    #[cfg(target_os = "windows")]
-    pub fn get_shader_default() -> WeakShader {
+    pub fn get_shader_default(&'bind self) -> ManuallyDrop<Shader<'bind, 'a>> {
         unsafe {
-            WeakShader(ffi::Shader {
+            ManuallyDrop::new(Shader::from_raw(ffi::Shader {
                 id: ffi::rlGetShaderIdDefault(),
-                locs: ffi::rlGetShaderLocsDefault()
-            })
+                locs: ffi::rlGetShaderLocsDefault(),
+            }))
         }
     }
 }
@@ -177,13 +167,7 @@ impl ShaderV for &[i32] {
     }
 }
 
-impl Shader {
-    pub unsafe fn make_weak(self) -> WeakShader {
-        let m = WeakShader(self.0);
-        std::mem::forget(self);
-        m
-    }
-
+impl<'bind, 'a> Shader<'bind, 'a> {
     /// Sets shader uniform value
     #[inline]
     pub fn set_shader_value<S: ShaderV>(&mut self, uniform_loc: i32, value: S) {
@@ -232,8 +216,7 @@ impl Shader {
     }
 }
 
-impl RaylibShader for WeakShader {}
-impl RaylibShader for Shader {}
+impl<'bind, 'a> RaylibShader for Shader<'bind, 'a> {}
 
 pub trait RaylibShader: AsRef<ffi::Shader> + AsMut<ffi::Shader> {
     #[inline]
@@ -302,10 +285,9 @@ pub trait RaylibShader: AsRef<ffi::Shader> + AsMut<ffi::Shader> {
     }
 }
 
-impl RaylibHandle {
+impl<'a> RaylibHandle<'a> {
     /// Sets a custom projection matrix (replaces internal projection matrix).
     #[inline]
-    #[cfg(target_os = "windows")]
     pub fn set_matrix_projection(&mut self, _: &RaylibThread, proj: Matrix) {
         unsafe {
             ffi::rlSetMatrixProjection(proj.into());
@@ -314,7 +296,6 @@ impl RaylibHandle {
 
     /// Sets a custom modelview matrix (replaces internal modelview matrix).
     #[inline]
-    #[cfg(target_os = "windows")]
     pub fn set_matrix_modelview(&mut self, _: &RaylibThread, view: Matrix) {
         unsafe {
             ffi::rlSetMatrixModelview(view.into());
@@ -323,14 +304,12 @@ impl RaylibHandle {
 
     /// Gets internal modelview matrix.
     #[inline]
-    #[cfg(target_os = "windows")]
     pub fn get_matrix_modelview(&self) -> Matrix {
         unsafe { ffi::rlGetMatrixModelview().into() }
     }
 
     /// Gets internal projection matrix.
     #[inline]
-    #[cfg(target_os = "windows")]
     pub fn get_matrix_projection(&self) -> Matrix {
         unsafe { ffi::rlGetMatrixProjection().into() }
     }

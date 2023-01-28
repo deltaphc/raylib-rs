@@ -113,8 +113,8 @@ fn main() {
         model.set_transform(&mat);
 
         // Draw framebuffer texture (Ahrs Display)
-        let center_x = (framebuffer.texture().width() / 2) as f32;
-        let center_y = (framebuffer.texture().height() / 2) as f32;
+        let center_x = (framebuffer.texture.width / 2) as f32;
+        let center_y = (framebuffer.texture.height / 2) as f32;
         let scale_factor = 0.5;
         {
             let mut d = d.begin_texture_mode(&thread, &mut framebuffer);
@@ -125,18 +125,18 @@ fn main() {
                     Rectangle::new(
                         0.0,
                         0.0,
-                        tex_background.width() as f32,
-                        tex_background.height() as f32,
+                        tex_background.width as f32,
+                        tex_background.height as f32,
                     ),
                     Rectangle::new(
                         center_x,
                         center_y,
-                        tex_background.width() as f32 * scale_factor,
-                        tex_background.height() as f32 * scale_factor,
+                        tex_background.width as f32 * scale_factor,
+                        tex_background.height as f32 * scale_factor,
                     ),
                     Vector2::new(
-                        tex_background.width() as f32 / 2.0 * scale_factor,
-                        tex_background.height() as f32 / 2.0 * scale_factor
+                        tex_background.width as f32 / 2.0 * scale_factor,
+                        tex_background.height as f32 / 2.0 * scale_factor
                             + pitch_offset * scale_factor,
                     ),
                     roll,
@@ -148,18 +148,18 @@ fn main() {
                     Rectangle::new(
                         0.0,
                         0.0,
-                        tex_pitch.width() as f32,
-                        tex_pitch.height() as f32 as f32,
+                        tex_pitch.width as f32,
+                        tex_pitch.height as f32 as f32,
                     ),
                     Rectangle::new(
                         center_x,
                         center_y,
-                        tex_pitch.width() as f32 * scale_factor,
-                        tex_pitch.height() as f32 * scale_factor,
+                        tex_pitch.width as f32 * scale_factor,
+                        tex_pitch.height as f32 * scale_factor,
                     ),
                     Vector2::new(
-                        tex_pitch.width() as f32 / 2.0 * scale_factor,
-                        tex_pitch.height() as f32 / 2.0 * scale_factor
+                        tex_pitch.width as f32 / 2.0 * scale_factor,
+                        tex_pitch.height as f32 / 2.0 * scale_factor
                             + pitch_offset * scale_factor,
                     ),
                     roll,
@@ -171,18 +171,18 @@ fn main() {
                     Rectangle::new(
                         0.0,
                         0.0,
-                        tex_plane.width() as f32,
-                        tex_plane.height() as f32 as f32,
+                        tex_plane.width as f32,
+                        tex_plane.height as f32 as f32,
                     ),
                     Rectangle::new(
                         center_x,
                         center_y,
-                        tex_plane.width() as f32 * scale_factor,
-                        tex_plane.height() as f32 * scale_factor,
+                        tex_plane.width as f32 * scale_factor,
+                        tex_plane.height as f32 * scale_factor,
                     ),
                     Vector2::new(
-                        tex_plane.width() as f32 / 2.0 * scale_factor,
-                        tex_plane.height() as f32 / 2.0 * scale_factor,
+                        tex_plane.width as f32 / 2.0 * scale_factor,
+                        tex_plane.height as f32 / 2.0 * scale_factor,
                     ),
                     0.0,
                     Color::WHITE,
@@ -244,7 +244,7 @@ fn main() {
 
         // Draw framebuffer texture
         d.draw_texture_rec(
-            framebuffer.texture(),
+            framebuffer.texture,
             Rectangle::new(
                 0.0,
                 0.0,

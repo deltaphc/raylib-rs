@@ -2,10 +2,10 @@
 use crate::core::math::{Matrix, Ray, Vector2};
 use crate::core::{RaylibHandle, RaylibThread};
 use crate::ffi;
+use core::ffi::c_char;
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
 use std::ffi::{CStr, CString, IntoStringError, NulError};
-use std::os::raw::c_char;
 
 #[cfg(feature = "with_serde")]
 use serde::{Deserialize, Serialize};
@@ -379,7 +379,7 @@ pub fn get_camera_matrix2D(camera: impl Into<ffi::Camera2D>) -> Matrix {
     unsafe { ffi::GetCameraMatrix2D(camera.into()).into() }
 }
 
-impl RaylibHandle {
+impl RaylibHandle<'_> {
     /// Get clipboard text content
     pub fn get_clipboard_text(&self) -> Result<String, std::str::Utf8Error> {
         unsafe {
@@ -400,7 +400,7 @@ impl RaylibHandle {
 }
 
 // Screen-space-related functions
-impl RaylibHandle {
+impl RaylibHandle<'_> {
     /// Returns a ray trace from mouse position
     pub fn get_mouse_ray(
         &self,
@@ -452,9 +452,9 @@ impl RaylibHandle {
 }
 
 // Timing related functions
-impl RaylibHandle {
+impl RaylibHandle<'_> {
     /// Set target FPS (maximum)
-    pub fn set_target_fps(&mut self, fps: u32) {
+    pub fn set_target_fps(&self, fps: u32) {
         unsafe {
             ffi::SetTargetFPS(fps as i32);
         }
@@ -477,7 +477,7 @@ impl RaylibHandle {
 }
 
 // Window handling functions
-impl RaylibHandle {
+impl RaylibHandle<'_> {
     /// Checks if `KEY_ESCAPE` or Close icon was pressed.
     /// Do not call on web unless you are compiling with asyncify.
     #[inline]
@@ -559,53 +559,49 @@ impl RaylibHandle {
 
     /// Get the window config state
     pub fn get_window_state(&self) -> WindowState {
-        let mut state = WindowState::default();
         unsafe {
-            if ffi::IsWindowState(ffi::ConfigFlags::FLAG_VSYNC_HINT as u32) {
-                state.set_vsync_hint(true);
-            }
-            if ffi::IsWindowState(ffi::ConfigFlags::FLAG_FULLSCREEN_MODE as u32) {
-                state.set_fullscreen_mode(true);
-            }
-            if ffi::IsWindowState(ffi::ConfigFlags::FLAG_WINDOW_RESIZABLE as u32) {
-                state.set_window_resizable(true);
-            }
-            if ffi::IsWindowState(ffi::ConfigFlags::FLAG_WINDOW_UNDECORATED as u32) {
-                state.set_window_undecorated(true);
-            }
-            if ffi::IsWindowState(ffi::ConfigFlags::FLAG_WINDOW_HIDDEN as u32) {
-                state.set_window_hidden(true);
-            }
-            if ffi::IsWindowState(ffi::ConfigFlags::FLAG_WINDOW_MINIMIZED as u32) {
-                state.set_window_minimized(true);
-            }
-            if ffi::IsWindowState(ffi::ConfigFlags::FLAG_WINDOW_MAXIMIZED as u32) {
-                state.set_window_maximized(true);
-            }
-            if ffi::IsWindowState(ffi::ConfigFlags::FLAG_WINDOW_UNFOCUSED as u32) {
-                state.set_window_unfocused(true);
-            }
-            if ffi::IsWindowState(ffi::ConfigFlags::FLAG_WINDOW_TOPMOST as u32) {
-                state.set_window_topmost(true);
-            }
-            if ffi::IsWindowState(ffi::ConfigFlags::FLAG_WINDOW_ALWAYS_RUN as u32) {
-                state.set_window_always_run(true);
-            }
-
-            if ffi::IsWindowState(ffi::ConfigFlags::FLAG_WINDOW_TRANSPARENT as u32) {
-                state.set_window_transparent(true);
-            }
-            if ffi::IsWindowState(ffi::ConfigFlags::FLAG_WINDOW_HIGHDPI as u32) {
-                state.set_window_highdpi(true);
-            }
-            if ffi::IsWindowState(ffi::ConfigFlags::FLAG_MSAA_4X_HINT as u32) {
-                state.set_msaa(true);
-            }
-            if ffi::IsWindowState(ffi::ConfigFlags::FLAG_INTERLACED_HINT as u32) {
-                state.set_interlaced_hint(true);
-            }
+            WindowState::default()
+                .set_vsync_hint(ffi::IsWindowState(ffi::ConfigFlags::FLAG_VSYNC_HINT as u32))
+                .set_fullscreen_mode(ffi::IsWindowState(
+                    ffi::ConfigFlags::FLAG_FULLSCREEN_MODE as u32,
+                ))
+                .set_window_resizable(ffi::IsWindowState(
+                    ffi::ConfigFlags::FLAG_WINDOW_RESIZABLE as u32,
+                ))
+                .set_window_undecorated(ffi::IsWindowState(
+                    ffi::ConfigFlags::FLAG_WINDOW_UNDECORATED as u32,
+                ))
+                .set_window_hidden(ffi::IsWindowState(
+                    ffi::ConfigFlags::FLAG_WINDOW_HIDDEN as u32,
+                ))
+                .set_window_minimized(ffi::IsWindowState(
+                    ffi::ConfigFlags::FLAG_WINDOW_MINIMIZED as u32,
+                ))
+                .set_window_maximized(ffi::IsWindowState(
+                    ffi::ConfigFlags::FLAG_WINDOW_MAXIMIZED as u32,
+                ))
+                .set_window_unfocused(ffi::IsWindowState(
+                    ffi::ConfigFlags::FLAG_WINDOW_UNFOCUSED as u32,
+                ))
+                .set_window_topmost(ffi::IsWindowState(
+                    ffi::ConfigFlags::FLAG_WINDOW_TOPMOST as u32,
+                ))
+                .set_window_always_run(ffi::IsWindowState(
+                    ffi::ConfigFlags::FLAG_WINDOW_ALWAYS_RUN as u32,
+                ))
+                .set_window_transparent(ffi::IsWindowState(
+                    ffi::ConfigFlags::FLAG_WINDOW_TRANSPARENT as u32,
+                ))
+                .set_window_highdpi(ffi::IsWindowState(
+                    ffi::ConfigFlags::FLAG_WINDOW_HIGHDPI as u32,
+                ))
+                .set_msaa(ffi::IsWindowState(
+                    ffi::ConfigFlags::FLAG_MSAA_4X_HINT as u32,
+                ))
+                .set_interlaced_hint(ffi::IsWindowState(
+                    ffi::ConfigFlags::FLAG_INTERLACED_HINT as u32,
+                ))
         }
-        state
     }
 
     /// Sets icon for window (only on desktop platforms).
@@ -679,7 +675,7 @@ impl RaylibHandle {
 }
 
 // Cursor-related functions
-impl RaylibHandle {
+impl RaylibHandle<'_> {
     /// Shows mouse cursor.
     #[inline]
     pub fn show_cursor(&mut self) {
@@ -720,7 +716,7 @@ impl RaylibHandle {
 
     /// Get native window handle
     #[inline]
-    pub unsafe fn get_window_handle(&mut self) -> *mut ::std::os::raw::c_void {
+    pub unsafe fn get_window_handle(&mut self) -> *mut core::ffi::c_void {
         ffi::GetWindowHandle()
     }
 }

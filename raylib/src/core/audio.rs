@@ -3,14 +3,18 @@
 use crate::core::RaylibThread;
 use crate::ffi;
 use std::ffi::CString;
-use std::mem::ManuallyDrop;
+
+use super::buffer::RaylibBuffer;
 
 make_thin_wrapper!(Wave, ffi::Wave, ffi::UnloadWave);
-make_thin_wrapper!(Sound, ffi::Sound, ffi::UnloadSound);
-make_thin_wrapper!(Music, ffi::Music, ffi::UnloadMusicStream);
-make_thin_wrapper!(AudioStream, ffi::AudioStream, ffi::UnloadAudioStream);
-
-make_rslice!(WaveSamples, f32, ffi::UnloadWaveSamples);
+make_bound_thin_wrapper!(Sound, ffi::Sound, ffi::UnloadSound, RaylibAudio);
+make_bound_thin_wrapper!(Music, ffi::Music, ffi::UnloadMusicStream, RaylibAudio);
+make_bound_thin_wrapper!(
+    AudioStream,
+    ffi::AudioStream,
+    ffi::UnloadAudioStream,
+    RaylibAudio
+);
 
 /// A marker trait specifying an audio sample (`u8`, `i16`, or `f32`).
 pub trait AudioSample {}
@@ -18,7 +22,7 @@ impl AudioSample for u8 {}
 impl AudioSample for i16 {}
 impl AudioSample for f32 {}
 
-/// This token is used to indicate VR is initialized
+/// This token is used to indicate audio is initialized
 #[derive(Debug)]
 pub struct RaylibAudio(());
 
@@ -335,31 +339,26 @@ impl Wave {
     /// NOTE 1: Returned sample values are normalized to range [-1..1]
     /// NOTE 2: Sample data allocated should be freed with UnloadWaveSamples()
     #[inline]
-    pub fn load_wave_samples(&self) -> WaveSamples {
-        let as_slice = unsafe {
-            let data = ffi::LoadWaveSamples(self.0);
-            Box::from_raw(std::slice::from_raw_parts_mut(
-                data,
-                self.frame_count() as usize,
-            ))
-        };
-        WaveSamples(ManuallyDrop::new(as_slice))
+    pub fn load_wave_samples(&self) -> RaylibBuffer<'static, f32> {
+        unsafe {
+            RaylibBuffer::new(ffi::LoadWaveSamples(self.0), self.frame_count() as usize).unwrap()
+        }
     }
 }
 
-impl AsRef<ffi::AudioStream> for Sound {
+impl AsRef<ffi::AudioStream> for Sound<'_, '_> {
     fn as_ref(&self) -> &ffi::AudioStream {
         &self.0.stream
     }
 }
 
-impl AsMut<ffi::AudioStream> for Sound {
+impl AsMut<ffi::AudioStream> for Sound<'_, '_> {
     fn as_mut(&mut self) -> &mut ffi::AudioStream {
         &mut self.0.stream
     }
 }
 
-impl Sound {
+impl<'bind, 'a> Sound<'bind, 'a> {
     pub fn frame_count(&self) -> u32 {
         self.0.frameCount
     }
@@ -369,22 +368,25 @@ impl Sound {
         inner
     }
     /// Loads sound from file.
-    pub fn load_sound(filename: &str) -> Result<Sound, String> {
+    pub fn load_sound(_: &'bind RaylibAudio, filename: &str) -> Result<Sound<'bind, 'a>, String> {
         let c_filename = CString::new(filename).unwrap();
         let s = unsafe { ffi::LoadSound(c_filename.as_ptr()) };
         if s.stream.buffer.is_null() {
             return Err(format!("failed to load sound {}", filename));
         }
-        Ok(Sound(s))
+        Ok(unsafe { Sound::from_raw(s) })
     }
 
     /// Loads sound from wave data.
-    pub fn load_sound_from_wave(wave: &Wave) -> Result<Sound, String> {
+    pub fn load_sound_from_wave(
+        _: &'bind RaylibAudio,
+        wave: &Wave,
+    ) -> Result<Sound<'bind, 'a>, String> {
         let s = unsafe { ffi::LoadSoundFromWave(wave.0) };
         if s.stream.buffer.is_null() {
             return Err(format!("failed to load sound from wave"));
         }
-        Ok(Sound(s))
+        Ok(unsafe { Sound::from_raw(s) })
     }
 
     // Figure out how to make this safe
@@ -401,20 +403,24 @@ impl Sound {
     // }
 }
 
-impl Music {
+impl<'bind, 'a> Music<'bind, 'a> {
     /// Loads music stream from file.
     // #[inline]
-    pub fn load_music_stream(_: &RaylibThread, filename: &str) -> Result<Music, String> {
+    pub fn load_music_stream(
+        _: &'bind RaylibAudio,
+        _: &RaylibThread,
+        filename: &str,
+    ) -> Result<Music<'bind, 'a>, String> {
         let c_filename = CString::new(filename).unwrap();
         let m = unsafe { ffi::LoadMusicStream(c_filename.as_ptr()) };
         if m.stream.buffer.is_null() {
             return Err(format!("music could not be loaded from file {}", filename));
         }
-        Ok(Music(m))
+        Ok(unsafe { Music::from_raw(m) })
     }
 }
 
-impl AudioStream {
+impl<'bind, 'a> AudioStream<'bind, 'a> {
     pub fn sample_rate(&self) -> u32 {
         self.0.sampleRate
     }
@@ -433,23 +439,22 @@ impl AudioStream {
     /// Initializes audio stream (to stream raw PCM data).
     #[inline]
     pub fn load_audio_stream(
+        _: &'bind RaylibAudio,
         _: &RaylibThread,
         sample_rate: u32,
         sample_size: u32,
         channels: u32,
-    ) -> AudioStream {
-        unsafe { AudioStream(ffi::LoadAudioStream(sample_rate, sample_size, channels)) }
+    ) -> AudioStream<'bind, 'a> {
+        unsafe { AudioStream::from_raw(ffi::LoadAudioStream(sample_rate, sample_size, channels)) }
     }
 
     /// Updates audio stream buffers with data.
     #[inline]
     pub fn update_audio_stream<T: AudioSample>(&mut self, data: &[T]) {
+        assert_eq!(self.sampleSize as usize, core::mem::size_of::<T>() * 8);
+
         unsafe {
-            ffi::UpdateAudioStream(
-                self.0,
-                data.as_ptr() as *const std::os::raw::c_void,
-                (data.len() * std::mem::size_of::<T>()) as i32,
-            );
+            ffi::UpdateAudioStream(self.0, data.as_ptr() as _, data.len() as i32);
         }
     }
 }

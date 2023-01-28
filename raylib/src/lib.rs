@@ -54,8 +54,6 @@ Permission is granted to anyone to use this software for any purpose, including 
 //!     }
 //! }
 //! ```
-#![cfg_attr(feature = "nightly", feature(optin_builtin_traits))]
-#![allow(dead_code)]
 pub mod consts;
 pub mod core;
 pub mod ease;

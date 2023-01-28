@@ -2,9 +2,10 @@
 use crate::ffi;
 
 use crate::core::RaylibHandle;
+use core::slice;
 use std::ffi::CStr;
 
-impl RaylibHandle {
+impl<'a> RaylibHandle<'a> {
     /// Checks if a file has been dropped into the window.
     #[inline]
     pub fn is_file_dropped(&self) -> bool {
@@ -13,18 +14,17 @@ impl RaylibHandle {
 
     /// Gets dropped filenames.
     pub fn get_dropped_files(&self) -> Vec<String> {
-        let mut v = Vec::new();
-        unsafe {
-            let dropfiles = ffi::LoadDroppedFiles();
-            for i in 0..dropfiles.count {
-                let filestr = CStr::from_ptr(*dropfiles.paths.offset(i as isize))
-                    .to_str()
-                    .unwrap();
-                let file = String::from(filestr);
-                v.push(file);
-            }
-            ffi::UnloadDroppedFiles(dropfiles)
-        }
+        let dropfiles = unsafe { ffi::LoadDroppedFiles() };
+
+        let v: Vec<String> =
+            unsafe { slice::from_raw_parts(dropfiles.paths, dropfiles.count as usize) }
+                .iter()
+                .map(|p| unsafe { CStr::from_ptr(*p) })
+                .map(|cstr| String::from(cstr.to_string_lossy()))
+                .collect();
+
+        unsafe { ffi::UnloadDroppedFiles(dropfiles) };
+
         v
     }
 }

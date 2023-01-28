@@ -67,7 +67,9 @@ impl Default for Game {
 
 fn main() {
     let opt = options::Opt::from_args();
-    let (mut rl, thread) = opt.open_window("Arkanoid");
+    let (rl, thread) = opt.open_window("Arkanoid");
+    let render = rl.render_loop(&thread);
+
     let (_w, _h) = (opt.width, opt.height);
 
     let _game_over = false;
@@ -79,7 +81,7 @@ fn main() {
 
     while !rl.window_should_close() {
         update_game(&mut game, &rl);
-        draw_game(&game, &mut rl, &thread);
+        render.frame(|d| draw_game(&game, &rl, &d, &thread));
     }
 }
 
@@ -273,9 +275,9 @@ fn update_game(game: &mut Game, rl: &RaylibHandle) {
     }
 }
 
-fn draw_game(game: &Game, rl: &mut RaylibHandle, thread: &RaylibThread) {
+fn draw_game(game: &Game, rl: &RaylibHandle, d: &RaylibDrawHandle, thread: &RaylibThread) {
     let (w, h) = (rl.get_screen_width() as f32, rl.get_screen_height() as f32);
-    let mut d = rl.begin_drawing(thread);
+
     d.clear_background(Color::RAYWHITE);
     if !game.game_over {
         // Draw player bar

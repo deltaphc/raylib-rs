@@ -24,8 +24,6 @@ use serde::{Deserialize, Serialize};
 #[cfg(feature = "nalgebra_interop")]
 use nalgebra as na;
 
-make_rslice!(RSliceVec4, Vector4, ffi::MemFree);
-
 macro_rules! optional_serde_struct {
     ($def:item) => {
         cfg_if::cfg_if! {

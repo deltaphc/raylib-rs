@@ -1,11 +1,13 @@
 use crate::core::color::Color;
 use crate::core::drawing::RaylibDraw;
 use crate::core::math::{Rectangle, Vector2};
-use crate::core::text::WeakFont;
 use crate::core::RaylibHandle;
 use crate::ffi;
+use crate::text::Font;
 
 use std::ffi::CStr;
+use std::marker::PhantomData;
+use std::mem::ManuallyDrop;
 
 pub trait IntoCStr {
     fn as_cstr_ptr(&self) -> *const std::os::raw::c_char;
@@ -33,7 +35,7 @@ impl IntoCStr for Option<&CStr> {
 }
 
 /// Global gui modification functions
-impl RaylibHandle {
+impl RaylibHandle<'_> {
     /// Enable gui controls (global state)
     #[inline]
     pub fn gui_enable(&mut self) {
@@ -76,8 +78,8 @@ impl RaylibHandle {
     }
     /// Get gui custom font (global state)
     #[inline]
-    pub fn gui_get_font(&mut self) -> WeakFont {
-        unsafe { WeakFont(ffi::GuiGetFont()) }
+    pub fn gui_get_font<'bind>(&'bind mut self) -> ManuallyDrop<Font<'bind, '_>> {
+        unsafe { ManuallyDrop::new(Font(ffi::GuiGetFont(), PhantomData, PhantomData)) }
     }
     /// Set one style property
     /// SHOULD use one of the Gui*Property enums
@@ -104,9 +106,9 @@ impl RaylibHandle {
     }
 }
 
-impl<D: RaylibDraw> RaylibDrawGui for D {}
+impl<'a, D: RaylibDraw> RaylibDrawGui<'a> for D {}
 
-pub trait RaylibDrawGui {
+pub trait RaylibDrawGui<'a> {
     /// Enable gui controls (global state)
     #[inline]
     fn gui_enable(&mut self) {
@@ -149,8 +151,8 @@ pub trait RaylibDrawGui {
     }
     /// Get gui custom font (global state)
     #[inline]
-    fn gui_get_font(&mut self) -> WeakFont {
-        unsafe { WeakFont(ffi::GuiGetFont()) }
+    fn gui_get_font<'bind>(&'bind mut self) -> ManuallyDrop<Font<'bind, '_>> {
+        unsafe { ManuallyDrop::new(Font(ffi::GuiGetFont(), PhantomData, PhantomData)) }
     }
     /// Set one style property
     /// SHOULD use one of the Gui*Property enums

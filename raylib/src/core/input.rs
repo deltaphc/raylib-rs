@@ -6,7 +6,7 @@ use crate::ffi;
 
 use std::ffi::{CStr};
 
-impl RaylibHandle {
+impl RaylibHandle<'_> {
     /// Detect if a key has been pressed once.
     #[inline]
     pub fn is_key_pressed(&self, key: crate::consts::KeyboardKey) -> bool {
