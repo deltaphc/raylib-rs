@@ -77,6 +77,7 @@ pub struct RaylibBuilder {
     window_resizable: bool,
     window_undecorated: bool,
     window_transparent: bool,
+    window_high_dpi: bool,
     msaa_4x_hint: bool,
     vsync_hint: bool,
     width: i32,
@@ -119,6 +120,12 @@ impl RaylibBuilder {
         self
     }
 
+    /// Sets the window to support high DPI. 
+    pub fn high_dpi(&mut self) -> &mut Self {
+        self.window_high_dpi = true;
+        self
+    }
+    
     /// Hints that 4x MSAA (anti-aliasing) should be enabled. The system's graphics drivers may override this setting.
     pub fn msaa_4x(&mut self) -> &mut Self {
         self.msaa_4x_hint = true;
@@ -175,6 +182,9 @@ impl RaylibBuilder {
         }
         if self.window_transparent {
             flags |= FLAG_WINDOW_TRANSPARENT as u32;
+        }
+        if self.window_high_dpi {
+            flags |= FLAG_WINDOW_HIGH_DPI as u32;
         }
         if self.msaa_4x_hint {
             flags |= FLAG_MSAA_4X_HINT as u32;
