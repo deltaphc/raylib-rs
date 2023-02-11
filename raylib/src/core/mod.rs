@@ -184,7 +184,7 @@ impl RaylibBuilder {
             flags |= FLAG_WINDOW_TRANSPARENT as u32;
         }
         if self.window_high_dpi {
-            flags |= FLAG_WINDOW_HIGH_DPI as u32;
+            flags |= FLAG_WINDOW_HIGHDPI as u32;
         }
         if self.msaa_4x_hint {
             flags |= FLAG_MSAA_4X_HINT as u32;
