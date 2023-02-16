@@ -5,6 +5,19 @@
 [![docs](https://docs.rs/raylib/badge.svg)](https://docs.rs/raylib)
 [discord](https://discord.gg/VkzNHUE)
 
+
+# NOTE 4.x version in progress. 
+
+Raylib 4.2 is currenlty a work in progress. In the meantime you can use a fork: https://github.com/litten2up/raylib-rs
+
+Add this to your Cargo.toml
+```toml
+[dependencies.raylib]
+version = "4.5.0"
+git = "https://github.com/litten2up/raylib-rs"
+branch = "4.5.0"
+```
+
 # raylib-rs
 
 raylib-rs is a Rust binding for [raylib](http://www.raylib.com/) 3.5. It currently targets the _stable_ Rust toolchain, version 1.31 or higher.
