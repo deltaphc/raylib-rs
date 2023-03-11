@@ -7,45 +7,9 @@ use crate::core::texture::Texture2D;
 use crate::core::vr::VrStereoConfig;
 use crate::core::{RaylibHandle, RaylibThread};
 use crate::{ffi, RaylibRenderLoop};
-use std::cell::RefMut;
 use std::convert::AsRef;
 use std::ffi::CString;
 use std::marker::PhantomData;
-
-/// Seems like all draw commands must be issued from the main thread
-impl RaylibRenderLoop<'_> {
-    /// Setup canvas (framebuffer) to start drawing
-    pub fn draw_loop<F: FnMut(RefMut<'_, RaylibDrawHandle>) -> bool>(&self, mut loop_fn: F) {
-        loop {
-            unsafe {
-                ffi::BeginDrawing();
-            };
-
-            let cont = (loop_fn)(self.0.borrow_mut());
-
-            unsafe {
-                ffi::EndDrawing();
-            }
-
-            if !cont {
-                break;
-            }
-        }
-    }
-
-    /// Render a single frame.
-    pub fn frame<F: FnMut(RefMut<'_, RaylibDrawHandle>)>(&self, mut frame_fn: F) {
-        unsafe {
-            ffi::BeginDrawing();
-        };
-
-        (frame_fn)(self.0.borrow_mut());
-
-        unsafe {
-            ffi::EndDrawing();
-        }
-    }
-}
 
 #[derive(Debug)]
 pub struct RaylibDrawHandle<'bind>(pub(crate) PhantomData<&'bind RaylibHandle<'bind>>);
@@ -127,7 +91,7 @@ impl<T> RaylibDraw for RaylibVRMode<'_, T> {}
 
 // 2D Mode
 
-pub struct RaylibMode2D<'a, T>(&'a mut T);
+pub struct RaylibMode2D<'a, T>(&'a T);
 impl<T> Drop for RaylibMode2D<'_, T> {
     fn drop(&mut self) {
         unsafe { ffi::EndMode2D() }
@@ -147,7 +111,7 @@ where
 {
     #[allow(non_snake_case)]
     #[must_use]
-    fn begin_mode2D(&mut self, camera: impl Into<ffi::Camera2D>) -> RaylibMode2D<Self> {
+    fn begin_mode2D(&self, camera: impl Into<ffi::Camera2D>) -> RaylibMode2D<Self> {
         unsafe {
             ffi::BeginMode2D(camera.into());
         }
@@ -160,7 +124,7 @@ impl<T> RaylibDraw for RaylibMode2D<'_, T> {}
 
 // 3D Mode
 
-pub struct RaylibMode3D<'a, T>(&'a mut T);
+pub struct RaylibMode3D<'a, T>(&'a T);
 impl<T> Drop for RaylibMode3D<'_, T> {
     fn drop(&mut self) {
         unsafe { ffi::EndMode3D() }
@@ -180,7 +144,7 @@ where
 {
     #[allow(non_snake_case)]
     #[must_use]
-    fn begin_mode3D(&mut self, camera: impl Into<ffi::Camera3D>) -> RaylibMode3D<Self> {
+    fn begin_mode3D(&self, camera: impl Into<ffi::Camera3D>) -> RaylibMode3D<Self> {
         unsafe {
             ffi::BeginMode3D(camera.into());
         }
@@ -226,7 +190,7 @@ impl<'a, T> RaylibDraw3D for RaylibShaderMode<'a, T> {}
 
 // Blend Mode
 
-pub struct RaylibBlendMode<'a, T>(&'a mut T);
+pub struct RaylibBlendMode<'a, T>(&'a T);
 impl<'a, T> Drop for RaylibBlendMode<'a, T> {
     fn drop(&mut self) {
         unsafe { ffi::EndBlendMode() }
@@ -245,7 +209,7 @@ where
     Self: Sized,
 {
     #[must_use]
-    fn begin_blend_mode(&mut self, blend_mode: crate::consts::BlendMode) -> RaylibBlendMode<Self> {
+    fn begin_blend_mode(&self, blend_mode: crate::consts::BlendMode) -> RaylibBlendMode<Self> {
         unsafe { ffi::BeginBlendMode((blend_mode as u32) as i32) }
         RaylibBlendMode(self)
     }
@@ -257,7 +221,7 @@ impl<T> RaylibDraw3D for RaylibBlendMode<'_, T> {}
 
 // Scissor Mode stuff
 
-pub struct RaylibScissorMode<'a, T>(&'a mut T);
+pub struct RaylibScissorMode<'a, T>(&'a T);
 impl<T> Drop for RaylibScissorMode<'_, T> {
     fn drop(&mut self) {
         unsafe { ffi::EndScissorMode() }
@@ -277,7 +241,7 @@ where
 {
     #[must_use]
     fn begin_scissor_mode(
-        &mut self,
+        &self,
         x: i32,
         y: i32,
         width: i32,
@@ -305,7 +269,7 @@ pub trait RaylibDraw {
 
     /// Define default texture used to draw shapes
     fn set_shapes_texture(
-        &mut self,
+        &self,
         texture: impl AsRef<ffi::Texture2D>,
         source: impl Into<ffi::Rectangle>,
     ) {
@@ -313,14 +277,14 @@ pub trait RaylibDraw {
     }
 
     // // Draw gui widget
-    // fn draw_gui<G: crate::rgui::GuiDraw>(&mut self, widget: G) -> crate::rgui::DrawResult {
+    // fn draw_gui<G: crate::rgui::GuiDraw>(&self, widget: G) -> crate::rgui::DrawResult {
     //     widget.draw()
     // }
 
     // SHAPES
     /// Draws a pixel.
     #[inline]
-    fn draw_pixel(&mut self, x: i32, y: i32, color: impl Into<ffi::Color>) {
+    fn draw_pixel(&self, x: i32, y: i32, color: impl Into<ffi::Color>) {
         unsafe {
             ffi::DrawPixel(x, y, color.into());
         }
@@ -328,7 +292,7 @@ pub trait RaylibDraw {
 
     /// Draws a pixel (Vector version).
     #[inline]
-    fn draw_pixel_v(&mut self, position: impl Into<ffi::Vector2>, color: impl Into<ffi::Color>) {
+    fn draw_pixel_v(&self, position: impl Into<ffi::Vector2>, color: impl Into<ffi::Color>) {
         unsafe {
             ffi::DrawPixelV(position.into(), color.into());
         }
@@ -337,7 +301,7 @@ pub trait RaylibDraw {
     /// Draws a line.
     #[inline]
     fn draw_line(
-        &mut self,
+        &self,
         start_pos_x: i32,
         start_pos_y: i32,
         end_pos_x: i32,
@@ -352,7 +316,7 @@ pub trait RaylibDraw {
     /// Draws a line (Vector version).
     #[inline]
     fn draw_line_v(
-        &mut self,
+        &self,
         start_pos: impl Into<ffi::Vector2>,
         end_pos: impl Into<ffi::Vector2>,
         color: impl Into<ffi::Color>,
@@ -365,7 +329,7 @@ pub trait RaylibDraw {
     /// Draws a line with thickness.
     #[inline]
     fn draw_line_ex(
-        &mut self,
+        &self,
         start_pos: impl Into<ffi::Vector2>,
         end_pos: impl Into<ffi::Vector2>,
         thick: f32,
@@ -379,7 +343,7 @@ pub trait RaylibDraw {
     /// Draws a line using cubic-bezier curves in-out.
     #[inline]
     fn draw_line_bezier(
-        &mut self,
+        &self,
         start_pos: impl Into<ffi::Vector2>,
         end_pos: impl Into<ffi::Vector2>,
         thick: f32,
@@ -392,7 +356,7 @@ pub trait RaylibDraw {
     /// Draw line using quadratic bezier curves with a control point
     #[inline]
     fn draw_line_bezier_quad(
-        &mut self,
+        &self,
         start_pos: impl Into<ffi::Vector2>,
         end_pos: impl Into<ffi::Vector2>,
         control_pos: impl Into<ffi::Vector2>,
@@ -412,7 +376,7 @@ pub trait RaylibDraw {
 
     /// Draw lines sequence
     #[inline]
-    fn draw_line_strip(&mut self, points: &[Vector2], color: impl Into<ffi::Color>) {
+    fn draw_line_strip(&self, points: &[Vector2], color: impl Into<ffi::Color>) {
         unsafe {
             ffi::DrawLineStrip(
                 points.as_ptr() as *mut ffi::Vector2,
@@ -425,7 +389,7 @@ pub trait RaylibDraw {
     /// Draws a color-filled circle.
     #[inline]
     fn draw_circle(
-        &mut self,
+        &self,
         center_x: i32,
         center_y: i32,
         radius: f32,
@@ -438,7 +402,7 @@ pub trait RaylibDraw {
     /// Draw a piece of a circle
     #[inline]
     fn draw_circle_sector(
-        &mut self,
+        &self,
         center: impl Into<ffi::Vector2>,
         radius: f32,
         start_angle: f32,
@@ -461,7 +425,7 @@ pub trait RaylibDraw {
     /// Draw circle sector outline
     #[inline]
     fn draw_circle_sector_lines(
-        &mut self,
+        &self,
         center: impl Into<ffi::Vector2>,
         radius: f32,
         start_angle: f32,
@@ -484,7 +448,7 @@ pub trait RaylibDraw {
     /// Draws a gradient-filled circle.
     #[inline]
     fn draw_circle_gradient(
-        &mut self,
+        &self,
         center_x: i32,
         center_y: i32,
         radius: f32,

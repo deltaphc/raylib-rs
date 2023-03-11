@@ -9,7 +9,7 @@ const MAX_BUILDINGS: usize = 100;
 fn main() {
     use raylib::consts::KeyboardKey::*;
     let opt = options::Opt::from_args();
-    let (mut rl, thread) = opt.open_window("Camera 2D");
+    let (rl, thread) = opt.open_window("Camera 2D");
     let (w, h) = (opt.width, opt.height);
 
     let mut player = Rectangle::new(400.0, 280.0, 40.0, 40.0);
@@ -74,10 +74,10 @@ fn main() {
             camera.rotation = 0.0;
         }
 
-        rl.render_loop().frame(|mut d| {
+        rl.frame(&thread, |d| {
             d.clear_background(Color::RAYWHITE);
             {
-                let mut d2 = d.begin_mode2D(camera);
+                let d2 = d.begin_mode2D(camera);
                 d2.draw_rectangle(-6000, 320, 13000, 8000, Color::DARKGRAY);
 
                 for i in 0..MAX_BUILDINGS {

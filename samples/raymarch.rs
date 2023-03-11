@@ -8,7 +8,7 @@ const SHADER: &str = include_str!("static/raymarching.fs");
 
 pub fn main() {
     let opt = options::Opt::from_args();
-    let (mut rl, thread) = opt.open_window("Camera 2D");
+    let (rl, thread) = opt.open_window("Camera 2D");
     let (w, h) = (opt.width, opt.height);
 
     let mut camera = Camera3D::perspective(
@@ -57,24 +57,24 @@ pub fn main() {
 
         // Draw
         //----------------------------------------------------------------------------------
-        let mut d = rl.begin_drawing(&thread);
+        rl.frame(&thread, |mut d| {
+            d.clear_background(Color::RAYWHITE);
 
-        d.clear_background(Color::RAYWHITE);
+            // We only draw a white full-screen rectangle,
+            // frame is generated in shader using raymarching
+            {
+                let d = d.begin_shader_mode(&shader);
+                d.draw_rectangle(0, 0, w, h, Color::WHITE);
+            }
 
-        // We only draw a white full-screen rectangle,
-        // frame is generated in shader using raymarching
-        {
-            let mut d = d.begin_shader_mode(&shader);
-            d.draw_rectangle(0, 0, w, h, Color::WHITE);
-        }
-
-        d.draw_text(
-            "(c) Raymarching shader by Iñigo Quilez. MIT License.",
-            w - 280,
-            h - 20,
-            10,
-            Color::GRAY,
-        );
+            d.draw_text(
+                "(c) Raymarching shader by Iñigo Quilez. MIT License.",
+                w - 280,
+                h - 20,
+                10,
+                Color::GRAY,
+            );
+        });
 
         //----------------------------------------------------------------------------------
     }

@@ -4,6 +4,7 @@
 /// IMHO Don't write code like this. Use ECS and other methods to have game objects and components.
 /// Only do this as an exercise.
 extern crate raylib;
+use crate::KeyboardKey::KEY_A;
 use rand::distributions::WeightedIndex;
 use rand::prelude::*;
 use rand::Rng;
@@ -14,7 +15,6 @@ use std::fs::File;
 use std::io::{Read, Write};
 use structopt::StructOpt;
 use tcod::map::{FovAlgorithm, Map as FovMap};
-use crate::KeyboardKey::KEY_A;
 
 mod options;
 
@@ -418,7 +418,7 @@ impl Object {
         }
     }
 
-    pub fn draw(&self, d: &mut RaylibDrawHandle) {
+    pub fn draw(&self, d: &RaylibDrawHandle) {
         let c: Color = self.color.into();
         d.draw_text(
             &self.char,
@@ -920,7 +920,7 @@ fn get_equipped_in_slot(slot: Slot, inventory: &[Object]) -> Option<usize> {
 }
 
 fn play_game(
-    rl: &mut RaylibHandle,
+    rl: &RaylibHandle,
     thread: &RaylibThread,
     tcod: &mut Tcod,
     game: &mut Game,
@@ -952,11 +952,12 @@ fn play_game(
         }
 
         // drawing
-        let mut d = rl.begin_drawing(&thread);
-        d.clear_background(Color::GRAY);
-        let player = &objects[PLAYER];
-        let fov_recompute = previous_player_positon != (player.x, player.y);
-        render_all(tcod, &mut d, game, objects, fov_recompute);
+        rl.frame(&thread, |d| {
+            d.clear_background(Color::GRAY);
+            let player = &objects[PLAYER];
+            let fov_recompute = previous_player_positon != (player.x, player.y);
+            render_all(tcod, &d, game, objects, fov_recompute);
+        });
     }
 }
 
@@ -978,7 +979,7 @@ fn main() {
 }
 
 fn handle_keys(
-    rl: &mut RaylibHandle,
+    rl: &RaylibHandle,
     thread: &RaylibThread,
     tcod: &mut Tcod,
     game: &mut Game,
@@ -1019,16 +1020,16 @@ fn handle_keys(
             // menus
             let mut exit = false;
             while !rl.window_should_close() {
-                let inventory_index = {
-                    let mut d = rl.begin_drawing(thread);
-                    render_all(tcod, &mut d, game, objects, false);
-                    inventory_menu(
+                let mut inventory_index = None;
+                rl.frame(&thread, |d| {
+                    render_all(tcod, &d, game, objects, false);
+                    inventory_index = inventory_menu(
                         &game.inventory,
                         "Press the key next to an item to use it, or any other to cancel.",
                         pressed_key,
-                        &mut d,
-                    )
-                };
+                        &d,
+                    );
+                });
                 // using items
                 if let Some(inventory_index) = inventory_index {
                     use_item(rl, &thread, inventory_index, tcod, game, objects);
@@ -1044,16 +1045,16 @@ fn handle_keys(
         } else if rl.is_key_pressed(KEY_F) {
             let mut exit = false;
             while !rl.window_should_close() {
-                let inventory_index = {
-                    let mut d = rl.begin_drawing(thread);
-                    render_all(tcod, &mut d, game, objects, false);
-                    inventory_menu(
+                let mut inventory_index = None;
+                rl.frame(thread, |d| {
+                    render_all(tcod, &d, game, objects, false);
+                    inventory_index = inventory_menu(
                         &game.inventory,
                         "Press the key next to an item to drop it, or any other to cancel.\n'",
                         pressed_key,
-                        &mut d,
-                    )
-                };
+                        &d,
+                    );
+                });
                 // using items
                 if let Some(inventory_index) = inventory_index {
                     drop_item(inventory_index, game, objects);
@@ -1098,9 +1099,10 @@ Defense: {}",
                         player.defense(game)
                     );
                     {
-                        let mut d = rl.begin_drawing(thread);
-                        render_all(tcod, &mut d, game, objects, false);
-                        msgbox(&msg, CHARACTER_SCREEN_WIDTH, pressed_key, &mut d);
+                        rl.frame(thread, |d| {
+                            render_all(tcod, &d, game, objects, false);
+                            msgbox(&msg, CHARACTER_SCREEN_WIDTH, pressed_key, &d);
+                        });
                     }
                     if let Some(_key) = rl.get_key_pressed_number() {
                         break;
@@ -1153,7 +1155,7 @@ fn drop_item(inventory_id: usize, game: &mut Game, objects: &mut Vec<Object>) {
 }
 
 fn use_item(
-    rl: &mut RaylibHandle,
+    rl: &RaylibHandle,
     thread: &RaylibThread,
     inventory_id: usize,
     tcod: &mut Tcod,
@@ -1190,7 +1192,7 @@ fn use_item(
 }
 
 fn cast_heal(
-    _rl: &mut RaylibHandle,
+    _rl: &RaylibHandle,
     _thread: &RaylibThread,
     _inventory_id: usize,
     _tcod: &mut Tcod,
@@ -1213,7 +1215,7 @@ fn cast_heal(
 }
 
 fn cast_lightning(
-    _rl: &mut RaylibHandle,
+    _rl: &RaylibHandle,
     _thread: &RaylibThread,
     _inventory_id: usize,
     tcod: &mut Tcod,
@@ -1245,7 +1247,7 @@ fn cast_lightning(
 }
 
 fn cast_confuse(
-    rl: &mut RaylibHandle,
+    rl: &RaylibHandle,
     thread: &RaylibThread,
     _inventory_id: usize,
     tcod: &mut Tcod,
@@ -1283,7 +1285,7 @@ fn cast_confuse(
 }
 
 fn cast_fireball(
-    rl: &mut RaylibHandle,
+    rl: &RaylibHandle,
     thread: &RaylibThread,
     _inventory_id: usize,
     tcod: &mut Tcod,
@@ -1330,7 +1332,7 @@ fn cast_fireball(
 }
 
 fn toggle_equipment(
-    _rl: &mut RaylibHandle,
+    _rl: &RaylibHandle,
     _thread: &RaylibThread,
     inventory_id: usize,
     _tcod: &mut Tcod,
@@ -1450,7 +1452,7 @@ fn move_by(id: usize, dx: i32, dy: i32, map: &Map, objects: &mut [Object]) {
     }
 }
 
-fn level_up(rl: &mut RaylibHandle, thread: &RaylibThread, game: &mut Game, objects: &mut [Object]) {
+fn level_up(rl: &RaylibHandle, thread: &RaylibThread, game: &mut Game, objects: &mut [Object]) {
     let player = &mut objects[PLAYER];
     let level_up_xp = LEVEL_UP_BASE + player.level * LEVEL_UP_FACTOR;
     // see if the player's experience is enough to level-up
@@ -1468,19 +1470,20 @@ fn level_up(rl: &mut RaylibHandle, thread: &RaylibThread, game: &mut Game, objec
         let mut choice = None;
         while choice.is_none() {
             let pressed_key = rl.get_key_pressed_number();
-            let mut d = rl.begin_drawing(thread);
-            // keep asking until a choice is made
-            choice = menu(
-                "Level up! Choose a stat to raise:\n",
-                &[
-                    format!("Constitution (+20 HP, from {})", fighter.base_max_hp),
-                    format!("Strength (+1 attack, from {})", fighter.base_power),
-                    format!("Agility (+1 defense, from {})", fighter.base_defense),
-                ],
-                LEVEL_SCREEN_WIDTH,
-                pressed_key,
-                &mut d,
-            );
+            rl.frame(thread, |d| {
+                // keep asking until a choice is made
+                choice = menu(
+                    "Level up! Choose a stat to raise:\n",
+                    &[
+                        format!("Constitution (+20 HP, from {})", fighter.base_max_hp),
+                        format!("Strength (+1 attack, from {})", fighter.base_power),
+                        format!("Agility (+1 defense, from {})", fighter.base_defense),
+                    ],
+                    LEVEL_SCREEN_WIDTH,
+                    pressed_key,
+                    &d,
+                );
+            });
         }
         fighter.xp -= level_up_xp;
         match choice.unwrap() {
@@ -1528,7 +1531,7 @@ fn monster_death(monster: &mut Object, game: &mut Game) {
 }
 
 fn render_bar(
-    d: &mut RaylibDrawHandle,
+    d: &RaylibDrawHandle,
     x: i32,
     y: i32,
     total_width: i32,
@@ -1567,7 +1570,7 @@ fn render_bar(
     );
 }
 
-fn main_menu(rl: &mut RaylibHandle, thread: &RaylibThread, tcod: &mut Tcod) {
+fn main_menu(rl: &RaylibHandle, thread: &RaylibThread, tcod: &mut Tcod) {
     let img =
         Image::load_image("static/menu_background.png").expect("could not load background image");
     let (w, h) = (img.width(), img.height());
@@ -1579,17 +1582,10 @@ fn main_menu(rl: &mut RaylibHandle, thread: &RaylibThread, tcod: &mut Tcod) {
     while !rl.window_should_close() {
         // show the background image, at twice the regular console resolution
         let pressed_key = rl.get_key_pressed_number();
-        let choice = {
-            let mut d = rl.begin_drawing(thread);
+        let mut choice = None;
+        rl.frame(thread, |d| {
             d.clear_background(Color::BLACK);
-            d.draw_texture_pro(
-                &img,
-                Rectangle::new(0.0, 0.0, w as f32, h as f32),
-                Rectangle::new(0.0, 0.0, 800.0, 640.0),
-                Vector2::new(0.0, 0.0),
-                0.0,
-                Color::WHITE,
-            );
+            d.draw_texture_ex(&img, Vector2::new(0.0, 0.0), 0.0, 1.0, Color::WHITE);
             // Game title
             d.draw_text(
                 "TOMBS OF THE ANCIENT KINGS",
@@ -1607,8 +1603,9 @@ fn main_menu(rl: &mut RaylibHandle, thread: &RaylibThread, tcod: &mut Tcod) {
             );
             // show options and wait for the player's choice
             let choices = &["Play a new game", "Continue last game", "Quit"];
-            menu("", choices, 24, pressed_key, &mut d)
-        };
+            choice = menu("", choices, 24, pressed_key, &d);
+        });
+
         match choice {
             Some(0) => {
                 // new game
@@ -1624,8 +1621,9 @@ fn main_menu(rl: &mut RaylibHandle, thread: &RaylibThread, tcod: &mut Tcod) {
                     }
                     Err(_e) => {
                         {
-                            let mut d = rl.begin_drawing(thread);
-                            msgbox("\nNo saved game to load.\n", 24, pressed_key, &mut d);
+                            rl.frame(thread, |d| {
+                                msgbox("\nNo saved game to load.\n", 24, pressed_key, &d);
+                            });
                         }
                         continue;
                     }
@@ -1640,7 +1638,7 @@ fn main_menu(rl: &mut RaylibHandle, thread: &RaylibThread, tcod: &mut Tcod) {
     }
 }
 
-fn msgbox(text: &str, width: i32, pressed_key: Option<u32>, d: &mut RaylibDrawHandle) {
+fn msgbox(text: &str, width: i32, pressed_key: Option<u32>, d: &RaylibDrawHandle) {
     let options: &[&str] = &[];
     menu(text, options, width, pressed_key, d);
 }
@@ -1649,7 +1647,7 @@ fn inventory_menu(
     inventory: &[Object],
     header: &str,
     pressed_key: Option<u32>,
-    root: &mut RaylibDrawHandle,
+    root: &RaylibDrawHandle,
 ) -> Option<usize> {
     // how a menu with each item of the inventory as an option
     let options = if inventory.len() == 0 {
@@ -1681,7 +1679,7 @@ fn inventory_menu(
 
 fn render_all(
     tcod: &mut Tcod,
-    d: &mut RaylibDrawHandle,
+    d: &RaylibDrawHandle,
     game: &mut Game,
     objects: &mut [Object],
     fov_recompute: bool,
@@ -1791,7 +1789,7 @@ fn render_all(
 }
 
 fn target_tile(
-    rl: &mut RaylibHandle,
+    rl: &RaylibHandle,
     thread: &RaylibThread,
     tcod: &mut Tcod,
     game: &mut Game,
@@ -1814,14 +1812,15 @@ fn target_tile(
             return None;
         }
         // ...
-        let mut d = rl.begin_drawing(thread);
-        render_all(tcod, &mut d, game, objects, false);
+        rl.frame(&thread, |d| {
+            render_all(tcod, &d, game, objects, false);
+        });
     }
     None
 }
 
 fn target_monster(
-    rl: &mut RaylibHandle,
+    rl: &RaylibHandle,
     thread: &RaylibThread,
     tcod: &mut Tcod,
     game: &mut Game,
@@ -1858,7 +1857,7 @@ fn menu<T: AsRef<str>>(
     options: &[T],
     width: i32,
     pressed_key: Option<u32>,
-    d: &mut RaylibDrawHandle,
+    d: &RaylibDrawHandle,
 ) -> Option<usize> {
     assert!(
         options.len() <= 26,

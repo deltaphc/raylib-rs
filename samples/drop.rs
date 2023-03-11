@@ -88,7 +88,7 @@ fn test_audio_dropping(opt: &options::Opt) {
 /// checks that fonts can be dropped after window is closed
 fn test_font_dropping(opt: &options::Opt) {
     let _f = {
-        let (mut rl, thread) = raylib::init()
+        let (rl, thread) = raylib::init()
             .size(opt.width, opt.height)
             .title("Drop")
             .build();

@@ -58,7 +58,7 @@ impl RaylibAudio {
 
     /// Plays a sound.
     #[inline]
-    pub fn play_sound(&mut self, sound: &Sound) {
+    pub fn play_sound(&self, sound: &Sound) {
         unsafe {
             ffi::PlaySound(sound.0);
         }
@@ -66,7 +66,7 @@ impl RaylibAudio {
 
     /// Play a sound (using multichannel buffer pool)
     #[inline]
-    pub fn play_sound_multi(&mut self, sound: &Sound) {
+    pub fn play_sound_multi(&self, sound: &Sound) {
         unsafe {
             ffi::PlaySoundMulti(sound.0);
         }
@@ -74,7 +74,7 @@ impl RaylibAudio {
 
     /// Pauses a sound.
     #[inline]
-    pub fn pause_sound(&mut self, sound: &Sound) {
+    pub fn pause_sound(&self, sound: &Sound) {
         unsafe {
             ffi::PauseSound(sound.0);
         }
@@ -82,7 +82,7 @@ impl RaylibAudio {
 
     /// Resumes a paused sound.
     #[inline]
-    pub fn resume_sound(&mut self, sound: &Sound) {
+    pub fn resume_sound(&self, sound: &Sound) {
         unsafe {
             ffi::ResumeSound(sound.0);
         }
@@ -90,7 +90,7 @@ impl RaylibAudio {
 
     /// Stops playing a sound.
     #[inline]
-    pub fn stop_sound(&mut self, sound: &Sound) {
+    pub fn stop_sound(&self, sound: &Sound) {
         unsafe {
             ffi::StopSound(sound.0);
         }
@@ -98,7 +98,7 @@ impl RaylibAudio {
 
     /// Stops playing a sound.
     #[inline]
-    pub fn stop_sound_multi(&mut self) {
+    pub fn stop_sound_multi(&self) {
         unsafe {
             ffi::StopSoundMulti();
         }
@@ -112,7 +112,7 @@ impl RaylibAudio {
 
     /// Sets volume for a sound (`1.0` is max level).
     #[inline]
-    pub fn set_sound_volume(&mut self, sound: &Sound, volume: f32) {
+    pub fn set_sound_volume(&self, sound: &Sound, volume: f32) {
         unsafe {
             ffi::SetSoundVolume(sound.0, volume);
         }
@@ -120,7 +120,7 @@ impl RaylibAudio {
 
     /// Sets pitch for a sound (`1.0` is base level).
     #[inline]
-    pub fn set_sound_pitch(&mut self, sound: &Sound, pitch: f32) {
+    pub fn set_sound_pitch(&self, sound: &Sound, pitch: f32) {
         unsafe {
             ffi::SetSoundPitch(sound.0, pitch);
         }
@@ -128,7 +128,7 @@ impl RaylibAudio {
 
     /// Starts music playing.
     #[inline]
-    pub fn play_music_stream(&mut self, music: &mut Music) {
+    pub fn play_music_stream(&self, music: &mut Music) {
         unsafe {
             ffi::PlayMusicStream(music.0);
         }
@@ -136,7 +136,7 @@ impl RaylibAudio {
 
     /// Updates buffers for music streaming.
     #[inline]
-    pub fn update_music_stream(&mut self, music: &mut Music) {
+    pub fn update_music_stream(&self, music: &mut Music) {
         unsafe {
             ffi::UpdateMusicStream(music.0);
         }
@@ -144,7 +144,7 @@ impl RaylibAudio {
 
     /// Stops music playing.
     #[inline]
-    pub fn stop_music_stream(&mut self, music: &mut Music) {
+    pub fn stop_music_stream(&self, music: &mut Music) {
         unsafe {
             ffi::StopMusicStream(music.0);
         }
@@ -152,7 +152,7 @@ impl RaylibAudio {
 
     /// Pauses music playing.
     #[inline]
-    pub fn pause_music_stream(&mut self, music: &mut Music) {
+    pub fn pause_music_stream(&self, music: &mut Music) {
         unsafe {
             ffi::PauseMusicStream(music.0);
         }
@@ -160,7 +160,7 @@ impl RaylibAudio {
 
     /// Resumes playing paused music.
     #[inline]
-    pub fn resume_music_stream(&mut self, music: &mut Music) {
+    pub fn resume_music_stream(&self, music: &mut Music) {
         unsafe {
             ffi::ResumeMusicStream(music.0);
         }
@@ -174,7 +174,7 @@ impl RaylibAudio {
 
     /// Sets volume for music (`1.0` is max level).
     #[inline]
-    pub fn set_music_volume(&mut self, music: &mut Music, volume: f32) {
+    pub fn set_music_volume(&self, music: &mut Music, volume: f32) {
         unsafe {
             ffi::SetMusicVolume(music.0, volume);
         }
@@ -182,7 +182,7 @@ impl RaylibAudio {
 
     /// Sets pitch for music (`1.0` is base level).
     #[inline]
-    pub fn set_music_pitch(&mut self, music: &mut Music, pitch: f32) {
+    pub fn set_music_pitch(&self, music: &mut Music, pitch: f32) {
         unsafe {
             ffi::SetMusicPitch(music.0, pitch);
         }
@@ -202,7 +202,7 @@ impl RaylibAudio {
 
     /// Plays audio stream.
     #[inline]
-    pub fn play_audio_stream(&mut self, stream: &mut AudioStream) {
+    pub fn play_audio_stream(&self, stream: &mut AudioStream) {
         unsafe {
             ffi::PlayAudioStream(stream.0);
         }
@@ -210,7 +210,7 @@ impl RaylibAudio {
 
     /// Pauses audio stream.
     #[inline]
-    pub fn pause_audio_stream(&mut self, stream: &mut AudioStream) {
+    pub fn pause_audio_stream(&self, stream: &mut AudioStream) {
         unsafe {
             ffi::PauseAudioStream(stream.0);
         }
@@ -218,7 +218,7 @@ impl RaylibAudio {
 
     /// Resumes audio stream.
     #[inline]
-    pub fn resume_audio_stream(&mut self, stream: &mut AudioStream) {
+    pub fn resume_audio_stream(&self, stream: &mut AudioStream) {
         unsafe {
             ffi::ResumeAudioStream(stream.0);
         }
@@ -232,7 +232,7 @@ impl RaylibAudio {
 
     /// Stops audio stream.
     #[inline]
-    pub fn stop_audio_stream(&mut self, stream: &mut AudioStream) {
+    pub fn stop_audio_stream(&self, stream: &mut AudioStream) {
         unsafe {
             ffi::StopAudioStream(stream.0);
         }
@@ -240,7 +240,7 @@ impl RaylibAudio {
 
     /// Sets volume for audio stream (`1.0` is max level).
     #[inline]
-    pub fn set_audio_stream_volume(&mut self, stream: &mut AudioStream, volume: f32) {
+    pub fn set_audio_stream_volume(&self, stream: &mut AudioStream, volume: f32) {
         unsafe {
             ffi::SetAudioStreamVolume(stream.0, volume);
         }
@@ -248,7 +248,7 @@ impl RaylibAudio {
 
     /// Sets pitch for audio stream (`1.0` is base level).
     #[inline]
-    pub fn set_audio_stream_pitch(&mut self, stream: &mut AudioStream, pitch: f32) {
+    pub fn set_audio_stream_pitch(&self, stream: &mut AudioStream, pitch: f32) {
         unsafe {
             ffi::SetAudioStreamPitch(stream.0, pitch);
         }
@@ -256,7 +256,7 @@ impl RaylibAudio {
 
     /// Sets pitch for audio stream (`1.0` is base level).
     #[inline]
-    pub fn is_audio_stream_processed(&mut self, stream: &AudioStream) -> bool {
+    pub fn is_audio_stream_processed(&self, stream: &AudioStream) -> bool {
         unsafe { ffi::IsAudioStreamProcessed(stream.0) }
     }
 }

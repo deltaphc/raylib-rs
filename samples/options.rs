@@ -14,13 +14,13 @@ pub struct Opt {
     pub fps: u32,
 }
 
-impl<'a> Opt {
+impl Opt {
     #[allow(dead_code)]
     pub fn new() -> Self {
         Opt::from_args()
     }
-    pub fn open_window(&self, name: &str) -> (raylib::RaylibHandle<'a>, raylib::RaylibThread) {
-        let (mut rl, thread) = raylib::init()
+    pub fn open_window(&self, name: &str) -> (raylib::RaylibHandle<'static>, raylib::RaylibThread) {
+        let (rl, thread) = raylib::init()
             .size(self.width, self.height)
             .title(name)
             .build();

@@ -52,22 +52,23 @@ fn main() {
     while !rl.window_should_close() {
         rl.update_camera(&mut camera);
 
-        let mut drawing = rl.begin_drawing(&thread);
-        drawing.clear_background(Color::WHITE);
-        {
-            let mut mode_3d = drawing.begin_mode3D(camera);
+        rl.frame(&thread, |mut drawing| {
+            drawing.clear_background(Color::WHITE);
+            {
+                let mode_3d = &drawing.begin_mode3D(camera);
 
-            mode_3d.draw_model(&model, model_position, 0.2, Color::WHITE);
-            mode_3d.draw_grid(10, 1.0);
-        }
+                mode_3d.draw_model(&model, model_position, 0.2, Color::WHITE);
+                mode_3d.draw_grid(10, 1.0);
+            }
 
-        drawing.draw_text(
-            "(c) Watermill 3D model by Alberto Cano",
-            w - 210,
-            h - 20,
-            10,
-            Color::GRAY,
-        );
-        drawing.draw_fps(10, 10)
+            drawing.draw_text(
+                "(c) Watermill 3D model by Alberto Cano",
+                w - 210,
+                h - 20,
+                10,
+                Color::GRAY,
+            );
+            drawing.draw_fps(10, 10);
+        });
     }
 }

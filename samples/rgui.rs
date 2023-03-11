@@ -164,7 +164,7 @@ pub fn main() {
             ffi::GuiSetStyle(
                 TEXTBOX as i32,
                 TEXT_ALIGNMENT as i32,
-                GUI_TEXT_ALIGN_CENTER as i32,
+                TEXT_ALIGN_CENTER as i32,
             );
         }
         // dbg!(spinnerEditMode);

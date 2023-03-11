@@ -390,7 +390,7 @@ impl RaylibHandle<'_> {
     }
 
     /// Set clipboard text content
-    pub fn set_clipboard_text(&mut self, text: &str) -> Result<(), NulError> {
+    pub fn set_clipboard_text(&self, text: &str) -> Result<(), NulError> {
         let s = CString::new(text)?;
         unsafe {
             ffi::SetClipboardText(s.as_ptr());
@@ -541,19 +541,19 @@ impl RaylibHandle<'_> {
 
     /// Toggles fullscreen mode (only on desktop platforms).
     #[inline]
-    pub fn toggle_fullscreen(&mut self) {
+    pub fn toggle_fullscreen(&self) {
         unsafe {
             ffi::ToggleFullscreen();
         }
     }
 
     /// Set window configuration state using flags
-    pub fn set_window_state(&mut self, state: WindowState) {
+    pub fn set_window_state(&self, state: WindowState) {
         unsafe { ffi::SetWindowState(state.0 as u32) }
     }
 
     /// Clear window configuration state flags
-    pub fn clear_window_state(&mut self, state: WindowState) {
+    pub fn clear_window_state(&self, state: WindowState) {
         unsafe { ffi::ClearWindowState(state.0 as u32) }
     }
 
@@ -606,7 +606,7 @@ impl RaylibHandle<'_> {
 
     /// Sets icon for window (only on desktop platforms).
     #[inline]
-    pub fn set_window_icon(&mut self, image: impl AsRef<ffi::Image>) {
+    pub fn set_window_icon(&self, image: impl AsRef<ffi::Image>) {
         unsafe {
             ffi::SetWindowIcon(*image.as_ref());
         }
@@ -623,7 +623,7 @@ impl RaylibHandle<'_> {
 
     /// Sets window position on screen (only on desktop platforms).
     #[inline]
-    pub fn set_window_position(&mut self, x: i32, y: i32) {
+    pub fn set_window_position(&self, x: i32, y: i32) {
         unsafe {
             ffi::SetWindowPosition(x, y);
         }
@@ -631,7 +631,7 @@ impl RaylibHandle<'_> {
 
     /// Sets monitor for the current window (fullscreen mode).
     #[inline]
-    pub fn set_window_monitor(&mut self, monitor: i32) {
+    pub fn set_window_monitor(&self, monitor: i32) {
         let len = get_monitor_count();
         debug_assert!(monitor < len && monitor >= 0, "monitor index out of range");
         unsafe {
@@ -641,7 +641,7 @@ impl RaylibHandle<'_> {
 
     /// Sets minimum window dimensions (for `FLAG_WINDOW_RESIZABLE`).
     #[inline]
-    pub fn set_window_min_size(&mut self, width: i32, height: i32) {
+    pub fn set_window_min_size(&self, width: i32, height: i32) {
         unsafe {
             ffi::SetWindowMinSize(width, height);
         }
@@ -649,7 +649,7 @@ impl RaylibHandle<'_> {
 
     /// Sets window dimensions.
     #[inline]
-    pub fn set_window_size(&mut self, width: i32, height: i32) {
+    pub fn set_window_size(&self, width: i32, height: i32) {
         unsafe {
             ffi::SetWindowSize(width, height);
         }
@@ -678,7 +678,7 @@ impl RaylibHandle<'_> {
 impl RaylibHandle<'_> {
     /// Shows mouse cursor.
     #[inline]
-    pub fn show_cursor(&mut self) {
+    pub fn show_cursor(&self) {
         unsafe {
             ffi::ShowCursor();
         }
@@ -686,7 +686,7 @@ impl RaylibHandle<'_> {
 
     /// Hides mouse cursor.
     #[inline]
-    pub fn hide_cursor(&mut self) {
+    pub fn hide_cursor(&self) {
         unsafe {
             ffi::HideCursor();
         }
@@ -700,7 +700,7 @@ impl RaylibHandle<'_> {
 
     /// Enables mouse cursor (unlock cursor).
     #[inline]
-    pub fn enable_cursor(&mut self) {
+    pub fn enable_cursor(&self) {
         unsafe {
             ffi::EnableCursor();
         }
@@ -708,7 +708,7 @@ impl RaylibHandle<'_> {
 
     /// Disables mouse cursor (lock cursor).
     #[inline]
-    pub fn disable_cursor(&mut self) {
+    pub fn disable_cursor(&self) {
         unsafe {
             ffi::DisableCursor();
         }
@@ -716,7 +716,7 @@ impl RaylibHandle<'_> {
 
     /// Get native window handle
     #[inline]
-    pub unsafe fn get_window_handle(&mut self) -> *mut core::ffi::c_void {
+    pub unsafe fn get_window_handle(&self) -> *mut core::ffi::c_void {
         ffi::GetWindowHandle()
     }
 }

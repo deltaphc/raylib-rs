@@ -98,7 +98,7 @@ impl RaylibHandle<'_> {
     /// Sets camera mode.
     #[inline]
     pub fn set_camera_mode(
-        &mut self,
+        &self,
         camera: impl Into<ffi::Camera3D>,
         mode: crate::consts::CameraMode,
     ) {
@@ -119,7 +119,7 @@ impl RaylibHandle<'_> {
 
     /// Sets camera pan key to combine with mouse movement (free camera).
     #[inline]
-    pub fn set_camera_pan_control(&mut self, pan_key: crate::consts::KeyboardKey) {
+    pub fn set_camera_pan_control(&self, pan_key: crate::consts::KeyboardKey) {
         unsafe {
             ffi::SetCameraPanControl(pan_key as i32);
         }
@@ -127,7 +127,7 @@ impl RaylibHandle<'_> {
 
     /// Sets camera alt key to combine with mouse movement (free camera).
     #[inline]
-    pub fn set_camera_alt_control(&mut self, alt_key: crate::consts::KeyboardKey) {
+    pub fn set_camera_alt_control(&self, alt_key: crate::consts::KeyboardKey) {
         unsafe {
             ffi::SetCameraAltControl(alt_key as i32);
         }
@@ -135,7 +135,7 @@ impl RaylibHandle<'_> {
 
     /// Sets camera smooth zoom key to combine with mouse (free camera).
     #[inline]
-    pub fn set_camera_smooth_zoom_control(&mut self, sz_key: crate::consts::KeyboardKey) {
+    pub fn set_camera_smooth_zoom_control(&self, sz_key: crate::consts::KeyboardKey) {
         unsafe {
             ffi::SetCameraSmoothZoomControl(sz_key as i32);
         }
@@ -144,7 +144,7 @@ impl RaylibHandle<'_> {
     /// Sets camera move controls (1st person and 3rd person cameras).
     #[inline]
     pub fn set_camera_move_controls(
-        &mut self,
+        &self,
         front_key: crate::consts::KeyboardKey,
         back_key: crate::consts::KeyboardKey,
         right_key: crate::consts::KeyboardKey,

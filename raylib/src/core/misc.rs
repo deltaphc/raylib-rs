@@ -57,7 +57,7 @@ impl RaylibHandle<'_> {
     }
 
     /// Set the seed for random number generation
-    pub fn set_random_seed(&mut self, seed: u32) {
+    pub fn set_random_seed(&self, seed: u32) {
         unsafe {
             ffi::SetRandomSeed(seed);
         }

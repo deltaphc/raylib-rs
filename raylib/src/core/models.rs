@@ -48,7 +48,7 @@ impl<'bind, 'a> RaylibHandle<'a> {
     }
 
     pub fn load_model_animations(
-        &mut self,
+        &self,
         _: &RaylibThread,
         filename: &str,
     ) -> Result<Vec<ModelAnimation>, String> {
@@ -71,7 +71,7 @@ impl<'bind, 'a> RaylibHandle<'a> {
     }
 
     pub fn update_model_animation(
-        &mut self,
+        &self,
         _: &RaylibThread,
         mut model: impl AsMut<ffi::Model>,
         anim: impl AsRef<ffi::ModelAnimation>,

@@ -68,7 +68,6 @@ impl Default for Game {
 fn main() {
     let opt = options::Opt::from_args();
     let (rl, thread) = opt.open_window("Arkanoid");
-    let render = rl.render_loop(&thread);
 
     let (_w, _h) = (opt.width, opt.height);
 
@@ -81,7 +80,7 @@ fn main() {
 
     while !rl.window_should_close() {
         update_game(&mut game, &rl);
-        render.frame(|d| draw_game(&game, &rl, &d, &thread));
+        rl.frame(&thread, |d| draw_game(&game, &rl, &d));
     }
 }
 
@@ -275,7 +274,7 @@ fn update_game(game: &mut Game, rl: &RaylibHandle) {
     }
 }
 
-fn draw_game(game: &Game, rl: &RaylibHandle, d: &RaylibDrawHandle, thread: &RaylibThread) {
+fn draw_game(game: &Game, rl: &RaylibHandle, d: &RaylibDrawHandle) {
     let (w, h) = (rl.get_screen_width() as f32, rl.get_screen_height() as f32);
 
     d.clear_background(Color::RAYWHITE);

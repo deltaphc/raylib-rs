@@ -22,10 +22,9 @@ pub mod window;
 
 use crate::ffi;
 
-use std::cell::RefCell;
+use std::cell::{RefCell, RefMut};
 use std::ffi::CString;
 use std::marker::PhantomData;
-use std::rc::Rc;
 use std::sync::atomic::{AtomicBool, Ordering};
 
 use self::drawing::RaylibDrawHandle;
@@ -63,16 +62,26 @@ pub struct RaylibThread(PhantomData<*const ()>);
 /// [`RaylibBuilder`]: struct.RaylibBuilder.html
 /// [`init`]: fn.init.html
 #[derive(Debug)]
-pub struct RaylibHandle<'rl>(Rc<RaylibRenderLoop<'rl>>); // inner field is private, preventing manual construction
-
-impl<'th, 'a: 'th> RaylibHandle<'a> {
-    pub fn render_loop(&self, _: &'th RaylibThread) -> Rc<RaylibRenderLoop<'a>> {
-        self.0.clone()
-    }
-}
+pub struct RaylibHandle<'rl>(RefCell<RaylibDrawHandle<'rl>>); // inner field is private, preventing manual construction
 
 #[derive(Debug)]
 pub struct RaylibRenderLoop<'a>(RefCell<RaylibDrawHandle<'a>>);
+
+impl<'th, 'a: 'th> RaylibHandle<'a> {
+    /// Render a frame.
+    /// Returns the frame_fn return value unmodifed.
+    pub fn frame<R, F: FnOnce(RefMut<'_, RaylibDrawHandle>) -> R>(
+        &self,
+        _: &'th RaylibThread,
+        frame_fn: F,
+    ) -> R {
+        unsafe { ffi::BeginDrawing() };
+        let ret = frame_fn(self.0.borrow_mut());
+        unsafe { ffi::EndDrawing() };
+
+        ret
+    }
+}
 
 impl Drop for RaylibHandle<'_> {
     fn drop(&mut self) {
@@ -176,7 +185,7 @@ impl RaylibBuilder {
     /// # Panics
     ///
     /// Attempting to initialize Raylib more than once will result in a panic.
-    pub fn build(&self) -> (RaylibHandle<'_>, RaylibThread) {
+    pub fn build(&self) -> (RaylibHandle<'static>, RaylibThread) {
         use crate::consts::ConfigFlags::*;
         let mut flags = 0u32;
         if self.fullscreen_mode {
@@ -211,7 +220,7 @@ impl RaylibBuilder {
 /// # Panics
 ///
 /// Attempting to initialize Raylib more than once will result in a panic.
-fn init_window(width: i32, height: i32, title: &str) -> RaylibHandle<'_> {
+fn init_window(width: i32, height: i32, title: &str) -> RaylibHandle<'static> {
     if IS_INITIALIZED.load(Ordering::Relaxed) {
         panic!("Attempted to initialize raylib-rs more than once!");
     } else {
@@ -224,8 +233,6 @@ fn init_window(width: i32, height: i32, title: &str) -> RaylibHandle<'_> {
         }
         IS_INITIALIZED.store(true, Ordering::Relaxed);
 
-        RaylibHandle(Rc::new(RaylibRenderLoop(RefCell::new(RaylibDrawHandle(
-            PhantomData,
-        )))))
+        RaylibHandle(RefCell::new(RaylibDrawHandle(PhantomData)))
     }
 }

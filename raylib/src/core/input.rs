@@ -33,7 +33,7 @@ impl RaylibHandle<'_> {
 
     /// Gets latest key pressed.
     #[inline]
-    pub fn get_key_pressed(&mut self) -> Option<crate::consts::KeyboardKey> {
+    pub fn get_key_pressed(&self) -> Option<crate::consts::KeyboardKey> {
         let key = unsafe { ffi::GetKeyPressed() };
         if key > 0 {
             return key_from_i32(key);
@@ -43,7 +43,7 @@ impl RaylibHandle<'_> {
 
     /// Gets latest key pressed.
     #[inline]
-    pub fn get_key_pressed_number(&mut self) -> Option<u32> {
+    pub fn get_key_pressed_number(&self) -> Option<u32> {
         let key = unsafe { ffi::GetKeyPressed() };
         if key > 0 {
             return Some(key as u32);
@@ -53,7 +53,7 @@ impl RaylibHandle<'_> {
 
     /// Gets latest char (unicode) pressed
     #[inline]
-    pub fn get_char_pressed(&mut self) -> Option<char> {
+    pub fn get_char_pressed(&self) -> Option<char> {
         let char_code = unsafe { ffi::GetCharPressed() };
         if char_code > 0 {
             return char::from_u32(char_code as u32);
@@ -63,7 +63,7 @@ impl RaylibHandle<'_> {
 
     /// Sets a custom key to exit program (default is ESC).
     // #[inline]
-    pub fn set_exit_key(&mut self, key: Option<crate::consts::KeyboardKey>) {
+    pub fn set_exit_key(&self, key: Option<crate::consts::KeyboardKey>) {
         unsafe {
             match key {
                 Some(k) => ffi::SetExitKey((k as u32) as i32),
@@ -198,7 +198,7 @@ impl RaylibHandle<'_> {
 
     /// Sets mouse position.
     #[inline]
-    pub fn set_mouse_position(&mut self, position: impl Into<Vector2>) {
+    pub fn set_mouse_position(&self, position: impl Into<Vector2>) {
         unsafe {
             let Vector2 { x, y } = position.into();
             ffi::SetMousePosition(x as i32, y as i32);
@@ -207,7 +207,7 @@ impl RaylibHandle<'_> {
 
     /// Sets mouse offset.
     #[inline]
-    pub fn set_mouse_offset(&mut self, offset: impl Into<Vector2>) {
+    pub fn set_mouse_offset(&self, offset: impl Into<Vector2>) {
         unsafe {
             let Vector2 { x, y } = offset.into();
             ffi::SetMouseOffset(x as i32, y as i32);
@@ -216,7 +216,7 @@ impl RaylibHandle<'_> {
 
     /// Sets mouse scaling.
     #[inline]
-    pub fn set_mouse_scale(&mut self, scale_x: f32, scale_y: f32) {
+    pub fn set_mouse_scale(&self, scale_x: f32, scale_y: f32) {
         unsafe {
             ffi::SetMouseScale(scale_x, scale_y);
         }

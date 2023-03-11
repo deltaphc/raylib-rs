@@ -68,7 +68,7 @@ struct PlayerSys;
 impl<'a> System<'a> for PlayerSys {
     type SystemData = (
         Entities<'a>,
-        ReadExpect<'a, RaylibHandle>,
+        ReadExpect<'a, RaylibHandle<'static>>,
         ReadExpect<'a, EntityMap>,
         WriteStorage<'a, Player>,
         ReadStorage<'a, Pos>,
@@ -110,14 +110,14 @@ struct DrawSys {
 }
 impl<'a> System<'a> for DrawSys {
     type SystemData = (
-        WriteExpect<'a, RaylibHandle>,
+        WriteExpect<'a, RaylibHandle<'static>>,
         ReadStorage<'a, Player>,
         ReadStorage<'a, Tile>,
         ReadStorage<'a, Pos>,
         ReadStorage<'a, Fire>,
     );
 
-    fn run(&mut self, (mut rl, player, tiles, pos, fire): Self::SystemData) {
+    fn run(&mut self, (rl, player, tiles, pos, fire): Self::SystemData) {
         let (_, sh) = (rl.get_screen_width(), rl.get_screen_height());
         let tw = sh / TILE_COUNT - 2 * MARGIN;
 
@@ -125,23 +125,24 @@ impl<'a> System<'a> for DrawSys {
         let size = Vector2::new(tw as f32, tw as f32) + margin;
         let tile_size = Vector2::new(tw as f32, tw as f32);
 
-        let mut d = rl.begin_drawing(&self.thread);
-        d.clear_background(Color::BLACK);
-        // draw the tiles
-        for (pos, _) in (&pos, &tiles).join() {
-            let p: Vector2 = pos.into();
-            d.draw_rectangle_v(p * size + margin, tile_size, Color::RAYWHITE);
-        }
-        // draw the fire tiles
-        for (pos, _, _) in (&pos, &tiles, &fire).join() {
-            let p: Vector2 = pos.into();
-            d.draw_rectangle_v(p * size + margin, tile_size, Color::RED);
-        }
-        // draw the player tiles
-        for (pos, _, _) in (&pos, &tiles, &player).join() {
-            let p: Vector2 = pos.into();
-            d.draw_rectangle_v(p * size + margin, tile_size, Color::GREEN);
-        }
+        rl.frame(&self.thread, |d| {
+            d.clear_background(Color::BLACK);
+            // draw the tiles
+            for (pos, _) in (&pos, &tiles).join() {
+                let p: Vector2 = pos.into();
+                d.draw_rectangle_v(p * size + margin, tile_size, Color::RAYWHITE);
+            }
+            // draw the fire tiles
+            for (pos, _, _) in (&pos, &tiles, &fire).join() {
+                let p: Vector2 = pos.into();
+                d.draw_rectangle_v(p * size + margin, tile_size, Color::RED);
+            }
+            // draw the player tiles
+            for (pos, _, _) in (&pos, &tiles, &player).join() {
+                let p: Vector2 = pos.into();
+                d.draw_rectangle_v(p * size + margin, tile_size, Color::GREEN);
+            }
+        });
     }
 }
 

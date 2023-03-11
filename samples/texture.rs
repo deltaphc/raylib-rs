@@ -6,7 +6,7 @@ mod options;
 
 fn main() {
     let opt = options::Opt::from_args();
-    let (mut rl, thread) = opt.open_window("Texture");
+    let (rl, thread) = opt.open_window("Texture");
     let (_w, _h) = (opt.width, opt.height);
     let i = Image::load_image("static/billboard.png").expect("could not load image billboard");
     let _ = rl
@@ -19,7 +19,7 @@ fn main() {
     rl.set_target_fps(60);
     while !rl.window_should_close() {
         // Detect window close button or ESC key
-        rl.render_loop().frame(|d| {
+        rl.frame(&thread, |d| {
             d.clear_background(Color::BLACK);
             d.draw_texture(&t, 0, 0, Color::WHITE);
         });

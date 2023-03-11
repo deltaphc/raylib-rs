@@ -8,8 +8,8 @@ fn main() {
     let rust_orange = Color::new(222, 165, 132, 255);
     let ray_white = Color::new(255, 255, 255, 255);
 
-    let (mut rl, thread) = raylib::init().size(w, h).title("Logo").build();
-    let render = (&rl).render_loop();
+    let (rl, thread) = raylib::init().size(w, h).title("Logo").build();
+    let render = rl.render_loop(&thread);
 
     rl.set_target_fps(60);
 
