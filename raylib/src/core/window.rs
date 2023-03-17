@@ -617,6 +617,13 @@ impl RaylibHandle {
         }
     }
 
+    #[inline]
+    pub fn set_window_icons(&mut self, image: *mut raylib_sys::Image, count: i32) {
+        unsafe {
+            ffi::SetWindowIcons(image, count)
+        }
+    }
+
     /// Sets title for window (only on desktop platforms).
     #[inline]
     pub fn set_window_title(&self, _: &RaylibThread, title: &str) {
