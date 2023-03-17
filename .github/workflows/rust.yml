@@ -1,0 +1,15 @@
+name: Rust
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: Build
+      run: cd raylib && cargo build --verbose --features nobuild
+    # - name: Run tests [Requires window system]
+      # run: cargo test -p raylib-test --verbose
