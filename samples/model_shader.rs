@@ -5,7 +5,7 @@ mod options;
 
 fn main() {
     let opt = options::Opt::from_args();
-    let (mut rl, thread) = opt.open_window("Model shader example");
+    let (rl, thread) = opt.open_window("Model shader example");
     let (w, h) = (opt.width, opt.height);
 
     let mut camera = Camera3D::perspective(

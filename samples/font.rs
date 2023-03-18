@@ -9,7 +9,6 @@ fn main() {
     let ray_white = Color::new(255, 255, 255, 255);
 
     let (rl, thread) = raylib::init().size(w, h).title("Logo").build();
-    let render = rl.render_loop(&thread);
 
     rl.set_target_fps(60);
 
@@ -17,28 +16,28 @@ fn main() {
         .load_font(&thread, "static/alagard.png")
         .expect("couldn't load font");
 
-    render.draw_loop(|d| -> bool {
-        // Detect window close button or ESC key
-        d.clear_background(ray_white);
-        d.draw_rectangle(w / 2 - 128, h / 2 - 128, 256, 256, rust_orange);
-        d.draw_rectangle(w / 2 - 112, h / 2 - 112, 224, 224, ray_white);
-        d.draw_text_ex(
-            &font,
-            "rust",
-            Vector2::new((w / 2 - 69) as f32, (h / 2 + 18) as f32),
-            50.0,
-            1.0,
-            rust_orange,
-        );
-        d.draw_text_ex(
-            &font,
-            "raylib",
-            Vector2::new((w / 2 - 44) as f32, (h / 2 + 48) as f32),
-            50.0,
-            1.0,
-            rust_orange,
-        );
-
-        !rl.window_should_close()
-    });
+    while !rl.window_should_close() {
+        rl.frame(&thread, |d| {
+            // Detect window close button or ESC key
+            d.clear_background(ray_white);
+            d.draw_rectangle(w / 2 - 128, h / 2 - 128, 256, 256, rust_orange);
+            d.draw_rectangle(w / 2 - 112, h / 2 - 112, 224, 224, ray_white);
+            d.draw_text_ex(
+                &font,
+                "rust",
+                Vector2::new((w / 2 - 69) as f32, (h / 2 + 18) as f32),
+                50.0,
+                1.0,
+                rust_orange,
+            );
+            d.draw_text_ex(
+                &font,
+                "raylib",
+                Vector2::new((w / 2 - 44) as f32, (h / 2 + 48) as f32),
+                50.0,
+                1.0,
+                rust_orange,
+            );
+        });
+    }
 }
