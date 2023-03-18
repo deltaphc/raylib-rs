@@ -618,9 +618,10 @@ impl RaylibHandle {
     }
 
     #[inline]
-    pub fn set_window_icons(&mut self, image: *mut raylib_sys::Image, count: i32) {
+    pub fn set_window_icons(&mut self, images: &mut [raylib_sys::Image]) {
+        use std::convert::TryInto;
         unsafe {
-            ffi::SetWindowIcons(image, count)
+            ffi::SetWindowIcons(images.as_mut_ptr(), images.len().try_into().unwrap())
         }
     }
 
