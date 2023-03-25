@@ -15,6 +15,9 @@ exclude = [
     "raylib/templates/*"
 ]
 
+[dependencies]
+mint = "0.5"
+
 [build-dependencies]
 fs_extra = "1.2"
 cmake = "0.1.49"

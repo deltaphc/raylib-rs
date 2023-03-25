@@ -1,9 +1,10 @@
 //! Common collision handling code
-use crate::core::math::{BoundingBox, Ray, Rectangle, Vector2};
-use crate::core::models::Model;
-use crate::ffi;
-use crate::math::{Matrix, RayCollision};
-use crate::models::Mesh;
+use crate::{
+    core::math::{BoundingBox, Ray, Rectangle, Vector2},
+    ffi,
+    math::{Matrix, RayCollision},
+    models::Mesh,
+};
 
 impl Rectangle {
     /// Check collision between two rectangles
@@ -76,6 +77,11 @@ pub fn check_collision_point_triangle(
     unsafe { ffi::CheckCollisionPointTriangle(point.into(), p1.into(), p2.into(), p3.into()) }
 }
 
+#[inline]
+pub fn check_collision_point_poly(point: Vector2, points: &[Vector2]) -> bool {
+    unsafe { ffi::CheckCollisionPointPoly(point.into(), points.as_ptr() as _, points.len() as _) }
+}
+
 /// Check the collision between two lines defined by two points each, returns collision point by reference
 #[inline]
 pub fn check_collision_lines(
@@ -100,6 +106,16 @@ pub fn check_collision_lines(
     } else {
         return None;
     }
+}
+
+#[inline]
+pub fn check_collision_point_line(
+    point: Vector2,
+    p1: Vector2,
+    p2: Vector2,
+    threshold: i32,
+) -> bool {
+    unsafe { ffi::CheckCollisionPointLine(point.into(), p1.into(), p2.into(), threshold) }
 }
 
 /// Detects collision between two spheres.
