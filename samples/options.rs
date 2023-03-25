@@ -2,6 +2,7 @@
 // extern crate structopt;
 
 pub use structopt::StructOpt;
+use raylib::core::{RaylibHandle, RaylibThread};
 
 #[derive(Debug, StructOpt)]
 #[structopt(name = "example", about = "An example of StructOpt usage.")]
@@ -19,13 +20,13 @@ impl Opt {
     pub fn new() -> Self {
         Opt::from_args()
     }
-    pub fn open_window(&self, name: &str) -> (raylib::RaylibHandle<'static>, raylib::RaylibThread) {
+    pub fn open_window(&self, name: &str) -> (RaylibHandle<'static>, RaylibThread) {
         let (rl, thread) = raylib::init()
             .size(self.width, self.height)
             .title(name)
             .build();
-        let logo = raylib::prelude::Image::load_image("static/logo.png").unwrap();
-        rl.set_window_icon(&logo);
+        //let logo = raylib::prelude::Image::load_image("static/logo.png").unwrap();
+        //rl.set_window_icon(&logo);
         rl.set_target_fps(self.fps);
         (rl, thread)
     }

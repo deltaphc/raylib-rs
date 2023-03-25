@@ -1,10 +1,8 @@
 //! Contains code related to audio. [`RaylibAudio`] plays sounds and music.
 
-use crate::core::RaylibThread;
+use super::{buffer::RaylibBuffer, RaylibThread};
 use crate::ffi;
 use std::ffi::CString;
-
-use super::buffer::RaylibBuffer;
 
 make_thin_wrapper!(Wave, ffi::Wave, ffi::UnloadWave);
 make_bound_thin_wrapper!(Sound, ffi::Sound, ffi::UnloadSound, RaylibAudio);
@@ -50,25 +48,11 @@ impl RaylibAudio {
         }
     }
 
-    /// Get number of sounds playing in the multichannel
-    #[inline]
-    pub fn get_sounds_playing(&self) -> i32 {
-        unsafe { ffi::GetSoundsPlaying() }
-    }
-
     /// Plays a sound.
     #[inline]
     pub fn play_sound(&self, sound: &Sound) {
         unsafe {
             ffi::PlaySound(sound.0);
-        }
-    }
-
-    /// Play a sound (using multichannel buffer pool)
-    #[inline]
-    pub fn play_sound_multi(&self, sound: &Sound) {
-        unsafe {
-            ffi::PlaySoundMulti(sound.0);
         }
     }
 
@@ -93,14 +77,6 @@ impl RaylibAudio {
     pub fn stop_sound(&self, sound: &Sound) {
         unsafe {
             ffi::StopSound(sound.0);
-        }
-    }
-
-    /// Stops playing a sound.
-    #[inline]
-    pub fn stop_sound_multi(&self) {
-        unsafe {
-            ffi::StopSoundMulti();
         }
     }
 
@@ -264,7 +240,6 @@ impl RaylibAudio {
 impl Drop for RaylibAudio {
     fn drop(&mut self) {
         unsafe {
-            ffi::StopSoundMulti();
             ffi::CloseAudioDevice();
         }
     }
@@ -384,7 +359,7 @@ impl<'bind, 'a> Sound<'bind, 'a> {
     ) -> Result<Sound<'bind, 'a>, String> {
         let s = unsafe { ffi::LoadSoundFromWave(wave.0) };
         if s.stream.buffer.is_null() {
-            return Err(format!("failed to load sound from wave"));
+            return Err("failed to load sound from wave".to_string());
         }
         Ok(unsafe { Sound::from_raw(s) })
     }

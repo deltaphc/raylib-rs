@@ -1,9 +1,9 @@
 //! File manipulation functions. Should be parity with std::fs except on emscripten
-use crate::ffi;
-
-use crate::core::RaylibHandle;
 use core::slice;
 use std::ffi::CStr;
+
+use crate::ffi;
+use super::RaylibHandle;
 
 impl<'a> RaylibHandle<'a> {
     /// Checks if a file has been dropped into the window.

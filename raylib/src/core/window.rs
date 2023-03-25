@@ -1,11 +1,13 @@
 //! Window manipulation functions
-use crate::core::math::{Matrix, Ray, Vector2};
-use crate::core::{RaylibHandle, RaylibThread};
-use crate::ffi;
 use core::ffi::c_char;
+use mint::{ColumnMatrix4, Vector2, Vector3};
+
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
 use std::ffi::{CStr, CString, IntoStringError, NulError};
+
+use super::{RaylibHandle, RaylibThread};
+use crate::ffi::{self, Camera2D, Camera3D, Ray};
 
 #[cfg(feature = "with_serde")]
 use serde::{Deserialize, Serialize};
@@ -266,6 +268,16 @@ pub fn get_monitor_refresh_rate(monitor: i32) -> i32 {
     unsafe { ffi::GetMonitorRefreshRate(monitor) }
 }
 
+/// Get specified monitor position
+#[inline]
+pub fn get_monitor_position(monitor: i32) -> Option<Vector2<f32>> {
+    if monitor >= 0 && monitor < get_monitor_count() {
+        Some(unsafe { ffi::GetMonitorPosition(monitor).into() })
+    } else {
+        None
+    }
+}
+
 /// Get number of connected monitors
 /// Only checks that monitor index is in range in debug mode
 #[inline]
@@ -358,8 +370,8 @@ pub fn get_monitor_info(monitor: i32) -> Result<MonitorInfo, IntoStringError> {
 ///        assert_eq!(m, Matrix::identity());
 /// }
 /// ```
-pub fn get_camera_matrix(camera: impl Into<ffi::Camera>) -> Matrix {
-    unsafe { ffi::GetCameraMatrix(camera.into()).into() }
+pub fn get_camera_matrix(camera: Camera3D) -> ColumnMatrix4<f32> {
+    unsafe { ffi::GetCameraMatrix(camera).into() }
 }
 
 /// Returns camera 2D transform matrix (view matrix)
@@ -374,9 +386,8 @@ pub fn get_camera_matrix(camera: impl Into<ffi::Camera>) -> Matrix {
 ///     assert_eq!(m, check);
 /// }
 /// ```
-#[allow(non_snake_case)]
-pub fn get_camera_matrix2D(camera: impl Into<ffi::Camera2D>) -> Matrix {
-    unsafe { ffi::GetCameraMatrix2D(camera.into()).into() }
+pub fn get_camera_matrix_2d(camera: Camera2D) -> ColumnMatrix4<f32> {
+    unsafe { ffi::GetCameraMatrix2D(camera).into() }
 }
 
 impl RaylibHandle<'_> {
@@ -402,52 +413,34 @@ impl RaylibHandle<'_> {
 // Screen-space-related functions
 impl RaylibHandle<'_> {
     /// Returns a ray trace from mouse position
-    pub fn get_mouse_ray(
-        &self,
-        mouse_position: impl Into<ffi::Vector2>,
-        camera: impl Into<ffi::Camera>,
-    ) -> Ray {
-        unsafe { ffi::GetMouseRay(mouse_position.into(), camera.into()).into() }
+    pub fn get_mouse_ray(&self, mouse_position: Vector2<f32>, camera: Camera3D) -> Ray {
+        unsafe { ffi::GetMouseRay(mouse_position.into(), camera) }
     }
 
     /// Returns the screen space position for a 3d world space position
-    pub fn get_world_to_screen(
-        &self,
-        position: impl Into<ffi::Vector3>,
-        camera: impl Into<ffi::Camera>,
-    ) -> Vector2 {
-        unsafe { ffi::GetWorldToScreen(position.into(), camera.into()).into() }
+    pub fn get_world_to_screen(&self, position: Vector3<f32>, camera: Camera3D) -> Vector2<f32> {
+        unsafe { ffi::GetWorldToScreen(position.into(), camera).into() }
     }
 
     /// Returns the screen space position for a 2d camera world space position
-    #[allow(non_snake_case)]
-    pub fn get_world_to_screen2D(
-        &self,
-        position: impl Into<ffi::Vector2>,
-        camera: impl Into<ffi::Camera2D>,
-    ) -> Vector2 {
-        unsafe { ffi::GetWorldToScreen2D(position.into(), camera.into()).into() }
+    pub fn get_world_to_screen_2d(&self, position: Vector2<f32>, camera: Camera2D) -> Vector2<f32> {
+        unsafe { ffi::GetWorldToScreen2D(position.into(), camera).into() }
     }
 
     /// Returns size position for a 3d world space position
     pub fn get_world_to_screen_ex(
         &self,
-        position: impl Into<ffi::Vector3>,
-        camera: impl Into<ffi::Camera>,
+        position: Vector3<f32>,
+        camera: Camera3D,
         width: i32,
         height: i32,
-    ) -> Vector2 {
-        unsafe { ffi::GetWorldToScreenEx(position.into(), camera.into(), width, height).into() }
+    ) -> Vector2<f32> {
+        unsafe { ffi::GetWorldToScreenEx(position.into(), camera, width, height).into() }
     }
 
     /// Returns the world space position for a 2d camera screen space position
-    #[allow(non_snake_case)]
-    pub fn get_screen_to_world2D(
-        &self,
-        position: impl Into<ffi::Vector2>,
-        camera: impl Into<ffi::Camera2D>,
-    ) -> Vector2 {
-        unsafe { ffi::GetScreenToWorld2D(position.into(), camera.into()).into() }
+    pub fn get_screen_to_world_2d(&self, position: Vector2<f32>, camera: Camera2D) -> Vector2<f32> {
+        unsafe { ffi::GetScreenToWorld2D(position.into(), camera).into() }
     }
 }
 
@@ -473,6 +466,34 @@ impl RaylibHandle<'_> {
     /// Returns elapsed time in seconds since InitWindow()
     pub fn get_time(&self) -> f64 {
         unsafe { ffi::GetTime() }
+    }
+}
+
+// Event management and custom frame control.
+impl RaylibHandle<'_> {
+    /// Enable waiting for events on EndDrawing(), no automatic event polling
+    pub fn enable_event_waiting(&self) {
+        unsafe { ffi::EnableEventWaiting() }
+    }
+
+    /// Disable waiting for events on EndDrawing(), automatic events polling
+    pub fn disable_event_waiting(&self) {
+        unsafe { ffi::DisableEventWaiting() }
+    }
+
+    /// Swap back buffer with front buffer (screen drawing)
+    pub fn swap_screen_buffer(&self) {
+        unsafe { ffi::SwapScreenBuffer() }
+    }
+
+    /// Register all input events
+    pub fn poll_input_events(&self) {
+        unsafe { ffi::PollInputEvents() }
+    }
+
+    /// Wait for some time (halt program execution)
+    pub fn wait_time(seconds: f64) {
+        unsafe { ffi::WaitTime(seconds) }
     }
 }
 
@@ -523,7 +544,7 @@ impl RaylibHandle<'_> {
 
     /// Check if window is currently focused (only PLATFORM_DESKTOP)
     #[inline]
-    pub fn get_window_scale_dpi(&self) -> Vector2 {
+    pub fn get_window_scale_dpi(&self) -> Vector2<f32> {
         unsafe { ffi::GetWindowScaleDPI().into() }
     }
 
@@ -544,6 +565,30 @@ impl RaylibHandle<'_> {
     pub fn toggle_fullscreen(&self) {
         unsafe {
             ffi::ToggleFullscreen();
+        }
+    }
+
+    /// Set window state: maximized, if resizable (only PLATFORM_DESKTOP)
+    #[inline]
+    pub fn maximize_window(&self) {
+        unsafe {
+            ffi::MaximizeWindow();
+        }
+    }
+
+    /// Set window state: minimized, if resizable (only PLATFORM_DESKTOP)
+    #[inline]
+    pub fn minimize_window(&self) {
+        unsafe {
+            ffi::MinimizeWindow();
+        }
+    }
+
+    /// Set window state: not minimized/maximized (only PLATFORM_DESKTOP)
+    #[inline]
+    pub fn restore_window(&self) {
+        unsafe {
+            ffi::RestoreWindow();
         }
     }
 
@@ -612,6 +657,12 @@ impl RaylibHandle<'_> {
         }
     }
 
+    /// Set icon for window (multiple images, RGBA 32bit, only PLATFORM_DESKTOP)
+    #[inline]
+    pub fn set_window_icons(&self, images: &[raylib_sys::Image]) {
+        unsafe { ffi::SetWindowIcons(images.as_ptr() as _, images.len().try_into().unwrap()) }
+    }
+
     /// Sets title for window (only on desktop platforms).
     #[inline]
     pub fn set_window_title(&self, _: &RaylibThread, title: &str) {
@@ -669,7 +720,7 @@ impl RaylibHandle<'_> {
 
     /// Get window position
     #[inline]
-    pub fn get_window_position(&self) -> Vector2 {
+    pub fn get_window_position(&self) -> Vector2<f32> {
         unsafe { ffi::GetWindowPosition().into() }
     }
 }
@@ -716,7 +767,7 @@ impl RaylibHandle<'_> {
 
     /// Get native window handle
     #[inline]
-    pub unsafe fn get_window_handle(&self) -> *mut core::ffi::c_void {
-        ffi::GetWindowHandle()
+    pub fn get_window_handle(&self) -> *mut core::ffi::c_void {
+        unsafe { ffi::GetWindowHandle() }
     }
 }

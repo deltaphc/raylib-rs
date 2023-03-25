@@ -2,16 +2,14 @@
 mod macros;
 
 pub mod audio;
-mod buffer;
+pub mod buffer;
 pub mod camera;
 pub mod collision;
-pub mod color;
 pub mod data;
 pub mod drawing;
 pub mod file;
 pub mod input;
 pub mod logging;
-pub mod math;
 pub mod misc;
 pub mod models;
 pub mod shaders;
@@ -208,7 +206,7 @@ impl RaylibBuilder {
         }
 
         unsafe {
-            ffi::SetConfigFlags(flags as u32);
+            ffi::SetConfigFlags(flags);
         }
         let rl = init_window(self.width, self.height, &self.title);
         (rl, RaylibThread(PhantomData))

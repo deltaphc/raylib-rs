@@ -7,9 +7,7 @@ pub(crate) struct ContigousBuffer<'a, T>(NonNull<T>, PhantomData<&'a T>);
 
 impl<'a, T> ContigousBuffer<'a, T> {
     pub fn new(buffer: *mut T) -> Option<Self> {
-        NonNull::new(buffer)
-            .map(|p| Some(ContigousBuffer(p, PhantomData)))
-            .flatten()
+        NonNull::new(buffer).and_then(|p| Some(ContigousBuffer(p, PhantomData)))
     }
 
     pub unsafe fn get_slice(&'a self, len: usize) -> &'a [T] {
@@ -52,7 +50,7 @@ impl<'a, T> Index<usize> for RaylibBuffer<'a, T> {
     type Output = T;
 
     fn index(&self, index: usize) -> &Self::Output {
-        unsafe { &*self.get_ptr().offset(index as isize) }
+        unsafe { &*self.get_ptr().add(index) }
     }
 }
 

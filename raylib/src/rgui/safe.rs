@@ -1,9 +1,7 @@
-use crate::core::color::Color;
-use crate::core::drawing::RaylibDraw;
-use crate::core::math::{Rectangle, Vector2};
-use crate::core::RaylibHandle;
-use crate::ffi;
-use crate::text::Font;
+use mint::Vector2;
+
+use crate::core::{drawing::RaylibDraw, text::Font, RaylibHandle};
+use crate::ffi::{self, Color, Rectangle};
 
 use std::ffi::CStr;
 use std::marker::PhantomData;
@@ -205,7 +203,7 @@ pub trait RaylibDrawGui<'a> {
         text: impl IntoCStr,
         content: impl Into<ffi::Rectangle>,
         scroll: impl Into<ffi::Vector2>,
-    ) -> (Rectangle, Vector2) {
+    ) -> (Rectangle, Vector2<f32>) {
         let mut scroll = scroll.into();
         let bounds: ffi::Rectangle = unsafe {
             ffi::GuiScrollPanel(
@@ -452,7 +450,7 @@ pub trait RaylibDrawGui<'a> {
         text: impl IntoCStr,
         spacing: f32,
         subdivs: i32,
-    ) -> Vector2 {
+    ) -> Vector2<f32> {
         unsafe { ffi::GuiGrid(bounds.into(), text.as_cstr_ptr(), spacing, subdivs).into() }
     }
     /// List View control, returns selected list item index
@@ -587,6 +585,6 @@ pub trait RaylibDrawGui<'a> {
         text: impl IntoCStr,
         alpha: f32,
     ) -> f32 {
-        unsafe { ffi::GuiColorBarAlpha(bounds.into(), text.as_cstr_ptr(), alpha).into() }
+        unsafe { ffi::GuiColorBarAlpha(bounds.into(), text.as_cstr_ptr(), alpha) }
     }
 }

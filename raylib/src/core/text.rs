@@ -1,13 +1,18 @@
 //! Text and Font related functions
 //! Text manipulation functions are super unsafe so use rust String functions
-use crate::core::math::Vector2;
-use crate::core::texture::{Image, Texture2D};
-use crate::core::{RaylibHandle, RaylibThread};
-use crate::ffi;
-
+use std::boxed::Box;
 use std::convert::{AsMut, AsRef};
 use std::ffi::CString;
 use std::mem::ManuallyDrop;
+use std::ptr;
+
+use super::{
+    buffer::RaylibBuffer,
+    texture::{Image, Texture2D},
+    RaylibHandle, RaylibThread,
+};
+use crate::ffi::{self, Color};
+use mint::Vector2;
 
 fn no_drop<T>(_thing: T) {}
 make_bound_thin_wrapper!(Font, ffi::Font, ffi::UnloadFont, RaylibHandle<'bind>);
@@ -15,23 +20,20 @@ make_thin_wrapper!(GlyphInfo, ffi::GlyphInfo, no_drop);
 
 #[repr(transparent)]
 #[derive(Debug)]
-pub struct RSliceGlyphInfo(pub(crate) std::mem::ManuallyDrop<std::boxed::Box<[GlyphInfo]>>);
+pub struct RSliceGlyphInfo(pub(crate) ManuallyDrop<Box<[GlyphInfo]>>);
 
 impl Drop for RSliceGlyphInfo {
     #[allow(unused_unsafe)]
     fn drop(&mut self) {
         unsafe {
-            let inner = std::mem::ManuallyDrop::take(&mut self.0);
+            let inner = ManuallyDrop::take(&mut self.0);
             let len = inner.len();
-            ffi::UnloadFontData(
-                std::boxed::Box::leak(inner).as_mut_ptr() as *mut _,
-                len as i32,
-            );
+            ffi::UnloadFontData(Box::leak(inner).as_mut_ptr() as *mut _, len as i32);
         }
     }
 }
 
-impl std::convert::AsRef<Box<[GlyphInfo]>> for RSliceGlyphInfo {
+impl AsRef<Box<[GlyphInfo]>> for RSliceGlyphInfo {
     fn as_ref(&self) -> &Box<[GlyphInfo]> {
         &self.0
     }
@@ -69,7 +71,7 @@ impl std::ops::DerefMut for RSliceGlyphInfo {
 
 impl<'bind, 'a> AsRef<ffi::Texture2D> for Font<'bind, 'a> {
     fn as_ref(&self) -> &ffi::Texture2D {
-        return &self.0.texture;
+        &self.0.texture
     }
 }
 
@@ -118,7 +120,7 @@ impl<'bind> RaylibHandle<'_> {
                     c.len() as i32,
                 ),
                 FontLoadEx::Default(count) => {
-                    ffi::LoadFontEx(c_filename.as_ptr(), font_size, std::ptr::null_mut(), count)
+                    ffi::LoadFontEx(c_filename.as_ptr(), font_size, ptr::null_mut(), count)
                 }
             }
         };
@@ -137,12 +139,12 @@ impl<'bind> RaylibHandle<'_> {
         &'bind self,
         _: &RaylibThread,
         image: &Image,
-        key: impl Into<ffi::Color>,
+        key: Color,
         first_char: i32,
     ) -> Result<Font<'bind, '_>, String> {
-        let f = unsafe { ffi::LoadFontFromImage(image.0, key.into(), first_char) };
+        let f = unsafe { ffi::LoadFontFromImage(image.0, key, first_char) };
         if f.glyphs.is_null() {
-            return Err(format!("Error loading font from image."));
+            return Err("Error loading font from image.".to_string());
         }
         Ok(unsafe { Font::from_raw(f) })
     }
@@ -171,7 +173,7 @@ impl<'bind> RaylibHandle<'_> {
                     data.as_ptr(),
                     data.len() as i32,
                     font_size,
-                    std::ptr::null_mut(),
+                    ptr::null_mut(),
                     0,
                     sdf,
                 ),
@@ -180,7 +182,7 @@ impl<'bind> RaylibHandle<'_> {
             if ci_arr_ptr.is_null() {
                 None
             } else {
-                Some(RSliceGlyphInfo(std::mem::ManuallyDrop::new(Box::from_raw(
+                Some(RSliceGlyphInfo(ManuallyDrop::new(Box::from_raw(
                     std::slice::from_raw_parts_mut(ci_arr_ptr as *mut _, ci_size),
                 ))))
             }
@@ -242,7 +244,7 @@ impl<'a, 'bind> Font<'bind, 'a> {
             f
         };
         if f.0.glyphs.is_null() || f.0.texture.id == 0 {
-            return Err(format!("Error loading font from image."));
+            return Err("Error loading font from image.".to_string());
         }
         Ok(f)
     }
@@ -253,7 +255,7 @@ impl<'a, 'bind> Font<'bind, 'a> {
             self.glyphCount = chars.len() as i32;
             let data_size = self.glyphCount as usize * std::mem::size_of::<ffi::GlyphInfo>();
             let ci_arr_ptr = libc::malloc(data_size); // raylib frees this data in UnloadFont
-            std::ptr::copy(
+            ptr::copy(
                 chars.as_ptr(),
                 ci_arr_ptr as *mut ffi::GlyphInfo,
                 chars.len(),
@@ -270,8 +272,6 @@ impl<'a, 'bind> Font<'bind, 'a> {
 }
 
 /// Generates image font atlas using `chars` info.
-/// Sets a pointer to an array of rectangles raylib allocated that MUST manually be freed.
-/// Good luck freeing it safely though ;)
 #[inline]
 pub fn gen_image_font_atlas(
     _: &RaylibThread,
@@ -279,9 +279,9 @@ pub fn gen_image_font_atlas(
     font_size: i32,
     padding: i32,
     pack_method: i32,
-) -> (Image, Vec<ffi::Rectangle>) {
+) -> Option<(Image, RaylibBuffer<'static, ffi::Rectangle>)> {
     unsafe {
-        let mut ptr = std::ptr::null_mut();
+        let mut ptr = ptr::null_mut();
 
         let img = Image(ffi::GenImageFontAtlas(
             chars.as_mut_ptr(),
@@ -292,11 +292,9 @@ pub fn gen_image_font_atlas(
             pack_method,
         ));
 
-        let mut recs = Vec::with_capacity(chars.len());
-        recs.set_len(chars.len());
-        std::ptr::copy(ptr, recs.as_mut_ptr(), chars.len());
-        ffi::MemFree(ptr as *mut libc::c_void);
-        return (img, recs);
+        let buffer = RaylibBuffer::<ffi::Rectangle>::new(ptr, chars.len());
+
+        buffer.map(|b| (img, b))
     }
 }
 
@@ -318,17 +316,17 @@ pub fn measure_text(text: &str, font_size: i32) -> i32 {
 /// Measures string width in pixels for `font`.
 #[inline]
 pub fn measure_text_ex(
-    font: impl std::convert::AsRef<ffi::Font>,
+    font: impl AsRef<ffi::Font>,
     text: &str,
     font_size: f32,
     spacing: f32,
-) -> Vector2 {
+) -> Vector2<f32> {
     let c_text = CString::new(text).unwrap();
     unsafe { ffi::MeasureTextEx(*font.as_ref(), c_text.as_ptr(), font_size, spacing).into() }
 }
 
 /// Gets index position for a unicode character on `font`.
 #[inline]
-pub fn get_glyph_index(font: impl std::convert::AsRef<ffi::Font>, character: i32) -> i32 {
+pub fn get_glyph_index(font: impl AsRef<ffi::Font>, character: i32) -> i32 {
     unsafe { ffi::GetGlyphIndex(*font.as_ref(), character) }
 }

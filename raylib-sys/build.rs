@@ -21,7 +21,7 @@ use std::env;
 use std::path::{Path, PathBuf};
 
 /// latest version on github's release page as of time or writing
-const LATEST_RAYLIB_VERSION: &str = "4.2.0";
+const LATEST_RAYLIB_VERSION: &str = "4.5.0";
 const LATEST_RAYLIB_API_VERSION: &str = "4";
 
 #[cfg(feature = "nobuild")]
@@ -137,11 +137,9 @@ fn build_with_cmake(src_path: &str) {
             panic!("failed to create windows library");
         }
     } // on web copy libraylib.bc to libraylib.a
-    if platform == Platform::Web {
-        if !Path::new(&dst_lib.join("libraylib.a")).exists() {
-            std::fs::copy(dst_lib.join("libraylib.bc"), dst_lib.join("libraylib.a"))
-                .expect("failed to create wasm library");
-        }
+    if platform == Platform::Web && !Path::new(&dst_lib.join("libraylib.a")).exists() {
+        std::fs::copy(dst_lib.join("libraylib.bc"), dst_lib.join("libraylib.a"))
+            .expect("failed to create wasm library");
     }
     // println!("cmake build {}", c.display());
     println!("cargo:rustc-link-search=native={}", dst_lib.display());
@@ -160,6 +158,7 @@ fn gen_bindings() {
     let mut builder = bindgen::Builder::default()
         .header("binding/binding.h")
         .rustified_enum(".+")
+        .clang_arg("-I../raylib/src")
         .clang_arg("-std=c99")
         .clang_arg(plat)
         .parse_callbacks(Box::new(bindgen::CargoCallbacks));
@@ -186,26 +185,13 @@ fn gen_bindings() {
 
 fn gen_rgui() {
     // Compile the code and link with cc crate
-    #[cfg(target_os = "windows")]
-    {
-        cc::Build::new()
-            .file("binding/rgui_wrapper.cpp")
-            .include("binding")
-            .warnings(false)
-            // .flag("-std=c99")
-            .extra_warnings(false)
-            .compile("rgui");
-    }
-    #[cfg(not(target_os = "windows"))]
-    {
-        cc::Build::new()
-            .file("binding/rgui_wrapper.c")
-            .include("binding")
-            .warnings(false)
-            // .flag("-std=c99")
-            .extra_warnings(false)
-            .compile("rgui");
-    }
+    cc::Build::new()
+        .file("binding/wrapper.c")
+        .include("binding")
+        .warnings(false)
+        // .flag("-std=c99")
+        .extra_warnings(false)
+        .compile("rgui");
 }
 
 #[cfg(feature = "nobuild")]
@@ -247,6 +233,7 @@ fn link(platform: Platform, platform_os: PlatformOS) {
         _ => (),
     }
     if platform == Platform::Web {
+        env::set_var("EMCC_CFLAGS", "-sUSE_GLFW=3 -sERROR_ON_UNDEFINED_SYMBOLS=0");
         println!("cargo:rustc-link-lib=glfw");
     } else if platform == Platform::RPI {
         println!("cargo:rustc-link-search=/opt/vc/lib");
@@ -281,12 +268,22 @@ fn cp_raylib() -> String {
 
     let mut options = fs_extra::dir::CopyOptions::new();
     options.skip_exist = true;
-    fs_extra::dir::copy("raylib", &out, &options).expect(&format!(
-        "failed to copy raylib source to {}",
-        &out.to_string_lossy()
-    ));
+    fs_extra::dir::copy("raylib", &out, &options)
+        .unwrap_or_else(|_| panic!("failed to copy raylib source to {}", out.to_string_lossy()));
 
     out.join("raylib").to_string_lossy().to_string()
+}
+
+fn cp_raygui() -> String {
+    let out = env::var("OUT_DIR").unwrap();
+    let out = Path::new(&out); //.join("raylib_source");
+
+    let mut options = fs_extra::dir::CopyOptions::new();
+    options.skip_exist = true;
+    fs_extra::dir::copy("raygui", &out, &options)
+        .unwrap_or_else(|_| panic!("failed to copy raygui source to {}", out.to_string_lossy()));
+
+    out.join("raygui").to_string_lossy().to_string()
 }
 
 // run_command runs a command to completion or panics. Used for running curl and powershell.
@@ -309,7 +306,6 @@ fn platform_from_target(target: &str) -> (Platform, PlatformOS) {
     let platform = if target.contains("wasm32") {
         // make sure cmake knows that it should bundle glfw in
         // Cargo web takes care of this but better safe than sorry
-        env::set_var("EMMAKEN_CFLAGS", "-s USE_GLFW=3");
         Platform::Web
     } else if target.contains("armv7-unknown-linux") {
         Platform::RPI

@@ -208,9 +208,9 @@ pub fn expo_in_out(t: f32, b: f32, c: f32, d: f32) -> f32 {
 
     let td = t / (d / 2.0);
     if td < 1.0 {
-        return c / 2.0 * 2.0f32.powf(10.0 * (t - 1.0)) + b;
+        c / 2.0 * 2.0f32.powf(10.0 * (t - 1.0)) + b
     } else {
-        return c / 2.0 * (-(2.0f32.powf(-10.0 * td - 1.0)) + 2.0) + b;
+        c / 2.0 * (-(2.0f32.powf(-10.0 * td - 1.0)) + 2.0) + b
     }
 }
 

@@ -1,5 +1,7 @@
-#include "raygui.h"
+#include "../raylib/src/raylib.h"
 #include "../raylib/src/rlgl.h"
+#include "../raylib/src/rcamera.h"
+#include "../raygui/src/raygui.h"
 
 typedef enum
 {

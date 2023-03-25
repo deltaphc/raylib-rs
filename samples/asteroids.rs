@@ -1,6 +1,15 @@
 extern crate raylib;
+use nalgebra::{Vector2, Vector3};
+use raylib::{
+    core::{
+        collision::check_collision_circles,
+        drawing::{RaylibDraw, RaylibDrawHandle},
+        text::measure_text,
+        RaylibHandle, RaylibThread,
+    },
+    ffi::Color,
+};
 
-use raylib::prelude::*;
 use structopt::StructOpt;
 
 mod options;
@@ -21,18 +30,18 @@ struct Game {
 
 #[derive(Default)]
 struct Player {
-    position: Vector2,
-    speed: Vector2,
+    position: Vector2<f32>,
+    speed: Vector2<f32>,
     acceleration: f32,
     rotation: f32,
-    collider: Vector3,
+    collider: Vector3<f32>,
     color: Color,
 }
 
 #[derive(Default)]
 struct Meteor {
-    position: Vector2,
-    speed: Vector2,
+    position: Vector2<f32>,
+    speed: Vector2<f32>,
     radius: f32,
     active: bool,
     color: Color,
@@ -40,8 +49,8 @@ struct Meteor {
 
 #[derive(Default)]
 struct Shoot {
-    position: Vector2,
-    speed: Vector2,
+    position: Vector2<f32>,
+    speed: Vector2<f32>,
     radius: f32,
     rotation: f32,
     life_spawn: u8,
@@ -315,9 +324,9 @@ fn update_game(game: &mut Game, rl: &RaylibHandle) {
                     for meteor in &mut game.big_meteors {
                         if meteor.active
                             && check_collision_circles(
-                                shot.position,
+                                shot.position.into(),
                                 shot.radius,
-                                meteor.position,
+                                meteor.position.into(),
                                 meteor.radius,
                             )
                         {
@@ -360,9 +369,9 @@ fn update_game(game: &mut Game, rl: &RaylibHandle) {
                     for meteor in &mut game.medium_meteors {
                         if meteor.active
                             && check_collision_circles(
-                                shot.position,
+                                shot.position.into(),
                                 shot.radius,
-                                meteor.position,
+                                meteor.position.into(),
                                 meteor.radius,
                             )
                         {
@@ -402,9 +411,9 @@ fn update_game(game: &mut Game, rl: &RaylibHandle) {
                     for meteor in &mut game.small_meteors {
                         if meteor.active
                             && check_collision_circles(
-                                shot.position,
+                                shot.position.into(),
                                 shot.radius,
-                                meteor.position,
+                                meteor.position.into(),
                                 meteor.radius,
                             )
                         {
@@ -431,9 +440,9 @@ fn update_game(game: &mut Game, rl: &RaylibHandle) {
             for meteor in &game.big_meteors {
                 if meteor.active
                     && check_collision_circles(
-                        Vector2::new(game.player.collider.x, game.player.collider.y),
+                        Vector2::new(game.player.collider.x, game.player.collider.y).into(),
                         game.player.collider.z,
-                        meteor.position,
+                        meteor.position.into(),
                         meteor.radius,
                     )
                 {
@@ -444,9 +453,9 @@ fn update_game(game: &mut Game, rl: &RaylibHandle) {
             for meteor in &game.medium_meteors {
                 if meteor.active
                     && check_collision_circles(
-                        Vector2::new(game.player.collider.x, game.player.collider.y),
+                        Vector2::new(game.player.collider.x, game.player.collider.y).into(),
                         game.player.collider.z,
-                        meteor.position,
+                        meteor.position.into(),
                         meteor.radius,
                     )
                 {
@@ -457,9 +466,9 @@ fn update_game(game: &mut Game, rl: &RaylibHandle) {
             for meteor in &game.small_meteors {
                 if meteor.active
                     && check_collision_circles(
-                        Vector2::new(game.player.collider.x, game.player.collider.y),
+                        Vector2::new(game.player.collider.x, game.player.collider.y).into(),
                         game.player.collider.z,
-                        meteor.position,
+                        meteor.position.into(),
                         meteor.radius,
                     )
                 {
@@ -540,7 +549,7 @@ fn update_game(game: &mut Game, rl: &RaylibHandle) {
 
 fn draw_game(game: &Game, rl: &RaylibHandle, thread: &RaylibThread) {
     let (width, height) = (rl.get_screen_width() as i32, rl.get_screen_height() as i32);
-    
+
     rl.frame(thread, |d| {
         let half_width = width / 2;
         let half_height = height / 2;
@@ -562,14 +571,14 @@ fn draw_game(game: &Game, rl: &RaylibHandle, thread: &RaylibThread) {
                 game.player.position.x + cosf * 10f32,
                 game.player.position.y + sinf * 10f32,
             );
-            d.draw_triangle(v1, v2, v3, game.player.color);
+            d.draw_triangle(v1.into(), v2.into(), v3.into(), game.player.color);
 
             for meteor in &game.big_meteors {
                 if meteor.active {
-                    d.draw_circle_v(meteor.position, meteor.radius, meteor.color);
+                    d.draw_circle_v(meteor.position.into(), meteor.radius, meteor.color);
                 } else {
                     d.draw_circle_v(
-                        meteor.position,
+                        meteor.position.into(),
                         meteor.radius,
                         Color::fade(&Color::LIGHTGRAY, 0.3),
                     );
@@ -578,10 +587,10 @@ fn draw_game(game: &Game, rl: &RaylibHandle, thread: &RaylibThread) {
 
             for meteor in &game.medium_meteors {
                 if meteor.active {
-                    d.draw_circle_v(meteor.position, meteor.radius, meteor.color);
+                    d.draw_circle_v(meteor.position.into(), meteor.radius, meteor.color);
                 } else {
                     d.draw_circle_v(
-                        meteor.position,
+                        meteor.position.into(),
                         meteor.radius,
                         Color::fade(&Color::LIGHTGRAY, 0.3),
                     );
@@ -590,10 +599,10 @@ fn draw_game(game: &Game, rl: &RaylibHandle, thread: &RaylibThread) {
 
             for meteor in &game.small_meteors {
                 if meteor.active {
-                    d.draw_circle_v(meteor.position, meteor.radius, meteor.color);
+                    d.draw_circle_v(meteor.position.into(), meteor.radius, meteor.color);
                 } else {
                     d.draw_circle_v(
-                        meteor.position,
+                        meteor.position.into(),
                         meteor.radius,
                         Color::fade(&Color::LIGHTGRAY, 0.3),
                     );
@@ -602,7 +611,7 @@ fn draw_game(game: &Game, rl: &RaylibHandle, thread: &RaylibThread) {
 
             for shot in &game.shots {
                 if shot.active {
-                    d.draw_circle_v(shot.position, shot.radius, shot.color);
+                    d.draw_circle_v(shot.position.into(), shot.radius, shot.color);
                 }
             }
 
@@ -628,7 +637,7 @@ fn draw_game(game: &Game, rl: &RaylibHandle, thread: &RaylibThread) {
         } else {
             d.draw_text(
                 "PRESS [ENTER] TO PLAY AGAIN",
-                half_width - measure_text("PRESS [ENTER] TO PLAY AGAIN", 20),
+                half_width - measure_text("PRESS [ENTER] TO PLAY AGAIN", 20) / 2,
                 half_height - 50,
                 20,
                 Color::GRAY,

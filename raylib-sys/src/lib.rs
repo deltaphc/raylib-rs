@@ -4,5 +4,12 @@
 
 include!(concat!(env!("OUT_DIR"), "/bindings.rs"));
 
-pub mod math;
+pub use mint;
+
+mod color;
+mod camera;
+mod math;
+
+pub use color::*;
 pub use math::*;
+pub use camera::*;

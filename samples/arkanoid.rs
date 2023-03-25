@@ -1,5 +1,11 @@
 extern crate raylib;
-use raylib::prelude::*;
+extern crate nalgebra;
+
+use nalgebra::Vector2;
+use raylib::core::drawing::RaylibDraw;
+use raylib::core::{RaylibHandle, drawing::RaylibDrawHandle};
+use raylib::core::text::measure_text;
+use raylib::ffi::{Color, Rectangle};
 use structopt::StructOpt;
 
 mod options;
@@ -10,22 +16,22 @@ const BRICKS_PER_LINE: usize = 20;
 
 #[derive(Default)]
 struct Player {
-    pub position: Vector2,
-    pub size: Vector2,
+    pub position: Vector2<f32>,
+    pub size: Vector2<f32>,
     pub life: i32,
 }
 
 #[derive(Default)]
 struct Ball {
-    position: Vector2,
-    speed: Vector2,
+    position: Vector2<f32>,
+    speed: Vector2<f32>,
     radius: i32,
     active: bool,
 }
 
 #[derive(Default)]
 struct Brick {
-    position: Vector2,
+    position: Vector2<f32>,
     active: bool,
 }
 
@@ -35,7 +41,7 @@ struct Game {
     player: Player,
     ball: Ball,
     bricks: Vec<Vec<Brick>>,
-    brick_size: Vector2,
+    brick_size: Vector2<f32>,
 }
 
 impl Default for Game {
@@ -177,7 +183,7 @@ fn update_game(game: &mut Game, rl: &RaylibHandle) {
                 game.player.size.x,
                 game.player.size.y,
             );
-            if r.check_collision_circle_rec(game.ball.position, game.ball.radius as f32) {
+            if r.check_collision_circle_rec(game.ball.position.into(), game.ball.radius as f32) {
                 if game.ball.speed.y > 0.0 {
                     game.ball.speed.y *= -1.0;
                     game.ball.speed.x = (game.ball.position.x - game.player.position.x)
@@ -294,7 +300,7 @@ fn draw_game(game: &Game, rl: &RaylibHandle, d: &RaylibDrawHandle) {
         }
 
         // Draw ball
-        d.draw_circle_v(game.ball.position, game.ball.radius as f32, Color::MAROON);
+        d.draw_circle_v(game.ball.position.into(), game.ball.radius as f32, Color::MAROON);
 
         // Draw bricks
         for i in 0..LINES_OF_BRICKS {
