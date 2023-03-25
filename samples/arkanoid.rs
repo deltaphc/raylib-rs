@@ -2,8 +2,7 @@ extern crate raylib;
 extern crate nalgebra;
 
 use nalgebra::Vector2;
-use raylib::core::drawing::RaylibDraw;
-use raylib::core::{RaylibHandle, drawing::RaylibDrawHandle};
+use raylib::prelude::*;
 use raylib::core::text::measure_text;
 use raylib::ffi::{Color, Rectangle};
 use structopt::StructOpt;
@@ -123,7 +122,7 @@ fn init_game(game: &mut Game, rl: &RaylibHandle) {
 }
 
 fn update_game(game: &mut Game, rl: &RaylibHandle) {
-    use raylib::consts::KeyboardKey::*;
+    use raylib::ffi::KeyboardKey::*;
     let (w, h) = (rl.get_screen_width() as f32, rl.get_screen_height() as f32);
 
     if !game.game_over {

@@ -1,4 +1,5 @@
 use arr_macro::arr;
+use nalgebra::Vector3;
 use rand::prelude::*;
 use raylib::prelude::*;
 
@@ -7,7 +8,7 @@ const WINDOW_HEIGHT: i32 = 720;
 
 struct Column {
     height: f32,
-    position: Vector3,
+    position: Vector3<f32>,
     color: Color,
 }
 

@@ -1,6 +1,6 @@
 //! Vr related functions
 use super::{RaylibHandle, RaylibThread};
-use crate::ffi;
+use crate::{ffi, make_thin_wrapper};
 
 make_thin_wrapper!(
     VrStereoConfig,

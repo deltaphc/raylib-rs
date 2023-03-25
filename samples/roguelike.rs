@@ -4,7 +4,7 @@
 /// IMHO Don't write code like this. Use ECS and other methods to have game objects and components.
 /// Only do this as an exercise.
 extern crate raylib;
-use crate::KeyboardKey::KEY_A;
+use raylib::ffi::KeyboardKey;
 use rand::distributions::WeightedIndex;
 use rand::prelude::*;
 use rand::Rng;

@@ -1,7 +1,8 @@
 //! Die if you touch fire
 #[macro_use]
 extern crate specs_derive;
-use raylib::prelude::*;
+use nalgebra::Vector2;
+use raylib::{ffi::Color, prelude::*};
 use specs::prelude::*;
 use std::collections::HashMap;
 
@@ -16,8 +17,8 @@ const MARGIN: i32 = 2;
 #[derive(Clone, Component)]
 struct Pos(i32, i32);
 
-impl From<&Pos> for Vector2 {
-    fn from(pos: &Pos) -> Vector2 {
+impl From<&Pos> for Vector2<f32> {
+    fn from(pos: &Pos) -> Vector2<f32> {
         Vector2::new(pos.0 as f32, pos.1 as f32)
     }
 }
@@ -75,7 +76,7 @@ impl<'a> System<'a> for PlayerSys {
     );
 
     fn run(&mut self, (ents, rl, emap, mut players, pos): Self::SystemData) {
-        use raylib::consts::KeyboardKey::*;
+        use raylib::ffi::KeyboardKey::*;
 
         let player = (&*ents, &pos, &players).join().nth(0).unwrap();
 
@@ -129,18 +130,30 @@ impl<'a> System<'a> for DrawSys {
             d.clear_background(Color::BLACK);
             // draw the tiles
             for (pos, _) in (&pos, &tiles).join() {
-                let p: Vector2 = pos.into();
-                d.draw_rectangle_v(p * size + margin, tile_size, Color::RAYWHITE);
+                let p: Vector2<f32> = pos.into();
+                d.draw_rectangle_v(
+                    (p.component_mul(&size) + margin).into(),
+                    tile_size.into(),
+                    Color::RAYWHITE,
+                );
             }
             // draw the fire tiles
             for (pos, _, _) in (&pos, &tiles, &fire).join() {
-                let p: Vector2 = pos.into();
-                d.draw_rectangle_v(p * size + margin, tile_size, Color::RED);
+                let p: Vector2<f32> = pos.into();
+                d.draw_rectangle_v(
+                    (p.component_mul(&size) + margin).into(),
+                    tile_size.into(),
+                    Color::RED,
+                );
             }
             // draw the player tiles
             for (pos, _, _) in (&pos, &tiles, &player).join() {
-                let p: Vector2 = pos.into();
-                d.draw_rectangle_v(p * size + margin, tile_size, Color::GREEN);
+                let p: Vector2<f32> = pos.into();
+                d.draw_rectangle_v(
+                    (p.component_mul(&size) + margin).into(),
+                    tile_size.into(),
+                    Color::GREEN,
+                );
             }
         });
     }

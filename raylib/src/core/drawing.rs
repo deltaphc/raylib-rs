@@ -1,8 +1,9 @@
 //! Contains code related to drawing. Types that can be set as a surface to draw will implement the [`RaylibDraw`] trait
-use mint::{Vector2, Vector3};
-
-use super::{texture::Texture2D, vr::VrStereoConfig, RaylibHandle, RaylibRenderLoop, RaylibThread};
-use crate::ffi::{self, BoundingBox, Camera2D, Camera3D, Color, NPatchInfo, Rectangle};
+use super::{texture::Texture2D, vr::VrStereoConfig, RaylibHandle, RaylibThread};
+use crate::ffi::{
+    self, BlendMode, BoundingBox, Camera2D, Camera3D, Color, NPatchInfo, Rectangle, Vector2,
+    Vector3,
+};
 
 use std::{convert::AsRef, ffi::CString, marker::PhantomData};
 
@@ -44,9 +45,8 @@ where
     }
 }
 
-// Only the DrawHandle and the RaylibRenderLoop can start a texture
+// Only the DrawHandle can start a texture
 impl RaylibTextureModeExt for RaylibDrawHandle<'_> {}
-impl RaylibTextureModeExt for &mut RaylibRenderLoop<'_> {}
 impl<T> RaylibDraw for RaylibTextureMode<'_, T> {}
 
 // VR Stuff
@@ -202,7 +202,7 @@ where
     Self: Sized,
 {
     #[must_use]
-    fn begin_blend_mode(&self, blend_mode: crate::consts::BlendMode) -> RaylibBlendMode<Self> {
+    fn begin_blend_mode(&self, blend_mode: BlendMode) -> RaylibBlendMode<Self> {
         unsafe { ffi::BeginBlendMode((blend_mode as u32) as i32) }
         RaylibBlendMode(self)
     }
@@ -281,9 +281,9 @@ pub trait RaylibDraw {
 
     /// Draws a pixel (Vector version).
     #[inline]
-    fn draw_pixel_v(&self, position: Vector2<f32>, color: Color) {
+    fn draw_pixel_v(&self, position: Vector2, color: Color) {
         unsafe {
-            ffi::DrawPixelV(position.into(), color);
+            ffi::DrawPixelV(position, color);
         }
     }
 
@@ -304,63 +304,45 @@ pub trait RaylibDraw {
 
     /// Draws a line (Vector version).
     #[inline]
-    fn draw_line_v(&self, start_pos: Vector2<f32>, end_pos: Vector2<f32>, color: Color) {
+    fn draw_line_v(&self, start_pos: Vector2, end_pos: Vector2, color: Color) {
         unsafe {
-            ffi::DrawLineV(start_pos.into(), end_pos.into(), color);
+            ffi::DrawLineV(start_pos, end_pos, color);
         }
     }
 
     /// Draws a line with thickness.
     #[inline]
-    fn draw_line_ex(
-        &self,
-        start_pos: Vector2<f32>,
-        end_pos: Vector2<f32>,
-        thick: f32,
-        color: Color,
-    ) {
+    fn draw_line_ex(&self, start_pos: Vector2, end_pos: Vector2, thick: f32, color: Color) {
         unsafe {
-            ffi::DrawLineEx(start_pos.into(), end_pos.into(), thick, color);
+            ffi::DrawLineEx(start_pos, end_pos, thick, color);
         }
     }
 
     /// Draws a line using cubic-bezier curves in-out.
     #[inline]
-    fn draw_line_bezier(
-        &self,
-        start_pos: Vector2<f32>,
-        end_pos: Vector2<f32>,
-        thick: f32,
-        color: Color,
-    ) {
+    fn draw_line_bezier(&self, start_pos: Vector2, end_pos: Vector2, thick: f32, color: Color) {
         unsafe {
-            ffi::DrawLineBezier(start_pos.into(), end_pos.into(), thick, color);
+            ffi::DrawLineBezier(start_pos, end_pos, thick, color);
         }
     }
     /// Draw line using quadratic bezier curves with a control point
     #[inline]
     fn draw_line_bezier_quad(
         &self,
-        start_pos: Vector2<f32>,
-        end_pos: Vector2<f32>,
-        control_pos: Vector2<f32>,
+        start_pos: Vector2,
+        end_pos: Vector2,
+        control_pos: Vector2,
         thick: f32,
         color: Color,
     ) {
         unsafe {
-            ffi::DrawLineBezierQuad(
-                start_pos.into(),
-                end_pos.into(),
-                control_pos.into(),
-                thick,
-                color,
-            );
+            ffi::DrawLineBezierQuad(start_pos, end_pos, control_pos, thick, color);
         }
     }
 
     /// Draw lines sequence
     #[inline]
-    fn draw_line_strip(&self, points: &[Vector2<f32>], color: Color) {
+    fn draw_line_strip(&self, points: &[Vector2], color: Color) {
         unsafe {
             ffi::DrawLineStrip(
                 points.as_ptr() as *mut ffi::Vector2,
@@ -381,7 +363,7 @@ pub trait RaylibDraw {
     #[inline]
     fn draw_circle_sector(
         &self,
-        center: Vector2<f32>,
+        center: Vector2,
         radius: f32,
         start_angle: f32,
         end_angle: f32,
@@ -389,14 +371,7 @@ pub trait RaylibDraw {
         color: Color,
     ) {
         unsafe {
-            ffi::DrawCircleSector(
-                center.into(),
-                radius,
-                start_angle,
-                end_angle,
-                segments,
-                color,
-            );
+            ffi::DrawCircleSector(center, radius, start_angle, end_angle, segments, color);
         }
     }
 
@@ -404,7 +379,7 @@ pub trait RaylibDraw {
     #[inline]
     fn draw_circle_sector_lines(
         &self,
-        center: Vector2<f32>,
+        center: Vector2,
         radius: f32,
         start_angle: f32,
         end_angle: f32,
@@ -412,14 +387,7 @@ pub trait RaylibDraw {
         color: Color,
     ) {
         unsafe {
-            ffi::DrawCircleSectorLines(
-                center.into(),
-                radius,
-                start_angle,
-                end_angle,
-                segments,
-                color,
-            )
+            ffi::DrawCircleSectorLines(center, radius, start_angle, end_angle, segments, color)
         }
     }
 
@@ -438,8 +406,8 @@ pub trait RaylibDraw {
 
     /// Draws a color-filled circle (Vector version).
     #[inline]
-    fn draw_circle_v(&self, center: Vector2<f32>, radius: f32, color: Color) {
-        unsafe { ffi::DrawCircleV(center.into(), radius, color) }
+    fn draw_circle_v(&self, center: Vector2, radius: f32, color: Color) {
+        unsafe { ffi::DrawCircleV(center, radius, color) }
     }
 
     /// Draws circle outline.
@@ -484,7 +452,7 @@ pub trait RaylibDraw {
     #[inline]
     fn draw_ring(
         &self,
-        center: Vector2<f32>,
+        center: Vector2,
         inner_radius: f32,
         outer_radius: f32,
         start_angle: f32,
@@ -494,7 +462,7 @@ pub trait RaylibDraw {
     ) {
         unsafe {
             ffi::DrawRing(
-                center.into(),
+                center,
                 inner_radius,
                 outer_radius,
                 start_angle,
@@ -509,7 +477,7 @@ pub trait RaylibDraw {
     #[inline]
     fn draw_ring_lines(
         &self,
-        center: Vector2<f32>,
+        center: Vector2,
         inner_radius: f32,
         outer_radius: f32,
         start_angle: f32,
@@ -519,7 +487,7 @@ pub trait RaylibDraw {
     ) {
         unsafe {
             ffi::DrawRingLines(
-                center.into(),
+                center,
                 inner_radius,
                 outer_radius,
                 start_angle,
@@ -540,9 +508,9 @@ pub trait RaylibDraw {
 
     /// Draws a color-filled rectangle (Vector version).
     #[inline]
-    fn draw_rectangle_v(&self, position: Vector2<f32>, size: Vector2<f32>, color: Color) {
+    fn draw_rectangle_v(&self, position: Vector2, size: Vector2, color: Color) {
         unsafe {
-            ffi::DrawRectangleV(position.into(), size.into(), color);
+            ffi::DrawRectangleV(position, size, color);
         }
     }
 
@@ -556,15 +524,9 @@ pub trait RaylibDraw {
 
     /// Draws a color-filled rectangle with pro parameters.
     #[inline]
-    fn draw_rectangle_pro(
-        &self,
-        rec: Rectangle,
-        origin: Vector2<f32>,
-        rotation: f32,
-        color: Color,
-    ) {
+    fn draw_rectangle_pro(&self, rec: Rectangle, origin: Vector2, rotation: f32, color: Color) {
         unsafe {
-            ffi::DrawRectanglePro(rec, origin.into(), rotation, color);
+            ffi::DrawRectanglePro(rec, origin, rotation, color);
         }
     }
 
@@ -617,13 +579,7 @@ pub trait RaylibDraw {
         col4: Color,
     ) {
         unsafe {
-            ffi::DrawRectangleGradientEx(
-                rec,
-                col1,
-                col2,
-                col3,
-                col4,
-            );
+            ffi::DrawRectangleGradientEx(rec, col1, col2, col3, col4);
         }
     }
 
@@ -667,29 +623,23 @@ pub trait RaylibDraw {
 
     /// Draws a triangle.
     #[inline]
-    fn draw_triangle(&self, v1: Vector2<f32>, v2: Vector2<f32>, v3: Vector2<f32>, color: Color) {
+    fn draw_triangle(&self, v1: Vector2, v2: Vector2, v3: Vector2, color: Color) {
         unsafe {
-            ffi::DrawTriangle(v1.into(), v2.into(), v3.into(), color);
+            ffi::DrawTriangle(v1, v2, v3, color);
         }
     }
 
     /// Draws a triangle using lines.
     #[inline]
-    fn draw_triangle_lines(
-        &self,
-        v1: Vector2<f32>,
-        v2: Vector2<f32>,
-        v3: Vector2<f32>,
-        color: Color,
-    ) {
+    fn draw_triangle_lines(&self, v1: Vector2, v2: Vector2, v3: Vector2, color: Color) {
         unsafe {
-            ffi::DrawTriangleLines(v1.into(), v2.into(), v3.into(), color);
+            ffi::DrawTriangleLines(v1, v2, v3, color);
         }
     }
 
     /// Draw a triangle fan defined by points.
     #[inline]
-    fn draw_triangle_fan(&self, points: &[Vector2<f32>], color: Color) {
+    fn draw_triangle_fan(&self, points: &[Vector2], color: Color) {
         unsafe {
             ffi::DrawTriangleFan(
                 points.as_ptr() as *mut ffi::Vector2,
@@ -701,7 +651,7 @@ pub trait RaylibDraw {
 
     /// Draw a triangle strip defined by points
     #[inline]
-    fn draw_triangle_strip(&self, points: &[Vector2<f32>], color: Color) {
+    fn draw_triangle_strip(&self, points: &[Vector2], color: Color) {
         unsafe {
             ffi::DrawTriangleStrip(
                 points.as_ptr() as *mut ffi::Vector2,
@@ -713,16 +663,9 @@ pub trait RaylibDraw {
 
     /// Draws a regular polygon of n sides (Vector version).
     #[inline]
-    fn draw_poly(
-        &self,
-        center: Vector2<f32>,
-        sides: i32,
-        radius: f32,
-        rotation: f32,
-        color: Color,
-    ) {
+    fn draw_poly(&self, center: Vector2, sides: i32, radius: f32, rotation: f32, color: Color) {
         unsafe {
-            ffi::DrawPoly(center.into(), sides, radius, rotation, color);
+            ffi::DrawPoly(center, sides, radius, rotation, color);
         }
     }
 
@@ -730,14 +673,14 @@ pub trait RaylibDraw {
     #[inline]
     fn draw_poly_lines(
         &self,
-        center: Vector2<f32>,
+        center: Vector2,
         sides: i32,
         radius: f32,
         rotation: f32,
         color: Color,
     ) {
         unsafe {
-            ffi::DrawPolyLines(center.into(), sides, radius, rotation, color);
+            ffi::DrawPolyLines(center, sides, radius, rotation, color);
         }
     }
 
@@ -751,14 +694,9 @@ pub trait RaylibDraw {
 
     /// Draws a `texture` using specified `position` vector and `tint` color.
     #[inline]
-    fn draw_texture_v(
-        &self,
-        texture: impl AsRef<ffi::Texture2D>,
-        position: Vector2<f32>,
-        tint: Color,
-    ) {
+    fn draw_texture_v(&self, texture: impl AsRef<ffi::Texture2D>, position: Vector2, tint: Color) {
         unsafe {
-            ffi::DrawTextureV(*texture.as_ref(), position.into(), tint);
+            ffi::DrawTextureV(*texture.as_ref(), position, tint);
         }
     }
 
@@ -767,13 +705,13 @@ pub trait RaylibDraw {
     fn draw_texture_ex(
         &self,
         texture: impl AsRef<ffi::Texture2D>,
-        position: Vector2<f32>,
+        position: Vector2,
         rotation: f32,
         scale: f32,
         tint: Color,
     ) {
         unsafe {
-            ffi::DrawTextureEx(*texture.as_ref(), position.into(), rotation, scale, tint);
+            ffi::DrawTextureEx(*texture.as_ref(), position, rotation, scale, tint);
         }
     }
 
@@ -783,11 +721,11 @@ pub trait RaylibDraw {
         &self,
         texture: impl AsRef<ffi::Texture2D>,
         source_rec: Rectangle,
-        position: Vector2<f32>,
+        position: Vector2,
         tint: Color,
     ) {
         unsafe {
-            ffi::DrawTextureRec(*texture.as_ref(), source_rec, position.into(), tint);
+            ffi::DrawTextureRec(*texture.as_ref(), source_rec, position, tint);
         }
     }
 
@@ -798,7 +736,7 @@ pub trait RaylibDraw {
         texture: impl AsRef<ffi::Texture2D>,
         n_patch_info: NPatchInfo,
         dest_rec: Rectangle,
-        origin: Vector2<f32>,
+        origin: Vector2,
         rotation: f32,
         tint: Color,
     ) {
@@ -807,7 +745,7 @@ pub trait RaylibDraw {
                 *texture.as_ref(),
                 n_patch_info,
                 dest_rec,
-                origin.into(),
+                origin,
                 rotation,
                 tint,
             );
@@ -837,7 +775,7 @@ pub trait RaylibDraw {
         &self,
         font: impl AsRef<ffi::Font>,
         text: &str,
-        position: Vector2<f32>,
+        position: Vector2,
         font_size: f32,
         spacing: f32,
         tint: Color,
@@ -847,7 +785,7 @@ pub trait RaylibDraw {
             ffi::DrawTextEx(
                 *font.as_ref(),
                 c_text.as_ptr(),
-                position.into(),
+                position,
                 font_size,
                 spacing,
                 tint,
@@ -861,12 +799,12 @@ pub trait RaylibDraw {
         &self,
         font: impl AsRef<ffi::Font>,
         codepoint: i32,
-        position: Vector2<f32>,
+        position: Vector2,
         scale: f32,
         tint: Color,
     ) {
         unsafe {
-            ffi::DrawTextCodepoint(*font.as_ref(), codepoint, position.into(), scale, tint);
+            ffi::DrawTextCodepoint(*font.as_ref(), codepoint, position, scale, tint);
         }
     }
 }
@@ -874,23 +812,23 @@ pub trait RaylibDraw {
 pub trait RaylibDraw3D {
     /// Draw a point in 3D space, actually a small line
     #[inline]
-    fn draw_point_3d(&self, position: Vector3<f32>, color: Color) {
+    fn draw_point_3d(&self, position: Vector3, color: Color) {
         unsafe {
-            ffi::DrawPoint3D(position.into(), color);
+            ffi::DrawPoint3D(position, color);
         }
     }
 
     ///// Draw a color-filled triangle (vertex in counter-clockwise order!)
     #[inline]
-    fn draw_triangle_3d(&self, v1: Vector3<f32>, v2: Vector3<f32>, v3: Vector3<f32>, color: Color) {
+    fn draw_triangle_3d(&self, v1: Vector3, v2: Vector3, v3: Vector3, color: Color) {
         unsafe {
-            ffi::DrawTriangle3D(v1.into(), v2.into(), v3.into(), color);
+            ffi::DrawTriangle3D(v1, v2, v3, color);
         }
     }
 
     /// // Draw a triangle strip defined by points
     #[inline]
-    fn draw_triangle_strip_3d(&self, points: &[Vector3<f32>], color: Color) {
+    fn draw_triangle_strip_3d(&self, points: &[Vector3], color: Color) {
         unsafe {
             ffi::DrawTriangleStrip3D(points.as_ptr() as *mut _, points.len() as i32, color);
         }
@@ -898,9 +836,9 @@ pub trait RaylibDraw3D {
 
     /// Draws a line in 3D world space.
     #[inline]
-    fn draw_line_3d(&self, start_pos: Vector3<f32>, end_pos: Vector3<f32>, color: Color) {
+    fn draw_line_3d(&self, start_pos: Vector3, end_pos: Vector3, color: Color) {
         unsafe {
-            ffi::DrawLine3D(start_pos.into(), end_pos.into(), color);
+            ffi::DrawLine3D(start_pos, end_pos, color);
         }
     }
 
@@ -908,43 +846,30 @@ pub trait RaylibDraw3D {
     #[inline]
     fn draw_circle_3d(
         &self,
-        center: Vector3<f32>,
+        center: Vector3,
         radius: f32,
-        rotation_axis: Vector3<f32>,
+        rotation_axis: Vector3,
         rotation_angle: f32,
         color: Color,
     ) {
         unsafe {
-            ffi::DrawCircle3D(
-                center.into(),
-                radius,
-                rotation_axis.into(),
-                rotation_angle,
-                color,
-            );
+            ffi::DrawCircle3D(center, radius, rotation_axis, rotation_angle, color);
         }
     }
 
     /// Draws a cube.
     #[inline]
-    fn draw_cube(
-        &self,
-        position: Vector3<f32>,
-        width: f32,
-        height: f32,
-        length: f32,
-        color: Color,
-    ) {
+    fn draw_cube(&self, position: Vector3, width: f32, height: f32, length: f32, color: Color) {
         unsafe {
-            ffi::DrawCube(position.into(), width, height, length, color);
+            ffi::DrawCube(position, width, height, length, color);
         }
     }
 
     /// Draws a cube (Vector version).
     #[inline]
-    fn draw_cube_v(&self, position: Vector3<f32>, size: Vector3<f32>, color: Color) {
+    fn draw_cube_v(&self, position: Vector3, size: Vector3, color: Color) {
         unsafe {
-            ffi::DrawCubeV(position.into(), size.into(), color);
+            ffi::DrawCubeV(position, size, color);
         }
     }
 
@@ -952,22 +877,22 @@ pub trait RaylibDraw3D {
     #[inline]
     fn draw_cube_wires(
         &self,
-        position: Vector3<f32>,
+        position: Vector3,
         width: f32,
         height: f32,
         length: f32,
         color: Color,
     ) {
         unsafe {
-            ffi::DrawCubeWires(position.into(), width, height, length, color);
+            ffi::DrawCubeWires(position, width, height, length, color);
         }
     }
 
     /// Draws a sphere.
     #[inline]
-    fn draw_sphere(&self, center_pos: Vector3<f32>, radius: f32, color: Color) {
+    fn draw_sphere(&self, center_pos: Vector3, radius: f32, color: Color) {
         unsafe {
-            ffi::DrawSphere(center_pos.into(), radius, color);
+            ffi::DrawSphere(center_pos, radius, color);
         }
     }
 
@@ -975,14 +900,14 @@ pub trait RaylibDraw3D {
     #[inline]
     fn draw_sphere_ex(
         &self,
-        center_pos: Vector3<f32>,
+        center_pos: Vector3,
         radius: f32,
         rings: i32,
         slices: i32,
         color: Color,
     ) {
         unsafe {
-            ffi::DrawSphereEx(center_pos.into(), radius, rings, slices, color);
+            ffi::DrawSphereEx(center_pos, radius, rings, slices, color);
         }
     }
 
@@ -990,14 +915,14 @@ pub trait RaylibDraw3D {
     #[inline]
     fn draw_sphere_wires(
         &self,
-        center_pos: Vector3<f32>,
+        center_pos: Vector3,
         radius: f32,
         rings: i32,
         slices: i32,
         color: Color,
     ) {
         unsafe {
-            ffi::DrawSphereWires(center_pos.into(), radius, rings, slices, color);
+            ffi::DrawSphereWires(center_pos, radius, rings, slices, color);
         }
     }
 
@@ -1005,7 +930,7 @@ pub trait RaylibDraw3D {
     #[inline]
     fn draw_cylinder(
         &self,
-        position: Vector3<f32>,
+        position: Vector3,
         radius_top: f32,
         radius_bottom: f32,
         height: f32,
@@ -1013,14 +938,7 @@ pub trait RaylibDraw3D {
         color: Color,
     ) {
         unsafe {
-            ffi::DrawCylinder(
-                position.into(),
-                radius_top,
-                radius_bottom,
-                height,
-                slices,
-                color,
-            );
+            ffi::DrawCylinder(position, radius_top, radius_bottom, height, slices, color);
         }
     }
 
@@ -1028,7 +946,7 @@ pub trait RaylibDraw3D {
     #[inline]
     fn draw_cylinder_wires(
         &self,
-        position: Vector3<f32>,
+        position: Vector3,
         radius_top: f32,
         radius_bottom: f32,
         height: f32,
@@ -1036,22 +954,15 @@ pub trait RaylibDraw3D {
         color: Color,
     ) {
         unsafe {
-            ffi::DrawCylinderWires(
-                position.into(),
-                radius_top,
-                radius_bottom,
-                height,
-                slices,
-                color,
-            );
+            ffi::DrawCylinderWires(position, radius_top, radius_bottom, height, slices, color);
         }
     }
 
     /// Draws an X/Z plane.
     #[inline]
-    fn draw_plane(&self, center_pos: Vector3<f32>, size: Vector2<f32>, color: Color) {
+    fn draw_plane(&self, center_pos: Vector3, size: Vector2, color: Color) {
         unsafe {
-            ffi::DrawPlane(center_pos.into(), size.into(), color);
+            ffi::DrawPlane(center_pos, size, color);
         }
     }
 
@@ -1076,12 +987,12 @@ pub trait RaylibDraw3D {
     fn draw_model(
         &self,
         model: impl AsRef<ffi::Model>,
-        position: Vector3<f32>,
+        position: Vector3,
         scale: f32,
         tint: Color,
     ) {
         unsafe {
-            ffi::DrawModel(*model.as_ref(), position.into(), scale, tint);
+            ffi::DrawModel(*model.as_ref(), position, scale, tint);
         }
     }
 
@@ -1090,19 +1001,19 @@ pub trait RaylibDraw3D {
     fn draw_model_ex(
         &self,
         model: impl AsRef<ffi::Model>,
-        position: Vector3<f32>,
-        rotation_axis: Vector3<f32>,
+        position: Vector3,
+        rotation_axis: Vector3,
         rotation_angle: f32,
-        scale: Vector3<f32>,
+        scale: Vector3,
         tint: Color,
     ) {
         unsafe {
             ffi::DrawModelEx(
                 *model.as_ref(),
-                position.into(),
-                rotation_axis.into(),
+                position,
+                rotation_axis,
                 rotation_angle,
-                scale.into(),
+                scale,
                 tint,
             );
         }
@@ -1113,12 +1024,12 @@ pub trait RaylibDraw3D {
     fn draw_model_wires(
         &self,
         model: impl AsRef<ffi::Model>,
-        position: Vector3<f32>,
+        position: Vector3,
         scale: f32,
         tint: Color,
     ) {
         unsafe {
-            ffi::DrawModelWires(*model.as_ref(), position.into(), scale, tint);
+            ffi::DrawModelWires(*model.as_ref(), position, scale, tint);
         }
     }
 
@@ -1127,19 +1038,19 @@ pub trait RaylibDraw3D {
     fn draw_model_wires_ex(
         &self,
         model: impl AsRef<ffi::Model>,
-        position: Vector3<f32>,
-        rotation_axis: Vector3<f32>,
+        position: Vector3,
+        rotation_axis: Vector3,
         rotation_angle: f32,
-        scale: Vector3<f32>,
+        scale: Vector3,
         tint: Color,
     ) {
         unsafe {
             ffi::DrawModelWiresEx(
                 *model.as_ref(),
-                position.into(),
-                rotation_axis.into(),
+                position,
+                rotation_axis,
                 rotation_angle,
-                scale.into(),
+                scale,
                 tint,
             );
         }
@@ -1159,12 +1070,12 @@ pub trait RaylibDraw3D {
         &self,
         camera: Camera3D,
         texture: &Texture2D,
-        center: Vector3<f32>,
+        center: Vector3,
         size: f32,
         tint: Color,
     ) {
         unsafe {
-            ffi::DrawBillboard(camera, texture.0, center.into(), size, tint);
+            ffi::DrawBillboard(camera, texture.0, center, size, tint);
         }
     }
 
@@ -1175,19 +1086,12 @@ pub trait RaylibDraw3D {
         camera: Camera3D,
         texture: &Texture2D,
         source_rec: Rectangle,
-        center: Vector3<f32>,
-        size: Vector2<f32>,
+        center: Vector3,
+        size: Vector2,
         tint: Color,
     ) {
         unsafe {
-            ffi::DrawBillboardRec(
-                camera,
-                texture.0,
-                source_rec,
-                center.into(),
-                size.into(),
-                tint,
-            );
+            ffi::DrawBillboardRec(camera, texture.0, source_rec, center, size, tint);
         }
     }
 }

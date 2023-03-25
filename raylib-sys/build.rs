@@ -20,17 +20,39 @@ extern crate bindgen;
 use std::env;
 use std::path::{Path, PathBuf};
 
+use bindgen::callbacks::{DeriveTrait, ImplementsTrait, ParseCallbacks};
+
 /// latest version on github's release page as of time or writing
 const LATEST_RAYLIB_VERSION: &str = "4.5.0";
 const LATEST_RAYLIB_API_VERSION: &str = "4";
+
+#[derive(Debug)]
+struct TypeOverrideCallback;
+
+impl ParseCallbacks for TypeOverrideCallback {
+    fn blocklisted_type_implements_trait(
+        &self,
+        _name: &str,
+        _derive_trait: DeriveTrait,
+    ) -> Option<ImplementsTrait> {
+        const OK_TRAITS: [DeriveTrait; 3] = [
+            DeriveTrait::Copy,
+            DeriveTrait::Debug,
+            DeriveTrait::PartialEqOrPartialOrd,
+        ];
+        const OVERRIDEN_TYPES: [&str; 5] =
+            ["Vector2", "Vector3", "Vector4", "Matrix", "Quaternion"];
+
+        (OK_TRAITS.contains(&_derive_trait) && OVERRIDEN_TYPES.contains(&_name))
+            .then_some(ImplementsTrait::Yes)
+    }
+}
 
 #[cfg(feature = "nobuild")]
 fn build_with_cmake(_src_path: &str) {}
 
 #[cfg(not(feature = "nobuild"))]
 fn build_with_cmake(src_path: &str) {
-    use cmake::build;
-
     // CMake uses different lib directories on different systems.
     // I do not know how CMake determines what directory to use,
     // so we will check a few possibilities and use whichever is present.
@@ -158,10 +180,16 @@ fn gen_bindings() {
     let mut builder = bindgen::Builder::default()
         .header("binding/binding.h")
         .rustified_enum(".+")
+        .blocklist_type("Vector2")
+        .blocklist_type("Vector3")
+        .blocklist_type("Vector4")
+        .blocklist_type("Matrix")
+        .blocklist_type("Quaternion")
+        .parse_callbacks(Box::new(TypeOverrideCallback))
         .clang_arg("-I../raylib/src")
         .clang_arg("-std=c99")
-        .clang_arg(plat)
-        .parse_callbacks(Box::new(bindgen::CargoCallbacks));
+        .clang_arg(plat);
+        //.parse_callbacks(Box::new(bindgen::CargoCallbacks));
 
     if platform == Platform::Desktop && os == PlatformOS::Windows {
         // odd workaround for booleans being broken
@@ -233,7 +261,6 @@ fn link(platform: Platform, platform_os: PlatformOS) {
         _ => (),
     }
     if platform == Platform::Web {
-        env::set_var("EMCC_CFLAGS", "-sUSE_GLFW=3 -sERROR_ON_UNDEFINED_SYMBOLS=0");
         println!("cargo:rustc-link-lib=glfw");
     } else if platform == Platform::RPI {
         println!("cargo:rustc-link-search=/opt/vc/lib");

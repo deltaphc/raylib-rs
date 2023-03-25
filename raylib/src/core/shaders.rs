@@ -4,8 +4,8 @@ use std::mem::ManuallyDrop;
 use std::os::raw::{c_char, c_void};
 
 use super::{RaylibHandle, RaylibThread};
-use crate::{consts::ShaderUniformDataType, ffi};
-use mint::{ColumnMatrix4, Vector2, Vector3, Vector4};
+use crate::ffi::{self, Matrix, ShaderUniformDataType, Vector2, Vector3, Vector4};
+use crate::make_bound_thin_wrapper;
 
 make_bound_thin_wrapper!(Shader, ffi::Shader, ffi::UnloadShader, RaylibHandle<'bind>);
 
@@ -89,24 +89,24 @@ impl ShaderV for f32 {
     }
 }
 
-impl ShaderV for Vector2<f32> {
+impl ShaderV for Vector2 {
     const UNIFORM_TYPE: ShaderUniformDataType = ShaderUniformDataType::SHADER_UNIFORM_VEC2;
     unsafe fn value(&self) -> *const c_void {
-        self as *const Vector2<f32> as *const c_void
+        self as *const Vector2 as *const c_void
     }
 }
 
-impl ShaderV for Vector3<f32> {
+impl ShaderV for Vector3 {
     const UNIFORM_TYPE: ShaderUniformDataType = ShaderUniformDataType::SHADER_UNIFORM_VEC3;
     unsafe fn value(&self) -> *const c_void {
-        self as *const Vector3<f32> as *const c_void
+        self as *const Vector3 as *const c_void
     }
 }
 
-impl ShaderV for Vector4<f32> {
+impl ShaderV for Vector4 {
     const UNIFORM_TYPE: ShaderUniformDataType = ShaderUniformDataType::SHADER_UNIFORM_VEC4;
     unsafe fn value(&self) -> *const c_void {
-        self as *const Vector4<f32> as *const c_void
+        self as *const Vector4 as *const c_void
     }
 }
 
@@ -196,9 +196,9 @@ impl<'bind, 'a> Shader<'bind, 'a> {
 
     /// Sets shader uniform value (matrix 4x4).
     #[inline]
-    pub fn set_shader_value_matrix(&mut self, uniform_loc: i32, mat: ColumnMatrix4<f32>) {
+    pub fn set_shader_value_matrix(&mut self, uniform_loc: i32, mat: Matrix) {
         unsafe {
-            ffi::SetShaderValueMatrix(self.0, uniform_loc, mat.into());
+            ffi::SetShaderValueMatrix(self.0, uniform_loc, mat);
         }
     }
 
@@ -264,9 +264,9 @@ pub trait RaylibShader: AsRef<ffi::Shader> + AsMut<ffi::Shader> {
 
     /// Sets shader uniform value (matrix 4x4).
     #[inline]
-    fn set_shader_value_matrix(&mut self, uniform_loc: i32, mat: ColumnMatrix4<f32>) {
+    fn set_shader_value_matrix(&mut self, uniform_loc: i32, mat: Matrix) {
         unsafe {
-            ffi::SetShaderValueMatrix(*self.as_mut(), uniform_loc, mat.into());
+            ffi::SetShaderValueMatrix(*self.as_mut(), uniform_loc, mat);
         }
     }
 
@@ -282,29 +282,29 @@ pub trait RaylibShader: AsRef<ffi::Shader> + AsMut<ffi::Shader> {
 impl<'a> RaylibHandle<'a> {
     /// Sets a custom projection matrix (replaces internal projection matrix).
     #[inline]
-    pub fn set_matrix_projection(&mut self, _: &RaylibThread, proj: ColumnMatrix4<f32>) {
+    pub fn set_matrix_projection(&mut self, _: &RaylibThread, proj: Matrix) {
         unsafe {
-            ffi::rlSetMatrixProjection(proj.into());
+            ffi::rlSetMatrixProjection(proj);
         }
     }
 
     /// Sets a custom modelview matrix (replaces internal modelview matrix).
     #[inline]
-    pub fn set_matrix_modelview(&mut self, _: &RaylibThread, view: ColumnMatrix4<f32>) {
+    pub fn set_matrix_modelview(&mut self, _: &RaylibThread, view: Matrix) {
         unsafe {
-            ffi::rlSetMatrixModelview(view.into());
+            ffi::rlSetMatrixModelview(view);
         }
     }
 
     /// Gets internal modelview matrix.
     #[inline]
-    pub fn get_matrix_modelview(&self) -> ColumnMatrix4<f32> {
-        unsafe { ffi::rlGetMatrixModelview().into() }
+    pub fn get_matrix_modelview(&self) -> Matrix {
+        unsafe { ffi::rlGetMatrixModelview() }
     }
 
     /// Gets internal projection matrix.
     #[inline]
-    pub fn get_matrix_projection(&self) -> ColumnMatrix4<f32> {
-        unsafe { ffi::rlGetMatrixProjection().into() }
+    pub fn get_matrix_projection(&self) -> Matrix {
+        unsafe { ffi::rlGetMatrixProjection() }
     }
 }

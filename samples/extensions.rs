@@ -1,12 +1,20 @@
 extern crate raylib;
-use raylib::prelude::*;
+use nalgebra::Vector2;
+use raylib::{core::text::Font, ffi::Color, prelude::*};
 use structopt::StructOpt;
 
 mod options;
 
 trait RaylibDrawExt: RaylibDraw {
     fn custom_draw(&mut self, font: &Font) {
-        self.draw_text_ex(font, "custom", rvec2(0, 0), 16.0, 0.0, Color::GREEN);
+        self.draw_text_ex(
+            font,
+            "custom",
+            Vector2::new(0.0, 0.0).into(),
+            16.0,
+            0.0,
+            Color::GREEN,
+        );
     }
 }
 

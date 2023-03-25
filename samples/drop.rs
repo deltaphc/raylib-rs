@@ -1,5 +1,5 @@
 extern crate raylib;
-use raylib::prelude::*;
+use raylib::{prelude::*, ffi::Color, core::texture::Image};
 use std::{thread, time};
 use structopt::StructOpt;
 

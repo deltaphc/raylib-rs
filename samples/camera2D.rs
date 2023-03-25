@@ -1,5 +1,9 @@
 #![allow(non_snake_case)]
-use raylib::prelude::*;
+use nalgebra::Vector2;
+use raylib::{
+    ffi::{Color, Rectangle, Camera2D},
+    prelude::*,
+};
 use structopt::StructOpt;
 
 mod options;
@@ -7,7 +11,7 @@ mod options;
 const MAX_BUILDINGS: usize = 100;
 
 fn main() {
-    use raylib::consts::KeyboardKey::*;
+    use raylib::ffi::KeyboardKey::*;
     let opt = options::Opt::from_args();
     let (rl, thread) = opt.open_window("Camera 2D");
     let (w, h) = (opt.width, opt.height);
@@ -36,9 +40,9 @@ fn main() {
     }
 
     let mut camera = Camera2D {
-        target: Vector2::new(player.x + 20.0, player.y + 20.0),
+        target: Vector2::new(player.x + 20.0, player.y + 20.0).into(),
         // offset: Vector2::new(player.x, player.y),
-        offset: Vector2::new(0.0, 0.0),
+        offset: Vector2::new(0.0, 0.0).into(),
         rotation: 0.0,
         zoom: 1.0,
     };
@@ -53,7 +57,7 @@ fn main() {
         }
 
         // Camera follows player
-        camera.target = Vector2::new(player.x + 20.0, player.y + 20.0);
+        camera.target = Vector2::new(player.x + 20.0, player.y + 20.0).into();
 
         // Camera rotation controls
         if rl.is_key_down(KEY_A) {
@@ -77,13 +81,13 @@ fn main() {
         rl.frame(&thread, |d| {
             d.clear_background(Color::RAYWHITE);
             {
-                let d2 = d.begin_mode2D(camera);
+                let d2 = d.begin_mode_2d(camera);
                 d2.draw_rectangle(-6000, 320, 13000, 8000, Color::DARKGRAY);
 
                 for i in 0..MAX_BUILDINGS {
-                    d2.draw_rectangle_rec(&buildings[i], build_colors[i]);
+                    d2.draw_rectangle_rec(buildings[i], build_colors[i]);
                 }
-                d2.draw_rectangle_rec(&player, Color::RED);
+                d2.draw_rectangle_rec(player, Color::RED);
 
                 d2.draw_line(
                     camera.target.x as i32,

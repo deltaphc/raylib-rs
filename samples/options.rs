@@ -2,7 +2,7 @@
 // extern crate structopt;
 
 pub use structopt::StructOpt;
-use raylib::core::{RaylibHandle, RaylibThread};
+use raylib::prelude::*;
 
 #[derive(Debug, StructOpt)]
 #[structopt(name = "example", about = "An example of StructOpt usage.")]

@@ -2,12 +2,10 @@ extern crate raylib;
 use nalgebra::{Vector2, Vector3};
 use raylib::{
     core::{
-        collision::check_collision_circles,
-        drawing::{RaylibDraw, RaylibDrawHandle},
-        text::measure_text,
-        RaylibHandle, RaylibThread,
+        collision::check_collision_circles, drawing::RaylibDraw, text::measure_text, RaylibHandle,
+        RaylibThread,
     },
-    ffi::Color,
+    ffi::{Color, KeyboardKey},
 };
 
 use structopt::StructOpt;
@@ -219,24 +217,23 @@ fn init_game(game: &mut Game, rl: &RaylibHandle) {
 }
 
 fn update_game(game: &mut Game, rl: &RaylibHandle) {
-    use raylib::consts::KeyboardKey::*;
     if !game.game_over {
-        if rl.is_key_pressed(KEY_P) {
+        if rl.is_key_pressed(KeyboardKey::KEY_P) {
             game.pause = !game.pause;
         }
 
         if !game.pause {
-            if rl.is_key_down(KEY_LEFT) {
+            if rl.is_key_down(KeyboardKey::KEY_LEFT) {
                 game.player.rotation -= 5f32;
             }
-            if rl.is_key_down(KEY_RIGHT) {
+            if rl.is_key_down(KeyboardKey::KEY_RIGHT) {
                 game.player.rotation += 5f32;
             }
 
             game.player.speed.x = game.player.rotation.to_radians().sin() * PLAYER_SPEED;
             game.player.speed.y = game.player.rotation.to_radians().cos() * PLAYER_SPEED;
 
-            if rl.is_key_down(KEY_UP) {
+            if rl.is_key_down(KeyboardKey::KEY_UP) {
                 if game.player.acceleration < 1f32 {
                     game.player.acceleration += 0.04;
                 }
@@ -248,7 +245,7 @@ fn update_game(game: &mut Game, rl: &RaylibHandle) {
                 }
             }
 
-            if rl.is_key_down(KEY_DOWN) {
+            if rl.is_key_down(KeyboardKey::KEY_DOWN) {
                 if game.player.acceleration > 0f32 {
                     game.player.acceleration -= 0.04;
                 } else if game.player.acceleration < 0f32 {
@@ -273,7 +270,7 @@ fn update_game(game: &mut Game, rl: &RaylibHandle) {
                 game.player.position.y = height + SHIP_HEIGHT;
             }
 
-            if rl.is_key_pressed(KEY_SPACE) {
+            if rl.is_key_pressed(KeyboardKey::KEY_SPACE) {
                 for shot in &mut game.shots {
                     if !shot.active {
                         shot.position = Vector2::new(
@@ -540,7 +537,7 @@ fn update_game(game: &mut Game, rl: &RaylibHandle) {
             game.victory = true;
         }
     } else {
-        if rl.is_key_pressed(KEY_ENTER) {
+        if rl.is_key_pressed(KeyboardKey::KEY_ENTER) {
             init_game(game, rl);
             game.game_over = false;
         }

@@ -1,6 +1,5 @@
 //! Data manipulation functions. Compress and Decompress with DEFLATE
-use crate::ffi;
-use super::buffer::RaylibBuffer;
+use crate::{buffer::RaylibBuffer, ffi};
 
 /// Compress data (DEFLATE algorythm)
 /// ```rust

@@ -1,4 +1,5 @@
 extern crate raylib;
+use raylib::{core::texture::Image, ffi::Color, prelude::*};
 use structopt::StructOpt;
 
 mod options;

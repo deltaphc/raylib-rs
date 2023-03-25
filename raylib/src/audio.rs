@@ -1,7 +1,6 @@
 //! Contains code related to audio. [`RaylibAudio`] plays sounds and music.
-
-use super::{buffer::RaylibBuffer, RaylibThread};
-use crate::ffi;
+use crate::{buffer::RaylibBuffer, core::RaylibThread};
+use crate::{ffi, make_bound_thin_wrapper, make_thin_wrapper};
 use std::ffi::CString;
 
 make_thin_wrapper!(Wave, ffi::Wave, ffi::UnloadWave);

@@ -4,14 +4,14 @@ use core::slice;
 use std::{ffi::CString, mem};
 
 use super::{
+    shaders::Shader,
     texture::{Image, Texture2D},
-    RaylibHandle, RaylibThread, shaders::Shader,
+    RaylibHandle, RaylibThread,
 };
 use crate::{
-    consts,
-    ffi::{self, BoundingBox, Color},
+    ffi::{self, BoundingBox, Color, Vector3},
+    make_bound_thin_wrapper, make_thin_wrapper,
 };
-use mint::Vector3;
 
 fn no_drop<T>(_thing: T) {}
 
@@ -188,50 +188,50 @@ pub trait RaylibModel: AsRef<ffi::Model> + AsMut<ffi::Model> {
 impl RaylibMesh for Mesh {}
 
 pub trait RaylibMesh: AsRef<ffi::Mesh> + AsMut<ffi::Mesh> {
-    fn vertices(&self) -> &[Vector3<f32>] {
+    fn vertices(&self) -> &[Vector3] {
         unsafe {
             std::slice::from_raw_parts(
-                self.as_ref().vertices as *const Vector3<f32>,
+                self.as_ref().vertices as *const Vector3,
                 self.as_ref().vertexCount as usize,
             )
         }
     }
-    fn vertices_mut(&mut self) -> &mut [Vector3<f32>] {
+    fn vertices_mut(&mut self) -> &mut [Vector3] {
         unsafe {
             std::slice::from_raw_parts_mut(
-                self.as_mut().vertices as *mut Vector3<f32>,
+                self.as_mut().vertices as *mut Vector3,
                 self.as_mut().vertexCount as usize,
             )
         }
     }
-    fn normals(&self) -> &[Vector3<f32>] {
+    fn normals(&self) -> &[Vector3] {
         unsafe {
             std::slice::from_raw_parts(
-                self.as_ref().normals as *const Vector3<f32>,
+                self.as_ref().normals as *const Vector3,
                 self.as_ref().vertexCount as usize,
             )
         }
     }
-    fn normals_mut(&mut self) -> &mut [Vector3<f32>] {
+    fn normals_mut(&mut self) -> &mut [Vector3] {
         unsafe {
             std::slice::from_raw_parts_mut(
-                self.as_mut().normals as *mut Vector3<f32>,
+                self.as_mut().normals as *mut Vector3,
                 self.as_mut().vertexCount as usize,
             )
         }
     }
-    fn tangents(&self) -> &[Vector3<f32>] {
+    fn tangents(&self) -> &[Vector3] {
         unsafe {
             std::slice::from_raw_parts(
-                self.as_ref().tangents as *const Vector3<f32>,
+                self.as_ref().tangents as *const Vector3,
                 self.as_ref().vertexCount as usize,
             )
         }
     }
-    fn tangents_mut(&mut self) -> &mut [Vector3<f32>] {
+    fn tangents_mut(&mut self) -> &mut [Vector3] {
         unsafe {
             std::slice::from_raw_parts_mut(
-                self.as_mut().tangents as *mut Vector3<f32>,
+                self.as_mut().tangents as *mut Vector3,
                 self.as_mut().vertexCount as usize,
             )
         }
@@ -319,14 +319,14 @@ pub trait RaylibMesh: AsRef<ffi::Mesh> + AsMut<ffi::Mesh> {
 
     /// Generates heightmap mesh from image data.
     #[inline]
-    fn gen_mesh_heightmap(_: &RaylibThread, heightmap: &Image, size: Vector3<f32>) -> Mesh {
-        unsafe { Mesh(ffi::GenMeshHeightmap(heightmap.0, size.into())) }
+    fn gen_mesh_heightmap(_: &RaylibThread, heightmap: &Image, size: Vector3) -> Mesh {
+        unsafe { Mesh(ffi::GenMeshHeightmap(heightmap.0, size)) }
     }
 
     /// Generates cubes-based map mesh from image data.
     #[inline]
-    fn gen_mesh_cubicmap(_: &RaylibThread, cubicmap: &Image, cube_size: Vector3<f32>) -> Mesh {
-        unsafe { Mesh(ffi::GenMeshCubicmap(cubicmap.0, cube_size.into())) }
+    fn gen_mesh_cubicmap(_: &RaylibThread, cubicmap: &Image, cube_size: Vector3) -> Mesh {
+        unsafe { Mesh(ffi::GenMeshCubicmap(cubicmap.0, cube_size)) }
     }
 
     /// Computes mesh bounding box limits.
@@ -390,7 +390,7 @@ pub trait RaylibMaterial: AsRef<ffi::Material> + AsMut<ffi::Material> {
         unsafe {
             std::slice::from_raw_parts(
                 self.as_ref().maps as *const MaterialMap,
-                consts::MAX_MATERIAL_MAPS as usize,
+                ffi::MAX_MATERIAL_MAPS as usize,
             )
         }
     }
@@ -399,14 +399,14 @@ pub trait RaylibMaterial: AsRef<ffi::Material> + AsMut<ffi::Material> {
         unsafe {
             std::slice::from_raw_parts_mut(
                 self.as_mut().maps as *mut MaterialMap,
-                consts::MAX_MATERIAL_MAPS as usize,
+                ffi::MAX_MATERIAL_MAPS as usize,
             )
         }
     }
 
     fn set_material_texture(
         &mut self,
-        map_type: crate::consts::MaterialMapIndex,
+        map_type: ffi::MaterialMapIndex,
         texture: impl AsRef<ffi::Texture2D>,
     ) {
         unsafe {

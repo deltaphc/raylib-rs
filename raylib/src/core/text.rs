@@ -7,12 +7,14 @@ use std::mem::ManuallyDrop;
 use std::ptr;
 
 use super::{
-    buffer::RaylibBuffer,
     texture::{Image, Texture2D},
     RaylibHandle, RaylibThread,
 };
-use crate::ffi::{self, Color};
-use mint::Vector2;
+use crate::{
+    buffer::RaylibBuffer,
+    ffi::{self, Color, Rectangle, Vector2},
+    make_bound_thin_wrapper, make_thin_wrapper,
+};
 
 fn no_drop<T>(_thing: T) {}
 make_bound_thin_wrapper!(Font, ffi::Font, ffi::UnloadFont, RaylibHandle<'bind>);
@@ -279,7 +281,7 @@ pub fn gen_image_font_atlas(
     font_size: i32,
     padding: i32,
     pack_method: i32,
-) -> Option<(Image, RaylibBuffer<'static, ffi::Rectangle>)> {
+) -> Option<(Image, RaylibBuffer<'static, Rectangle>)> {
     unsafe {
         let mut ptr = ptr::null_mut();
 
@@ -292,7 +294,7 @@ pub fn gen_image_font_atlas(
             pack_method,
         ));
 
-        let buffer = RaylibBuffer::<ffi::Rectangle>::new(ptr, chars.len());
+        let buffer = RaylibBuffer::<Rectangle>::new(ptr, chars.len());
 
         buffer.map(|b| (img, b))
     }
@@ -320,9 +322,9 @@ pub fn measure_text_ex(
     text: &str,
     font_size: f32,
     spacing: f32,
-) -> Vector2<f32> {
+) -> Vector2 {
     let c_text = CString::new(text).unwrap();
-    unsafe { ffi::MeasureTextEx(*font.as_ref(), c_text.as_ptr(), font_size, spacing).into() }
+    unsafe { ffi::MeasureTextEx(*font.as_ref(), c_text.as_ptr(), font_size, spacing) }
 }
 
 /// Gets index position for a unicode character on `font`.

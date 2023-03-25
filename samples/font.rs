@@ -1,6 +1,7 @@
 extern crate raylib;
 
-use raylib::prelude::*;
+use nalgebra::Vector2;
+use raylib::{ffi::Color, prelude::*};
 
 fn main() {
     let w = 800;
@@ -25,7 +26,7 @@ fn main() {
             d.draw_text_ex(
                 &font,
                 "rust",
-                Vector2::new((w / 2 - 69) as f32, (h / 2 + 18) as f32),
+                Vector2::new((w / 2 - 69) as f32, (h / 2 + 18) as f32).into(),
                 50.0,
                 1.0,
                 rust_orange,
@@ -33,7 +34,7 @@ fn main() {
             d.draw_text_ex(
                 &font,
                 "raylib",
-                Vector2::new((w / 2 - 44) as f32, (h / 2 + 48) as f32),
+                Vector2::new((w / 2 - 44) as f32, (h / 2 + 48) as f32).into(),
                 50.0,
                 1.0,
                 rust_orange,

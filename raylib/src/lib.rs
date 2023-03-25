@@ -54,15 +54,19 @@ Permission is granted to anyone to use this software for any purpose, including 
 //!     }
 //! }
 //! ```
-pub mod consts;
 pub mod core;
+pub mod audio;
+pub mod buffer;
 pub mod ease;
+pub mod prelude;
 //pub mod rgui;
+
+#[macro_use]
+pub(crate) mod macros;
 
 /// The raw, unsafe FFI binding, in case you need that escape hatch or the safe layer doesn't provide something you need.
 pub mod ffi {
     pub use raylib_sys::*;
 }
 
-pub use mint;
 pub use crate::core::init;

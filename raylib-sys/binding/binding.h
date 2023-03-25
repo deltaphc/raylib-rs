@@ -1,6 +1,8 @@
 #include "../raylib/src/raylib.h"
 #include "../raylib/src/rlgl.h"
 #include "../raylib/src/rcamera.h"
+
+#if 0
 #include "../raygui/src/raygui.h"
 
 typedef enum
@@ -262,3 +264,4 @@ typedef enum
     RAYGUI_ICON_254 = 254,
     RAYGUI_ICON_255 = 255,
 } guiRAYGUI_ICONName;
+#endif

@@ -1,5 +1,5 @@
 extern crate raylib;
-use raylib::prelude::*;
+use raylib::{prelude::*, ffi::Color};
 use structopt::StructOpt;
 
 mod options;

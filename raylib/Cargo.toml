@@ -18,8 +18,6 @@ lazy_static = "1.2.0"
 cfg-if = "1.0.0"
 serde = { version = "1.0.125", features = ["derive"], optional = true }
 serde_json = { version = "1.0.64", optional = true }
-mint = "0.5"
-nalgebra = { version = "0.32" }
 
 [features]
 nightly = []

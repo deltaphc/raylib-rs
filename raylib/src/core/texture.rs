@@ -1,12 +1,14 @@
 //! Image and texture related functions
 use std::ffi::CString;
 
-use mint::Vector2;
-
-use super::{buffer::RaylibBuffer, RaylibHandle, RaylibThread};
+use super::{RaylibHandle, RaylibThread};
 use crate::{
-    consts::{NPatchLayout, PixelFormat},
-    ffi::{self, Color, Rectangle},
+    buffer::RaylibBuffer,
+    ffi::{
+        self, Color, CubemapLayout, NPatchLayout, PixelFormat, Rectangle, TextureFilter,
+        TextureWrap, Vector2,
+    },
+    impl_wrapper, make_bound_thin_wrapper,
 };
 
 #[repr(C)]
@@ -29,19 +31,6 @@ impl From<ffi::NPatchInfo> for NPatchInfo {
 impl From<NPatchInfo> for ffi::NPatchInfo {
     fn from(val: NPatchInfo) -> Self {
         unsafe { std::mem::transmute(val) }
-    }
-}
-
-impl From<&NPatchInfo> for ffi::NPatchInfo {
-    fn from(val: &NPatchInfo) -> Self {
-        ffi::NPatchInfo {
-            source: val.source,
-            left: val.left,
-            top: val.top,
-            right: val.right,
-            bottom: val.bottom,
-            layout: (val.layout as u32) as i32,
-        }
     }
 }
 
@@ -292,8 +281,8 @@ impl Image {
 
     /// Draw pixel within an image (Vector version)
     #[inline]
-    pub fn draw_pixel_v(&mut self, position: Vector2<f32>, color: Color) {
-        unsafe { ffi::ImageDrawPixelV(&mut self.0, position.into(), color) }
+    pub fn draw_pixel_v(&mut self, position: Vector2, color: Color) {
+        unsafe { ffi::ImageDrawPixelV(&mut self.0, position, color) }
     }
 
     /// Draw line within an image
@@ -320,8 +309,8 @@ impl Image {
 
     /// Draw line within an image (Vector version)
     #[inline]
-    pub fn draw_line_v(&mut self, start: Vector2<f32>, end: Vector2<f32>, color: Color) {
-        unsafe { ffi::ImageDrawLineV(&mut self.0, start.into(), end.into(), color) }
+    pub fn draw_line_v(&mut self, start: Vector2, end: Vector2, color: Color) {
+        unsafe { ffi::ImageDrawLineV(&mut self.0, start, end, color) }
     }
 
     /// Draw circle within an image
@@ -332,8 +321,8 @@ impl Image {
 
     /// Draw circle within an image (Vector version)
     #[inline]
-    pub fn draw_circle_v(&mut self, center: Vector2<f32>, radius: i32, color: Color) {
-        unsafe { ffi::ImageDrawCircleV(&mut self.0, center.into(), radius, color) }
+    pub fn draw_circle_v(&mut self, center: Vector2, radius: i32, color: Color) {
+        unsafe { ffi::ImageDrawCircleV(&mut self.0, center, radius, color) }
     }
 
     /// Draws a rectangle within an image.
@@ -374,7 +363,7 @@ impl Image {
         &mut self,
         font: impl AsRef<ffi::Font>,
         text: &str,
-        position: Vector2<f32>,
+        position: Vector2,
         font_size: f32,
         spacing: f32,
         color: Color,
@@ -385,7 +374,7 @@ impl Image {
                 &mut self.0,
                 *font.as_ref(),
                 c_text.as_ptr(),
-                position.into(),
+                position,
                 font_size,
                 spacing,
                 color,
@@ -637,7 +626,7 @@ pub trait RaylibTexture2D: AsRef<ffi::Texture2D> + AsMut<ffi::Texture2D> {
 
     /// Sets global `texture` scaling filter mode.
     #[inline]
-    fn set_texture_filter(&self, _: &RaylibThread, filter_mode: crate::consts::TextureFilter) {
+    fn set_texture_filter(&self, _: &RaylibThread, filter_mode: TextureFilter) {
         unsafe {
             ffi::SetTextureFilter(*self.as_ref(), filter_mode as i32);
         }
@@ -645,7 +634,7 @@ pub trait RaylibTexture2D: AsRef<ffi::Texture2D> + AsMut<ffi::Texture2D> {
 
     /// Sets global texture wrapping mode.
     #[inline]
-    fn set_texture_wrap(&self, _: &RaylibThread, wrap_mode: crate::consts::TextureWrap) {
+    fn set_texture_wrap(&self, _: &RaylibThread, wrap_mode: TextureWrap) {
         unsafe {
             ffi::SetTextureWrap(*self.as_ref(), wrap_mode as i32);
         }
@@ -678,7 +667,7 @@ impl<'bind, 'a> RaylibHandle<'_> {
         &'bind self,
         _: &RaylibThread,
         image: &Image,
-        layout: crate::consts::CubemapLayout,
+        layout: CubemapLayout,
     ) -> Result<Texture2D<'bind, 'a>, String> {
         let t = unsafe { ffi::LoadTextureCubemap(image.0, layout as i32) };
         if t.id == 0 {

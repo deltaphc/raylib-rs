@@ -1,7 +1,6 @@
 //! Useful functions that don't fit anywhere else
 use std::ffi::CString;
 
-use super::RaylibRenderLoop;
 use crate::{
     core::{texture::Image, RaylibHandle, RaylibThread},
     ffi,
@@ -43,14 +42,14 @@ pub unsafe extern "C" fn trace_log_trampoline(
 pub fn set_trace_log_callback<C: Fn(TraceLogLevel, &str)>(callback: C) {}
 */
 
-impl RaylibRenderLoop<'_> {
+impl RaylibHandle<'_> {
     /// Load pixels from the screen into a CPU image
-    pub fn load_image_from_screen(&mut self, _: &RaylibThread) -> Image {
+    pub fn load_image_from_screen(&self, _: &RaylibThread) -> Image {
         unsafe { Image(ffi::LoadImageFromScreen()) }
     }
 
     /// Takes a screenshot of current screen (saved a .png)
-    pub fn take_screenshot(&mut self, _: &RaylibThread, filename: &str) {
+    pub fn take_screenshot(&self, _: &RaylibThread, filename: &str) {
         let c_filename = CString::new(filename).unwrap();
         unsafe {
             ffi::TakeScreenshot(c_filename.as_ptr());

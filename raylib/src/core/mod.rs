@@ -1,8 +1,3 @@
-#[macro_use]
-mod macros;
-
-pub mod audio;
-pub mod buffer;
 pub mod camera;
 pub mod collision;
 pub mod data;
@@ -61,9 +56,6 @@ pub struct RaylibThread(PhantomData<*const ()>);
 /// [`init`]: fn.init.html
 #[derive(Debug)]
 pub struct RaylibHandle<'rl>(RefCell<RaylibDrawHandle<'rl>>); // inner field is private, preventing manual construction
-
-#[derive(Debug)]
-pub struct RaylibRenderLoop<'a>(RefCell<RaylibDrawHandle<'a>>);
 
 impl<'th, 'a: 'th> RaylibHandle<'a> {
     /// Render a frame.
@@ -184,7 +176,7 @@ impl RaylibBuilder {
     ///
     /// Attempting to initialize Raylib more than once will result in a panic.
     pub fn build(&self) -> (RaylibHandle<'static>, RaylibThread) {
-        use crate::consts::ConfigFlags::*;
+        use ffi::ConfigFlags::*;
         let mut flags = 0u32;
         if self.fullscreen_mode {
             flags |= FLAG_FULLSCREEN_MODE as u32;
