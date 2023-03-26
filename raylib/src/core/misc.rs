@@ -51,9 +51,7 @@ impl RaylibHandle<'_> {
     /// Takes a screenshot of current screen (saved a .png)
     pub fn take_screenshot(&self, _: &RaylibThread, filename: &str) {
         let c_filename = CString::new(filename).unwrap();
-        unsafe {
-            ffi::TakeScreenshot(c_filename.as_ptr());
-        }
+        unsafe { ffi::TakeScreenshot(c_filename.as_ptr()) }
     }
 }
 
@@ -72,9 +70,7 @@ impl RaylibHandle<'_> {
 
     /// Set the seed for random number generation
     pub fn set_random_seed(&self, seed: u32) {
-        unsafe {
-            ffi::SetRandomSeed(seed);
-        }
+        unsafe { ffi::SetRandomSeed(seed) }
     }
 }
 

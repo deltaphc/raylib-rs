@@ -170,49 +170,43 @@ impl Image {
     /// Clears alpha channel on `image` to desired color.
     #[inline]
     pub fn alpha_clear(&mut self, color: Color, threshold: f32) {
-        unsafe {
-            ffi::ImageAlphaClear(&mut self.0, color, threshold);
-        }
+        unsafe { ffi::ImageAlphaClear(&mut self.0, color, threshold) }
     }
 
     /// Crops `image` depending on alpha value.
     #[inline]
     pub fn alpha_crop(&mut self, threshold: f32) {
-        unsafe {
-            ffi::ImageAlphaCrop(&mut self.0, threshold);
-        }
+        unsafe { ffi::ImageAlphaCrop(&mut self.0, threshold) }
     }
 
     /// Premultiplies alpha channel on `image`.
     #[inline]
     pub fn alpha_premultiply(&mut self) {
-        unsafe {
-            ffi::ImageAlphaPremultiply(&mut self.0);
-        }
+        unsafe { ffi::ImageAlphaPremultiply(&mut self.0) }
+    }
+
+    /// Apply Gaussian blur using a box blur approximation
+    #[inline]
+    pub fn blur_gaussian(&mut self, blur_size: i32) {
+        unsafe { ffi::ImageBlurGaussian(&mut self.0, blur_size) }
     }
 
     /// Crops `image` to a defined rectangle.
     #[inline]
     pub fn crop(&mut self, crop: Rectangle) {
-        unsafe {
-            ffi::ImageCrop(&mut self.0, crop);
-        }
+        unsafe { ffi::ImageCrop(&mut self.0, crop) }
     }
 
     /// Resizes `image` (bilinear filtering).
     #[inline]
     pub fn resize(&mut self, new_width: i32, new_height: i32) {
-        unsafe {
-            ffi::ImageResize(&mut self.0, new_width, new_height);
-        }
+        unsafe { ffi::ImageResize(&mut self.0, new_width, new_height) }
     }
 
     /// Resizes `image` (nearest-neighbor scaling).
     #[inline]
     pub fn resize_nn(&mut self, new_width: i32, new_height: i32) {
-        unsafe {
-            ffi::ImageResizeNN(&mut self.0, new_width, new_height);
-        }
+        unsafe { ffi::ImageResizeNN(&mut self.0, new_width, new_height) }
     }
 
     /// Resizes `image` canvas and fills with `color`.
@@ -233,24 +227,20 @@ impl Image {
                 offset_x,
                 offset_y,
                 color,
-            );
+            )
         }
     }
 
     /// Generates all mipmap levels for a provided `image`.
     #[inline]
     pub fn gen_mipmaps(&mut self) {
-        unsafe {
-            ffi::ImageMipmaps(&mut self.0);
-        }
+        unsafe { ffi::ImageMipmaps(&mut self.0) }
     }
 
     /// Dithers `image` data to 16bpp or lower (Floyd-Steinberg dithering).
     #[inline]
     pub fn dither(&mut self, r_bpp: i32, g_bpp: i32, b_bpp: i32, a_bpp: i32) {
-        unsafe {
-            ffi::ImageDither(&mut self.0, r_bpp, g_bpp, b_bpp, a_bpp);
-        }
+        unsafe { ffi::ImageDither(&mut self.0, r_bpp, g_bpp, b_bpp, a_bpp) }
     }
 
     /// Get image alpha border rectangle
@@ -268,9 +258,7 @@ impl Image {
     /// Draws a source image within a destination image.
     #[inline]
     pub fn draw(&mut self, src: &Image, src_rec: Rectangle, dst_rec: Rectangle, tint: Color) {
-        unsafe {
-            ffi::ImageDraw(&mut self.0, src.0, src_rec, dst_rec, tint);
-        }
+        unsafe { ffi::ImageDraw(&mut self.0, src.0, src_rec, dst_rec, tint) }
     }
 
     /// Draw pixel within an image
@@ -499,6 +487,22 @@ impl Image {
         unsafe { Image(ffi::GenImageWhiteNoise(width, height, factor)) }
     }
 
+    /// Generates an Image containing white noise.
+    #[inline]
+    pub fn gen_image_perlin_noise(
+        width: i32,
+        height: i32,
+        offset_x: i32,
+        offset_y: i32,
+        scale: f32,
+    ) -> Image {
+        unsafe {
+            Image(ffi::GenImagePerlinNoise(
+                width, height, offset_x, offset_y, scale,
+            ))
+        }
+    }
+
     /// Generates an Image using a cellular algorithm. Bigger `tile_size` means bigger cells.
     #[inline]
     pub fn gen_image_cellular(width: i32, height: i32, tile_size: i32) -> Image {
@@ -548,6 +552,15 @@ impl Image {
         );
         }
         Ok(Image(i))
+    }
+
+    /// Load image sequence from file (frames appended to image.data)
+    pub fn load_image_anim(filename: &str) -> (Image, u32) {
+        let c_filename = CString::new(filename).unwrap();
+        let mut count = 0i32;
+        let image = unsafe { ffi::LoadImageAnim(c_filename.as_ptr(), &mut count) };
+
+        (Image(image), count as u32)
     }
 
     /// Creates an image from `text` (custom font).

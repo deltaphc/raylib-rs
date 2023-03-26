@@ -1,5 +1,5 @@
 //! Keyboard, Controller, and Mouse related functions
-use std::ffi::CStr;
+use std::ffi::{CStr, CString};
 
 use super::RaylibHandle;
 use crate::ffi::{self, GamepadAxis, GamepadButton, Gesture, KeyboardKey, MouseButton, Vector2};
@@ -134,6 +134,12 @@ impl RaylibHandle<'_> {
         unsafe { ffi::GetGamepadAxisMovement(gamepad, axis as i32) }
     }
 
+    #[inline]
+    pub fn set_gamepad_mapping(&self, mapping: &str) -> bool {
+        let c_mapping = CString::new(mapping).unwrap();
+        unsafe { ffi::SetGamepadMappings(c_mapping.as_ptr()) >= 0 }
+    }
+
     /// Detect if a mouse button has been pressed once.
     #[inline]
     pub fn is_mouse_button_pressed(&self, button: MouseButton) -> bool {
@@ -208,10 +214,16 @@ impl RaylibHandle<'_> {
         }
     }
 
-    /// Returns mouse wheel movement Y.
+    /// Get mouse wheel movement for X or Y, whichever is larger
     #[inline]
     pub fn get_mouse_wheel_move(&self) -> f32 {
         unsafe { ffi::GetMouseWheelMove() }
+    }
+
+    // Get mouse wheel movement for both X and Y
+    #[inline]
+    pub fn get_mouse_wheel_move_v(&self) -> Vector2 {
+        unsafe { ffi::GetMouseWheelMoveV() }
     }
 
     /// Returns touch position X for touch point 0 (relative to screen size).

@@ -404,9 +404,7 @@ impl RaylibHandle<'_> {
     /// Set clipboard text content
     pub fn set_clipboard_text(&self, text: &str) -> Result<(), NulError> {
         let s = CString::new(text)?;
-        unsafe {
-            ffi::SetClipboardText(s.as_ptr());
-        }
+        unsafe { ffi::SetClipboardText(s.as_ptr()) }
         Ok(())
     }
 }
@@ -449,9 +447,7 @@ impl RaylibHandle<'_> {
 impl RaylibHandle<'_> {
     /// Set target FPS (maximum)
     pub fn set_target_fps(&self, fps: u32) {
-        unsafe {
-            ffi::SetTargetFPS(fps as i32);
-        }
+        unsafe { ffi::SetTargetFPS(fps as i32) }
     }
 
     /// Returns current FPS
@@ -564,33 +560,25 @@ impl RaylibHandle<'_> {
     /// Toggles fullscreen mode (only on desktop platforms).
     #[inline]
     pub fn toggle_fullscreen(&self) {
-        unsafe {
-            ffi::ToggleFullscreen();
-        }
+        unsafe { ffi::ToggleFullscreen() }
     }
 
     /// Set window state: maximized, if resizable (only PLATFORM_DESKTOP)
     #[inline]
     pub fn maximize_window(&self) {
-        unsafe {
-            ffi::MaximizeWindow();
-        }
+        unsafe { ffi::MaximizeWindow() }
     }
 
     /// Set window state: minimized, if resizable (only PLATFORM_DESKTOP)
     #[inline]
     pub fn minimize_window(&self) {
-        unsafe {
-            ffi::MinimizeWindow();
-        }
+        unsafe { ffi::MinimizeWindow() }
     }
 
     /// Set window state: not minimized/maximized (only PLATFORM_DESKTOP)
     #[inline]
     pub fn restore_window(&self) {
-        unsafe {
-            ffi::RestoreWindow();
-        }
+        unsafe { ffi::RestoreWindow() }
     }
 
     /// Set window configuration state using flags
@@ -641,9 +629,7 @@ impl RaylibHandle<'_> {
     /// Sets icon for window (only on desktop platforms).
     #[inline]
     pub fn set_window_icon(&self, image: impl AsRef<ffi::Image>) {
-        unsafe {
-            ffi::SetWindowIcon(*image.as_ref());
-        }
+        unsafe { ffi::SetWindowIcon(*image.as_ref()) }
     }
 
     /// Set icon for window (multiple images, RGBA 32bit, only PLATFORM_DESKTOP)
@@ -656,17 +642,13 @@ impl RaylibHandle<'_> {
     #[inline]
     pub fn set_window_title(&self, _: &RaylibThread, title: &str) {
         let c_title = CString::new(title).unwrap();
-        unsafe {
-            ffi::SetWindowTitle(c_title.as_ptr());
-        }
+        unsafe { ffi::SetWindowTitle(c_title.as_ptr()) }
     }
 
     /// Sets window position on screen (only on desktop platforms).
     #[inline]
     pub fn set_window_position(&self, x: i32, y: i32) {
-        unsafe {
-            ffi::SetWindowPosition(x, y);
-        }
+        unsafe { ffi::SetWindowPosition(x, y) }
     }
 
     /// Sets monitor for the current window (fullscreen mode).
@@ -674,25 +656,19 @@ impl RaylibHandle<'_> {
     pub fn set_window_monitor(&self, monitor: i32) {
         let len = get_monitor_count();
         debug_assert!(monitor < len && monitor >= 0, "monitor index out of range");
-        unsafe {
-            ffi::SetWindowMonitor(monitor);
-        }
+        unsafe { ffi::SetWindowMonitor(monitor) }
     }
 
     /// Sets minimum window dimensions (for `FLAG_WINDOW_RESIZABLE`).
     #[inline]
     pub fn set_window_min_size(&self, width: i32, height: i32) {
-        unsafe {
-            ffi::SetWindowMinSize(width, height);
-        }
+        unsafe { ffi::SetWindowMinSize(width, height) }
     }
 
     /// Sets window dimensions.
     #[inline]
     pub fn set_window_size(&self, width: i32, height: i32) {
-        unsafe {
-            ffi::SetWindowSize(width, height);
-        }
+        unsafe { ffi::SetWindowSize(width, height) }
     }
 
     /// Gets current screen width.
@@ -719,17 +695,13 @@ impl RaylibHandle<'_> {
     /// Shows mouse cursor.
     #[inline]
     pub fn show_cursor(&self) {
-        unsafe {
-            ffi::ShowCursor();
-        }
+        unsafe { ffi::ShowCursor() }
     }
 
     /// Hides mouse cursor.
     #[inline]
     pub fn hide_cursor(&self) {
-        unsafe {
-            ffi::HideCursor();
-        }
+        unsafe { ffi::HideCursor() }
     }
 
     /// Checks if mouse cursor is not visible.
@@ -741,17 +713,13 @@ impl RaylibHandle<'_> {
     /// Enables mouse cursor (unlock cursor).
     #[inline]
     pub fn enable_cursor(&self) {
-        unsafe {
-            ffi::EnableCursor();
-        }
+        unsafe { ffi::EnableCursor() }
     }
 
     /// Disables mouse cursor (lock cursor).
     #[inline]
     pub fn disable_cursor(&self) {
-        unsafe {
-            ffi::DisableCursor();
-        }
+        unsafe { ffi::DisableCursor() }
     }
 
     /// Get native window handle
