@@ -4,11 +4,18 @@
 /// IMHO Don't write code like this. Use ECS and other methods to have game objects and components.
 /// Only do this as an exercise.
 extern crate raylib;
-use raylib::ffi::KeyboardKey;
+use nalgebra::Vector2;
 use rand::distributions::WeightedIndex;
 use rand::prelude::*;
 use rand::Rng;
-use raylib::prelude::*;
+use raylib::{
+    core::{
+        text::measure_text,
+        texture::{Image, RaylibTexture2D},
+    },
+    ffi::{Color, KeyboardKey, MouseButton, Rectangle},
+    prelude::*,
+};
 use serde::{Deserialize, Serialize};
 use std::error::Error;
 use std::fs::File;
@@ -99,7 +106,7 @@ impl RectExt for &Rectangle {}
 /// things here
 struct Tcod {
     fov: FovMap,
-    mouse: Vector2,
+    mouse: Vector2<f32>,
 }
 
 /// This enum tells us if the player has taken an action. This is significant
@@ -598,7 +605,7 @@ fn make_map(objects: &mut Vec<Object>, level: u32) -> Map {
         let new_room = Rectangle::new(x as f32, y as f32, w as f32, h as f32);
         let failed = rooms
             .iter()
-            .any(|other| new_room.check_collision_recs(other));
+            .any(|other| new_room.check_collision_recs(*other));
 
         if !failed {
             create_room(&new_room, &mut map);
@@ -894,7 +901,7 @@ fn create_v_tunnel(y1: i32, y2: i32, x: i32, map: &mut Map) {
     }
 }
 
-fn get_names_under_mouse(mouse: Vector2, objects: &[Object], fov_map: &FovMap) -> String {
+fn get_names_under_mouse(mouse: Vector2<f32>, objects: &[Object], fov_map: &FovMap) -> String {
     let (x, y) = (mouse.x as i32 / TILE_WIDTH, mouse.y as i32 / TILE_HEIGHT);
 
     let names = objects
@@ -934,8 +941,8 @@ fn play_game(
         // handle game logic
         level_up(rl, thread, game, objects);
 
-        if rl.is_mouse_button_pressed(raylib::consts::MouseButton::MOUSE_BUTTON_LEFT) {
-            tcod.mouse = rl.get_mouse_position();
+        if rl.is_mouse_button_pressed(MouseButton::MOUSE_BUTTON_LEFT) {
+            tcod.mouse = rl.get_mouse_position().into();
         }
 
         let player_action = handle_keys(rl, thread, tcod, game, objects);
@@ -985,7 +992,7 @@ fn handle_keys(
     game: &mut Game,
     objects: &mut Vec<Object>,
 ) -> PlayerAction {
-    use raylib::consts::KeyboardKey::*;
+    use raylib::ffi::KeyboardKey::*;
     use PlayerAction::*;
 
     let pressed_key = rl.get_key_pressed_number();
@@ -1577,7 +1584,7 @@ fn main_menu(rl: &RaylibHandle, thread: &RaylibThread, tcod: &mut Tcod) {
     let img = rl
         .load_texture_from_image(&thread, &img)
         .expect("could not load texture from image");
-    img.set_texture_wrap(thread, raylib::consts::TextureWrap::TEXTURE_WRAP_CLAMP);
+    img.set_texture_wrap(thread, raylib::ffi::TextureWrap::TEXTURE_WRAP_CLAMP);
 
     while !rl.window_should_close() {
         // show the background image, at twice the regular console resolution
@@ -1585,7 +1592,7 @@ fn main_menu(rl: &RaylibHandle, thread: &RaylibThread, tcod: &mut Tcod) {
         let mut choice = None;
         rl.frame(thread, |d| {
             d.clear_background(Color::BLACK);
-            d.draw_texture_ex(&img, Vector2::new(0.0, 0.0), 0.0, 1.0, Color::WHITE);
+            d.draw_texture_ex(&img, Vector2::new(0.0, 0.0).into(), 0.0, 1.0, Color::WHITE);
             // Game title
             d.draw_text(
                 "TOMBS OF THE ANCIENT KINGS",
@@ -1801,14 +1808,11 @@ fn target_tile(
         let (x, y) = (pos.x as i32 / TILE_WIDTH, pos.y as i32 / TILE_HEIGHT);
         let in_fov = (x < MAP_WIDTH) && (y < MAP_HEIGHT) && tcod.fov.is_in_fov(x, y);
         let in_range = max_range.map_or(true, |range| objects[PLAYER].distance(x, y) <= range);
-        if rl.is_mouse_button_pressed(raylib::consts::MouseButton::MOUSE_BUTTON_LEFT)
-            && in_fov
-            && in_range
-        {
+        if rl.is_mouse_button_pressed(MouseButton::MOUSE_BUTTON_LEFT) && in_fov && in_range {
             return Some((x, y));
         }
 
-        if rl.is_mouse_button_pressed(raylib::consts::MouseButton::MOUSE_BUTTON_RIGHT) {
+        if rl.is_mouse_button_pressed(MouseButton::MOUSE_BUTTON_RIGHT) {
             return None;
         }
         // ...
@@ -1893,7 +1897,7 @@ fn menu<T: AsRef<str>>(
     if let Some(pressed_key) = pressed_key {
         dbg!(pressed_key);
         use std::num::Wrapping;
-        let index = Wrapping(pressed_key) - Wrapping(KEY_A as u32);
+        let index = Wrapping(pressed_key) - Wrapping(KeyboardKey::KEY_A as u32);
         let index: u32 = index.0;
         if (index as usize) < options.len() {
             Some(index as usize)

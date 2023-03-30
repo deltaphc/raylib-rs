@@ -80,30 +80,29 @@ fn main() {
 
         rl.frame(&thread, |d| {
             d.clear_background(Color::RAYWHITE);
-            {
-                let d2 = d.begin_mode_2d(camera);
-                d2.draw_rectangle(-6000, 320, 13000, 8000, Color::DARKGRAY);
+            d.mode_camera_2d(&camera, || {
+                d.draw_rectangle(-6000, 320, 13000, 8000, Color::DARKGRAY);
 
                 for i in 0..MAX_BUILDINGS {
-                    d2.draw_rectangle_rec(buildings[i], build_colors[i]);
+                    d.draw_rectangle_rec(buildings[i], build_colors[i]);
                 }
-                d2.draw_rectangle_rec(player, Color::RED);
+                d.draw_rectangle_rec(player, Color::RED);
 
-                d2.draw_line(
+                d.draw_line(
                     camera.target.x as i32,
                     -h * 10,
                     camera.target.x as i32,
                     h * 10,
                     Color::GREEN,
                 );
-                d2.draw_line(
+                d.draw_line(
                     -w * 10,
                     camera.target.y as i32,
                     w * 10,
                     camera.target.y as i32,
                     Color::GREEN,
                 );
-            }
+            });
 
             d.draw_text("SCREEN AREA", 640, 10, 20, Color::RED);
 

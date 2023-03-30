@@ -15,7 +15,7 @@ pub mod window;
 
 use crate::ffi;
 
-use std::cell::{RefCell, RefMut};
+use std::cell::{Cell, RefCell, RefMut};
 use std::ffi::CString;
 use std::marker::PhantomData;
 use std::sync::atomic::{AtomicBool, Ordering};
@@ -54,7 +54,6 @@ pub struct RaylibThread(PhantomData<*const ()>);
 /// [`init_window`]: fn.init_window.html
 /// [`RaylibBuilder`]: struct.RaylibBuilder.html
 /// [`init`]: fn.init.html
-#[derive(Debug)]
 pub struct RaylibHandle<'rl>(RefCell<RaylibDrawHandle<'rl>>); // inner field is private, preventing manual construction
 
 impl<'th, 'a: 'th> RaylibHandle<'a> {
@@ -223,6 +222,6 @@ fn init_window(width: i32, height: i32, title: &str) -> RaylibHandle<'static> {
         }
         IS_INITIALIZED.store(true, Ordering::Relaxed);
 
-        RaylibHandle(RefCell::new(RaylibDrawHandle(PhantomData)))
+        RaylibHandle(RefCell::new(RaylibDrawHandle(PhantomData, Cell::default())))
     }
 }

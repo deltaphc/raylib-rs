@@ -1,252 +1,167 @@
 //! Contains code related to drawing. Types that can be set as a surface to draw will implement the [`RaylibDraw`] trait
-use super::{texture::Texture2D, vr::VrStereoConfig, RaylibHandle, RaylibThread};
+use raylib_sys::Camera;
+
+use super::{
+    shaders::Shader,
+    texture::{RenderTexture2D, Texture2D},
+    vr::VrStereoConfig,
+    RaylibHandle,
+};
 use crate::ffi::{
     self, BlendMode, BoundingBox, Camera2D, Camera3D, Color, NPatchInfo, Rectangle, Vector2,
     Vector3,
 };
 
-use std::{convert::AsRef, ffi::CString, marker::PhantomData};
+use std::{cell::Cell, convert::AsRef, ffi::CString, marker::PhantomData};
 
-#[derive(Debug)]
-pub struct RaylibDrawHandle<'bind>(pub(crate) PhantomData<&'bind RaylibHandle<'bind>>);
+/// Holds the state of "special" Begin/End modes.
+#[derive(Clone, Default)]
+pub(crate) struct RaylibDrawState {
+    texture: bool,
+    vr: bool,
+    camera2d: bool,
+    camera3d: bool,
+    shader: bool,
+    blend: bool,
+    scissor: bool,
+}
+
+pub struct RaylibDrawHandle<'bind>(
+    pub(crate) PhantomData<&'bind RaylibHandle<'bind>>,
+    pub(crate) Cell<RaylibDrawState>,
+);
+
+impl RaylibDrawHandle<'_> {
+    pub fn mode_texture2d<F: FnOnce()>(&self, target: &mut RenderTexture2D, func: F) {
+        let mut state = self.1.take();
+
+        if state.texture {
+            panic!("Nested mode_texture2d occured !");
+        }
+
+        state.texture = true;
+        self.1.set(state.clone());
+
+        unsafe { ffi::BeginTextureMode(target.0) };
+        func();
+        unsafe { ffi::EndTextureMode() };
+
+        state.texture = false;
+        self.1.set(state);
+    }
+
+    pub fn mode_vr<F: FnOnce()>(&self, config: &VrStereoConfig, func: F) {
+        let mut state = self.1.take();
+
+        if state.vr {
+            panic!("Nested mode_vr occured !");
+        }
+
+        state.vr = true;
+        self.1.set(state.clone());
+
+        unsafe { ffi::BeginVrStereoMode(config.0) };
+        func();
+        unsafe { ffi::EndVrStereoMode() };
+
+        state.vr = false;
+        self.1.set(state);
+    }
+
+    pub fn mode_camera_2d<F: FnOnce()>(&self, camera: &Camera2D, func: F) {
+        let mut state = self.1.take();
+
+        if state.camera2d {
+            panic!("Nested mode_camera_2d occured !");
+        }
+
+        state.camera2d = true;
+        self.1.set(state.clone());
+
+        unsafe { ffi::BeginMode2D(*camera) };
+        func();
+        unsafe { ffi::EndMode2D() };
+
+        state.camera2d = false;
+        self.1.set(state);
+    }
+
+    pub fn mode_camera_3d<F: FnOnce()>(&self, camera: &Camera, func: F) {
+        let mut state = self.1.take();
+
+        if state.camera3d {
+            panic!("Nested mode_camera_3d occured !");
+        }
+
+        state.camera3d = true;
+        self.1.set(state.clone());
+
+        unsafe { ffi::BeginMode3D(*camera) };
+        func();
+        unsafe { ffi::EndMode3D() };
+
+        state.camera3d = false;
+        self.1.set(state);
+    }
+
+    pub fn mode_shader<F: FnOnce()>(&self, shader: &Shader, func: F) {
+        let mut state = self.1.take();
+
+        if state.shader {
+            panic!("Nested mode_shader occured !");
+        }
+
+        state.shader = true;
+        self.1.set(state.clone());
+
+        unsafe { ffi::BeginShaderMode(shader.0) };
+        func();
+        unsafe { ffi::EndShaderMode() };
+
+        state.shader = false;
+        self.1.set(state);
+    }
+
+    pub fn mode_blend<F: FnOnce()>(&self, blend_mode: BlendMode, func: F) {
+        let mut state = self.1.take();
+
+        if state.blend {
+            panic!("Nested mode_blend occured !");
+        }
+
+        state.blend = true;
+        self.1.set(state.clone());
+
+        unsafe { ffi::BeginBlendMode(blend_mode as _) };
+        func();
+        unsafe { ffi::EndBlendMode() };
+
+        state.blend = false;
+        self.1.set(state);
+    }
+
+    pub fn mode_scissors<F: FnOnce()>(&self, x: i32, y: i32, width: i32, height: i32, func: F) {
+        let mut state = self.1.take();
+
+        if state.scissor {
+            panic!("Nested mode_scissors occured !");
+        }
+
+        state.scissor = true;
+        self.1.set(state.clone());
+
+        unsafe { ffi::BeginScissorMode(x, y, width, height) };
+        func();
+        unsafe { ffi::EndScissorMode() };
+
+        state.scissor = false;
+        self.1.set(state);
+    }
+}
 
 impl RaylibDraw for RaylibDrawHandle<'_> {}
 
-// Texture2D Stuff
-
-pub struct RaylibTextureMode<'a, T>(&'a T, &'a mut ffi::RenderTexture2D);
-
-impl<T> Drop for RaylibTextureMode<'_, T> {
-    fn drop(&mut self) {
-        unsafe { ffi::EndTextureMode() }
-    }
-}
-
-impl<T> std::ops::Deref for RaylibTextureMode<'_, T> {
-    type Target = T;
-
-    fn deref(&self) -> &Self::Target {
-        self.0
-    }
-}
-
-pub trait RaylibTextureModeExt
-where
-    Self: Sized,
-{
-    #[must_use]
-    fn begin_texture_mode<'a>(
-        &'a mut self,
-        _: &RaylibThread,
-        framebuffer: &'a mut ffi::RenderTexture2D,
-    ) -> RaylibTextureMode<Self> {
-        unsafe { ffi::BeginTextureMode(*framebuffer) }
-        RaylibTextureMode(self, framebuffer)
-    }
-}
-
-// Only the DrawHandle can start a texture
-impl RaylibTextureModeExt for RaylibDrawHandle<'_> {}
-impl<T> RaylibDraw for RaylibTextureMode<'_, T> {}
-
-// VR Stuff
-
-pub struct RaylibVRMode<'a, T>(&'a T, &'a mut VrStereoConfig);
-
-impl<T> Drop for RaylibVRMode<'_, T> {
-    fn drop(&mut self) {
-        unsafe { ffi::EndVrStereoMode() }
-    }
-}
-
-impl<T> std::ops::Deref for RaylibVRMode<'_, T> {
-    type Target = T;
-
-    fn deref(&self) -> &Self::Target {
-        self.0
-    }
-}
-
-pub trait RaylibVRModeExt
-where
-    Self: Sized,
-{
-    #[must_use]
-    fn begin_vr_stereo_mode<'a>(
-        &'a mut self,
-        vr_config: &'a mut VrStereoConfig,
-    ) -> RaylibVRMode<Self> {
-        unsafe { ffi::BeginVrStereoMode(*vr_config.as_ref()) }
-        RaylibVRMode(self, vr_config)
-    }
-}
-
-impl<D: RaylibDraw> RaylibVRModeExt for D {}
-impl<T> RaylibDraw for RaylibVRMode<'_, T> {}
-
-// 2D Mode
-
-pub struct RaylibMode2D<'a, T>(&'a T);
-impl<T> Drop for RaylibMode2D<'_, T> {
-    fn drop(&mut self) {
-        unsafe { ffi::EndMode2D() }
-    }
-}
-impl<T> std::ops::Deref for RaylibMode2D<'_, T> {
-    type Target = T;
-
-    fn deref(&self) -> &Self::Target {
-        self.0
-    }
-}
-
-pub trait RaylibMode2DExt
-where
-    Self: Sized,
-{
-    #[must_use]
-    fn begin_mode_2d(&self, camera: Camera2D) -> RaylibMode2D<Self> {
-        unsafe { ffi::BeginMode2D(camera) }
-        RaylibMode2D(self)
-    }
-}
-
-impl<D: RaylibDraw> RaylibMode2DExt for D {}
-impl<T> RaylibDraw for RaylibMode2D<'_, T> {}
-
-// 3D Mode
-
-pub struct RaylibMode3D<'a, T>(&'a T);
-impl<T> Drop for RaylibMode3D<'_, T> {
-    fn drop(&mut self) {
-        unsafe { ffi::EndMode3D() }
-    }
-}
-impl<T> std::ops::Deref for RaylibMode3D<'_, T> {
-    type Target = T;
-
-    fn deref(&self) -> &Self::Target {
-        self.0
-    }
-}
-
-pub trait RaylibMode3DExt
-where
-    Self: Sized,
-{
-    #[must_use]
-    fn begin_mode_3d(&self, camera: Camera3D) -> RaylibMode3D<Self> {
-        unsafe { ffi::BeginMode3D(camera) }
-        RaylibMode3D(self)
-    }
-}
-
-impl<D: RaylibDraw> RaylibMode3DExt for D {}
-impl<T> RaylibDraw for RaylibMode3D<'_, T> {}
-impl<T> RaylibDraw3D for RaylibMode3D<'_, T> {}
-
-// shader Mode
-
-pub struct RaylibShaderMode<'a, T>(&'a mut T, &'a ffi::Shader);
-
-impl<T> Drop for RaylibShaderMode<'_, T> {
-    fn drop(&mut self) {
-        unsafe { ffi::EndShaderMode() }
-    }
-}
-impl<T> std::ops::Deref for RaylibShaderMode<'_, T> {
-    type Target = T;
-
-    fn deref(&self) -> &Self::Target {
-        self.0
-    }
-}
-
-pub trait RaylibShaderModeExt
-where
-    Self: Sized,
-{
-    #[must_use]
-    fn begin_shader_mode<'a>(&'a mut self, shader: &'a ffi::Shader) -> RaylibShaderMode<Self> {
-        unsafe { ffi::BeginShaderMode(*shader) }
-        RaylibShaderMode(self, shader)
-    }
-}
-
-impl<D: RaylibDraw> RaylibShaderModeExt for D {}
-impl<'a, T> RaylibDraw for RaylibShaderMode<'a, T> {}
-impl<'a, T> RaylibDraw3D for RaylibShaderMode<'a, T> {}
-
-// Blend Mode
-
-pub struct RaylibBlendMode<'a, T>(&'a T);
-impl<'a, T> Drop for RaylibBlendMode<'a, T> {
-    fn drop(&mut self) {
-        unsafe { ffi::EndBlendMode() }
-    }
-}
-impl<'a, T> std::ops::Deref for RaylibBlendMode<'a, T> {
-    type Target = T;
-
-    fn deref(&self) -> &Self::Target {
-        self.0
-    }
-}
-
-pub trait RaylibBlendModeExt
-where
-    Self: Sized,
-{
-    #[must_use]
-    fn begin_blend_mode(&self, blend_mode: BlendMode) -> RaylibBlendMode<Self> {
-        unsafe { ffi::BeginBlendMode((blend_mode as u32) as i32) }
-        RaylibBlendMode(self)
-    }
-}
-
-impl<D: RaylibDraw> RaylibBlendModeExt for D {}
-impl<T> RaylibDraw for RaylibBlendMode<'_, T> {}
-impl<T> RaylibDraw3D for RaylibBlendMode<'_, T> {}
-
-// Scissor Mode stuff
-
-pub struct RaylibScissorMode<'a, T>(&'a T);
-impl<T> Drop for RaylibScissorMode<'_, T> {
-    fn drop(&mut self) {
-        unsafe { ffi::EndScissorMode() }
-    }
-}
-impl<T> std::ops::Deref for RaylibScissorMode<'_, T> {
-    type Target = T;
-
-    fn deref(&self) -> &Self::Target {
-        self.0
-    }
-}
-
-pub trait RaylibScissorModeExt
-where
-    Self: Sized,
-{
-    #[must_use]
-    fn begin_scissor_mode(
-        &self,
-        x: i32,
-        y: i32,
-        width: i32,
-        height: i32,
-    ) -> RaylibScissorMode<Self> {
-        unsafe { ffi::BeginScissorMode(x, y, width, height) }
-        RaylibScissorMode(self)
-    }
-}
-
-impl<D: RaylibDraw> RaylibScissorModeExt for D {}
-impl<T> RaylibDraw for RaylibScissorMode<'_, T> {}
-impl<T: RaylibDraw3D> RaylibDraw3D for RaylibScissorMode<'_, T> {}
-
 // Actual drawing functions
-
 pub trait RaylibDraw {
     /// Sets background color (framebuffer clear color).
     #[inline]
