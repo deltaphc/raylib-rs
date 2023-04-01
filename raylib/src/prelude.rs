@@ -13,5 +13,6 @@ Permission is granted to anyone to use this software for any purpose, including 
 
   3. This notice may not be removed or altered from any source distribution.
 */
-pub use crate::audio::RaylibAudio;
+pub use crate::audio::{AudioSample, AudioStream, Music, RaylibAudio, Sound, Wave};
 pub use crate::core::{drawing::*, init, RaylibBuilder, RaylibHandle, RaylibThread};
+pub use crate::ffi::{Color, Rectangle};
