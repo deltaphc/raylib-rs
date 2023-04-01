@@ -1,7 +1,7 @@
 [package]
 name = "raylib"
 version = "4.5.0"
-authors = ["DeltaPHC <phclem@protonmail.com>", "Teddy Astie <tsnake@outlook.fr>"]
+authors = ["DeltaPHC <phclem@protonmail.com>", "Mia Ayeke <mia@ayeke.dev>", "Teddy Astie <tsnake@outlook.fr>"]
 license = "Zlib"
 readme = "../README.md"
 description = "Safe Rust bindings for Raylib."
