@@ -685,9 +685,7 @@ pub trait RaylibDraw {
     ) {
         unsafe { ffi::DrawTextCodepoint(*font.as_ref(), codepoint, position, scale, tint) }
     }
-}
 
-pub trait RaylibDraw3D {
     /// Draw a point in 3D space, actually a small line
     #[inline]
     fn draw_point_3d(&self, position: Vector3, color: Color) {

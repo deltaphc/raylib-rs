@@ -1,6 +1,6 @@
 use std::mem::transmute;
 
-use super::{Camera3D, CameraProjection};
+use super::{Matrix, Camera3D, CameraProjection};
 use mint::Vector3;
 
 impl Camera3D {
@@ -36,27 +36,53 @@ impl Camera3D {
         c
     }
 
-    /*
-        RLAPI Vector3 GetCameraForward(Camera *camera);
-    RLAPI Vector3 GetCameraUp(Camera *camera);
-    RLAPI Vector3 GetCameraRight(Camera *camera);
-
-    // Camera movement
-    RLAPI void CameraMoveForward(Camera *camera, float distance, bool moveInWorldPlane);
-    RLAPI void CameraMoveUp(Camera *camera, float distance);
-    RLAPI void CameraMoveRight(Camera *camera, float distance, bool moveInWorldPlane);
-    RLAPI void CameraMoveToTarget(Camera *camera, float delta);
-
-    // Camera rotation
-    RLAPI void CameraYaw(Camera *camera, float angle, bool rotateAroundTarget);
-    RLAPI void CameraPitch(Camera *camera, float angle, bool lockView, bool rotateAroundTarget, bool rotateUp);
-    RLAPI void CameraRoll(Camera *camera, float angle);
-
-    RLAPI Matrix GetCameraViewMatrix(Camera *camera);
-    RLAPI Matrix GetCameraProjectionMatrix(Camera* camera, float aspect);
-     */
-
     pub fn forward(&self) -> Vector3<f32> {
         unsafe { super::GetCameraForward(self as *const _ as *mut _).into() }
+    }
+
+    pub fn up(&self) -> Vector3<f32> {
+        unsafe { super::GetCameraUp(self as *const _ as *mut _).into() }
+    }
+
+    pub fn move_forward(&mut self, distance: f32, in_world_plane: bool) {
+        unsafe { super::CameraMoveForward(self, distance, in_world_plane) }
+    }
+
+    pub fn move_up(&mut self, distance: f32) {
+        unsafe { super::CameraMoveUp(self, distance) }
+    }
+
+    pub fn move_right(&mut self, distance: f32, in_world_plane: bool) {
+        unsafe { super::CameraMoveRight(self, distance, in_world_plane) }
+    }
+
+    pub fn move_to_target(&mut self, delta: f32) {
+        unsafe { super::CameraMoveToTarget(self, delta) }
+    }
+
+    pub fn yaw(&mut self, angle: f32, rotate_around_target: bool) {
+        unsafe { super::CameraYaw(self, angle, rotate_around_target) }
+    }
+
+    pub fn pitch(
+        &mut self,
+        angle: f32,
+        lock_view: bool,
+        rotate_around_target: bool,
+        rotate_up: bool,
+    ) {
+        unsafe { super::CameraPitch(self, angle, lock_view, rotate_around_target, rotate_up) }
+    }
+
+    pub fn roll(&mut self, angle: f32) {
+        unsafe { super::CameraRoll(self, angle) }
+    }
+
+    pub fn view_matrix(&self) -> Matrix {
+        unsafe { super::GetCameraViewMatrix(self as *const _ as *mut _) }
+    }
+
+    pub fn projection_matrix(&self, aspect: f32) -> Matrix {
+        unsafe { super::GetCameraProjectionMatrix(self as *const _ as *mut _, aspect) }
     }
 }
