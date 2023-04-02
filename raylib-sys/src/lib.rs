@@ -13,10 +13,10 @@ include!(concat!(env!("OUT_DIR"), "/bindings.rs"));
 
 pub const MAX_MATERIAL_MAPS: u32 = 12;
 
-mod color;
 mod camera;
+mod color;
 mod math;
 
+pub use camera::*;
 pub use color::*;
 pub use math::*;
-pub use camera::*;
