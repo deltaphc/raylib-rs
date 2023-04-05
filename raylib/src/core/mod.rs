@@ -57,9 +57,9 @@ pub struct RaylibThread(PhantomData<*const ()>);
 pub struct RaylibHandle<'rl>(RefCell<RaylibDrawHandle<'rl>>); // inner field is private, preventing manual construction
 
 impl<'th, 'a: 'th> RaylibHandle<'a> {
-    /// Render a frame.
+    /// Renders a frame.
     /// Returns the frame_fn return value unmodifed.
-    pub fn frame<R, F: FnOnce(RefMut<'_, RaylibDrawHandle>) -> R>(
+    pub fn begin_drawing<R, F: FnOnce(RefMut<'_, RaylibDrawHandle>) -> R>(
         &self,
         _: &'th RaylibThread,
         frame_fn: F,

@@ -32,11 +32,11 @@ pub struct RaylibDrawHandle<'bind>(
 );
 
 impl RaylibDrawHandle<'_> {
-    pub fn mode_texture2d<F: FnOnce()>(&self, target: &mut RenderTexture2D, func: F) {
+    pub fn begin_texture<F: FnOnce()>(&self, target: &mut RenderTexture2D, func: F) {
         let mut state = self.1.take();
 
         if state.texture {
-            panic!("Nested mode_texture2d occured !");
+            panic!("Nested begin_texture occured !");
         }
 
         state.texture = true;
@@ -50,11 +50,11 @@ impl RaylibDrawHandle<'_> {
         self.1.set(state);
     }
 
-    pub fn mode_vr<F: FnOnce()>(&self, config: &VrStereoConfig, func: F) {
+    pub fn begin_vr<F: FnOnce()>(&self, config: &VrStereoConfig, func: F) {
         let mut state = self.1.take();
 
         if state.vr {
-            panic!("Nested mode_vr occured !");
+            panic!("Nested begin_vr occured !");
         }
 
         state.vr = true;
@@ -68,11 +68,11 @@ impl RaylibDrawHandle<'_> {
         self.1.set(state);
     }
 
-    pub fn mode_camera_2d<F: FnOnce()>(&self, camera: &Camera2D, func: F) {
+    pub fn begin_camera_2d<F: FnOnce()>(&self, camera: &Camera2D, func: F) {
         let mut state = self.1.take();
 
         if state.camera2d {
-            panic!("Nested mode_camera_2d occured !");
+            panic!("Nested begin_camera_2d occured !");
         }
 
         state.camera2d = true;
@@ -86,11 +86,11 @@ impl RaylibDrawHandle<'_> {
         self.1.set(state);
     }
 
-    pub fn mode_camera_3d<F: FnOnce()>(&self, camera: &Camera, func: F) {
+    pub fn begin_camera_3d<F: FnOnce()>(&self, camera: &Camera, func: F) {
         let mut state = self.1.take();
 
         if state.camera3d {
-            panic!("Nested mode_camera_3d occured !");
+            panic!("Nested begin_camera_3d occured !");
         }
 
         state.camera3d = true;
@@ -104,11 +104,11 @@ impl RaylibDrawHandle<'_> {
         self.1.set(state);
     }
 
-    pub fn mode_shader<F: FnOnce()>(&self, shader: &Shader, func: F) {
+    pub fn begin_shader<F: FnOnce()>(&self, shader: &Shader, func: F) {
         let mut state = self.1.take();
 
         if state.shader {
-            panic!("Nested mode_shader occured !");
+            panic!("Nested begin_shader occured !");
         }
 
         state.shader = true;
@@ -122,11 +122,11 @@ impl RaylibDrawHandle<'_> {
         self.1.set(state);
     }
 
-    pub fn mode_blend<F: FnOnce()>(&self, blend_mode: BlendMode, func: F) {
+    pub fn begin_blend<F: FnOnce()>(&self, blend_mode: BlendMode, func: F) {
         let mut state = self.1.take();
 
         if state.blend {
-            panic!("Nested mode_blend occured !");
+            panic!("Nested begin_blend occured !");
         }
 
         state.blend = true;
@@ -140,11 +140,11 @@ impl RaylibDrawHandle<'_> {
         self.1.set(state);
     }
 
-    pub fn mode_scissors<F: FnOnce()>(&self, x: i32, y: i32, width: i32, height: i32, func: F) {
+    pub fn begin_scissors<F: FnOnce()>(&self, x: i32, y: i32, width: i32, height: i32, func: F) {
         let mut state = self.1.take();
 
         if state.scissor {
-            panic!("Nested mode_scissors occured !");
+            panic!("Nested begin_scissors occured !");
         }
 
         state.scissor = true;
