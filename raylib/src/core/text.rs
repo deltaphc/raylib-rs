@@ -221,7 +221,7 @@ pub trait RaylibFont: AsRef<ffi::Font> + AsMut<ffi::Font> {
 
 impl<'a, 'bind> Font<'bind, 'a> {
     /// Returns a new `Font` using provided `GlyphInfo` data and parameters.
-    fn from_data(
+    pub fn from_data(
         &'bind mut self,
         chars: &[ffi::GlyphInfo],
         base_size: i32,
@@ -252,7 +252,7 @@ impl<'a, 'bind> Font<'bind, 'a> {
     }
 
     /// Sets the character data on the current Font.
-    fn set_chars(&mut self, chars: &[ffi::GlyphInfo]) {
+    pub fn set_chars(&mut self, chars: &[ffi::GlyphInfo]) {
         unsafe {
             self.glyphCount = chars.len() as i32;
             let data_size = self.glyphCount as usize * std::mem::size_of::<ffi::GlyphInfo>();
@@ -267,7 +267,7 @@ impl<'a, 'bind> Font<'bind, 'a> {
     }
 
     /// Sets the texture on the current Font, and takes ownership of `tex`.
-    fn set_texture(&mut self, tex: Texture2D) {
+    pub fn set_texture(&mut self, tex: Texture2D) {
         self.texture = tex.0;
         std::mem::forget(tex); // UnloadFont will also unload the texture
     }
