@@ -146,7 +146,7 @@ macro_rules! make_bound_thin_wrapper {
     ($name:ident, $t:ty, $dropfunc:expr, $binding:ty) => {
         #[repr(transparent)]
         #[derive(Debug)]
-        pub struct $name<'a, 'bind: 'a>(pub(crate) $t, pub std::marker::PhantomData<&'a Self>, pub std::marker::PhantomData<&'bind $binding>);
+        pub struct $name<'bind: 'a, 'a>(pub(crate) $t, pub std::marker::PhantomData<&'a Self>, pub std::marker::PhantomData<&'bind $binding>);
 
         crate::impl_wrapper_bounded!($name, $t, $dropfunc, 0, 'a);
     };
