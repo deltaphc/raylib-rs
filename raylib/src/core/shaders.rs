@@ -239,7 +239,8 @@ pub trait RaylibShader: AsRef<ffi::Shader> + AsMut<ffi::Shader> {
     #[inline]
     fn get_shader_location_attrib(&self, attrib_name: &str) -> Option<i32> {
         let c_attrib_name = CString::new(attrib_name).ok()?;
-        let attrib = unsafe { ffi::GetShaderLocationAttrib(*self.as_ref(), c_attrib_name.as_ptr()) };
+        let attrib =
+            unsafe { ffi::GetShaderLocationAttrib(*self.as_ref(), c_attrib_name.as_ptr()) };
 
         (attrib >= 0).then_some(attrib)
     }

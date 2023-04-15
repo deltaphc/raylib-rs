@@ -189,7 +189,7 @@ fn gen_bindings() {
         .clang_arg("-I../raylib/src")
         .clang_arg("-std=c99")
         .clang_arg(plat);
-        //.parse_callbacks(Box::new(bindgen::CargoCallbacks));
+    //.parse_callbacks(Box::new(bindgen::CargoCallbacks));
 
     if platform == Platform::Desktop && os == PlatformOS::Windows {
         // odd workaround for booleans being broken
@@ -295,7 +295,7 @@ fn cp_raylib() -> String {
 
     let mut options = fs_extra::dir::CopyOptions::new();
     options.skip_exist = true;
-    fs_extra::dir::copy("raylib", &out, &options)
+    fs_extra::dir::copy("raylib", out, &options)
         .unwrap_or_else(|_| panic!("failed to copy raylib source to {}", out.to_string_lossy()));
 
     out.join("raylib").to_string_lossy().to_string()
@@ -307,7 +307,7 @@ fn cp_raygui() -> String {
 
     let mut options = fs_extra::dir::CopyOptions::new();
     options.skip_exist = true;
-    fs_extra::dir::copy("raygui", &out, &options)
+    fs_extra::dir::copy("raygui", out, &options)
         .unwrap_or_else(|_| panic!("failed to copy raygui source to {}", out.to_string_lossy()));
 
     out.join("raygui").to_string_lossy().to_string()

@@ -1,6 +1,6 @@
 use std::mem::transmute;
 
-use super::{Matrix, Camera3D, CameraProjection};
+use super::{Camera3D, CameraProjection, Matrix};
 use mint::Vector3;
 
 impl Camera3D {
@@ -10,9 +10,9 @@ impl Camera3D {
     /// Create a perspective camera.
     /// fovy is in degrees
     pub fn perspective(
-        position: Vector3<f32>,
-        target: Vector3<f32>,
-        up: Vector3<f32>,
+        position: impl Into<Vector3<f32>>,
+        target: impl Into<Vector3<f32>>,
+        up: impl Into<Vector3<f32>>,
         fovy: f32,
     ) -> Camera3D {
         Camera3D {
@@ -26,9 +26,9 @@ impl Camera3D {
     /// Create a orthographic camera.
     /// fovy is in degrees
     pub fn orthographic(
-        position: Vector3<f32>,
-        target: Vector3<f32>,
-        up: Vector3<f32>,
+        position: impl Into<Vector3<f32>>,
+        target: impl Into<Vector3<f32>>,
+        up: impl Into<Vector3<f32>>,
         fovy: f32,
     ) -> Camera3D {
         let mut c = Self::perspective(position, target, up, fovy);
@@ -37,11 +37,11 @@ impl Camera3D {
     }
 
     pub fn forward(&self) -> Vector3<f32> {
-        unsafe { super::GetCameraForward(self as *const _ as *mut _).into() }
+        unsafe { super::GetCameraForward(self as *const _ as *mut _) }
     }
 
     pub fn up(&self) -> Vector3<f32> {
-        unsafe { super::GetCameraUp(self as *const _ as *mut _).into() }
+        unsafe { super::GetCameraUp(self as *const _ as *mut _) }
     }
 
     pub fn move_forward(&mut self, distance: f32, in_world_plane: bool) {

@@ -425,10 +425,8 @@ impl<'bind, 'a> AudioStream<'bind, 'a> {
     /// Updates audio stream buffers with data.
     #[inline]
     pub fn update_audio_stream<T: AudioSample>(&mut self, data: &[T]) {
-        assert_eq!(self.sampleSize as usize, core::mem::size_of::<T>() * 8);
+        assert_eq!(self.0.sampleSize as usize, core::mem::size_of::<T>() * 8);
 
-        unsafe {
-            ffi::UpdateAudioStream(self.0, data.as_ptr() as _, data.len() as i32);
-        }
+        unsafe { ffi::UpdateAudioStream(self.0, data.as_ptr() as _, data.len() as i32) }
     }
 }

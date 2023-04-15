@@ -2,8 +2,8 @@
 use core::slice;
 use std::ffi::CStr;
 
-use crate::ffi;
 use super::RaylibHandle;
+use crate::ffi;
 
 impl<'a> RaylibHandle<'a> {
     /// Checks if a file has been dropped into the window.

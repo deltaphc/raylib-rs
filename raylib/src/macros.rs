@@ -31,21 +31,6 @@ macro_rules! impl_wrapper {
             }
         }
 
-        impl std::ops::Deref for $name {
-            type Target = $t;
-            #[inline]
-            fn deref(&self) -> &Self::Target {
-                &self.$rawfield
-            }
-        }
-
-        impl std::ops::DerefMut for $name {
-            #[inline]
-            fn deref_mut(&mut self) -> &mut Self::Target {
-                &mut self.$rawfield
-            }
-        }
-
         impl $name {
             /// returns the unwrapped raylib-sys object
             pub fn to_raw(self) -> $t {
@@ -97,21 +82,6 @@ macro_rules! impl_wrapper_bounded {
             }
         }
 
-        impl<'bind, $lt> std::ops::Deref for $name<'bind, $lt> {
-            type Target = $t;
-            #[inline]
-            fn deref(&self) -> &Self::Target {
-                &self.$rawfield
-            }
-        }
-
-        impl<'bind, $lt> std::ops::DerefMut for $name<'bind, $lt> {
-            #[inline]
-            fn deref_mut(&mut self) -> &mut Self::Target {
-                &mut self.$rawfield
-            }
-        }
-
         impl<'bind, $lt> $name<'bind, $lt> {
             /// returns the unwrapped raylib-sys object
             pub fn to_raw(self) -> $t {
@@ -146,7 +116,7 @@ macro_rules! make_bound_thin_wrapper {
     ($name:ident, $t:ty, $dropfunc:expr, $binding:ty) => {
         #[repr(transparent)]
         #[derive(Debug)]
-        pub struct $name<'bind: 'a, 'a>(pub(crate) $t, pub std::marker::PhantomData<&'a Self>, pub std::marker::PhantomData<&'bind $binding>);
+        pub struct $name<'bind: 'a, 'a>(pub(crate) $t, pub(crate) std::marker::PhantomData<&'a Self>, pub(crate) std::marker::PhantomData<&'bind $binding>);
 
         crate::impl_wrapper_bounded!($name, $t, $dropfunc, 0, 'a);
     };

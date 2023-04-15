@@ -230,18 +230,18 @@ impl<'a, 'bind> Font<'bind, 'a> {
     ) -> Result<Font<'bind, 'a>, String> {
         let f = unsafe {
             let mut f = std::mem::zeroed::<Font>();
-            f.baseSize = base_size;
+            f.0.baseSize = base_size;
             f.set_chars(chars);
 
             let atlas = ffi::GenImageFontAtlas(
-                f.glyphs,
+                f.0.glyphs,
                 &mut f.0.recs,
-                f.baseSize,
-                f.glyphCount,
+                f.0.baseSize,
+                f.0.glyphCount,
                 padding,
                 pack_method,
             );
-            f.texture = ffi::LoadTextureFromImage(atlas);
+            f.0.texture = ffi::LoadTextureFromImage(atlas);
             ffi::UnloadImage(atlas);
             f
         };
@@ -254,21 +254,21 @@ impl<'a, 'bind> Font<'bind, 'a> {
     /// Sets the character data on the current Font.
     pub fn set_chars(&mut self, chars: &[ffi::GlyphInfo]) {
         unsafe {
-            self.glyphCount = chars.len() as i32;
-            let data_size = self.glyphCount as usize * std::mem::size_of::<ffi::GlyphInfo>();
+            self.0.glyphCount = chars.len() as i32;
+            let data_size = self.0.glyphCount as usize * std::mem::size_of::<ffi::GlyphInfo>();
             let ci_arr_ptr = libc::malloc(data_size); // raylib frees this data in UnloadFont
             ptr::copy(
                 chars.as_ptr(),
                 ci_arr_ptr as *mut ffi::GlyphInfo,
                 chars.len(),
             );
-            self.glyphs = ci_arr_ptr as *mut ffi::GlyphInfo;
+            self.0.glyphs = ci_arr_ptr as *mut ffi::GlyphInfo;
         }
     }
 
     /// Sets the texture on the current Font, and takes ownership of `tex`.
     pub fn set_texture(&mut self, tex: Texture2D) {
-        self.texture = tex.0;
+        self.as_mut().texture = tex.0;
         std::mem::forget(tex); // UnloadFont will also unload the texture
     }
 }

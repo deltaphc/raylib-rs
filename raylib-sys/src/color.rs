@@ -70,13 +70,13 @@ impl Color {
     /// Returns color normalized as float [0..1]
     #[inline]
     pub fn color_normalize(&self) -> Vector4<f32> {
-        unsafe { crate::ColorNormalize(*self).into() }
+        unsafe { crate::ColorNormalize(*self) }
     }
 
     /// Returns HSV values for a Color
     #[inline]
     pub fn color_to_hsv(&self) -> Vector3<f32> {
-        unsafe { crate::ColorToHSV(*self).into() }
+        unsafe { crate::ColorToHSV(*self) }
     }
 
     /// Returns a Color from HSV values
@@ -90,7 +90,7 @@ impl Color {
     /// assert_eq!(Color::color_from_normalized(Vector4 { x: 1.0, y: 1.0, z: 1.0, w: 1.0 }), Color::new(255, 255, 255, 255));
     /// ```
     #[inline]
-    pub fn color_from_normalized(normalized: Vector4<f32>) -> Color {
+    pub fn color_from_normalized(normalized: impl Into<Vector4<f32>>) -> Color {
         unsafe { crate::ColorFromNormalized(normalized.into()) }
     }
 

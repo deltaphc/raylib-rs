@@ -18,19 +18,18 @@ impl Rectangle {
 
     /// Checks collision between circle and rectangle.
     #[inline]
-    pub fn check_collision_circle_rec(&self, center: Vector2, radius: f32) -> bool {
+    pub fn check_collision_circle_rec(&self, center: impl Into<Vector2>, radius: f32) -> bool {
         unsafe { crate::CheckCollisionCircleRec(center.into(), radius, *self) }
     }
 
     /// Gets the overlap between two colliding rectangles.
     /// ```rust
     /// use raylib::prelude::*;
-    /// fn main() {
-    ///    let r1 = Rectangle::new(0.0, 0.0, 10.0, 10.0);
-    ///    let r2 = Rectangle::new(20.0, 20.0, 10.0, 10.0);
-    ///    assert_eq!(None, r1.get_collision_rec(&r2));
-    ///    assert_eq!(Some(r1), r1.get_collision_rec(&r1));
-    /// }
+    ///
+    /// let r1 = Rectangle::new(0.0, 0.0, 10.0, 10.0);
+    /// let r2 = Rectangle::new(20.0, 20.0, 10.0, 10.0);
+    /// assert_eq!(None, r1.get_collision_rec(&r2));
+    /// assert_eq!(Some(r1), r1.get_collision_rec(&r1));
     /// ```
     #[inline]
     pub fn get_collision_rec(&self, other: Rectangle) -> Option<Rectangle> {
@@ -40,7 +39,7 @@ impl Rectangle {
 
     /// Checks if point is inside rectangle.
     #[inline]
-    pub fn check_collision_point_rec(&self, point: Vector2) -> bool {
+    pub fn check_collision_point_rec(&self, point: impl Into<Vector2>) -> bool {
         unsafe { crate::CheckCollisionPointRec(point.into(), *self) }
     }
 }
@@ -54,7 +53,11 @@ impl BoundingBox {
 
     /// Detects collision between box and sphere.
     #[inline]
-    pub fn check_collision_box_sphere(&self, center_sphere: Vector3, radius_sphere: f32) -> bool {
+    pub fn check_collision_box_sphere(
+        &self,
+        center_sphere: impl Into<Vector3>,
+        radius_sphere: f32,
+    ) -> bool {
         unsafe { crate::CheckCollisionBoxSphere(*self, center_sphere.into(), radius_sphere) }
     }
 

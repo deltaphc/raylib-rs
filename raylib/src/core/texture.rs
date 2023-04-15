@@ -87,7 +87,7 @@ impl Image {
 
     #[inline]
     pub fn format(&self) -> PixelFormat {
-        let i: u32 = self.format as u32;
+        let i: u32 = self.0.format as u32;
         unsafe { std::mem::transmute(i) }
     }
 
@@ -123,7 +123,7 @@ impl Image {
     pub fn get_image_data(&self) -> RaylibBuffer<Color> {
         unsafe {
             let image_data = ffi::LoadImageColors(self.0);
-            let image_data_len = (self.width * self.height) as usize;
+            let image_data_len = (self.0.width * self.0.height) as usize;
 
             RaylibBuffer::new(image_data as _, image_data_len).unwrap()
         }

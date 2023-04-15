@@ -1,6 +1,6 @@
 //! Utility code for using Raylib [`Camera3D`] and [`Camera2D`]
 use super::RaylibHandle;
-use crate::ffi::{self, Vector3, Camera3D, CameraMode};
+use crate::ffi::{self, Camera3D, CameraMode, Vector3};
 
 impl RaylibHandle<'_> {
     /// Updates camera position for selected mode.

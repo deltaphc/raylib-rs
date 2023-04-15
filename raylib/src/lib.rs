@@ -54,12 +54,12 @@ Permission is granted to anyone to use this software for any purpose, including 
 //!     }
 //! }
 //! ```
-pub mod core;
 pub mod audio;
 pub mod buffer;
+pub mod core;
 pub mod ease;
 pub mod prelude;
-//pub mod rgui;
+pub mod rgui;
 
 #[macro_use]
 pub(crate) mod macros;
