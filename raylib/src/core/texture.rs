@@ -85,6 +85,14 @@ impl Image {
         self.0.data
     }
 
+    pub fn get_pixel(&self, x: i32, y: i32) -> Option<Color> {
+        if x < 0 || y < 0 || x >= self.width() || y >= self.height() {
+            None
+        } else {
+            unsafe { Some(ffi::GetImageColor(self.0, x, y)) }
+        }
+    }
+
     #[inline]
     pub fn format(&self) -> PixelFormat {
         let i: u32 = self.0.format as u32;
