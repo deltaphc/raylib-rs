@@ -673,6 +673,29 @@ pub trait RaylibDraw {
         unsafe { ffi::DrawTextureRec(*texture.as_ref(), source_rec, position.into(), tint) }
     }
 
+    /// Draw a part of a texture defined by a rectangle with 'pro' parameters.
+    #[inline]
+    fn draw_texture_pro(
+        &self,
+        texture: impl AsRef<ffi::Texture2D>,
+        source: Rectangle,
+        dest: Rectangle,
+        origin: impl Into<Vector2>,
+        rotation: f32,
+        tint: Color,
+    ) {
+        unsafe {
+            ffi::DrawTexturePro(
+                *texture.as_ref(),
+                source,
+                dest,
+                origin.into(),
+                rotation,
+                tint,
+            )
+        }
+    }
+
     ///Draws a texture (or part of it) that stretches or shrinks nicely
     #[inline]
     fn draw_texture_n_patch(
