@@ -250,7 +250,7 @@ impl RaylibAudio {
         }
     }
 
-    /// Sets pitch for audio stream (`1.0` is base level).
+    /// Check if any audio stream buffers requires refill.
     #[inline]
     pub fn is_audio_stream_processed(&mut self, stream: &AudioStream) -> bool {
         unsafe { ffi::IsAudioStreamProcessed(stream.0) }
