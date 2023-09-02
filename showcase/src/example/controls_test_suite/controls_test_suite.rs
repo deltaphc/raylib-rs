@@ -115,7 +115,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
             let droppedFiles = rl.get_dropped_files();
 
             if (droppedFiles.len() > 0) && droppedFiles[0].ends_with(".rgs") {
-                rl.gui_load_style(Some(&CString::new(droppedFiles[0].clone()).unwrap()));
+                rl.gui_load_style(Some(&CString::new(droppedFiles[0].as_bytes()).unwrap()));
             }
 
             rl.clear_dropped_files();
