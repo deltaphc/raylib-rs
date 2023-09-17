@@ -966,7 +966,7 @@ impl Quaternion {
         Quaternion {
             x: cross.x,
             y: cross.y,
-            z: cross.y,
+            z: cross.z,
             w: 1.0 + from.dot(to),
         }
         .normalized()
