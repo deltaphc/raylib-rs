@@ -692,8 +692,9 @@ impl Image {
         }
         Ok(Image(i))
     }
-    
+
     /// Loads image from a given memory buffer as a vector of arrays
+    /// ensure filetype is extension, for example, ".png"
     pub fn load_image_from_mem(filetype: &str, bytes: &Vec<u8>, size: i32) -> Result<Image, String> {
         let c_filetype = CString::new(filetype).unwrap();
         let c_bytes = bytes.as_ptr();
