@@ -7,7 +7,7 @@
 
 # raylib-rs
 
-raylib-rs is a Rust binding for [raylib](http://www.raylib.com/) 3.5. It currently targets the _stable_ Rust toolchain, version 1.31 or higher.
+raylib-rs is a Rust binding for [raylib](http://www.raylib.com/) 4.5. It currently targets the _stable_ Rust toolchain, version 1.31 or higher.
 
 Please checkout the showcase directory to find usage examples!
 
@@ -27,23 +27,20 @@ Though this binding tries to stay close to the simple C API, it makes some chang
 
 ## Supported Platforms
 
-| API    | Windows            | Linux              | macOS              | Web            | Android | Raspberry Pi |
-| ------ | ------------------ | ------------------ | ------------------ | -------------- | ------- | ------------ |
-| core   | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :construction: |         |              |
-| rgui   | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |                |         |              |
-| physac | :construction:     | :construction:     | :construction:     |                |         |              |
-| rlgl   | :heavy_check_mark: | :x:                | :x:                |                |         |              |
+| API    | Windows            | Linux              | macOS              | Web                | Android            | Raspberry Pi       |
+| ------ | ------------------ | ------------------ | ------------------ | ------------------ | ------------------ | ------------------ |
+| core   | :heavy_check_mark: | :heavy_check_mark: | :question:         | :heavy_check_mark: |                    | :question:         |
+| rgui   | :heavy_check_mark: | :heavy_check_mark: | :question:         | :heavy_check_mark: |                    | :question:         |
+| physac | :heavy_check_mark: | :heavy_check_mark: | :question:         | :heavy_check_mark: |                    | :question:         |
+| rlgl   | :heavy_check_mark: | :heavy_check_mark: | :question:         | :question:         |                    | :question:         |
 
 ## Build Dependencies
-
-Requires glfw, cmake, and curl. Tips on making things work smoothly on all platforms is appreciated.
-Follow instructions for building raylib for your platform [here](https://github.com/raysan5/raylib/wiki)
 
 1. Add the dependency to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-raylib = { version = "3.7" }
+raylib = { branch = "4.5.0-redesign", git = "https://github.com/TSnake41/raylib-rs" }
 ```
 
 2. Start coding!
@@ -52,16 +49,16 @@ raylib = { version = "3.7" }
 use raylib::prelude::*;
 
 fn main() {
-    let (mut rl, thread) = raylib::init()
+    let (rl, thread) = raylib::init()
         .size(640, 480)
         .title("Hello, World")
         .build();
 
     while !rl.window_should_close() {
-        let mut d = rl.begin_drawing(&thread);
-
-        d.clear_background(Color::WHITE);
-        d.draw_text("Hello, world!", 12, 12, 20, Color::BLACK);
+        rl.begin_drawing(&thread, |d| {
+            d.clear_background(Color::WHITE);
+            d.draw_text("Hello, world!", 12, 12, 20, Color::BLACK);
+        });
     }
 }
 ```
