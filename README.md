@@ -8,13 +8,13 @@
 
 # NOTE 4.x version in progress. 
 
-Raylib 4.2 is currenlty a work in progress. In the meantime you can use a fork: https://github.com/litten2up/raylib-rs
+Raylib 4.2 is currenlty a work in progress. In the meantime you can use a fork: https://github.com/bitten2up/raylib-rs
 
 Add this to your Cargo.toml
 ```toml
 [dependencies.raylib]
 version = "4.5.0"
-git = "https://github.com/litten2up/raylib-rs"
+git = "https://github.com/bitten2up/raylib-rs"
 branch = "4.5.0"
 ```
 
