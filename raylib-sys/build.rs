@@ -63,7 +63,6 @@ fn build_with_cmake(src_path: &str) {
     }
 
     builder
-        .generator("Ninja")
         .define("BUILD_EXAMPLES", "OFF")
         .define("CMAKE_BUILD_TYPE", "Release")
         // turn off until this is fixed
