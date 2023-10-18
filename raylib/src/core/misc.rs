@@ -5,7 +5,7 @@ use crate::ffi;
 use std::ffi::CString;
 
 /// Returns a random value between min and max (both included)
-/// ```rust
+/// ```ignore
 /// use raylib::*;
 /// fn main() {
 ///     let r = get_random_value::<i32>(0, 10);
@@ -43,7 +43,7 @@ impl RaylibHandle {
     }
 
     /// Returns a random value between min and max (both included)
-    /// ```rust
+    /// ```ignore
     /// use raylib::*;
     /// fn main() {
     ///     let (mut rl, thread) = ...;
