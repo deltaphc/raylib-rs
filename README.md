@@ -8,7 +8,7 @@
 
 # NOTE 4.x version in progress. 
 
-Raylib 4.2 is currenlty a work in progress. In the meantime you can use a fork: https://github.com/bitten2up/raylib-rs
+Raylib 4.2 is currently a work in progress. In the meantime you can use a fork: https://github.com/bitten2up/raylib-rs
 
 Add this to your Cargo.toml
 ```toml
