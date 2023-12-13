@@ -13,9 +13,9 @@ Raylib 4.2 is currenlty a work in progress. In the meantime you can use a fork: 
 Add this to your Cargo.toml
 ```toml
 [dependencies.raylib]
-version = "4.5.0"
+version = "5.0.0"
 git = "https://github.com/bitten2up/raylib-rs"
-branch = "4.5.0"
+branch = "5.0.0"
 ```
 
 # raylib-rs
