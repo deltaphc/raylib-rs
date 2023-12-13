@@ -5,7 +5,7 @@ use crate::ffi;
 use std::ffi::CString;
 
 /// Returns a random value between min and max (both included)
-/// ```rust
+/// ```ignore
 /// use raylib::*;
 /// fn main() {
 ///     let r = get_random_value::<i32>(0, 10);
@@ -29,8 +29,9 @@ pub fn open_url(url: &str) {
 }
 
 impl RaylibHandle {
-    pub fn get_screen_data(&mut self, _: &RaylibThread) -> Image {
-        unsafe { Image(ffi::GetScreenData()) }
+    /// Load pixels from the screen into a CPU image
+    pub fn load_image_from_screen(&self, _: &RaylibThread) -> Image {
+        unsafe { Image(ffi::LoadImageFromScreen()) }
     }
 
     /// Takes a screenshot of current screen (saved a .png)
@@ -38,6 +39,25 @@ impl RaylibHandle {
         let c_filename = CString::new(filename).unwrap();
         unsafe {
             ffi::TakeScreenshot(c_filename.as_ptr());
+        }
+    }
+
+    /// Returns a random value between min and max (both included)
+    /// ```ignore
+    /// use raylib::*;
+    /// fn main() {
+    ///     let (mut rl, thread) = ...;
+    ///     let r = rl.get_random_value(0, 10);
+    ///     println!("random value: {}", r);
+    /// }
+    pub fn get_random_value<T: From<i32>>(&self, min: i32, max: i32) -> T {
+        unsafe { (ffi::GetRandomValue(min, max) as i32).into() }
+    }
+
+    /// Set the seed for random number generation
+    pub fn set_random_seed(&mut self, seed: u32) {
+        unsafe {
+            ffi::SetRandomSeed(seed);
         }
     }
 }

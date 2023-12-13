@@ -7,6 +7,9 @@ use serde::{Deserialize, Serialize};
 use std::ffi::{CStr, CString, IntoStringError, NulError};
 use std::os::raw::c_char;
 
+#[cfg(feature = "with_serde")]
+use serde::{Deserialize, Serialize};
+
 // MonitorInfo grabs the sizes (virtual and physical) of your monitor
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
@@ -187,6 +190,7 @@ impl WindowState {
         }
         self
     }
+
 
     pub fn window_highdpi(&self) -> bool {
         self.0 & (ffi::ConfigFlags::FLAG_WINDOW_HIGHDPI as i32) != 0
@@ -476,6 +480,7 @@ impl RaylibHandle {
 // Window handling functions
 impl RaylibHandle {
     /// Checks if `KEY_ESCAPE` or Close icon was pressed.
+    /// Do not call on web unless you are compiling with asyncify.
     #[inline]
     pub fn window_should_close(&self) -> bool {
         unsafe { ffi::WindowShouldClose() }
@@ -612,6 +617,14 @@ impl RaylibHandle {
         }
     }
 
+    #[inline]
+    pub fn set_window_icons(&mut self, images: &mut [raylib_sys::Image]) {
+        use std::convert::TryInto;
+        unsafe {
+            ffi::SetWindowIcons(images.as_mut_ptr(), images.len().try_into().unwrap())
+        }
+    }
+
     /// Sets title for window (only on desktop platforms).
     #[inline]
     pub fn set_window_title(&self, _: &RaylibThread, title: &str) {
@@ -655,12 +668,26 @@ impl RaylibHandle {
         }
     }
 
-    /// Gets current screen width.
+    /// Set window opacity, value opacity is between 0.0 and 1.0
+    #[inline]
+    pub fn set_window_opacity(&mut self, opacity: f32) {
+        unsafe {
+            ffi::SetWindowOpacity(opacity)
+        }
+    }
+
+    /// Get current render width which is equal to screen width * dpi scale
+    #[inline]
+    pub fn get_render_width(&self) -> i32 {
+        unsafe { ffi::GetRenderWidth() }
+    }
+
+    /// Get current screen height which is equal to screen height * dpi scale
     #[inline]
     pub fn get_screen_width(&self) -> i32 {
         unsafe { ffi::GetScreenWidth() }
     }
-
+    
     /// Gets current screen height.
     #[inline]
     pub fn get_screen_height(&self) -> i32 {

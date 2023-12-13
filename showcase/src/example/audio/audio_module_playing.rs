@@ -49,11 +49,11 @@ pub fn run(rl
     for i in 0..MAX_CIRCLES 
     {
         circles[i].alpha = 0.0;
-        circles[i].radius = raylib::get_random_value::<i32>(10, 40) as f32 ;
-        circles[i].position.x = raylib::get_random_value::<i32>(circles[i].radius  as i32, screen_width - circles[i].radius as i32) as f32 ;
-        circles[i].position.y = raylib::get_random_value::<i32>(circles[i].radius as i32, screen_height - circles[i].radius as i32) as f32 ;
-        circles[i].speed = raylib::get_random_value::<i32>(1, 100) as f32 / 2000.0;
-        circles[i].color = colors[raylib::get_random_value::<i32>(0, 13) as usize];
+        circles[i].radius = rl.get_random_value::<i32>(10, 40) as f32 ;
+        circles[i].position.x = rl.get_random_value::<i32>(circles[i].radius  as i32, screen_width - circles[i].radius as i32) as f32 ;
+        circles[i].position.y = rl.get_random_value::<i32>(circles[i].radius as i32, screen_height - circles[i].radius as i32) as f32 ;
+        circles[i].speed = rl.get_random_value::<i32>(1, 100) as f32 / 2000.0;
+        circles[i].color = colors[rl.get_random_value::<i32>(0, 13) as usize];
     }
 
     let mut music = Music::load_music_stream(thread, "original/audio/resources/mini1111.xm").unwrap();
@@ -115,11 +115,11 @@ pub fn run(rl
             if circles[i].alpha <= 0.0
             {
                 circles[i].alpha = 0.0;
-                circles[i].radius = raylib::get_random_value::<i32>(10, 40) as f32;
-                circles[i].position.x = raylib::get_random_value::<i32>(circles[i].radius as i32, screen_width - circles[i].radius as i32) as f32;
-                circles[i].position.y = raylib::get_random_value::<i32>(circles[i].radius as i32, screen_height - circles[i].radius as i32) as f32;
-                circles[i].color = colors[raylib::get_random_value::<i32>(0, 13) as usize];
-                circles[i].speed = raylib::get_random_value::<i32>(1, 100) as f32 / 2000.0;
+                circles[i].radius = rl.get_random_value::<i32>(10, 40) as f32;
+                circles[i].position.x = rl.get_random_value::<i32>(circles[i].radius as i32, screen_width - circles[i].radius as i32) as f32;
+                circles[i].position.y = rl.get_random_value::<i32>(circles[i].radius as i32, screen_height - circles[i].radius as i32) as f32;
+                circles[i].color = colors[rl.get_random_value::<i32>(0, 13) as usize];
+                circles[i].speed = rl.get_random_value::<i32>(1, 100) as f32 / 2000.0;
             }
         }
         //----------------------------------------------------------------------------------

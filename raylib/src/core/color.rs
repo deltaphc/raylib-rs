@@ -4,6 +4,9 @@ use crate::ffi;
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
 
+#[cfg(feature = "with_serde")]
+use serde::{Deserialize, Serialize};
+
 #[repr(C)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Default)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
@@ -129,7 +132,7 @@ impl Color {
 
     /// Returns a Color struct from hexadecimal value
     #[inline]
-    pub fn get_color(hex_value: i32) -> Color {
+    pub fn get_color(hex_value: u32) -> Color {
         unsafe { ffi::GetColor(hex_value).into() }
     }
 

@@ -15,18 +15,22 @@ Permission is granted to anyone to use this software for any purpose, including 
 */
 #![allow(dead_code)]
 
+extern crate bindgen;
+
+use std::env;
 use std::path::{Path, PathBuf};
-use std::{env, fs};
 
 /// latest version on github's release page as of time or writing
-const LATEST_RAYLIB_VERSION: &str = "3.7.0";
-const LATEST_RAYLIB_API_VERSION: &str = "3";
+const LATEST_RAYLIB_VERSION: &str = "4.2.0";
+const LATEST_RAYLIB_API_VERSION: &str = "4";
 
 #[cfg(feature = "nobuild")]
 fn build_with_cmake(_src_path: &str) {}
 
 #[cfg(not(feature = "nobuild"))]
 fn build_with_cmake(src_path: &str) {
+    use cmake::build;
+
     // CMake uses different lib directories on different systems.
     // I do not know how CMake determines what directory to use,
     // so we will check a few possibilities and use whichever is present.
@@ -45,15 +49,17 @@ fn build_with_cmake(src_path: &str) {
     let (platform, platform_os) = platform_from_target(&target);
 
     let mut conf = cmake::Config::new(src_path);
-    let builder;
+    let mut builder;
     #[cfg(debug_assertions)]
     {
         builder = conf.profile("Debug");
+        builder = builder.define("CMAKE_BUILD_TYPE", "Debug")
     }
 
     #[cfg(not(debug_assertions))]
     {
         builder = conf.profile("Release");
+        builder = builder.define("CMAKE_BUILD_TYPE", "Release")
     }
 
     builder
@@ -72,7 +78,7 @@ fn build_with_cmake(src_path: &str) {
     // This seems redundant, but I felt it was needed incase raylib changes it's default
     #[cfg(not(feature = "wayland"))]
     builder.define("USE_WAYLAND", "OFF");
-    
+
     // Scope implementing flags for forcing OpenGL version
     // See all possible flags at https://github.com/raysan5/raylib/wiki/CMake-Build-Options
     {
@@ -100,7 +106,9 @@ fn build_with_cmake(src_path: &str) {
 
     match platform {
         Platform::Desktop => conf.define("PLATFORM", "Desktop"),
-        Platform::Web => conf.define("PLATFORM", "Web"),
+        Platform::Web => conf
+            .define("PLATFORM", "Web")
+            .define("CMAKE_C_FLAGS", "-s ASYNCIFY"),
         Platform::RPI => conf.define("PLATFORM", "Raspberry Pi"),
     };
 
@@ -129,8 +137,10 @@ fn build_with_cmake(src_path: &str) {
         }
     } // on web copy libraylib.bc to libraylib.a
     if platform == Platform::Web {
-        std::fs::copy(dst_lib.join("libraylib.bc"), dst_lib.join("libraylib.a"))
-            .expect("failed to create wasm library");
+        if !Path::new(&dst_lib.join("libraylib.a")).exists() {
+            std::fs::copy(dst_lib.join("libraylib.bc"), dst_lib.join("libraylib.a"))
+                .expect("failed to create wasm library");
+        }
     }
     // println!("cmake build {}", c.display());
     println!("cargo:rustc-link-search=native={}", dst_lib.display());
@@ -138,38 +148,39 @@ fn build_with_cmake(src_path: &str) {
 
 fn gen_bindings() {
     let target = env::var("TARGET").expect("Cargo build scripts always have TARGET");
-    let out_dir =
-        PathBuf::from(env::var("OUT_DIR").expect("Cargo build scripts always have an OUT_DIR"));
+    let (platform, os) = platform_from_target(&target);
 
-    let (platform, platform_os) = platform_from_target(&target);
+    let plat = match platform {
+        Platform::Desktop => "-DPLATFORM_DESKTOP",
+        Platform::RPI => "-DPLATFORM_RPI",
+        Platform::Web => "-DPLATFORM_WEB",
+    };
 
-    // Generate bindings
-    match (platform, platform_os) {
-        (_, PlatformOS::Windows) => {
-            fs::write(
-                out_dir.join("bindings.rs"),
-                include_str!("bindings_windows.rs"),
-            )
-            .expect("failed to write bindings");
-        }
-        (_, PlatformOS::Linux) => {
-            fs::write(
-                out_dir.join("bindings.rs"),
-                include_str!("bindings_linux.rs"),
-            )
-            .expect("failed to write bindings");
-        }
-        (_, PlatformOS::OSX) => {
-            fs::write(out_dir.join("bindings.rs"), include_str!("bindings_osx.rs"))
-                .expect("failed to write bindings");
-        }
-        (Platform::Web, _) => {
-            fs::write(out_dir.join("bindings.rs"), include_str!("bindings_web.rs"))
-                .expect("failed to write bindings");
-        }
-        // for other platforms use bindgen and hope it works
-        _ => panic!("raylib-rs not supported on your platform"),
+    let mut builder = bindgen::Builder::default()
+        .header("binding/binding.h")
+        .rustified_enum(".+")
+        .clang_arg("-std=c99")
+        .clang_arg(plat)
+        .parse_callbacks(Box::new(bindgen::CargoCallbacks));
+
+    if platform == Platform::Desktop && os == PlatformOS::Windows {
+        // odd workaround for booleans being broken
+        builder = builder.clang_arg("-D__STDC__");
     }
+
+    if platform == Platform::Web {
+        builder = builder
+            .clang_arg("-fvisibility=default")
+            .clang_arg("--target=wasm32-emscripten");
+    }
+
+    // Build
+    let bindings = builder.generate().expect("Unable to generate bindings");
+
+    let out_path = PathBuf::from(env::var("OUT_DIR").unwrap());
+    bindings
+        .write_to_file(out_path.join("bindings.rs"))
+        .expect("Couldn't write bindings!");
 }
 
 fn gen_rgui() {
@@ -177,8 +188,8 @@ fn gen_rgui() {
     #[cfg(target_os = "windows")]
     {
         cc::Build::new()
-            .file("rgui_wrapper.cpp")
-            .include(".")
+            .file("binding/rgui_wrapper.cpp")
+            .include("binding")
             .warnings(false)
             // .flag("-std=c99")
             .extra_warnings(false)
@@ -187,8 +198,8 @@ fn gen_rgui() {
     #[cfg(not(target_os = "windows"))]
     {
         cc::Build::new()
-            .file("rgui_wrapper.c")
-            .include(".")
+            .file("binding/rgui_wrapper.c")
+            .include("binding")
             .warnings(false)
             // .flag("-std=c99")
             .extra_warnings(false)
@@ -242,7 +253,7 @@ fn link(platform: Platform, platform_os: PlatformOS) {
         println!("cargo:rustc-link-lib=brcmEGL");
         println!("cargo:rustc-link-lib=brcmGLESv2");
         println!("cargo:rustc-link-lib=vcos");
-   }
+    }
 
     println!("cargo:rustc-link-lib=static=raylib");
 }

@@ -48,7 +48,7 @@ pub fn run(rl
     let mut  colors = [Color::default(); 10];
     for i in 0..10 
     {
-        colors[i] = Color::new(raylib::get_random_value::<i32>(100, 250) as u8, raylib::get_random_value::<i32>(50, 150) as u8, raylib::get_random_value::<i32>(10, 100) as u8, 255);
+        colors[i] = Color::new(rl.get_random_value::<i32>(100, 250) as u8, rl.get_random_value::<i32>(50, 150) as u8, rl.get_random_value::<i32>(10, 100) as u8, 255);
 
     }
 
@@ -69,7 +69,7 @@ pub fn run(rl
             for i in 0..10
                 {
 
-                    colors[i] = Color::new(raylib::get_random_value::<i32>(100, 250) as u8, raylib::get_random_value::<i32>(50, 150) as u8, raylib::get_random_value::<i32>(10, 100) as u8, 255);
+                    colors[i] = Color::new(rl.get_random_value::<i32>(100, 250) as u8, rl.get_random_value::<i32>(50, 150) as u8, rl.get_random_value::<i32>(10, 100) as u8, 255);
                 }
         }
 

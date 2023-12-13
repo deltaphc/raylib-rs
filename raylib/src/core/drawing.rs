@@ -718,7 +718,7 @@ pub trait RaylibDraw {
     fn draw_rectangle_lines_ex(
         &mut self,
         rec: impl Into<ffi::Rectangle>,
-        line_thick: i32,
+        line_thick: f32,
         color: impl Into<ffi::Color>,
     ) {
         unsafe {
@@ -746,7 +746,7 @@ pub trait RaylibDraw {
         rec: impl Into<ffi::Rectangle>,
         roundness: f32,
         segments: i32,
-        line_thickness: i32,
+        line_thickness: f32,
         color: impl Into<ffi::Color>,
     ) {
         unsafe {
@@ -909,26 +909,6 @@ pub trait RaylibDraw {
         }
     }
 
-    /// Draw texture quad with tiling and offset parameters
-    #[inline]
-    fn draw_texture_quad(
-        &mut self,
-        texture: impl AsRef<ffi::Texture2D>,
-        tiling: impl Into<ffi::Vector2>,
-        offset: impl Into<ffi::Vector2>,
-        quad: impl Into<ffi::Rectangle>,
-        tint: impl Into<ffi::Color>,
-    ) {
-        unsafe {
-            ffi::DrawTextureQuad(
-                *texture.as_ref(),
-                tiling.into(),
-                offset.into(),
-                quad.into(),
-                tint.into(),
-            );
-        }
-    }
 
     /// Draw from a region of `texture` defined by the `source_rec` rectangle with pro parameters.
     #[inline]
@@ -953,30 +933,6 @@ pub trait RaylibDraw {
         }
     }
 
-    /// Draw part of a texture (defined by a rectangle) with rotation and scale tiled into dest.
-    #[inline]
-    fn draw_texture_tiled(
-        &mut self,
-        texture: impl AsRef<ffi::Texture2D>,
-        source_rec: impl Into<ffi::Rectangle>,
-        dest_rec: impl Into<ffi::Rectangle>,
-        origin: impl Into<ffi::Vector2>,
-        rotation: f32,
-        scale: f32,
-        tint: impl Into<ffi::Color>,
-    ) {
-        unsafe {
-            ffi::DrawTextureTiled(
-                *texture.as_ref(),
-                source_rec.into(),
-                dest_rec.into(),
-                origin.into(),
-                rotation,
-                scale,
-                tint.into(),
-            )
-        }
-    }
 
     ///Draws a texture (or part of it) that stretches or shrinks nicely
     #[inline]
@@ -996,29 +952,6 @@ pub trait RaylibDraw {
                 dest_rec.into(),
                 origin.into(),
                 rotation,
-                tint.into(),
-            );
-        }
-    }
-
-    ///Draws a texture (or part of it) that stretches or shrinks nicely
-    #[inline]
-    fn draw_texture_poly(
-        &mut self,
-        texture: impl AsRef<ffi::Texture2D>,
-        center: impl Into<ffi::Vector2>,
-        points: &[Vector2],
-        texcoords: &[Vector2],
-        tint: impl Into<ffi::Color>,
-    ) {
-        assert!(points.len() == texcoords.len());
-        unsafe {
-            ffi::DrawTexturePoly(
-                *texture.as_ref(),
-                center.into(),
-                points.as_ptr() as *mut _,
-                texcoords.as_ptr() as *mut _,
-                points.len() as _,
                 tint.into(),
             );
         }
@@ -1068,66 +1001,6 @@ pub trait RaylibDraw {
                 font_size,
                 spacing,
                 tint.into(),
-            );
-        }
-    }
-
-    /// Draws text using `font` and additional parameters.
-    #[inline]
-    fn draw_text_rec(
-        &mut self,
-        font: impl AsRef<ffi::Font>,
-        text: &str,
-        rec: impl Into<ffi::Rectangle>,
-        font_size: f32,
-        spacing: f32,
-        word_wrap: bool,
-        tint: impl Into<ffi::Color>,
-    ) {
-        let c_text = CString::new(text).unwrap();
-        unsafe {
-            ffi::DrawTextRec(
-                *font.as_ref(),
-                c_text.as_ptr(),
-                rec.into(),
-                font_size,
-                spacing,
-                word_wrap,
-                tint.into(),
-            );
-        }
-    }
-
-    /// Draws text using `font` and additional parameters.
-    #[inline]
-    fn draw_text_rec_ex(
-        &mut self,
-        font: impl AsRef<ffi::Font>,
-        text: &str,
-        rec: impl Into<ffi::Rectangle>,
-        font_size: f32,
-        spacing: f32,
-        word_wrap: bool,
-        tint: impl Into<ffi::Color>,
-        select_start: i32,
-        select_length: i32,
-        select_text: impl Into<ffi::Color>,
-        select_back: impl Into<ffi::Color>,
-    ) {
-        let c_text = CString::new(text).unwrap();
-        unsafe {
-            ffi::DrawTextRecEx(
-                *font.as_ref(),
-                c_text.as_ptr(),
-                rec.into(),
-                font_size,
-                spacing,
-                word_wrap,
-                tint.into(),
-                select_start,
-                select_length,
-                select_text.into(),
-                select_back.into(),
             );
         }
     }
@@ -1267,28 +1140,6 @@ pub trait RaylibDraw3D {
         }
     }
 
-    /// Draws a textured cube.
-    #[inline]
-    fn draw_cube_texture(
-        &mut self,
-        texture: &Texture2D,
-        position: impl Into<ffi::Vector3>,
-        width: f32,
-        height: f32,
-        length: f32,
-        color: impl Into<ffi::Color>,
-    ) {
-        unsafe {
-            ffi::DrawCubeTexture(
-                texture.0,
-                position.into(),
-                width,
-                height,
-                length,
-                color.into(),
-            );
-        }
-    }
 
     /// Draws a sphere.
     #[inline]
@@ -1517,7 +1368,7 @@ pub trait RaylibDraw3D {
         texture: &Texture2D,
         source_rec: impl Into<ffi::Rectangle>,
         center: impl Into<ffi::Vector3>,
-        size: f32,
+        size: impl Into<ffi::Vector2>,
         tint: impl Into<ffi::Color>,
     ) {
         unsafe {
@@ -1526,7 +1377,7 @@ pub trait RaylibDraw3D {
                 texture.0,
                 source_rec.into(),
                 center.into(),
-                size,
+                size.into(),
                 tint.into(),
             );
         }
