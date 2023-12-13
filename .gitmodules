@@ -1,4 +1,4 @@
 [submodule "raylib-sys/raylib"]
 	path = raylib-sys/raylib
 	url = https://github.com/raysan5/raylib
-	branch = "master"
+	branch = "4.6-dev"

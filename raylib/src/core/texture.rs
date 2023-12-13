@@ -574,43 +574,8 @@ impl Image {
     pub fn gen_image_color(width: i32, height: i32, color: impl Into<ffi::Color>) -> Image {
         unsafe { Image(ffi::GenImageColor(width, height, color.into())) }
     }
-
-    /// Generates an Image containing a vertical gradient.
-    #[inline]
-    pub fn gen_image_gradient_v(
-        width: i32,
-        height: i32,
-        top: impl Into<ffi::Color>,
-        bottom: impl Into<ffi::Color>,
-    ) -> Image {
-        unsafe {
-            Image(ffi::GenImageGradientV(
-                width,
-                height,
-                top.into(),
-                bottom.into(),
-            ))
-        }
-    }
-
-    /// Generates an Image containing a horizonal gradient.
-    #[inline]
-    pub fn gen_image_gradient_h(
-        width: i32,
-        height: i32,
-        left: impl Into<ffi::Color>,
-        right: impl Into<ffi::Color>,
-    ) -> Image {
-        unsafe {
-            Image(ffi::GenImageGradientH(
-                width,
-                height,
-                left.into(),
-                right.into(),
-            ))
-        }
-    }
-
+    /// TODO: add the new image gradent functions
+    
     /// Generates an Image containing a radial gradient.
     #[inline]
     pub fn gen_image_gradient_radial(
