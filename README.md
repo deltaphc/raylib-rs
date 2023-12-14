@@ -1,4 +1,3 @@
-# Remember to fix the examples befor creating a pullrequest, also rename the branch to 2.5.0
 ![logo](logo/raylib-rust_256x256.png)
 
 ![rust](https://img.shields.io/badge/rust-1.31+-orange.svg?style=flat-square&logo=rust)
