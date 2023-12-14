@@ -375,29 +375,8 @@ pub trait RaylibDraw {
             ffi::DrawLineBezier(start_pos.into(), end_pos.into(), thick, color.into());
         }
     }
-    /// Draw line using quadratic bezier curves with a control point
-    #[inline]
-    fn draw_line_bezier_quad(
-        &mut self,
-        start_pos: impl Into<ffi::Vector2>,
-        end_pos: impl Into<ffi::Vector2>,
-        control_pos: impl Into<ffi::Vector2>,
-        thick: f32,
-        color: impl Into<ffi::Color>,
-    ) {
-        unsafe {
-            ffi::DrawLineBezierQuad(
-                start_pos.into(),
-                end_pos.into(),
-                control_pos.into(),
-                thick,
-                color.into(),
-            );
-        }
-    }
 
-    /// Draw lines sequence
-    #[inline]
+    /// Draw lines sequence    #[inline]
     fn draw_line_strip(&mut self, points: &[Vector2], color: impl Into<ffi::Color>) {
         unsafe {
             ffi::DrawLineStrip(
