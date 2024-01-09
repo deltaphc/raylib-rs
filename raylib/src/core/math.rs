@@ -1072,13 +1072,13 @@ impl Quaternion {
     }
 
     /// Returns a quaternion equivalent to Euler angles.
-    pub fn from_euler(roll: f32, pitch: f32, yaw: f32) -> Quaternion {
-        let x0 = (roll * 0.5).cos();
-        let x1 = (roll * 0.5).sin();
-        let y0 = (pitch * 0.5).cos();
-        let y1 = (pitch * 0.5).sin();
-        let z0 = (yaw * 0.5).cos();
-        let z1 = (yaw * 0.5).sin();
+    pub fn from_euler(pitch: f32, yaw: f32, roll: f32) -> Quaternion {
+        let x0 = (pitch * 0.5).cos();
+        let x1 = (pitch * 0.5).sin();
+        let y0 = (yaw * 0.5).cos();
+        let y1 = (yaw * 0.5).sin();
+        let z0 = (roll * 0.5).cos();
+        let z1 = (roll * 0.5).sin();
 
         Quaternion {
             x: (x1 * y0 * z0) - (x0 * y1 * z1),
