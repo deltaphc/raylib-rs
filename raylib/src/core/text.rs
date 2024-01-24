@@ -152,7 +152,45 @@ impl RaylibHandle {
         }
         Ok(Font(f))
     }
-
+    /// Load font data from a given memory buffer.
+    /// `file_type` refers to the extension, e.g. ".ttf".
+    #[inline]
+    pub fn load_font_from_memory(
+        &mut self,
+        _: &RaylibThread,
+        file_type: &str,
+        file_data: &[u8],
+        font_size: i32,
+        chars: FontLoadEx,
+    ) -> Result<Font, String> {
+        let c_file_type = CString::new(file_type).unwrap();
+        let f = unsafe {
+            match chars {
+                FontLoadEx::Chars(c) => ffi::LoadFontFromMemory(
+                    c_file_type.as_ptr(),
+                    file_data.as_ptr(),
+                    file_data.len() as i32,
+                    font_size,
+                    c.as_ptr() as *mut i32,
+                    c.len() as i32,
+                ),
+                FontLoadEx::Default(count) => ffi::LoadFontFromMemory(
+                    c_file_type.as_ptr(),
+                    file_data.as_ptr(),
+                    file_data.len() as i32,
+                    font_size,
+                    std::ptr::null_mut(),
+                    count,
+                ),
+            }
+        };
+        if f.chars.is_null() || f.texture.id == 0 {
+            return Err(format!(
+                "Error loading font from memory. Is it the right type?"
+            ));
+        }
+        Ok(Font(f))
+    }
     /// Loads font data for further use (see also `Font::from_data`).
     /// Now supports .tiff
     #[inline]
