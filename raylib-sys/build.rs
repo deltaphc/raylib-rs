@@ -298,7 +298,7 @@ fn platform_from_target(target: &str) -> (Platform, PlatformOS) {
         // make sure cmake knows that it should bundle glfw in
         env::set_var(
             "EMCC_CFLAGS",
-            "-sUSE_GLFW=3 -sWASM=1 -sALLOW_MEMORY_GROWTH=1 -sWASM_MEM_MAX=512MB -sTOTAL_MEMORY=512MB -sABORTING_MALLOC=0 -sASYNCIFY -sFORCE_FILESYSTEM=1 -sASSERTIONS=1 -sERROR_ON_UNDEFINED_SYMBOLS=0 -sEXPORTED_FUNCTIONS=['_malloc''_free''_main''_emsc_main''_emsc_set_window_size'] -sEXPORTED_RUNTIME_METHODS=ccallcwrap",
+            "-sUSE_GLFW=3 -sGL_ENABLE_GET_PROC_ADDRESS -sWASM=1 -sALLOW_MEMORY_GROWTH=1 -sWASM_MEM_MAX=512MB -sTOTAL_MEMORY=512MB -sABORTING_MALLOC=0 -sASYNCIFY -sFORCE_FILESYSTEM=1 -sASSERTIONS=1 -sERROR_ON_UNDEFINED_SYMBOLS=0 -sEXPORTED_FUNCTIONS=['_malloc''_free''_main''_emsc_main''_emsc_set_window_size'] -sEXPORTED_RUNTIME_METHODS=ccallcwrap",
         );
         Platform::Web
     } else if target.contains("armv7-unknown-linux") {
