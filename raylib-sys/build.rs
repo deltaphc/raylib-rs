@@ -72,7 +72,7 @@ fn build_with_cmake(src_path: &str) {
     // This seems redundant, but I felt it was needed incase raylib changes it's default
     #[cfg(not(feature = "wayland"))]
     builder.define("USE_WAYLAND", "OFF");
-    
+
     // Scope implementing flags for forcing OpenGL version
     // See all possible flags at https://github.com/raysan5/raylib/wiki/CMake-Build-Options
     {
@@ -242,7 +242,7 @@ fn link(platform: Platform, platform_os: PlatformOS) {
         println!("cargo:rustc-link-lib=brcmEGL");
         println!("cargo:rustc-link-lib=brcmGLESv2");
         println!("cargo:rustc-link-lib=vcos");
-   }
+    }
 
     println!("cargo:rustc-link-lib=static=raylib");
 }
@@ -296,8 +296,10 @@ fn run_command(cmd: &str, args: &[&str]) {
 fn platform_from_target(target: &str) -> (Platform, PlatformOS) {
     let platform = if target.contains("wasm32") {
         // make sure cmake knows that it should bundle glfw in
-        // Cargo web takes care of this but better safe than sorry
-        env::set_var("EMMAKEN_CFLAGS", "-s USE_GLFW=3");
+        env::set_var(
+            "EMCC_CFLAGS",
+            "-sUSE_GLFW=3 -sWASM=1 -sALLOW_MEMORY_GROWTH=1 -sWASM_MEM_MAX=512MB -sTOTAL_MEMORY=512MB -sABORTING_MALLOC=0 -sASYNCIFY -sFORCE_FILESYSTEM=1 -sASSERTIONS=1 -sERROR_ON_UNDEFINED_SYMBOLS=0 -sEXPORTED_FUNCTIONS=['_malloc''_free''_main''_emsc_main''_emsc_set_window_size'] -sEXPORTED_RUNTIME_METHODS=ccallcwrap",
+        );
         Platform::Web
     } else if target.contains("armv7-unknown-linux") {
         Platform::RPI
