@@ -230,6 +230,31 @@ impl Vector2 {
         *self / length_sqr.sqrt()
     }
 
+   /// Rotates the vector by `angle` radians.
+   pub fn rotate(&mut self, angle: f32) {
+        let cos_res = angle.cos();
+        let sin_res = angle.sin();
+
+        let result = Vector2::new(
+            self.x * cos_res - self.y * sin_res,
+            self.x * sin_res + self.y * cos_res
+        );
+
+        self.x = result.x;
+        self.y = result.y;
+    }
+
+   /// Returns a new `Vector2` rotated by `angle` radians.
+   pub fn rotated(&self, angle: f32) -> Vector2 {
+        let cos_res = angle.cos();
+        let sin_res = angle.sin();
+
+        Vector2::new(
+            self.x * cos_res - self.y * sin_res,
+            self.x * sin_res + self.y * cos_res
+        )
+    }
+
     /// Returns a new `Vector2` with componenets linearly interpolated by `amount` towards vector `v`.
     pub fn lerp(&self, v: Vector2, amount: f32) -> Vector2 {
         Vector2 {
