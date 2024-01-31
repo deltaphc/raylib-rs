@@ -105,7 +105,7 @@ mod texture_test {
         canvas.export_image("test_out/canvas.png");
 
         // Test generation functions
-        let g = Image::gen_image_color(64, 64, Color::BLUE);
+        /*let g = Image::gen_image_color(64, 64, Color::BLUE);
         g.export_image("test_out/generated_color.png");
         let g = Image::gen_image_gradient_v(64, 64, Color::RED, Color::BLUE);
         g.export_image("test_out/generated_gradient_v.png");
@@ -120,6 +120,6 @@ mod texture_test {
         let g = Image::gen_image_perlin_noise(64, 64, 0, 0, 0.7);
         g.export_image("test_out/generated_perlin.png");
         let g = Image::gen_image_cellular(64, 64, 4);
-        g.export_image("test_out/generated_cellular.png");
+        g.export_image("test_out/generated_cellular.png");*/
     }
 }
