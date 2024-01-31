@@ -695,7 +695,8 @@ impl Image {
     }
 
     /// Loads image from a given memory buffer
-    /// ensure filetype is extension, for example, ".png"
+    /// The input data is expected to be in a supported file format such as png. Which formats are
+    /// supported depend on the build flags used for the raylib (C) library.
     pub fn load_image_from_mem(filetype: &str, bytes: &[u8]) -> Result<Image, String> {
         let c_filetype = CString::new(filetype).unwrap();
         let i = unsafe {
