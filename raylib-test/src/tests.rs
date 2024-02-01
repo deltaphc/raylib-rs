@@ -108,7 +108,8 @@ pub fn test_runner(tests: &[&dyn Testable]) {
             d.clear_background(Color::WHITE);
         }
         // take_screenshot takes the last frames screenshot
-        rl.take_screenshot(&thread, &format!("test_out/{}.png", t.name));
+        rl.take_screenshot(&thread, &format!("{}.png", t.name));
+        //assert!(std::path::Path::new(&format!("{}.png", t.name)).exists());
     }
 }
 

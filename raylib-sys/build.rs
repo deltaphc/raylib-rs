@@ -50,21 +50,24 @@ fn build_with_cmake(src_path: &str) {
 
     let mut conf = cmake::Config::new(src_path);
     let mut builder;
+    let mut profile = "";
     #[cfg(debug_assertions)]
     {
         builder = conf.profile("Debug");
-        builder = builder.define("CMAKE_BUILD_TYPE", "Debug")
+        builder = builder.define("CMAKE_BUILD_TYPE", "Debug");
+        profile = "Debug";
     }
 
     #[cfg(not(debug_assertions))]
     {
         builder = conf.profile("Release");
-        builder = builder.define("CMAKE_BUILD_TYPE", "Release")
+        builder = builder.define("CMAKE_BUILD_TYPE", "Release");
+        profile = "Release";
     }
 
     builder
         .define("BUILD_EXAMPLES", "OFF")
-        .define("CMAKE_BUILD_TYPE", "Release")
+        .define("CMAKE_BUILD_TYPE", profile)
         // turn off until this is fixed
         .define("SUPPORT_BUSY_WAIT_LOOP", "OFF");
 

@@ -54,7 +54,6 @@ impl RaylibAudio {
         }
     }
 
-
     /// Pauses a sound.
     #[inline]
     pub fn pause_sound(&mut self, sound: &Sound) {
@@ -291,11 +290,11 @@ impl Wave {
     }
 
     /// Export wave sample data to code (.h)
-    #[inline]
+    /*#[inline]
     pub fn export_wave_as_code(&self, filename: &str) -> bool {
         let c_filename = CString::new(filename).unwrap();
         unsafe { ffi::ExportWaveAsCode(self.0, c_filename.as_ptr()) }
-    }
+    }*/
 
     /// Converts wave data to desired format.
     #[inline]

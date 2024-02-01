@@ -1,3 +1,4 @@
+#![feature(pointer_is_aligned)]
 /* raylib-rs
    lib.rs - Main library code (the safe layer)
 
@@ -70,7 +71,7 @@ pub mod ffi {
 pub use crate::core::collision::*;
 pub use crate::core::file::*;
 pub use crate::core::logging::*;
-pub use crate::core::misc::{open_url};
+pub use crate::core::misc::open_url;
 pub use crate::core::*;
 
 // Re-exports
