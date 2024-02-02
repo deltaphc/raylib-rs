@@ -1,4 +1,6 @@
 //! Data manipulation functions. Compress and Decompress with DEFLATE
+use std::ffi::CString;
+
 use crate::ffi;
 
 /// Compress data (DEFLATE algorythm)
@@ -40,4 +42,15 @@ pub fn decompress_data(data: &[u8]) -> Result<&'static [u8], String> {
     }
     let buffer = unsafe { std::slice::from_raw_parts(buffer, out_length as usize) };
     return Ok(buffer);
+}
+
+/// Export data to code (.h), returns true on success
+pub fn export_data_as_code<A>(data: &[u8], file_name: A) -> bool
+where
+    A: Into<String>,
+{
+    let file_name = file_name.into();
+    let c_str = CString::new(file_name).unwrap();
+
+    unsafe { ffi::ExportDataAsCode(data.as_ptr(), data.len() as i32, c_str.as_ptr()) }
 }
