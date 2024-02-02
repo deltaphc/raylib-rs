@@ -33,7 +33,7 @@ impl RaylibHandle {
     pub fn application_directory(&self) -> String {
         unsafe {
             let st = ffi::GetApplicationDirectory();
-            let c_str = CString::from_raw(st as *mut i8);
+            let c_str = CStr::from_ptr(st);
 
             // If this ever errors out, yell at @ioi_xd on Discord,
             c_str.to_str().unwrap().to_string()
@@ -44,16 +44,22 @@ impl RaylibHandle {
     ///
     /// # Errors
     /// This function will return an error if the supplied bytes contain an internal 0 byte. The NulError returned will contain the bytes as well as the position of the nul byte.
-    pub fn get_file_length(&self, filename: String) -> Result<i32, NulError> {
-        let c_str = CString::new(filename)?;
+    pub fn get_file_length<A>(&self, filename: A) -> Result<i32, NulError>
+    where
+        A: Into<String>,
+    {
+        let c_str = CString::new(filename.into())?;
         unsafe { Ok(ffi::GetFileLength(c_str.as_ptr())) }
     }
 
     /// Check if a given path is a file or a directory
     /// # Errors
     /// This function will return an error if the supplied bytes contain an internal 0 byte. The NulError returned will contain the bytes as well as the position of the nul byte.
-    pub fn is_path_file(&self, filename: String) -> Result<bool, NulError> {
-        let c_str = CString::new(filename)?;
+    pub fn is_path_file<A>(&self, filename: A) -> Result<bool, NulError>
+    where
+        A: Into<String>,
+    {
+        let c_str = CString::new(filename.into())?;
         unsafe { Ok(ffi::IsPathFile(c_str.as_ptr())) }
     }
 }

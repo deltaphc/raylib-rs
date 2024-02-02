@@ -54,3 +54,20 @@ where
 
     unsafe { ffi::ExportDataAsCode(data.as_ptr(), data.len() as i32, c_str.as_ptr()) }
 }
+
+/// Encode data to Base64 string
+pub fn encode_data_base64(data: &[u8]) -> &[i8] {
+    let mut output_size = 0;
+    let bytes =
+        unsafe { ffi::EncodeDataBase64(data.as_ptr(), data.len() as i32, &mut output_size) };
+
+    unsafe { std::slice::from_raw_parts(bytes, output_size as usize) }
+}
+
+// Decode Base64 data
+pub fn decode_data_base64(data: &[u8]) -> &[u8] {
+    let mut output_size = 0;
+    let bytes = unsafe { ffi::DecodeDataBase64(data.as_ptr(), &mut output_size) };
+
+    unsafe { std::slice::from_raw_parts(bytes, output_size as usize) }
+}
