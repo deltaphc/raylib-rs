@@ -1013,6 +1013,7 @@ pub trait RaylibDraw {
         unsafe { ffi::DisableEventWaiting() }
     }
 
+    /// Draw a polygon outline of n sides with extended parameters
     fn draw_poly_lines_ex(
         &mut self,
         center: Vector2,
@@ -1033,6 +1034,7 @@ pub trait RaylibDraw {
             );
         }
     }
+    /// Draw spline: Linear, minimum 2 points
     fn draw_spline_linear(&mut self, points: &[Vector2], thick: f32, color: impl Into<ffi::Color>) {
         unsafe {
             ffi::DrawSplineLinear(
@@ -1043,6 +1045,7 @@ pub trait RaylibDraw {
             )
         }
     }
+    /// Draw spline: B-Spline, minimum 4 points
     fn draw_spline_basis(&mut self, points: &[Vector2], thick: f32, color: impl Into<ffi::Color>) {
         unsafe {
             ffi::DrawSplineBasis(
@@ -1053,6 +1056,7 @@ pub trait RaylibDraw {
             )
         }
     }
+    /// Draw spline: Catmull-Rom, minimum 4 points
     fn draw_spline_catmull_rom(
         &mut self,
         points: &[Vector2],
@@ -1068,6 +1072,8 @@ pub trait RaylibDraw {
             )
         }
     }
+
+    /// Draw spline: Quadratic Bezier, minimum 3 points (1 control point): [p1, c2, p3, c4...]
     fn draw_spline_bezier_quadratic(
         &mut self,
         points: &[Vector2],
@@ -1083,6 +1089,8 @@ pub trait RaylibDraw {
             )
         }
     }
+
+    /// Draw spline: Cubic Bezier, minimum 4 points (2 control points): [p1, c2, c3, p4, c5, c6...]
     fn draw_spline_bezier_cubic(
         &mut self,
         points: &[Vector2],
@@ -1098,6 +1106,8 @@ pub trait RaylibDraw {
             )
         }
     }
+
+    /// Draw spline segment: Linear, 2 points
     fn draw_spline_segment_linear(
         &mut self,
         p1: Vector2,
@@ -1107,6 +1117,8 @@ pub trait RaylibDraw {
     ) {
         unsafe { ffi::DrawSplineSegmentLinear(p1.into(), p2.into(), thick, color.into()) }
     }
+
+    /// Draw spline segment: B-Spline, 4 points
     fn draw_spline_segment_basis(
         &mut self,
         p1: Vector2,
@@ -1127,6 +1139,8 @@ pub trait RaylibDraw {
             )
         }
     }
+
+    /// Draw spline segment: Catmull-Rom, 4 points
     fn draw_spline_segment_catmull_rom(
         &mut self,
         p1: Vector2,
@@ -1147,6 +1161,8 @@ pub trait RaylibDraw {
             )
         }
     }
+
+    /// Draw spline segment: Quadratic Bezier, 2 points, 1 control point
     fn draw_spline_segment_bezier_quadratic(
         &mut self,
         p1: Vector2,
@@ -1165,6 +1181,8 @@ pub trait RaylibDraw {
             )
         }
     }
+
+    /// Draw spline segment: Cubic Bezier, 2 points, 2 control points
     fn draw_spline_segment_bezier_cubic(
         &mut self,
         p1: Vector2,
@@ -1185,9 +1203,13 @@ pub trait RaylibDraw {
             )
         }
     }
+
+    /// Get (evaluate) spline point: Linear
     fn get_spline_point_linear(&mut self, start_pos: Vector2, end_pos: Vector2, t: f32) -> Vector2 {
         unsafe { ffi::GetSplinePointLinear(start_pos.into(), end_pos.into(), t).into() }
     }
+
+    /// Get (evaluate) spline point: B-Spline
     fn get_spline_point_basis(
         &mut self,
         p1: Vector2,
@@ -1198,6 +1220,8 @@ pub trait RaylibDraw {
     ) -> Vector2 {
         unsafe { ffi::GetSplinePointBasis(p1.into(), p2.into(), p3.into(), p4.into(), t).into() }
     }
+
+    /// Get (evaluate) spline point: Catmull-Rom
     fn get_spline_point_catmull_rom(
         &mut self,
         p1: Vector2,
@@ -1210,6 +1234,8 @@ pub trait RaylibDraw {
             ffi::GetSplinePointCatmullRom(p1.into(), p2.into(), p3.into(), p4.into(), t).into()
         }
     }
+
+    /// Get (evaluate) spline point: Quadratic Bezier
     fn get_spline_point_bezier_quad(
         &mut self,
         p1: Vector2,
@@ -1219,6 +1245,8 @@ pub trait RaylibDraw {
     ) -> Vector2 {
         unsafe { ffi::GetSplinePointBezierQuad(p1.into(), c2.into(), p3.into(), t).into() }
     }
+
+    /// Get (evaluate) spline point: Cubic Bezier
     fn get_spline_point_bezier_cubic(
         &mut self,
         p1: Vector2,
