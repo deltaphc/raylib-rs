@@ -1,6 +1,7 @@
 #[cfg(test)]
 mod data_test {
     use crate::tests::*;
+    use colored::Colorize;
     use raylib::prelude::*;
 
     ray_test!(data_test);
@@ -20,8 +21,9 @@ mod data_test {
         let rl = handle.as_mut().unwrap();
 
         println!(
-            "\n\n=====\nApplication directory is {}\n=====\n\n",
-            rl.application_directory()
+            "{} {}\n",
+            "Application directory is ".bold(),
+            rl.application_directory().bold()
         );
     }
 
@@ -43,5 +45,15 @@ mod data_test {
         assert!(len == true);
         let len = rl.is_path_file("./resources/").unwrap();
         assert!(len == false);
+    }
+
+    ray_test!(base64);
+    fn base64(_: &RaylibThread) {
+        let encoded = encode_data_base64("This is a test".as_bytes());
+        let enc: Vec<u8> = encoded.to_vec().iter().map(|f| *f as u8).collect();
+        let decoded = decode_data_base64(&enc);
+
+        let fin = std::str::from_utf8(&decoded).unwrap();
+        assert!(fin == "This is a test")
     }
 }
