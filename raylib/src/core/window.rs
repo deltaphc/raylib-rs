@@ -657,6 +657,14 @@ impl RaylibHandle {
         }
     }
 
+    /// Sets maximum window dimensions (for `FLAG_WINDOW_RESIZABLE`).
+    #[inline]
+    pub fn set_window_max_size(&mut self, width: i32, height: i32) {
+        unsafe {
+            ffi::SetWindowMaxSize(width, height);
+        }
+    }
+
     /// Sets window dimensions.
     #[inline]
     pub fn set_window_size(&mut self, width: i32, height: i32) {
