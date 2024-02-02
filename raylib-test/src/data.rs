@@ -5,10 +5,10 @@ mod data_test {
 
     ray_test!(data_test);
     fn data_test(_: &RaylibThread) {
-        let mut handle = TEST_HANDLE.write().unwrap();
-        let rl = handle.as_mut().unwrap();
+        //let mut handle = TEST_HANDLE.write().unwrap();
+        //let rl = handle.as_mut().unwrap();
 
-        rl.export_data_as_code(
+        export_data_as_code(
             "The quick brown fox jumped over the lazy dog.".as_bytes(),
             "./test_out/export_data.txt",
         );
