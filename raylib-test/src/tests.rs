@@ -73,6 +73,7 @@ pub fn test_runner(tests: &[&dyn Testable]) {
     let mut par_test: Vec<TestDescAndFn> = Vec::new();
     let mut seq_test: Vec<&RayTest> = Vec::new();
     let mut draw_test: Vec<&RayDrawTest> = Vec::new();
+    let mut draw_test_3d: Vec<&Ray3DDrawTest> = Vec::new();
 
     for t in tests {
         match t.get_test() {
@@ -85,6 +86,9 @@ pub fn test_runner(tests: &[&dyn Testable]) {
             }
             TestType::Draw(test) => {
                 draw_test.push(test);
+            }
+            TestType::Draw3D(test) => {
+                draw_test_3d.push(test);
             }
         }
     }
@@ -121,15 +125,39 @@ pub fn test_runner(tests: &[&dyn Testable]) {
             let mut d = rl.begin_drawing(&thread);
             (t.test)(&mut d, &assets);
         }
+
+        // take_screenshot takes the last frames screenshot
+        rl.take_screenshot(&thread, &format!("{}.png", t.name));
         {
             let mut d = rl.begin_drawing(&thread);
             d.clear_background(Color::WHITE);
         }
-        // take_screenshot takes the last frames screenshot
-        rl.take_screenshot(&thread, &format!("{}.png", t.name));
         //assert!(std::path::Path::new(&format!("{}.png", t.name)).exists());
     }
-
+    let camera = Camera3D::orthographic(
+        Vector3::new(10.0, 10.0, 10.0),
+        Vector3::new(0.0, 0.0, 0.0),
+        Vector3::new(0.0, 1.0, 0.0),
+        90.0,
+    );
+    for t in &draw_test_3d {
+        if opts.nocapture {
+            println!("running draw test: {}", t.name);
+        }
+        {
+            let mut d_ = rl.begin_drawing(&thread);
+            let mut d = d_.begin_mode3D(&camera);
+            (t.test)(&mut d, &assets);
+        }
+        // take_screenshot takes the last frames screenshot
+        rl.take_screenshot(&thread, &format!("{}.png", t.name));
+        {
+            let mut d_ = rl.begin_drawing(&thread);
+            let mut d = d_.begin_mode3D(&camera);
+            d.clear_background(Color::WHITE);
+        }
+        //assert!(std::path::Path::new(&format!("{}.png", t.name)).exists());
+    }
     println!("{}","Test has succeeded! You will see that the test has failed due to a segfault, this is a known bug. If you are seeing this message then it definitely has succeeded!".green().bold());
 }
 
@@ -139,6 +167,8 @@ pub enum TestType<'a> {
     Local(&'a RayTest),
     /// take screenshot after test
     Draw(&'a RayDrawTest),
+    /// take screenshot after test (3D),
+    Draw3D(&'a Ray3DDrawTest),
 }
 
 pub struct RayTest {
@@ -149,6 +179,11 @@ pub struct RayTest {
 pub struct RayDrawTest {
     pub name: &'static str,
     pub test: fn(&mut RaylibDrawHandle, &TestAssets),
+}
+
+pub struct Ray3DDrawTest {
+    pub name: &'static str,
+    pub test: fn(&mut RaylibMode3D<RaylibDrawHandle>, &TestAssets),
 }
 
 macro_rules! ray_test {
@@ -173,6 +208,16 @@ macro_rules! ray_draw_test {
     };
 }
 
+macro_rules! ray_3d_draw_test {
+    ($name:ident) => {
+        #[test_case]
+        #[allow(non_upper_case_globals)]
+        static $name: Ray3DDrawTest = Ray3DDrawTest {
+            name: stringify!($name),
+            test: $name,
+        };
+    };
+}
 pub trait Testable {
     fn get_test(&self) -> TestType;
 }
@@ -192,5 +237,11 @@ impl Testable for RayTest {
 impl Testable for RayDrawTest {
     fn get_test(&self) -> TestType {
         TestType::Draw(self)
+    }
+}
+
+impl Testable for Ray3DDrawTest {
+    fn get_test(&self) -> TestType {
+        TestType::Draw3D(self)
     }
 }
