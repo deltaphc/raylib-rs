@@ -281,7 +281,7 @@ impl<'a, T: RaylibDraw3D> RaylibDraw3D for RaylibScissorMode<'a, T> {}
 // Actual drawing functions
 
 pub trait RaylibDraw {
-    /// Sets background color (framebuffer clear color).
+    /// Sets background color (framebuffer clear color.into()).
     #[inline]
     fn clear_background(&mut self, color: impl Into<ffi::Color>) {
         unsafe {
@@ -381,7 +381,7 @@ pub trait RaylibDraw {
         unsafe {
             ffi::DrawLineStrip(
                 points.as_ptr() as *mut ffi::Vector2,
-                points.len() as i32,
+                points.len() as i32 as i32,
                 color.into(),
             );
         }
@@ -773,7 +773,7 @@ pub trait RaylibDraw {
         unsafe {
             ffi::DrawTriangleFan(
                 points.as_ptr() as *mut ffi::Vector2,
-                points.len() as i32,
+                points.len() as i32 as i32,
                 color.into(),
             );
         }
@@ -785,7 +785,7 @@ pub trait RaylibDraw {
         unsafe {
             ffi::DrawTriangleStrip(
                 points.as_ptr() as *mut ffi::Vector2,
-                points.len() as i32,
+                points.len() as i32 as i32,
                 color.into(),
             );
         }
@@ -1012,6 +1012,225 @@ pub trait RaylibDraw {
     fn disable_event_waiting(&self) {
         unsafe { ffi::DisableEventWaiting() }
     }
+
+    fn draw_poly_lines_ex(
+        &mut self,
+        center: Vector2,
+        sides: i32,
+        radius: f32,
+        rotation: f32,
+        line_thick: f32,
+        color: impl Into<ffi::Color>,
+    ) {
+        unsafe {
+            ffi::DrawPolyLinesEx(
+                center.into(),
+                sides,
+                radius,
+                rotation,
+                line_thick,
+                color.into(),
+            );
+        }
+    }
+    fn draw_spline_linear(&mut self, points: &[Vector2], thick: f32, color: impl Into<ffi::Color>) {
+        unsafe {
+            ffi::DrawSplineLinear(
+                points.as_ptr() as *mut ffi::Vector2,
+                points.len() as i32,
+                thick,
+                color.into(),
+            )
+        }
+    }
+    fn draw_spline_basis(&mut self, points: &[Vector2], thick: f32, color: impl Into<ffi::Color>) {
+        unsafe {
+            ffi::DrawSplineBasis(
+                points.as_ptr() as *mut ffi::Vector2,
+                points.len() as i32,
+                thick,
+                color.into(),
+            )
+        }
+    }
+    fn draw_spline_catmull_rom(
+        &mut self,
+        points: &[Vector2],
+        thick: f32,
+        color: impl Into<ffi::Color>,
+    ) {
+        unsafe {
+            ffi::DrawSplineCatmullRom(
+                points.as_ptr() as *mut ffi::Vector2,
+                points.len() as i32,
+                thick,
+                color.into(),
+            )
+        }
+    }
+    fn draw_spline_bezier_quadratic(
+        &mut self,
+        points: &[Vector2],
+        thick: f32,
+        color: impl Into<ffi::Color>,
+    ) {
+        unsafe {
+            ffi::DrawSplineBezierQuadratic(
+                points.as_ptr() as *mut ffi::Vector2,
+                points.len() as i32,
+                thick,
+                color.into(),
+            )
+        }
+    }
+    fn draw_spline_bezier_cubic(
+        &mut self,
+        points: &[Vector2],
+        thick: f32,
+        color: impl Into<ffi::Color>,
+    ) {
+        unsafe {
+            ffi::DrawSplineBezierCubic(
+                points.as_ptr() as *mut ffi::Vector2,
+                points.len() as i32,
+                thick,
+                color.into(),
+            )
+        }
+    }
+    fn draw_spline_segment_linear(
+        &mut self,
+        p1: Vector2,
+        p2: Vector2,
+        thick: f32,
+        color: impl Into<ffi::Color>,
+    ) {
+        unsafe { ffi::DrawSplineSegmentLinear(p1.into(), p2.into(), thick, color.into()) }
+    }
+    fn draw_spline_segment_basis(
+        &mut self,
+        p1: Vector2,
+        p2: Vector2,
+        p3: Vector2,
+        p4: Vector2,
+        thick: f32,
+        color: impl Into<ffi::Color>,
+    ) {
+        unsafe {
+            ffi::DrawSplineSegmentBasis(
+                p1.into(),
+                p2.into(),
+                p3.into(),
+                p4.into(),
+                thick,
+                color.into(),
+            )
+        }
+    }
+    fn draw_spline_segment_catmull_rom(
+        &mut self,
+        p1: Vector2,
+        p2: Vector2,
+        p3: Vector2,
+        p4: Vector2,
+        thick: f32,
+        color: impl Into<ffi::Color>,
+    ) {
+        unsafe {
+            ffi::DrawSplineSegmentCatmullRom(
+                p1.into(),
+                p2.into(),
+                p3.into(),
+                p4.into(),
+                thick,
+                color.into(),
+            )
+        }
+    }
+    fn draw_spline_segment_bezier_quadratic(
+        &mut self,
+        p1: Vector2,
+        c2: Vector2,
+        p3: Vector2,
+        thick: f32,
+        color: impl Into<ffi::Color>,
+    ) {
+        unsafe {
+            ffi::DrawSplineSegmentBezierQuadratic(
+                p1.into(),
+                c2.into(),
+                p3.into(),
+                thick,
+                color.into(),
+            )
+        }
+    }
+    fn draw_spline_segment_bezier_cubic(
+        &mut self,
+        p1: Vector2,
+        c2: Vector2,
+        c3: Vector2,
+        p4: Vector2,
+        thick: f32,
+        color: impl Into<ffi::Color>,
+    ) {
+        unsafe {
+            ffi::DrawSplineSegmentBezierCubic(
+                p1.into(),
+                c2.into(),
+                c3.into(),
+                p4.into(),
+                thick,
+                color.into(),
+            )
+        }
+    }
+    fn get_spline_point_linear(&mut self, start_pos: Vector2, end_pos: Vector2, t: f32) -> Vector2 {
+        unsafe { ffi::GetSplinePointLinear(start_pos.into(), end_pos.into(), t).into() }
+    }
+    fn get_spline_point_basis(
+        &mut self,
+        p1: Vector2,
+        p2: Vector2,
+        p3: Vector2,
+        p4: Vector2,
+        t: f32,
+    ) -> Vector2 {
+        unsafe { ffi::GetSplinePointBasis(p1.into(), p2.into(), p3.into(), p4.into(), t).into() }
+    }
+    fn get_spline_point_catmull_rom(
+        &mut self,
+        p1: Vector2,
+        p2: Vector2,
+        p3: Vector2,
+        p4: Vector2,
+        t: f32,
+    ) -> Vector2 {
+        unsafe {
+            ffi::GetSplinePointCatmullRom(p1.into(), p2.into(), p3.into(), p4.into(), t).into()
+        }
+    }
+    fn get_spline_point_bezier_quad(
+        &mut self,
+        p1: Vector2,
+        c2: Vector2,
+        p3: Vector2,
+        t: f32,
+    ) -> Vector2 {
+        unsafe { ffi::GetSplinePointBezierQuad(p1.into(), c2.into(), p3.into(), t).into() }
+    }
+    fn get_spline_point_bezier_cubic(
+        &mut self,
+        p1: Vector2,
+        c2: Vector2,
+        c3: Vector2,
+        p4: Vector2,
+        t: f32,
+    ) -> Vector2 {
+        unsafe {
+            ffi::GetSplinePointBezierCubic(p1.into(), c2.into(), c3.into(), p4.into(), t).into()
+        }
+    }
 }
 
 pub trait RaylibDraw3D {
@@ -1044,7 +1263,11 @@ pub trait RaylibDraw3D {
     #[inline]
     fn draw_triangle_strip3D(&mut self, points: &[Vector3], color: impl Into<ffi::Color>) {
         unsafe {
-            ffi::DrawTriangleStrip3D(points.as_ptr() as *mut _, points.len() as i32, color.into());
+            ffi::DrawTriangleStrip3D(
+                points.as_ptr() as *mut _,
+                points.len() as i32 as i32,
+                color.into(),
+            );
         }
     }
 
