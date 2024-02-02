@@ -56,18 +56,53 @@ where
 }
 
 /// Encode data to Base64 string
-pub fn encode_data_base64(data: &[u8]) -> &[i8] {
+pub fn encode_data_base64(data: &[u8]) -> Vec<i8> {
     let mut output_size = 0;
     let bytes =
         unsafe { ffi::EncodeDataBase64(data.as_ptr(), data.len() as i32, &mut output_size) };
 
-    unsafe { std::slice::from_raw_parts(bytes, output_size as usize) }
+    let s = unsafe { std::slice::from_raw_parts(bytes, output_size as usize) };
+    if s.contains(&0) {
+        // Work around a bug in Rust's from_raw_parts function
+        let mut keep = true;
+        let b: Vec<i8> = s
+            .iter()
+            .filter(|f| {
+                if **f == 0 {
+                    keep = false;
+                }
+                keep
+            })
+            .map(|f| *f)
+            .collect();
+        b
+    } else {
+        s.to_vec()
+    }
 }
 
 // Decode Base64 data
-pub fn decode_data_base64(data: &[u8]) -> &[u8] {
+pub fn decode_data_base64(data: &[u8]) -> Vec<u8> {
     let mut output_size = 0;
+
     let bytes = unsafe { ffi::DecodeDataBase64(data.as_ptr(), &mut output_size) };
 
-    unsafe { std::slice::from_raw_parts(bytes, output_size as usize) }
+    let s = unsafe { std::slice::from_raw_parts(bytes, output_size as usize) };
+    if s.contains(&0) {
+        // Work around a bug in Rust's from_raw_parts function
+        let mut keep = true;
+        let b: Vec<u8> = s
+            .iter()
+            .filter(|f| {
+                if **f == 0 {
+                    keep = false;
+                }
+                keep
+            })
+            .map(|f| *f)
+            .collect();
+        b
+    } else {
+        s.to_vec()
+    }
 }
