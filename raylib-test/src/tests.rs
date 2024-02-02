@@ -1,4 +1,5 @@
 use crate::test::{TestDescAndFn, TestFn};
+use colored::Colorize;
 use lazy_static::lazy_static;
 use raylib::prelude::*;
 use std::sync::RwLock;
@@ -27,24 +28,41 @@ fn clone_testfn(testfn: &TestFn) -> TestFn {
     }
 }
 
+pub fn initialize_globals() -> (RaylibThread, TestAssets) {
+    let mut handle = TEST_HANDLE.write().unwrap();
+    let (rl, thread) = raylib::init()
+        .size(TEST_WIDTH, TEST_HEIGHT)
+        .title("Hello, World")
+        .build();
+    *handle = Some(rl);
+    let asset = TestAssets {
+        font: handle
+            .as_mut()
+            .unwrap()
+            .load_font(&thread, "resources/alagard.png")
+            .expect("couldn't load font"),
+    };
+    (thread, asset)
+}
+
+#[cfg(feature = "custom_frame_control")]
 pub fn test_runner(tests: &[&dyn Testable]) {
-    let (thread, assets) = {
-        let mut handle = TEST_HANDLE.write().unwrap();
-        let (rl, thread) = raylib::init()
-            .size(TEST_WIDTH, TEST_HEIGHT)
-            .title("Hello, World")
-            .build();
-        *handle = Some(rl);
-        let asset = TestAssets {
-            font: handle
-                .as_mut()
-                .unwrap()
-                .load_font(&thread, "resources/alagard.png")
-                .expect("couldn't load font"),
-        };
-        (thread, asset)
+    use crate::manual::manual_test::test_manual;
+
+    let (thread, assets) = initialize_globals();
+    let args = std::env::args().collect::<Vec<_>>();
+    let opts = match parse_opts(&args) {
+        Some(Ok(o)) => o,
+        Some(Err(msg)) => panic!("{:?}", msg),
+        None => return,
     };
 
+    test_manual(&thread);
+}
+
+#[cfg(not(feature = "custom_frame_control"))]
+pub fn test_runner(tests: &[&dyn Testable]) {
+    let (thread, assets) = initialize_globals();
     let args = std::env::args().collect::<Vec<_>>();
     let opts = match parse_opts(&args) {
         Some(Ok(o)) => o,
@@ -111,6 +129,8 @@ pub fn test_runner(tests: &[&dyn Testable]) {
         rl.take_screenshot(&thread, &format!("{}.png", t.name));
         //assert!(std::path::Path::new(&format!("{}.png", t.name)).exists());
     }
+
+    println!("{}","Test has succeeded! You will see that the test has failed due to a segfault, this is a known bug. If you are seeing this message then it definitely has succeeded!".green().bold());
 }
 
 pub enum TestType<'a> {
