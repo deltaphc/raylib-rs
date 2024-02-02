@@ -888,7 +888,6 @@ pub trait RaylibDraw {
         }
     }
 
-
     /// Draw from a region of `texture` defined by the `source_rec` rectangle with pro parameters.
     #[inline]
     fn draw_texture_pro(
@@ -911,7 +910,6 @@ pub trait RaylibDraw {
             );
         }
     }
-
 
     ///Draws a texture (or part of it) that stretches or shrinks nicely
     #[inline]
@@ -1003,6 +1001,16 @@ pub trait RaylibDraw {
                 tint.into(),
             );
         }
+    }
+
+    /// Enable waiting for events when the handle is dropped, no automatic event polling
+    fn enable_event_waiting(&self) {
+        unsafe { ffi::EnableEventWaiting() }
+    }
+
+    /// Disable waiting for events when the handle is dropped, no automatic event polling
+    fn disable_event_waiting(&self) {
+        unsafe { ffi::DisableEventWaiting() }
     }
 }
 
@@ -1118,7 +1126,6 @@ pub trait RaylibDraw3D {
             ffi::DrawCubeWires(position.into(), width, height, length, color.into());
         }
     }
-
 
     /// Draws a sphere.
     #[inline]

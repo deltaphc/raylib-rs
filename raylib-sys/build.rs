@@ -71,6 +71,11 @@ fn build_with_cmake(src_path: &str) {
         // turn off until this is fixed
         .define("SUPPORT_BUSY_WAIT_LOOP", "OFF");
 
+    #[cfg(feature = "custom_frame_control")]
+    {
+        builder.define("SUPPORT_CUSTOM_FRAME_CONTROL", "ON");
+    }
+
     // Enable wayland cmake flag if feature is specified
     #[cfg(feature = "wayland")]
     {

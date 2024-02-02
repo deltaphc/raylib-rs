@@ -34,3 +34,6 @@ opengl_33 = []
 opengl_21 = []
 # opengl_11 = [] I couldn't get this one working, the others were fine in my limited testing (unsure about wayland compatibility)
 opengl_es_20 = []
+
+# config.h's SUPPORT_CUSTOM_FRAME_CONTROL
+custom_frame_control = []

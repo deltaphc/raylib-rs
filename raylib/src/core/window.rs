@@ -191,7 +191,6 @@ impl WindowState {
         self
     }
 
-
     pub fn window_highdpi(&self) -> bool {
         self.0 & (ffi::ConfigFlags::FLAG_WINDOW_HIGHDPI as i32) != 0
     }
@@ -620,9 +619,7 @@ impl RaylibHandle {
     #[inline]
     pub fn set_window_icons(&mut self, images: &mut [raylib_sys::Image]) {
         use std::convert::TryInto;
-        unsafe {
-            ffi::SetWindowIcons(images.as_mut_ptr(), images.len().try_into().unwrap())
-        }
+        unsafe { ffi::SetWindowIcons(images.as_mut_ptr(), images.len().try_into().unwrap()) }
     }
 
     /// Sets title for window (only on desktop platforms).
@@ -671,9 +668,7 @@ impl RaylibHandle {
     /// Set window opacity, value opacity is between 0.0 and 1.0
     #[inline]
     pub fn set_window_opacity(&mut self, opacity: f32) {
-        unsafe {
-            ffi::SetWindowOpacity(opacity)
-        }
+        unsafe { ffi::SetWindowOpacity(opacity) }
     }
 
     /// Get current render width which is equal to screen width * dpi scale
@@ -687,7 +682,7 @@ impl RaylibHandle {
     pub fn get_screen_width(&self) -> i32 {
         unsafe { ffi::GetScreenWidth() }
     }
-    
+
     /// Gets current screen height.
     #[inline]
     pub fn get_screen_height(&self) -> i32 {
@@ -698,6 +693,16 @@ impl RaylibHandle {
     #[inline]
     pub fn get_window_position(&self) -> Vector2 {
         unsafe { ffi::GetWindowPosition().into() }
+    }
+
+    // Toggle window state: borderless windowed (only on desktop platforms).
+    pub fn toggle_borderless_windowed(&self) {
+        unsafe { ffi::ToggleBorderlessWindowed() }
+    }
+
+    // Focus the window (only on desktop platforms)
+    pub fn set_window_focused(&self) {
+        unsafe { ffi::SetWindowFocused() }
     }
 }
 
@@ -745,5 +750,25 @@ impl RaylibHandle {
     #[inline]
     pub unsafe fn get_window_handle(&mut self) -> *mut ::std::os::raw::c_void {
         ffi::GetWindowHandle()
+    }
+}
+
+// Advanced "frame control" functions.
+impl RaylibHandle {
+    #[cfg(feature = "custom_frame_control")]
+    /// Swap back buffer with front buffer (screen drawing)
+    /// This function, by default, is already done when the handle is dropped.
+    pub fn swap_screen_buffer(&self) {
+        unsafe { ffi::SwapScreenBuffer() }
+    }
+
+    #[cfg(feature = "custom_frame_control")]
+    pub fn poll_input_events(&self) {
+        unsafe { ffi::PollInputEvents() }
+    }
+
+    #[cfg(feature = "custom_frame_control")]
+    pub fn wait_time(&self, seconds: f64) {
+        unsafe { ffi::WaitTime(seconds) }
     }
 }
