@@ -35,6 +35,8 @@ mod tests;
 #[cfg(not(feature = "custom_frame_control"))]
 mod audio;
 #[cfg(not(feature = "custom_frame_control"))]
+mod data;
+#[cfg(not(feature = "custom_frame_control"))]
 mod drawing;
 #[cfg(feature = "custom_frame_control")]
 mod manual;
