@@ -38,6 +38,8 @@ mod audio;
 mod data;
 #[cfg(not(feature = "custom_frame_control"))]
 mod drawing;
+#[cfg(not(feature = "custom_frame_control"))]
+mod image;
 #[cfg(feature = "custom_frame_control")]
 mod manual;
 #[cfg(not(feature = "custom_frame_control"))]
