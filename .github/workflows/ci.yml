@@ -29,7 +29,7 @@ jobs:
       - name: Setup git submodules
         run: git submodule init; git submodule update
       - name: Install alsa, udev, glfw3, wayland
-        run: sudo apt-get update; sudo apt-get install --no-install-recommends libasound2-dev libudev-dev libglfw3-dev libwayland0-dev
+        run: sudo apt-get update; sudo apt-get install --no-install-recommends libasound2-dev libudev-dev libglfw3-dev libwayland-dev
         if: runner.os == 'linux'
       - name: Build & run tests
         run: cargo test
@@ -53,7 +53,7 @@ jobs:
       - name: Setup git submodules
         run: git submodule init; git submodule update
       - name: Install alsa, udev, glfw3, wayland
-        run: sudo apt-get update; sudo apt-get install --no-install-recommends libasound2-dev libudev-dev libglfw3-dev libwayland0-dev
+        run: sudo apt-get update; sudo apt-get install --no-install-recommends libasound2-dev libudev-dev libglfw3-dev libwayland-dev
       - name: Run doc tests with all features (this also compiles README examples)
         run: cargo test --doc --all-features
   lint:
@@ -77,7 +77,7 @@ jobs:
       - name: Setup git submodules
         run: git submodule init; git submodule update
       - name: Install alsa, udev, glfw3, wayland
-        run: sudo apt-get update; sudo apt-get install --no-install-recommends libasound2-dev libudev-dev libglfw3-dev libwayland0-dev
+        run: sudo apt-get update; sudo apt-get install --no-install-recommends libasound2-dev libudev-dev libglfw3-dev libwayland-dev
       - name: Run clippy
         run: cargo clippy --workspace --all-targets --all-features
       - name: Check format
