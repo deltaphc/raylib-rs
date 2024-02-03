@@ -6,8 +6,8 @@ use crate::ffi;
 /// Compress data (DEFLATE algorythm)
 /// ```rust
 /// use raylib::prelude::*;
-/// let data = compress_data(b"1111111111");
-/// let expected: &[u8] = &[61, 193, 33, 1, 0, 0, 0, 128, 160, 77, 254, 63, 103, 3, 98];
+/// let data = compress_data(b"11111");
+/// let expected: &[u8] = &[1, 5, 0, 250, 255, 49, 49, 49, 49, 49];
 /// assert_eq!(data, Ok(expected));
 /// ```
 pub fn compress_data(data: &[u8]) -> Result<&'static [u8], String> {
@@ -26,12 +26,14 @@ pub fn compress_data(data: &[u8]) -> Result<&'static [u8], String> {
 /// Decompress data (DEFLATE algorythm)
 /// ```rust
 /// use raylib::prelude::*;
-/// let input: &[u8] = &[61, 193, 33, 1, 0, 0, 0, 128, 160, 77, 254, 63, 103, 3, 98];
-/// let expected: &[u8] = b"1111111111";
+/// let input: &[u8] = &[1, 5, 0, 250, 255, 49, 49, 49, 49, 49];
+/// let expected: &[u8] = b"11111";
 /// let data = decompress_data(input);
 /// assert_eq!(data, Ok(expected));
 /// ```
 pub fn decompress_data(data: &[u8]) -> Result<&'static [u8], String> {
+    println!("{:?}", data.len());
+
     let mut out_length: i32 = 0;
     // CompressData doesn't actually modify the data, but the header is wrong
     let buffer = {
