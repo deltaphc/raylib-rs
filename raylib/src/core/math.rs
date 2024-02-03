@@ -19,10 +19,10 @@ use crate::misc::AsF32;
 use std::f32::consts::PI;
 use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssign};
 
-#[cfg(feature = "with_serde")]
-use serde::{Deserialize, Serialize};
 #[cfg(feature = "nalgebra_interop")]
 use nalgebra as na;
+#[cfg(feature = "with_serde")]
+use serde::{Deserialize, Serialize};
 
 make_rslice!(RSliceVec4, Vector4, ffi::MemFree);
 
@@ -39,40 +39,13 @@ macro_rules! optional_serde_struct {
                 $def
             }
         }
-    }
+    };
 }
 
 optional_serde_struct! {
     pub struct Vector2 {
         pub x: f32,
         pub y: f32,
-    }
-}
-
-#[cfg(feature = "nalgebra_interop")]
-impl From<na::Vector2<f32>> for Vector2 {
-    fn from(v: na::Vector2<f32>) -> Vector2 {
-        Vector2 {
-            x: v.x,
-            y: v.y
-        }
-    }
-}
-
-#[cfg(feature = "nalgebra_interop")]
-impl From<na::base::coordinates::XY<f32>> for Vector2 {
-    fn from(v: na::base::coordinates::XY<f32>) -> Vector2 {
-        Vector2 {
-            x: v.x,
-            y: v.y
-        }
-    }
-}
-
-#[cfg(feature = "nalgebra_interop")]
-impl Into<na::Vector2<f32>> for Vector2 {
-    fn into(self) -> na::Vector2<f32> {
-        na::Vector2::new(self.x, self.y)
     }
 }
 
@@ -159,7 +132,7 @@ impl Vector2 {
 
     /// Constant `Vector2` with both components set to one.
     const ONE: Vector2 = Vector2 { x: 1.0, y: 1.0 };
-    
+
     /// Returns a new `Vector2` with specified components.
     pub const fn new(x: f32, y: f32) -> Vector2 {
         Vector2 { x, y }
@@ -397,35 +370,6 @@ optional_serde_struct! {
         pub x: f32,
         pub y: f32,
         pub z: f32,
-    }
-}
-
-#[cfg(feature = "nalgebra_interop")]
-impl From<na::Vector3<f32>> for Vector3 {
-    fn from(v: na::Vector3<f32>) -> Vector3 {
-        Vector3 {
-            x: v.x,
-            y: v.y,
-            z: v.z
-        }
-    }
-}
-
-#[cfg(feature = "nalgebra_interop")]
-impl From<na::base::coordinates::XYZ<f32>> for Vector3 {
-    fn from(v: na::base::coordinates::XYZ<f32>) -> Vector3 {
-        Vector3 {
-            x: v.x,
-            y: v.y,
-            z: v.z
-        }
-    }
-}
-
-#[cfg(feature = "nalgebra_interop")]
-impl Into<na::Vector3<f32>> for Vector3 {
-    fn into(self) -> na::Vector3<f32> {
-        na::Vector3::new(self.x, self.y, self.z)
     }
 }
 
@@ -897,7 +841,7 @@ impl From<na::Vector4<f32>> for Vector4 {
             x: v.x,
             y: v.y,
             z: v.z,
-            w: v.w
+            w: v.w,
         }
     }
 }
@@ -909,7 +853,7 @@ impl From<na::base::coordinates::XYZW<f32>> for Vector4 {
             x: v.x,
             y: v.y,
             z: v.z,
-            w: v.w
+            w: v.w,
         }
     }
 }
@@ -1270,25 +1214,6 @@ impl From<na::geometry::Quaternion<f32>> for Quaternion {
             y: q.coords.y,
             z: q.coords.z,
             w: q.coords.w,
-        }
-    }
-}
-
-#[cfg(feature = "nalgebra_interop")]
-impl Into<na::geometry::Quaternion<f32>> for Quaternion {
-    fn into(self) -> na::geometry::Quaternion<f32> {
-        na::geometry::Quaternion::new(self.x, self.y, self.z, self.w)
-    }
-}
-
-#[cfg(feature = "nalgebra_interop")]
-impl From<na::geometry::Quaternion<f32>> for Quaternion {
-    fn from(q: na::geometry::Quaternion<f32>) -> Quaternion {
-        Quaternion {
-            x: q.coords.x,
-            y: q.coords.y,
-            z: q.coords.z,
-            w: q.coords.w
         }
     }
 }
@@ -2057,7 +1982,7 @@ impl Into<ffi::RayCollision> for &RayCollision {
             hit: self.hit.into(),
             distance: self.distance.into(),
             point: self.point.into(),
-            normal: self.normal.into()
+            normal: self.normal.into(),
         }
     }
 }
