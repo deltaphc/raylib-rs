@@ -29,8 +29,6 @@ fn build_with_cmake(_src_path: &str) {}
 
 #[cfg(not(feature = "nobuild"))]
 fn build_with_cmake(src_path: &str) {
-    
-
     // CMake uses different lib directories on different systems.
     // I do not know how CMake determines what directory to use,
     // so we will check a few possibilities and use whichever is present.
@@ -286,8 +284,8 @@ fn cp_raylib() -> String {
 
     let mut options = fs_extra::dir::CopyOptions::new();
     options.skip_exist = true;
-    fs_extra::dir::copy("raylib", out, &options).unwrap_or_else(|_| panic!("failed to copy raylib source to {}",
-        &out.to_string_lossy()));
+    fs_extra::dir::copy("raylib", out, &options)
+        .unwrap_or_else(|_| panic!("failed to copy raylib source to {}", &out.to_string_lossy()));
 
     out.join("raylib").to_string_lossy().to_string()
 }

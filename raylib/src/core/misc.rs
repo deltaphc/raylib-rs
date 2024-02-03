@@ -1,11 +1,10 @@
 //! Useful functions that don't fit anywhere else
 
-
 use crate::core::texture::Image;
 use crate::core::{RaylibHandle, RaylibThread};
 use crate::ffi;
 use std::ffi::CString;
-use std::ops::{Range};
+use std::ops::Range;
 
 /// Returns a random value between min and max (both included)
 /// ```ignore

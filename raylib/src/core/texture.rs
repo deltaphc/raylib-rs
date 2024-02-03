@@ -1,6 +1,5 @@
 //! Image and texture related functions
 
-
 use crate::core::color::Color;
 use crate::core::math::Rectangle;
 use crate::core::{RaylibHandle, RaylibThread};

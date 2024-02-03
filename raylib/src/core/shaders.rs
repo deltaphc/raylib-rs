@@ -82,7 +82,7 @@ impl RaylibHandle {
         unsafe {
             WeakShader(ffi::Shader {
                 id: ffi::rlGetShaderIdDefault(),
-                locs: ffi::rlGetShaderLocsDefault()
+                locs: ffi::rlGetShaderLocsDefault(),
             })
         }
     }

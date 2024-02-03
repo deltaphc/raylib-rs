@@ -4,8 +4,6 @@ use crate::ffi;
 use crate::core::RaylibHandle;
 use std::ffi::{CStr, CString, NulError};
 
-
-
 impl RaylibHandle {
     /// Checks if a file has been dropped into the window.
     #[inline]
