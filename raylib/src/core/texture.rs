@@ -141,23 +141,19 @@ impl Image {
         self.0.data
     }
 
-    /* pub fn ImageBlurGaussian(image: *mut Image, blurSize: ::std::os::raw::c_int);
-    pub fn ImageRotate(image: *mut Image, degrees: ::std::os::raw::c_int);
-    pub fn ImageRotateCW(image: *mut Image);
-    pub fn ImageRotateCCW(image: *mut Image);
-    pub fn GetImageColor(image: Image, x: ::std::os::raw::c_int, y: ::std::os::raw::c_int)
-    pub fn ImageDrawCircleLines(
-    pub fn ImageDrawCircleLinesV( */
-
+    /// Apply Gaussian blur using a box blur approximation
     pub fn blur_gaussian(&mut self, blur_size: i32) {
         unsafe { ffi::ImageBlurGaussian(&mut self.0, blur_size) }
     }
+    /// Rotate image by input angle in degrees (-359 to 359)
     pub fn rotate(&mut self, degrees: i32) {
         unsafe { ffi::ImageRotate(&mut self.0, degrees) }
     }
+    /// Get image pixel color at (x, y) position
     pub fn get_color(&mut self, x: i32, y: i32) -> Color {
         Color::from(unsafe { ffi::GetImageColor(self.0, x, y) })
     }
+    /// Draw circle outline within an image
     pub fn draw_circle_lines(
         &mut self,
         center_x: i32,
@@ -167,6 +163,7 @@ impl Image {
     ) {
         unsafe { ffi::ImageDrawCircleLines(&mut self.0, center_x, center_y, radius, color.into()) }
     }
+    /// Draw circle outline within an image (Vector version)
     pub fn draw_circle_lines_v(
         &mut self,
         center: crate::prelude::Vector2,
