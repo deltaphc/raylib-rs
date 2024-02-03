@@ -28,11 +28,34 @@ jobs:
           override: true
       - name: Setup git submodules
         run: git submodule init; git submodule update
-      - name: Install alsa, udev, glfw3, wayland
+      - name: Install alsa, udev, glfw3, and wayland
         run: sudo apt-get update; sudo apt-get install --no-install-recommends libasound2-dev libudev-dev libglfw3-dev libwayland-dev
         if: runner.os == 'linux'
-      - name: Build & run tests
+      - name: Build & run tests under Windows
         run: cargo test
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ubuntu-latest-cargo-build-stable-${{ hashFiles('**/Cargo.toml') }}
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+      - name: Setup git submodules
+        run: git submodule init; git submodule update
+      - name: Install alsa, udev, glfw3, and wayland
+        run: sudo apt-get update; sudo apt-get install --no-install-recommends libasound2-dev libudev-dev libglfw3-dev libwayland-dev
+      - name: Build & run tests under Ubuntu
+        run: cargo test 
   all-doc-tests:
     runs-on: ubuntu-latest
     steps:
@@ -52,7 +75,7 @@ jobs:
           override: true
       - name: Setup git submodules
         run: git submodule init; git submodule update
-      - name: Install alsa, udev, glfw3, wayland
+      - name: Install alsa, udev, glfw3, and wayland
         run: sudo apt-get update; sudo apt-get install --no-install-recommends libasound2-dev libudev-dev libglfw3-dev libwayland-dev
       - name: Run doc tests with all features (this also compiles README examples)
         run: cargo test --doc --all-features
@@ -76,7 +99,7 @@ jobs:
           override: true
       - name: Setup git submodules
         run: git submodule init; git submodule update
-      - name: Install alsa, udev, glfw3, wayland
+      - name: Install alsa, udev, glfw3, and wayland
         run: sudo apt-get update; sudo apt-get install --no-install-recommends libasound2-dev libudev-dev libglfw3-dev libwayland-dev
       - name: Run clippy
         run: cargo clippy --workspace --all-targets --all-features
