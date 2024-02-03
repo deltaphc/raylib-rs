@@ -54,7 +54,7 @@ Permission is granted to anyone to use this software for any purpose, including 
 //!     }
 //! }
 //! ```
-#![cfg_attr(feature = "nightly", feature(auto_traits))]
+//#![cfg_attr(feature = "nightly", feature(auto_traits))]
 #![allow(dead_code)]
 pub mod consts;
 pub mod core;

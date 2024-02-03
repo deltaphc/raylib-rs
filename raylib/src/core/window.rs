@@ -2,11 +2,14 @@
 use crate::core::math::{Matrix, Ray, Vector2};
 use crate::core::{RaylibHandle, RaylibThread};
 use crate::ffi;
-#[cfg(feature = "serde")]
-use serde::{Deserialize, Serialize};
 use std::ffi::{CStr, CString, IntoStringError, NulError};
 use std::os::raw::c_char;
 
+#[cfg(not(feature = "with_serde"))]
+#[cfg(feature = "serde")]
+use serde::{Deserialize, Serialize};
+
+#[cfg(not(feature = "serde"))]
 #[cfg(feature = "with_serde")]
 use serde::{Deserialize, Serialize};
 
