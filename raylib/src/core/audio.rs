@@ -336,6 +336,29 @@ impl Wave {
         };
         WaveSamples(ManuallyDrop::new(as_slice))
     }
+
+    pub fn seek_music_stream(&mut self, music: &mut Music, position: f32) {
+        unsafe {
+            ffi::SeekMusicStream(music.0, position);
+        }
+    }
+
+    pub fn set_music_pan(&mut self, music: &mut Music, pan: f32) {
+        unsafe {
+            ffi::SetMusicPan(music.0, pan);
+        }
+    }
+    pub fn set_audio_stream_pan(&mut self, audio_stream: &mut AudioStream, pan: f32) {
+        unsafe {
+            ffi::SetAudioStreamPan(audio_stream.0, pan);
+        }
+    }
+
+    pub fn set_sound_pan(&mut self, sound: &mut Sound, pan: f32) {
+        unsafe {
+            ffi::SetSoundPan(sound.0, pan);
+        }
+    }
 }
 
 impl AsRef<ffi::AudioStream> for Sound {
@@ -354,6 +377,7 @@ impl Sound {
     pub fn is_ready(&self) -> bool {
         unsafe { ffi::IsSoundReady(self.0) }
     }
+
     pub fn frame_count(&self) -> u32 {
         self.0.frameCount
     }
