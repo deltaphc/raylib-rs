@@ -138,10 +138,27 @@ impl Color {
 
     /// Color fade-in or fade-out, alpha goes from 0.0f to 1.0f
     #[inline]
+    #[deprecated = "Has been superseded by .fade()"]
     pub fn fade(&self, alpha: f32) -> Color {
         unsafe { ffi::Fade(self.into(), alpha).into() }
     }
 
+    /// Get color multiplied with another color
+    pub fn tint(&self, color: Self) -> Self {
+        unsafe { ffi::ColorTint(self.into(), color.into()).into() }
+    }
+    /// Get color with brightness correction, brightness factor goes from -1.0f to 1.0f
+    pub fn brightness(&self, factor: f32) -> Self {
+        unsafe { ffi::ColorBrightness(self.into(), factor).into() }
+    }
+    /// Get color with contrast correction, contrast values between -1.0f and 1.0f
+    pub fn contrast(&self, factor: f32) -> Self {
+        unsafe { ffi::ColorContrast(self.into(), factor).into() }
+    }
+    /// Get color with alpha applied, alpha goes from 0.0f to 1.0f
+    pub fn alpha(&self, alpha: f32) -> Self {
+        unsafe { ffi::ColorAlpha(self.into(), alpha).into() }
+    }
     /// Color fade-in or fade-out, alpha goes from 0.0f to 1.0f
     #[inline]
     pub fn color_alpha_blend(dst: &Color, src: &Color, tint: &Color) -> Color {
