@@ -656,6 +656,51 @@ impl Image {
         }
     }
 
+    /// Generate images an image linear gradient.
+    /// `direction` in expected to be degrees [0..360]. 0 results in a vertical gradient
+    pub fn gen_image_gradient_linear(
+        width: i32,
+        height: i32,
+        direction: i32,
+        start: Color,
+        end: Color,
+    ) -> Image {
+        unsafe {
+            Image(ffi::GenImageGradientLinear(
+                width,
+                height,
+                direction,
+                start.into(),
+                end.into(),
+            ))
+        }
+    }
+    /// Generate images an image with a square gradient
+    /// For best results, `density` should be `0.0..1.0``
+    pub fn gen_image_gradient_square(
+        width: i32,
+        height: i32,
+        density: f32,
+        start: Color,
+        end: Color,
+    ) -> Image {
+        unsafe {
+            Image(ffi::GenImageGradientSquare(
+                width,
+                height,
+                density,
+                start.into(),
+                end.into(),
+            ))
+        }
+    }
+
+    // Generates an image with text
+    pub fn gen_image_text(width: i32, height: i32, text: &str) -> Image {
+        let c_str = CString::new(text).unwrap();
+        unsafe { Image(ffi::GenImageText(width, height, c_str.as_ptr())) }
+    }
+
     /// Generates an Image containing white noise.
     #[inline]
     pub fn gen_image_white_noise(width: i32, height: i32, factor: f32) -> Image {
