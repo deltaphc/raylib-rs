@@ -228,6 +228,9 @@ impl Font {
         std::mem::forget(self);
         return w;
     }
+    pub fn is_ready(&self) -> bool {
+        unsafe { ffi::IsFontReady(self.0) }
+    }
     /// Returns a new `Font` using provided `GlyphInfo` data and parameters.
     fn from_data(
         chars: &[ffi::GlyphInfo],
