@@ -10,6 +10,10 @@ use serde::{Deserialize, Serialize};
 #[cfg(feature = "with_serde")]
 use serde::{Deserialize, Serialize};
 
+#[cfg(feature = "with_serde")]
+#[cfg(feature = "serde")]
+use serde::{Deserialize, Serialize};
+
 #[repr(C)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Default)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]

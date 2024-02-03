@@ -9,8 +9,12 @@ use std::os::raw::c_char;
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
 
-#[cfg(not(feature = "serde"))]
 #[cfg(feature = "with_serde")]
+#[cfg(not(feature = "serde"))]
+use serde::{Deserialize, Serialize};
+
+#[cfg(feature = "with_serde")]
+#[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
 
 // MonitorInfo grabs the sizes (virtual and physical) of your monitor
