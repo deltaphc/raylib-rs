@@ -105,6 +105,10 @@ impl RenderTexture2D {
         std::mem::forget(self);
         m
     }
+
+    pub fn is_ready(&self) -> bool {
+        unsafe { ffi::IsRenderTextureReady(self.0) }
+    }
 }
 
 pub trait RaylibRenderTexture2D: AsRef<ffi::RenderTexture2D> + AsMut<ffi::RenderTexture2D> {
