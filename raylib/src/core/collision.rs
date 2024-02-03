@@ -1,6 +1,6 @@
 //! Common collision handling code
 use crate::core::math::{BoundingBox, Ray, Rectangle, Vector2};
-use crate::core::models::Model;
+
 use crate::ffi;
 use crate::math::{Matrix, RayCollision};
 use crate::models::Mesh;

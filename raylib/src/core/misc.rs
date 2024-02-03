@@ -1,11 +1,11 @@
 //! Useful functions that don't fit anywhere else
-use libc::RAND_MAX;
+
 
 use crate::core::texture::Image;
 use crate::core::{RaylibHandle, RaylibThread};
 use crate::ffi;
 use std::ffi::CString;
-use std::ops::{Range, RangeBounds};
+use std::ops::{Range};
 
 /// Returns a random value between min and max (both included)
 /// ```ignore

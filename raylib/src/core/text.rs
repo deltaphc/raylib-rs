@@ -307,6 +307,7 @@ pub fn gen_image_font_atlas(
         ));
 
         let mut recs = Vec::with_capacity(chars.len());
+        #[allow(clippy::uninit_vec)]
         recs.set_len(chars.len());
         std::ptr::copy(ptr, recs.as_mut_ptr(), chars.len());
         ffi::MemFree(ptr as *mut libc::c_void);

@@ -3,8 +3,8 @@ use crate::ffi;
 
 use crate::core::RaylibHandle;
 use std::ffi::{CStr, CString, NulError};
-use std::path::Path;
-use std::str::Utf8Error;
+
+
 
 impl RaylibHandle {
     /// Checks if a file has been dropped into the window.

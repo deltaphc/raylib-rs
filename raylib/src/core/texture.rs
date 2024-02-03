@@ -1,5 +1,5 @@
 //! Image and texture related functions
-use raylib_sys::Vector2;
+
 
 use crate::core::color::Color;
 use crate::core::math::Rectangle;
