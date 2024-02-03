@@ -381,7 +381,7 @@ pub trait RaylibDraw {
         unsafe {
             ffi::DrawLineStrip(
                 points.as_ptr() as *mut ffi::Vector2,
-                points.len() as i32 as i32,
+                points.len() as i32,
                 color.into(),
             );
         }
@@ -773,7 +773,7 @@ pub trait RaylibDraw {
         unsafe {
             ffi::DrawTriangleFan(
                 points.as_ptr() as *mut ffi::Vector2,
-                points.len() as i32 as i32,
+                points.len() as i32,
                 color.into(),
             );
         }
@@ -785,7 +785,7 @@ pub trait RaylibDraw {
         unsafe {
             ffi::DrawTriangleStrip(
                 points.as_ptr() as *mut ffi::Vector2,
-                points.len() as i32 as i32,
+                points.len() as i32,
                 color.into(),
             );
         }
@@ -1290,11 +1290,7 @@ pub trait RaylibDraw3D {
     #[inline]
     fn draw_triangle_strip3D(&mut self, points: &[Vector3], color: impl Into<ffi::Color>) {
         unsafe {
-            ffi::DrawTriangleStrip3D(
-                points.as_ptr() as *mut _,
-                points.len() as i32 as i32,
-                color.into(),
-            );
+            ffi::DrawTriangleStrip3D(points.as_ptr() as *mut _, points.len() as i32, color.into());
         }
     }
 
