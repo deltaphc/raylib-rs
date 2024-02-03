@@ -2,13 +2,28 @@
 mod image_test {
     use crate::tests::*;
     use raylib::prelude::*;
+    fn default_image() -> Image {
+        Image::load_image("./resources/billboard.png").unwrap()
+    }
     fn run_image_test<A>(thread: &RaylibThread, name: &str, func: &mut A)
     where
         A: FnMut(&mut Image) -> (),
     {
+        run_image_test_w_create(&thread, name, &mut default_image, func)
+    }
+    fn run_image_test_w_create<A, B>(
+        thread: &RaylibThread,
+        name: &str,
+        create_func: &mut B,
+        func: &mut A,
+    ) where
+        A: FnMut(&mut Image) -> (),
+        B: FnMut() -> Image,
+    {
         let mut handle = TEST_HANDLE.write().unwrap();
         let rl = handle.as_mut().unwrap();
-        let mut img = Image::load_image("./resources/billboard.png").unwrap();
+
+        let mut img = create_func();
         func(&mut img);
 
         let tex = rl.load_texture_from_image(&thread, &img).unwrap();
@@ -51,5 +66,49 @@ mod image_test {
         run_image_test(&thread, "draw_circle_lines_v", &mut |img| {
             img.draw_circle_lines_v(Vector2::new(10.0, 10.0), 10, Color::RED);
         });
+    }
+
+    ray_test!(gen_image_gradient_linear);
+    fn gen_image_gradient_linear(thread: &RaylibThread) {
+        run_image_test_w_create(
+            &thread,
+            "gen_image_gradient_linear",
+            &mut || {
+                Image::gen_image_gradient_linear(
+                    TEST_WIDTH,
+                    TEST_HEIGHT,
+                    45,
+                    Color::RED,
+                    Color::BLUE,
+                )
+            },
+            &mut |_img| {},
+        );
+    }
+    ray_test!(gen_image_gradient_square);
+    fn gen_image_gradient_square(thread: &RaylibThread) {
+        run_image_test_w_create(
+            &thread,
+            "gen_image_gradient_square",
+            &mut || {
+                Image::gen_image_gradient_square(
+                    TEST_WIDTH,
+                    TEST_HEIGHT,
+                    0.1,
+                    Color::RED,
+                    Color::BLUE,
+                )
+            },
+            &mut |_img| {},
+        );
+    }
+    ray_test!(gen_image_text);
+    fn gen_image_text(thread: &RaylibThread) {
+        run_image_test_w_create(
+            &thread,
+            "gen_image_text",
+            &mut || Image::gen_image_text(TEST_WIDTH / 5, TEST_HEIGHT / 5, "text image"),
+            &mut |_img| {},
+        );
     }
 }
