@@ -261,6 +261,10 @@ impl Wave {
         std::mem::forget(self);
         inner
     }
+
+    pub fn is_ready(&self) -> bool {
+        unsafe { ffi::IsWaveReady(self.0) }
+    }
     /// Loads wave data from file into RAM.
     #[inline]
     pub fn load_wave(filename: &str) -> Result<Wave, String> {
@@ -347,6 +351,9 @@ impl AsMut<ffi::AudioStream> for Sound {
 }
 
 impl Sound {
+    pub fn is_ready(&self) -> bool {
+        unsafe { ffi::IsSoundReady(self.0) }
+    }
     pub fn frame_count(&self) -> u32 {
         self.0.frameCount
     }
@@ -402,6 +409,9 @@ impl Music {
 }
 
 impl AudioStream {
+    pub fn is_ready(&self) -> bool {
+        unsafe { ffi::IsAudioStreamReady(self.0) }
+    }
     pub fn sample_rate(&self) -> u32 {
         self.0.sampleRate
     }
