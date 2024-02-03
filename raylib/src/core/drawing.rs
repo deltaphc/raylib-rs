@@ -1246,7 +1246,6 @@ pub trait RaylibDraw {
         unsafe { ffi::GetSplinePointBezierQuad(p1.into(), c2.into(), p3.into(), t).into() }
     }
 
-    /// Get (evaluate) spline point: Cubic Bezier
     fn get_spline_point_bezier_cubic(
         &mut self,
         p1: Vector2,

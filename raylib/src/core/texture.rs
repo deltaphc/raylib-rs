@@ -1,4 +1,6 @@
 //! Image and texture related functions
+use raylib_sys::Vector2;
+
 use crate::core::color::Color;
 use crate::core::math::Rectangle;
 use crate::core::{RaylibHandle, RaylibThread};
@@ -137,6 +139,41 @@ impl Image {
     }
     pub unsafe fn data(&self) -> *mut ::std::os::raw::c_void {
         self.0.data
+    }
+
+    /* pub fn ImageBlurGaussian(image: *mut Image, blurSize: ::std::os::raw::c_int);
+    pub fn ImageRotate(image: *mut Image, degrees: ::std::os::raw::c_int);
+    pub fn ImageRotateCW(image: *mut Image);
+    pub fn ImageRotateCCW(image: *mut Image);
+    pub fn GetImageColor(image: Image, x: ::std::os::raw::c_int, y: ::std::os::raw::c_int)
+    pub fn ImageDrawCircleLines(
+    pub fn ImageDrawCircleLinesV( */
+
+    pub fn blur_gaussian(&mut self, blur_size: i32) {
+        unsafe { ffi::ImageBlurGaussian(&mut self.0, blur_size) }
+    }
+    pub fn rotate(&mut self, degrees: i32) {
+        unsafe { ffi::ImageRotate(&mut self.0, degrees) }
+    }
+    pub fn get_color(&mut self, x: i32, y: i32) -> Color {
+        Color::from(unsafe { ffi::GetImageColor(self.0, x, y) })
+    }
+    pub fn draw_circle_lines(
+        &mut self,
+        center_x: i32,
+        center_y: i32,
+        radius: i32,
+        color: crate::prelude::Color,
+    ) {
+        unsafe { ffi::ImageDrawCircleLines(&mut self.0, center_x, center_y, radius, color.into()) }
+    }
+    pub fn draw_circle_lines_v(
+        &mut self,
+        center: crate::prelude::Vector2,
+        center_y: i32,
+        color: Color,
+    ) {
+        unsafe { ffi::ImageDrawCircleLinesV(&mut self.0, center.into(), center_y, color.into()) }
     }
 
     #[inline]
@@ -575,7 +612,7 @@ impl Image {
         unsafe { Image(ffi::GenImageColor(width, height, color.into())) }
     }
     /// TODO: add the new image gradent functions
-    
+
     /// Generates an Image containing a radial gradient.
     #[inline]
     pub fn gen_image_gradient_radial(
@@ -641,16 +678,18 @@ impl Image {
         }
         Ok(Image(i))
     }
-    
+
     /// Loads image from a given memory buffer as a vector of arrays
-    pub fn load_image_from_mem(filetype: &str, bytes: &Vec<u8>, size: i32) -> Result<Image, String> {
+    pub fn load_image_from_mem(
+        filetype: &str,
+        bytes: &Vec<u8>,
+        size: i32,
+    ) -> Result<Image, String> {
         let c_filetype = CString::new(filetype).unwrap();
         let c_bytes = bytes.as_ptr();
         let i = unsafe { ffi::LoadImageFromMemory(c_filetype.as_ptr(), c_bytes, size) };
         if i.data.is_null() {
-            return Err(format!(
-            "Image data is null. Check provided buffer data"
-            ))
+            return Err(format!("Image data is null. Check provided buffer data"));
         };
         Ok(Image(i))
     }
