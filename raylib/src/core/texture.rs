@@ -737,6 +737,10 @@ impl Image {
             ))
         }
     }
+
+    pub fn is_ready(&self) -> bool {
+        unsafe { ffi::IsImageReady(self.0) }
+    }
 }
 
 impl RaylibTexture2D for WeakTexture2D {}
@@ -827,6 +831,10 @@ pub trait RaylibTexture2D: AsRef<ffi::Texture2D> + AsMut<ffi::Texture2D> {
         unsafe {
             ffi::SetTextureWrap(*self.as_ref(), wrap_mode as i32);
         }
+    }
+
+    fn is_ready(&self) -> bool {
+        unsafe { ffi::IsTextureReady(*self.as_ref()) }
     }
 }
 
