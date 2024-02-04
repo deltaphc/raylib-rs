@@ -149,7 +149,7 @@ fn main() {
                         0.0,
                         0.0,
                         tex_pitch.width() as f32,
-                        tex_pitch.height() as f32 as f32,
+                        tex_pitch.height() as f32,
                     ),
                     Rectangle::new(
                         center_x,
@@ -172,7 +172,7 @@ fn main() {
                         0.0,
                         0.0,
                         tex_plane.width() as f32,
-                        tex_plane.height() as f32 as f32,
+                        tex_plane.height() as f32,
                     ),
                     Rectangle::new(
                         center_x,

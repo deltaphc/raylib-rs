@@ -213,7 +213,7 @@ pub trait RaylibDrawGui {
                 &mut scroll,
             )
         };
-        return (bounds.into(), scroll.into());
+        (bounds.into(), scroll.into())
     }
     /// Label control, shows text
     #[inline]

@@ -228,6 +228,9 @@ impl Font {
         std::mem::forget(self);
         return w;
     }
+    pub fn is_ready(&self) -> bool {
+        unsafe { ffi::IsFontReady(self.0) }
+    }
     /// Returns a new `Font` using provided `GlyphInfo` data and parameters.
     fn from_data(
         chars: &[ffi::GlyphInfo],
@@ -304,6 +307,7 @@ pub fn gen_image_font_atlas(
         ));
 
         let mut recs = Vec::with_capacity(chars.len());
+        #[allow(clippy::uninit_vec)]
         recs.set_len(chars.len());
         std::ptr::copy(ptr, recs.as_mut_ptr(), chars.len());
         ffi::MemFree(ptr as *mut libc::c_void);

@@ -4,7 +4,7 @@ use crate::core::math::Vector2;
 use crate::core::RaylibHandle;
 use crate::ffi;
 
-use std::ffi::{CStr};
+use std::ffi::CStr;
 
 impl RaylibHandle {
     /// Detect if a key has been pressed once.
@@ -227,11 +227,11 @@ impl RaylibHandle {
     pub fn get_mouse_wheel_move(&self) -> f32 {
         unsafe { ffi::GetMouseWheelMove() }
     }
-    
+
     /// Get mouse wheel movement for both X and Y
     #[inline]
     pub fn get_mouse_wheel_move_v(&self) -> raylib_sys::Vector2 {
-        unsafe { ffi::GetMouseWheelMoveV()}
+        unsafe { ffi::GetMouseWheelMoveV() }
     }
 
     /// Returns touch position X for touch point 0 (relative to screen size).
@@ -258,6 +258,11 @@ impl RaylibHandle {
         unsafe {
             ffi::SetGesturesEnabled(gesture_flags as u32);
         }
+    }
+
+    /// Set internal gamepad mappings (SDL_GameControllerDB)
+    pub fn set_gamepad_mappings(&self, bind: &[i8]) -> i32 {
+        unsafe { ffi::SetGamepadMappings(bind.as_ptr()) }
     }
 
     /// Checks if a gesture have been detected.

@@ -1,4 +1,6 @@
 //! Utility code for using Raylib [`Camera3D`] and [`Camera2D`]
+use raylib_sys::CameraMode;
+
 use crate::core::math::{Vector2, Vector3};
 use crate::core::RaylibHandle;
 use crate::ffi;
@@ -95,13 +97,12 @@ impl Camera3D {
 }
 
 impl RaylibHandle {
-    
     /// Updates camera position for selected mode.
     #[inline]
-    pub fn update_camera(&self, camera: &mut Camera3D, mode: i32) {
+    pub fn update_camera(&self, camera: &mut Camera3D, mode: CameraMode) {
         unsafe {
             let mut fficam: ffi::Camera3D = (*camera).into();
-            ffi::UpdateCamera(&mut fficam, mode);
+            ffi::UpdateCamera(&mut fficam, mode as i32);
             *camera = fficam.into();
         }
     }

@@ -8,7 +8,7 @@ jobs:
   test:
     strategy:
       matrix:
-      # os: [windows-latest, ubuntu-latest, macos-latest]
+        # os: [windows-latest, ubuntu-latest, macos-latest]
         os: [windows-latest]
     runs-on: ${{ matrix.os }}
     steps:
@@ -28,10 +28,10 @@ jobs:
           override: true
       - name: Setup git submodules
         run: git submodule init; git submodule update
-      - name: Install alsa and udev
-        run: sudo apt-get update; sudo apt-get install --no-install-recommends libasound2-dev libudev-dev
+      - name: Install alsa, udev, glfw3, and wayland
+        run: sudo apt-get update; sudo apt-get install --no-install-recommends libasound2-dev libudev-dev libglfw3-dev libwayland-dev
         if: runner.os == 'linux'
-      - name: Build & run tests
+      - name: Build & run tests under Windows
         run: cargo test
   all-doc-tests:
     runs-on: ubuntu-latest
@@ -52,8 +52,8 @@ jobs:
           override: true
       - name: Setup git submodules
         run: git submodule init; git submodule update
-      - name: Install alsa and udev
-        run: sudo apt-get update; sudo apt-get install --no-install-recommends libasound2-dev libudev-dev
+      - name: Install alsa, udev, glfw3, and wayland
+        run: sudo apt-get update; sudo apt-get install --no-install-recommends libasound2-dev libudev-dev libglfw3-dev libwayland-dev
       - name: Run doc tests with all features (this also compiles README examples)
         run: cargo test --doc --all-features
   lint:
@@ -76,8 +76,8 @@ jobs:
           override: true
       - name: Setup git submodules
         run: git submodule init; git submodule update
-      - name: Install alsa and udev
-        run: sudo apt-get update; sudo apt-get install --no-install-recommends libasound2-dev libudev-dev
+      - name: Install alsa, udev, glfw3, and wayland
+        run: sudo apt-get update; sudo apt-get install --no-install-recommends libasound2-dev libudev-dev libglfw3-dev libwayland-dev
       - name: Run clippy
         run: cargo clippy --workspace --all-targets --all-features
       - name: Check format

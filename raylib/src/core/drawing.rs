@@ -281,7 +281,7 @@ impl<'a, T: RaylibDraw3D> RaylibDraw3D for RaylibScissorMode<'a, T> {}
 // Actual drawing functions
 
 pub trait RaylibDraw {
-    /// Sets background color (framebuffer clear color).
+    /// Sets background color (framebuffer clear color.into()).
     #[inline]
     fn clear_background(&mut self, color: impl Into<ffi::Color>) {
         unsafe {
@@ -888,7 +888,6 @@ pub trait RaylibDraw {
         }
     }
 
-
     /// Draw from a region of `texture` defined by the `source_rec` rectangle with pro parameters.
     #[inline]
     fn draw_texture_pro(
@@ -911,7 +910,6 @@ pub trait RaylibDraw {
             );
         }
     }
-
 
     ///Draws a texture (or part of it) that stretches or shrinks nicely
     #[inline]
@@ -1002,6 +1000,262 @@ pub trait RaylibDraw {
                 scale,
                 tint.into(),
             );
+        }
+    }
+
+    /// Enable waiting for events when the handle is dropped, no automatic event polling
+    fn enable_event_waiting(&self) {
+        unsafe { ffi::EnableEventWaiting() }
+    }
+
+    /// Disable waiting for events when the handle is dropped, no automatic event polling
+    fn disable_event_waiting(&self) {
+        unsafe { ffi::DisableEventWaiting() }
+    }
+
+    /// Draw a polygon outline of n sides with extended parameters
+    fn draw_poly_lines_ex(
+        &mut self,
+        center: Vector2,
+        sides: i32,
+        radius: f32,
+        rotation: f32,
+        line_thick: f32,
+        color: impl Into<ffi::Color>,
+    ) {
+        unsafe {
+            ffi::DrawPolyLinesEx(
+                center.into(),
+                sides,
+                radius,
+                rotation,
+                line_thick,
+                color.into(),
+            );
+        }
+    }
+    /// Draw spline: Linear, minimum 2 points
+    fn draw_spline_linear(&mut self, points: &[Vector2], thick: f32, color: impl Into<ffi::Color>) {
+        unsafe {
+            ffi::DrawSplineLinear(
+                points.as_ptr() as *mut ffi::Vector2,
+                points.len() as i32,
+                thick,
+                color.into(),
+            )
+        }
+    }
+    /// Draw spline: B-Spline, minimum 4 points
+    fn draw_spline_basis(&mut self, points: &[Vector2], thick: f32, color: impl Into<ffi::Color>) {
+        unsafe {
+            ffi::DrawSplineBasis(
+                points.as_ptr() as *mut ffi::Vector2,
+                points.len() as i32,
+                thick,
+                color.into(),
+            )
+        }
+    }
+    /// Draw spline: Catmull-Rom, minimum 4 points
+    fn draw_spline_catmull_rom(
+        &mut self,
+        points: &[Vector2],
+        thick: f32,
+        color: impl Into<ffi::Color>,
+    ) {
+        unsafe {
+            ffi::DrawSplineCatmullRom(
+                points.as_ptr() as *mut ffi::Vector2,
+                points.len() as i32,
+                thick,
+                color.into(),
+            )
+        }
+    }
+
+    /// Draw spline: Quadratic Bezier, minimum 3 points (1 control point): [p1, c2, p3, c4...]
+    fn draw_spline_bezier_quadratic(
+        &mut self,
+        points: &[Vector2],
+        thick: f32,
+        color: impl Into<ffi::Color>,
+    ) {
+        unsafe {
+            ffi::DrawSplineBezierQuadratic(
+                points.as_ptr() as *mut ffi::Vector2,
+                points.len() as i32,
+                thick,
+                color.into(),
+            )
+        }
+    }
+
+    /// Draw spline: Cubic Bezier, minimum 4 points (2 control points): [p1, c2, c3, p4, c5, c6...]
+    fn draw_spline_bezier_cubic(
+        &mut self,
+        points: &[Vector2],
+        thick: f32,
+        color: impl Into<ffi::Color>,
+    ) {
+        unsafe {
+            ffi::DrawSplineBezierCubic(
+                points.as_ptr() as *mut ffi::Vector2,
+                points.len() as i32,
+                thick,
+                color.into(),
+            )
+        }
+    }
+
+    /// Draw spline segment: Linear, 2 points
+    fn draw_spline_segment_linear(
+        &mut self,
+        p1: Vector2,
+        p2: Vector2,
+        thick: f32,
+        color: impl Into<ffi::Color>,
+    ) {
+        unsafe { ffi::DrawSplineSegmentLinear(p1.into(), p2.into(), thick, color.into()) }
+    }
+
+    /// Draw spline segment: B-Spline, 4 points
+    fn draw_spline_segment_basis(
+        &mut self,
+        p1: Vector2,
+        p2: Vector2,
+        p3: Vector2,
+        p4: Vector2,
+        thick: f32,
+        color: impl Into<ffi::Color>,
+    ) {
+        unsafe {
+            ffi::DrawSplineSegmentBasis(
+                p1.into(),
+                p2.into(),
+                p3.into(),
+                p4.into(),
+                thick,
+                color.into(),
+            )
+        }
+    }
+
+    /// Draw spline segment: Catmull-Rom, 4 points
+    fn draw_spline_segment_catmull_rom(
+        &mut self,
+        p1: Vector2,
+        p2: Vector2,
+        p3: Vector2,
+        p4: Vector2,
+        thick: f32,
+        color: impl Into<ffi::Color>,
+    ) {
+        unsafe {
+            ffi::DrawSplineSegmentCatmullRom(
+                p1.into(),
+                p2.into(),
+                p3.into(),
+                p4.into(),
+                thick,
+                color.into(),
+            )
+        }
+    }
+
+    /// Draw spline segment: Quadratic Bezier, 2 points, 1 control point
+    fn draw_spline_segment_bezier_quadratic(
+        &mut self,
+        p1: Vector2,
+        c2: Vector2,
+        p3: Vector2,
+        thick: f32,
+        color: impl Into<ffi::Color>,
+    ) {
+        unsafe {
+            ffi::DrawSplineSegmentBezierQuadratic(
+                p1.into(),
+                c2.into(),
+                p3.into(),
+                thick,
+                color.into(),
+            )
+        }
+    }
+
+    /// Draw spline segment: Cubic Bezier, 2 points, 2 control points
+    fn draw_spline_segment_bezier_cubic(
+        &mut self,
+        p1: Vector2,
+        c2: Vector2,
+        c3: Vector2,
+        p4: Vector2,
+        thick: f32,
+        color: impl Into<ffi::Color>,
+    ) {
+        unsafe {
+            ffi::DrawSplineSegmentBezierCubic(
+                p1.into(),
+                c2.into(),
+                c3.into(),
+                p4.into(),
+                thick,
+                color.into(),
+            )
+        }
+    }
+
+    /// Get (evaluate) spline point: Linear
+    fn get_spline_point_linear(&mut self, start_pos: Vector2, end_pos: Vector2, t: f32) -> Vector2 {
+        unsafe { ffi::GetSplinePointLinear(start_pos.into(), end_pos.into(), t).into() }
+    }
+
+    /// Get (evaluate) spline point: B-Spline
+    fn get_spline_point_basis(
+        &mut self,
+        p1: Vector2,
+        p2: Vector2,
+        p3: Vector2,
+        p4: Vector2,
+        t: f32,
+    ) -> Vector2 {
+        unsafe { ffi::GetSplinePointBasis(p1.into(), p2.into(), p3.into(), p4.into(), t).into() }
+    }
+
+    /// Get (evaluate) spline point: Catmull-Rom
+    fn get_spline_point_catmull_rom(
+        &mut self,
+        p1: Vector2,
+        p2: Vector2,
+        p3: Vector2,
+        p4: Vector2,
+        t: f32,
+    ) -> Vector2 {
+        unsafe {
+            ffi::GetSplinePointCatmullRom(p1.into(), p2.into(), p3.into(), p4.into(), t).into()
+        }
+    }
+
+    /// Get (evaluate) spline point: Quadratic Bezier
+    fn get_spline_point_bezier_quad(
+        &mut self,
+        p1: Vector2,
+        c2: Vector2,
+        p3: Vector2,
+        t: f32,
+    ) -> Vector2 {
+        unsafe { ffi::GetSplinePointBezierQuad(p1.into(), c2.into(), p3.into(), t).into() }
+    }
+
+    fn get_spline_point_bezier_cubic(
+        &mut self,
+        p1: Vector2,
+        c2: Vector2,
+        c3: Vector2,
+        p4: Vector2,
+        t: f32,
+    ) -> Vector2 {
+        unsafe {
+            ffi::GetSplinePointBezierCubic(p1.into(), c2.into(), c3.into(), p4.into(), t).into()
         }
     }
 }
@@ -1118,7 +1372,6 @@ pub trait RaylibDraw3D {
             ffi::DrawCubeWires(position.into(), width, height, length, color.into());
         }
     }
-
 
     /// Draws a sphere.
     #[inline]

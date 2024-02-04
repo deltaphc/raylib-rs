@@ -32,10 +32,25 @@ extern crate test;
 #[macro_use]
 mod tests;
 
+#[cfg(not(feature = "custom_frame_control"))]
 mod audio;
+#[cfg(not(feature = "custom_frame_control"))]
+mod data;
+#[cfg(not(feature = "custom_frame_control"))]
 mod drawing;
+#[cfg(not(feature = "custom_frame_control"))]
+mod image;
+#[cfg(feature = "custom_frame_control")]
+mod manual;
+#[cfg(not(feature = "custom_frame_control"))]
 mod misc;
+#[cfg(not(feature = "custom_frame_control"))]
 mod models;
+#[cfg(not(feature = "custom_frame_control"))]
+mod random;
+#[cfg(not(feature = "custom_frame_control"))]
 mod text;
+#[cfg(not(feature = "custom_frame_control"))]
 mod texture;
+#[cfg(not(feature = "custom_frame_control"))]
 mod window;
