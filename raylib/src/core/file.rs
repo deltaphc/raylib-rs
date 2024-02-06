@@ -18,7 +18,7 @@ make_thin_wrapper!(
 
 impl FilePathList {
     /// Length of the file path list
-    pub const fn len(&self) -> u32 {
+    pub const fn count(&self) -> u32 {
         self.0.count
     }
     /// The amount of files that can be held in this list.
@@ -28,7 +28,7 @@ impl FilePathList {
     /// The paths held in this list.
     /// This function is NOT constant and the inner array will be copied into the returned Vec every time you call this.
     pub fn paths(&self) -> Vec<&str> {
-        unsafe { std::slice::from_raw_parts(self.0.paths, self.len() as usize) }
+        unsafe { std::slice::from_raw_parts(self.0.paths, self.count() as usize) }
             .iter()
             .map(|f| unsafe { CStr::from_ptr(*f) }.to_str().unwrap())
             .collect()
