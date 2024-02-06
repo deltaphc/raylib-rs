@@ -18,7 +18,6 @@ mod model_test {
     }
 
     // ray_test!(test_load_anims);
-    #[test]
 
     ray_test!(test_load_anims);
     fn test_load_anims(thread: &RaylibThread) {

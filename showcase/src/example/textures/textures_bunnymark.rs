@@ -50,19 +50,19 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
         
         // Update
         //----------------------------------------------------------------------------------
-        if rl.is_mouse_button_down(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON) {
+        if rl.is_mouse_button_down(raylib::consts::MouseButton::MOUSE_BUTTON_LEFT) {
             // Create more bunnies
             for _ in 0..100 {
                 if bunnies_count < MAX_BUNNIES {
                     bunnies[bunnies_count].position = rl.get_mouse_position();
                     bunnies[bunnies_count].speed.x =
-                        get_random_value::<i32>(-250, 250) as f32 / 60.0;
+                        rl.get_random_value::<i32>(-250, 250) as f32 / 60.0;
                     bunnies[bunnies_count].speed.y =
-                        get_random_value::<i32>(-250, 250) as f32 / 60.0;
+                        rl.get_random_value::<i32>(-250, 250) as f32 / 60.0;
                     bunnies[bunnies_count].color = Color::new(
-                        get_random_value::<i32>(50, 240) as u8,
-                        get_random_value::<i32>(80, 240) as u8,
-                        get_random_value::<i32>(100, 240) as u8,
+                        rl.get_random_value::<i32>(50, 240) as u8,
+                        rl.get_random_value::<i32>(80, 240) as u8,
+                        rl.get_random_value::<i32>(100, 240) as u8,
                         255,
                     );
                     bunnies_count += 1;

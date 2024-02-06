@@ -54,7 +54,7 @@ Permission is granted to anyone to use this software for any purpose, including 
 //!     }
 //! }
 //! ```
-#![cfg_attr(feature = "nightly", feature(optin_builtin_traits))]
+//#![cfg_attr(feature = "nightly", feature(auto_traits))]
 #![allow(dead_code)]
 pub mod consts;
 pub mod core;
@@ -70,7 +70,7 @@ pub mod ffi {
 pub use crate::core::collision::*;
 pub use crate::core::file::*;
 pub use crate::core::logging::*;
-pub use crate::core::misc::{get_random_value, open_url};
+pub use crate::core::misc::open_url;
 pub use crate::core::*;
 
 // Re-exports

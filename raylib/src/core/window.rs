@@ -2,10 +2,20 @@
 use crate::core::math::{Matrix, Ray, Vector2};
 use crate::core::{RaylibHandle, RaylibThread};
 use crate::ffi;
-#[cfg(feature = "serde")]
-use serde::{Deserialize, Serialize};
 use std::ffi::{CStr, CString, IntoStringError, NulError};
 use std::os::raw::c_char;
+
+#[cfg(not(feature = "with_serde"))]
+#[cfg(feature = "serde")]
+use serde::{Deserialize, Serialize};
+
+#[cfg(feature = "with_serde")]
+#[cfg(not(feature = "serde"))]
+use serde::{Deserialize, Serialize};
+
+#[cfg(feature = "with_serde")]
+#[cfg(feature = "serde")]
+use serde::{Deserialize, Serialize};
 
 // MonitorInfo grabs the sizes (virtual and physical) of your monitor
 #[derive(Clone, Debug)]
@@ -476,6 +486,7 @@ impl RaylibHandle {
 // Window handling functions
 impl RaylibHandle {
     /// Checks if `KEY_ESCAPE` or Close icon was pressed.
+    /// Do not call on web unless you are compiling with asyncify.
     #[inline]
     pub fn window_should_close(&self) -> bool {
         unsafe { ffi::WindowShouldClose() }
@@ -555,7 +566,7 @@ impl RaylibHandle {
 
     /// Get the window config state
     pub fn get_window_state(&self) -> WindowState {
-        let mut state = WindowState::default();
+        let state = WindowState::default();
         unsafe {
             if ffi::IsWindowState(ffi::ConfigFlags::FLAG_VSYNC_HINT as u32) {
                 state.set_vsync_hint(true);
@@ -612,6 +623,12 @@ impl RaylibHandle {
         }
     }
 
+    #[inline]
+    pub fn set_window_icons(&mut self, images: &mut [raylib_sys::Image]) {
+        use std::convert::TryInto;
+        unsafe { ffi::SetWindowIcons(images.as_mut_ptr(), images.len().try_into().unwrap()) }
+    }
+
     /// Sets title for window (only on desktop platforms).
     #[inline]
     pub fn set_window_title(&self, _: &RaylibThread, title: &str) {
@@ -647,6 +664,14 @@ impl RaylibHandle {
         }
     }
 
+    /// Sets maximum window dimensions (for `FLAG_WINDOW_RESIZABLE`).
+    #[inline]
+    pub fn set_window_max_size(&mut self, width: i32, height: i32) {
+        unsafe {
+            ffi::SetWindowMaxSize(width, height);
+        }
+    }
+
     /// Sets window dimensions.
     #[inline]
     pub fn set_window_size(&mut self, width: i32, height: i32) {
@@ -655,7 +680,19 @@ impl RaylibHandle {
         }
     }
 
-    /// Gets current screen width.
+    /// Set window opacity, value opacity is between 0.0 and 1.0
+    #[inline]
+    pub fn set_window_opacity(&mut self, opacity: f32) {
+        unsafe { ffi::SetWindowOpacity(opacity) }
+    }
+
+    /// Get current render width which is equal to screen width * dpi scale
+    #[inline]
+    pub fn get_render_width(&self) -> i32 {
+        unsafe { ffi::GetRenderWidth() }
+    }
+
+    /// Get current screen height which is equal to screen height * dpi scale
     #[inline]
     pub fn get_screen_width(&self) -> i32 {
         unsafe { ffi::GetScreenWidth() }
@@ -671,6 +708,16 @@ impl RaylibHandle {
     #[inline]
     pub fn get_window_position(&self) -> Vector2 {
         unsafe { ffi::GetWindowPosition().into() }
+    }
+
+    // Toggle window state: borderless windowed (only on desktop platforms).
+    pub fn toggle_borderless_windowed(&self) {
+        unsafe { ffi::ToggleBorderlessWindowed() }
+    }
+
+    // Focus the window (only on desktop platforms)
+    pub fn set_window_focused(&self) {
+        unsafe { ffi::SetWindowFocused() }
     }
 }
 
@@ -718,5 +765,25 @@ impl RaylibHandle {
     #[inline]
     pub unsafe fn get_window_handle(&mut self) -> *mut ::std::os::raw::c_void {
         ffi::GetWindowHandle()
+    }
+}
+
+// Advanced "frame control" functions.
+impl RaylibHandle {
+    #[cfg(feature = "custom_frame_control")]
+    /// Swap back buffer with front buffer (screen drawing)
+    /// This function, by default, is already done when the handle is dropped.
+    pub fn swap_screen_buffer(&self) {
+        unsafe { ffi::SwapScreenBuffer() }
+    }
+
+    #[cfg(feature = "custom_frame_control")]
+    pub fn poll_input_events(&self) {
+        unsafe { ffi::PollInputEvents() }
+    }
+
+    #[cfg(feature = "custom_frame_control")]
+    pub fn wait_time(&self, seconds: f64) {
+        unsafe { ffi::WaitTime(seconds) }
     }
 }

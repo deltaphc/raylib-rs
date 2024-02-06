@@ -86,7 +86,7 @@ const RAYGUI_IMPLEMENTATION const RAYGUI_SUPPORT_RICONS
         if rl.is_file_dropped()
         {
             int fileCount = 0;
-            char **droppedFiles = rl.get_dropped_files(&fileCount);
+            char **droppedFiles = rl.load_dropped_files(&fileCount);
 
             // Check file extensions for drag-and-drop
             if (fileCount == 1) && IsFileExtension(droppedFiles[0], ".raw")
@@ -112,7 +112,7 @@ const RAYGUI_IMPLEMENTATION const RAYGUI_SUPPORT_RICONS
                 importWindowActive = true;
             }
 
-            ClearDroppedFiles();
+            UnloadDroppedFiles();
         }
 
         // Check if load button has been pressed

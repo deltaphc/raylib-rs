@@ -28,7 +28,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
     let mut audio = RaylibAudio::init_audio_device(); // Initialize audio device
 
     // Init raw audio stream (sample rate: 22050, sample size: 16bit-short, channels: 1-mono)
-    let mut stream = AudioStream::init_audio_stream(thread, 22050, 16, 1);
+    let mut stream = AudioStream::load_audio_stream(thread, 22050, 16, 1);
 
     // Buffer for the single cycle waveform we are synthesizing
     let mut data = [0i16; MAX_SAMPLES / std::mem::size_of::<i16>()];
@@ -68,7 +68,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
         // Sample mouse input.
         mousePosition = rl.get_mouse_position();
 
-        if rl.is_mouse_button_down(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON)
+        if rl.is_mouse_button_down(raylib::consts::MouseButton::MOUSE_BUTTON_LEFT)
         {
             let fp = mousePosition.y;
             frequency = 40.0 + fp;

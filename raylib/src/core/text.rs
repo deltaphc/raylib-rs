@@ -11,13 +11,13 @@ use std::ffi::CString;
 fn no_drop<T>(_thing: T) {}
 make_thin_wrapper!(Font, ffi::Font, ffi::UnloadFont);
 make_thin_wrapper!(WeakFont, ffi::Font, no_drop);
-make_thin_wrapper!(CharInfo, ffi::CharInfo, no_drop);
+make_thin_wrapper!(GlyphInfo, ffi::GlyphInfo, no_drop);
 
 #[repr(transparent)]
 #[derive(Debug)]
-pub struct RSliceCharInfo(pub(crate) std::mem::ManuallyDrop<std::boxed::Box<[CharInfo]>>);
+pub struct RSliceGlyphInfo(pub(crate) std::mem::ManuallyDrop<std::boxed::Box<[GlyphInfo]>>);
 
-impl Drop for RSliceCharInfo {
+impl Drop for RSliceGlyphInfo {
     #[allow(unused_unsafe)]
     fn drop(&mut self) {
         unsafe {
@@ -31,27 +31,27 @@ impl Drop for RSliceCharInfo {
     }
 }
 
-impl std::convert::AsRef<Box<[CharInfo]>> for RSliceCharInfo {
-    fn as_ref(&self) -> &Box<[CharInfo]> {
+impl std::convert::AsRef<Box<[GlyphInfo]>> for RSliceGlyphInfo {
+    fn as_ref(&self) -> &Box<[GlyphInfo]> {
         &self.0
     }
 }
 
-impl std::convert::AsMut<Box<[CharInfo]>> for RSliceCharInfo {
-    fn as_mut(&mut self) -> &mut Box<[CharInfo]> {
+impl std::convert::AsMut<Box<[GlyphInfo]>> for RSliceGlyphInfo {
+    fn as_mut(&mut self) -> &mut Box<[GlyphInfo]> {
         &mut self.0
     }
 }
 
-impl std::ops::Deref for RSliceCharInfo {
-    type Target = Box<[CharInfo]>;
+impl std::ops::Deref for RSliceGlyphInfo {
+    type Target = Box<[GlyphInfo]>;
     #[inline]
     fn deref(&self) -> &Self::Target {
         &self.0
     }
 }
 
-impl std::ops::DerefMut for RSliceCharInfo {
+impl std::ops::DerefMut for RSliceGlyphInfo {
     #[inline]
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.0
@@ -96,7 +96,7 @@ impl RaylibHandle {
     pub fn load_font(&mut self, _: &RaylibThread, filename: &str) -> Result<Font, String> {
         let c_filename = CString::new(filename).unwrap();
         let f = unsafe { ffi::LoadFont(c_filename.as_ptr()) };
-        if f.chars.is_null() || f.texture.id == 0 {
+        if f.glyphs.is_null() || f.texture.id == 0 {
             return Err(format!(
                 "Error loading font {}. Does it exist? Is it the right type?",
                 filename
@@ -128,7 +128,7 @@ impl RaylibHandle {
                 }
             }
         };
-        if f.chars.is_null() || f.texture.id == 0 {
+        if f.glyphs.is_null() || f.texture.id == 0 {
             return Err(format!(
                 "Error loading font {}. Does it exist? Is it the right type?",
                 filename
@@ -147,7 +147,7 @@ impl RaylibHandle {
         first_char: i32,
     ) -> Result<Font, String> {
         let f = unsafe { ffi::LoadFontFromImage(image.0, key.into(), first_char) };
-        if f.chars.is_null() {
+        if f.glyphs.is_null() {
             return Err(format!("Error loading font from image."));
         }
         Ok(Font(f))
@@ -200,7 +200,7 @@ impl RaylibHandle {
         font_size: i32,
         chars: Option<&[i32]>,
         sdf: i32,
-    ) -> Option<RSliceCharInfo> {
+    ) -> Option<RSliceGlyphInfo> {
         unsafe {
             let ci_arr_ptr = match chars {
                 Some(c) => ffi::LoadFontData(
@@ -224,7 +224,7 @@ impl RaylibHandle {
             if ci_arr_ptr.is_null() {
                 None
             } else {
-                Some(RSliceCharInfo(std::mem::ManuallyDrop::new(Box::from_raw(
+                Some(RSliceGlyphInfo(std::mem::ManuallyDrop::new(Box::from_raw(
                     std::slice::from_raw_parts_mut(ci_arr_ptr as *mut _, ci_size),
                 ))))
             }
@@ -242,19 +242,19 @@ pub trait RaylibFont: AsRef<ffi::Font> + AsMut<ffi::Font> {
     fn texture(&self) -> &Texture2D {
         unsafe { std::mem::transmute(&self.as_ref().texture) }
     }
-    fn chars(&self) -> &[CharInfo] {
+    fn chars(&self) -> &[GlyphInfo] {
         unsafe {
             std::slice::from_raw_parts(
-                self.as_ref().chars as *const CharInfo,
-                self.as_ref().charsCount as usize,
+                self.as_ref().glyphs as *const GlyphInfo,
+                self.as_ref().glyphCount as usize,
             )
         }
     }
-    fn chars_mut(&mut self) -> &mut [CharInfo] {
+    fn chars_mut(&mut self) -> &mut [GlyphInfo] {
         unsafe {
             std::slice::from_raw_parts_mut(
-                self.as_mut().chars as *mut CharInfo,
-                self.as_ref().charsCount as usize,
+                self.as_mut().glyphs as *mut GlyphInfo,
+                self.as_ref().glyphCount as usize,
             )
         }
     }
@@ -266,9 +266,12 @@ impl Font {
         std::mem::forget(self);
         return w;
     }
-    /// Returns a new `Font` using provided `CharInfo` data and parameters.
+    pub fn is_ready(&self) -> bool {
+        unsafe { ffi::IsFontReady(self.0) }
+    }
+    /// Returns a new `Font` using provided `GlyphInfo` data and parameters.
     fn from_data(
-        chars: &[ffi::CharInfo],
+        chars: &[ffi::GlyphInfo],
         base_size: i32,
         padding: i32,
         pack_method: i32,
@@ -279,10 +282,10 @@ impl Font {
             f.set_chars(chars);
 
             let atlas = ffi::GenImageFontAtlas(
-                f.chars,
+                f.glyphs,
                 &mut f.0.recs,
                 f.baseSize,
-                f.charsCount,
+                f.glyphCount,
                 padding,
                 pack_method,
             );
@@ -290,24 +293,24 @@ impl Font {
             ffi::UnloadImage(atlas);
             f
         };
-        if f.0.chars.is_null() || f.0.texture.id == 0 {
+        if f.0.glyphs.is_null() || f.0.texture.id == 0 {
             return Err(format!("Error loading font from image."));
         }
         Ok(f)
     }
 
     /// Sets the character data on the current Font.
-    fn set_chars(&mut self, chars: &[ffi::CharInfo]) {
+    fn set_chars(&mut self, chars: &[ffi::GlyphInfo]) {
         unsafe {
-            self.charsCount = chars.len() as i32;
-            let data_size = self.charsCount as usize * std::mem::size_of::<ffi::CharInfo>();
+            self.glyphCount = chars.len() as i32;
+            let data_size = self.glyphCount as usize * std::mem::size_of::<ffi::GlyphInfo>();
             let ci_arr_ptr = libc::malloc(data_size); // raylib frees this data in UnloadFont
             std::ptr::copy(
                 chars.as_ptr(),
-                ci_arr_ptr as *mut ffi::CharInfo,
+                ci_arr_ptr as *mut ffi::GlyphInfo,
                 chars.len(),
             );
-            self.chars = ci_arr_ptr as *mut ffi::CharInfo;
+            self.glyphs = ci_arr_ptr as *mut ffi::GlyphInfo;
         }
     }
 
@@ -324,7 +327,7 @@ impl Font {
 #[inline]
 pub fn gen_image_font_atlas(
     _: &RaylibThread,
-    chars: &mut [ffi::CharInfo],
+    chars: &mut [ffi::GlyphInfo],
     font_size: i32,
     padding: i32,
     pack_method: i32,
@@ -342,6 +345,7 @@ pub fn gen_image_font_atlas(
         ));
 
         let mut recs = Vec::with_capacity(chars.len());
+        #[allow(clippy::uninit_vec)]
         recs.set_len(chars.len());
         std::ptr::copy(ptr, recs.as_mut_ptr(), chars.len());
         ffi::MemFree(ptr as *mut libc::c_void);

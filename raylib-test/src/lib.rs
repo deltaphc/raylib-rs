@@ -32,10 +32,37 @@ extern crate test;
 #[macro_use]
 mod tests;
 
+#[cfg(not(feature = "custom_frame_control"))]
+#[cfg(not(feature = "automation_event_test"))]
 mod audio;
+#[cfg(not(feature = "custom_frame_control"))]
+#[cfg(not(feature = "automation_event_test"))]
+mod data;
+#[cfg(not(feature = "custom_frame_control"))]
+#[cfg(not(feature = "automation_event_test"))]
 mod drawing;
+#[cfg(not(feature = "custom_frame_control"))]
+#[cfg(not(feature = "automation_event_test"))]
+mod image;
+#[cfg(feature = "custom_frame_control")]
+mod manual;
+#[cfg(not(feature = "custom_frame_control"))]
+#[cfg(not(feature = "automation_event_test"))]
 mod misc;
+#[cfg(not(feature = "custom_frame_control"))]
+#[cfg(not(feature = "automation_event_test"))]
 mod models;
+#[cfg(not(feature = "custom_frame_control"))]
+#[cfg(not(feature = "automation_event_test"))]
+mod random;
+#[cfg(not(feature = "custom_frame_control"))]
+#[cfg(not(feature = "automation_event_test"))]
 mod text;
+#[cfg(not(feature = "custom_frame_control"))]
+#[cfg(not(feature = "automation_event_test"))]
 mod texture;
+#[cfg(not(feature = "custom_frame_control"))]
+#[cfg(not(feature = "automation_event_test"))]
 mod window;
+
+mod automation;

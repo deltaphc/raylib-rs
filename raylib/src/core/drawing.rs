@@ -281,7 +281,7 @@ impl<'a, T: RaylibDraw3D> RaylibDraw3D for RaylibScissorMode<'a, T> {}
 // Actual drawing functions
 
 pub trait RaylibDraw {
-    /// Sets background color (framebuffer clear color).
+    /// Sets background color (framebuffer clear color.into()).
     #[inline]
     fn clear_background(&mut self, color: impl Into<ffi::Color>) {
         unsafe {
@@ -375,29 +375,8 @@ pub trait RaylibDraw {
             ffi::DrawLineBezier(start_pos.into(), end_pos.into(), thick, color.into());
         }
     }
-    /// Draw line using quadratic bezier curves with a control point
-    #[inline]
-    fn draw_line_bezier_quad(
-        &mut self,
-        start_pos: impl Into<ffi::Vector2>,
-        end_pos: impl Into<ffi::Vector2>,
-        control_pos: impl Into<ffi::Vector2>,
-        thick: f32,
-        color: impl Into<ffi::Color>,
-    ) {
-        unsafe {
-            ffi::DrawLineBezierQuad(
-                start_pos.into(),
-                end_pos.into(),
-                control_pos.into(),
-                thick,
-                color.into(),
-            );
-        }
-    }
 
-    /// Draw lines sequence
-    #[inline]
+    /// Draw lines sequence    #[inline]
     fn draw_line_strip(&mut self, points: &[Vector2], color: impl Into<ffi::Color>) {
         unsafe {
             ffi::DrawLineStrip(
@@ -718,7 +697,7 @@ pub trait RaylibDraw {
     fn draw_rectangle_lines_ex(
         &mut self,
         rec: impl Into<ffi::Rectangle>,
-        line_thick: i32,
+        line_thick: f32,
         color: impl Into<ffi::Color>,
     ) {
         unsafe {
@@ -746,7 +725,7 @@ pub trait RaylibDraw {
         rec: impl Into<ffi::Rectangle>,
         roundness: f32,
         segments: i32,
-        line_thickness: i32,
+        line_thickness: f32,
         color: impl Into<ffi::Color>,
     ) {
         unsafe {
@@ -909,27 +888,6 @@ pub trait RaylibDraw {
         }
     }
 
-    /// Draw texture quad with tiling and offset parameters
-    #[inline]
-    fn draw_texture_quad(
-        &mut self,
-        texture: impl AsRef<ffi::Texture2D>,
-        tiling: impl Into<ffi::Vector2>,
-        offset: impl Into<ffi::Vector2>,
-        quad: impl Into<ffi::Rectangle>,
-        tint: impl Into<ffi::Color>,
-    ) {
-        unsafe {
-            ffi::DrawTextureQuad(
-                *texture.as_ref(),
-                tiling.into(),
-                offset.into(),
-                quad.into(),
-                tint.into(),
-            );
-        }
-    }
-
     /// Draw from a region of `texture` defined by the `source_rec` rectangle with pro parameters.
     #[inline]
     fn draw_texture_pro(
@@ -953,31 +911,6 @@ pub trait RaylibDraw {
         }
     }
 
-    /// Draw part of a texture (defined by a rectangle) with rotation and scale tiled into dest.
-    #[inline]
-    fn draw_texture_tiled(
-        &mut self,
-        texture: impl AsRef<ffi::Texture2D>,
-        source_rec: impl Into<ffi::Rectangle>,
-        dest_rec: impl Into<ffi::Rectangle>,
-        origin: impl Into<ffi::Vector2>,
-        rotation: f32,
-        scale: f32,
-        tint: impl Into<ffi::Color>,
-    ) {
-        unsafe {
-            ffi::DrawTextureTiled(
-                *texture.as_ref(),
-                source_rec.into(),
-                dest_rec.into(),
-                origin.into(),
-                rotation,
-                scale,
-                tint.into(),
-            )
-        }
-    }
-
     ///Draws a texture (or part of it) that stretches or shrinks nicely
     #[inline]
     fn draw_texture_n_patch(
@@ -996,29 +929,6 @@ pub trait RaylibDraw {
                 dest_rec.into(),
                 origin.into(),
                 rotation,
-                tint.into(),
-            );
-        }
-    }
-
-    ///Draws a texture (or part of it) that stretches or shrinks nicely
-    #[inline]
-    fn draw_texture_poly(
-        &mut self,
-        texture: impl AsRef<ffi::Texture2D>,
-        center: impl Into<ffi::Vector2>,
-        points: &[Vector2],
-        texcoords: &[Vector2],
-        tint: impl Into<ffi::Color>,
-    ) {
-        assert!(points.len() == texcoords.len());
-        unsafe {
-            ffi::DrawTexturePoly(
-                *texture.as_ref(),
-                center.into(),
-                points.as_ptr() as *mut _,
-                texcoords.as_ptr() as *mut _,
-                points.len() as _,
                 tint.into(),
             );
         }
@@ -1072,66 +982,6 @@ pub trait RaylibDraw {
         }
     }
 
-    /// Draws text using `font` and additional parameters.
-    #[inline]
-    fn draw_text_rec(
-        &mut self,
-        font: impl AsRef<ffi::Font>,
-        text: &str,
-        rec: impl Into<ffi::Rectangle>,
-        font_size: f32,
-        spacing: f32,
-        word_wrap: bool,
-        tint: impl Into<ffi::Color>,
-    ) {
-        let c_text = CString::new(text).unwrap();
-        unsafe {
-            ffi::DrawTextRec(
-                *font.as_ref(),
-                c_text.as_ptr(),
-                rec.into(),
-                font_size,
-                spacing,
-                word_wrap,
-                tint.into(),
-            );
-        }
-    }
-
-    /// Draws text using `font` and additional parameters.
-    #[inline]
-    fn draw_text_rec_ex(
-        &mut self,
-        font: impl AsRef<ffi::Font>,
-        text: &str,
-        rec: impl Into<ffi::Rectangle>,
-        font_size: f32,
-        spacing: f32,
-        word_wrap: bool,
-        tint: impl Into<ffi::Color>,
-        select_start: i32,
-        select_length: i32,
-        select_text: impl Into<ffi::Color>,
-        select_back: impl Into<ffi::Color>,
-    ) {
-        let c_text = CString::new(text).unwrap();
-        unsafe {
-            ffi::DrawTextRecEx(
-                *font.as_ref(),
-                c_text.as_ptr(),
-                rec.into(),
-                font_size,
-                spacing,
-                word_wrap,
-                tint.into(),
-                select_start,
-                select_length,
-                select_text.into(),
-                select_back.into(),
-            );
-        }
-    }
-
     /// Draw one character (codepoint)
     #[inline]
     fn draw_text_codepoint(
@@ -1150,6 +1000,262 @@ pub trait RaylibDraw {
                 scale,
                 tint.into(),
             );
+        }
+    }
+
+    /// Enable waiting for events when the handle is dropped, no automatic event polling
+    fn enable_event_waiting(&self) {
+        unsafe { ffi::EnableEventWaiting() }
+    }
+
+    /// Disable waiting for events when the handle is dropped, no automatic event polling
+    fn disable_event_waiting(&self) {
+        unsafe { ffi::DisableEventWaiting() }
+    }
+
+    /// Draw a polygon outline of n sides with extended parameters
+    fn draw_poly_lines_ex(
+        &mut self,
+        center: Vector2,
+        sides: i32,
+        radius: f32,
+        rotation: f32,
+        line_thick: f32,
+        color: impl Into<ffi::Color>,
+    ) {
+        unsafe {
+            ffi::DrawPolyLinesEx(
+                center.into(),
+                sides,
+                radius,
+                rotation,
+                line_thick,
+                color.into(),
+            );
+        }
+    }
+    /// Draw spline: Linear, minimum 2 points
+    fn draw_spline_linear(&mut self, points: &[Vector2], thick: f32, color: impl Into<ffi::Color>) {
+        unsafe {
+            ffi::DrawSplineLinear(
+                points.as_ptr() as *mut ffi::Vector2,
+                points.len() as i32,
+                thick,
+                color.into(),
+            )
+        }
+    }
+    /// Draw spline: B-Spline, minimum 4 points
+    fn draw_spline_basis(&mut self, points: &[Vector2], thick: f32, color: impl Into<ffi::Color>) {
+        unsafe {
+            ffi::DrawSplineBasis(
+                points.as_ptr() as *mut ffi::Vector2,
+                points.len() as i32,
+                thick,
+                color.into(),
+            )
+        }
+    }
+    /// Draw spline: Catmull-Rom, minimum 4 points
+    fn draw_spline_catmull_rom(
+        &mut self,
+        points: &[Vector2],
+        thick: f32,
+        color: impl Into<ffi::Color>,
+    ) {
+        unsafe {
+            ffi::DrawSplineCatmullRom(
+                points.as_ptr() as *mut ffi::Vector2,
+                points.len() as i32,
+                thick,
+                color.into(),
+            )
+        }
+    }
+
+    /// Draw spline: Quadratic Bezier, minimum 3 points (1 control point): [p1, c2, p3, c4...]
+    fn draw_spline_bezier_quadratic(
+        &mut self,
+        points: &[Vector2],
+        thick: f32,
+        color: impl Into<ffi::Color>,
+    ) {
+        unsafe {
+            ffi::DrawSplineBezierQuadratic(
+                points.as_ptr() as *mut ffi::Vector2,
+                points.len() as i32,
+                thick,
+                color.into(),
+            )
+        }
+    }
+
+    /// Draw spline: Cubic Bezier, minimum 4 points (2 control points): [p1, c2, c3, p4, c5, c6...]
+    fn draw_spline_bezier_cubic(
+        &mut self,
+        points: &[Vector2],
+        thick: f32,
+        color: impl Into<ffi::Color>,
+    ) {
+        unsafe {
+            ffi::DrawSplineBezierCubic(
+                points.as_ptr() as *mut ffi::Vector2,
+                points.len() as i32,
+                thick,
+                color.into(),
+            )
+        }
+    }
+
+    /// Draw spline segment: Linear, 2 points
+    fn draw_spline_segment_linear(
+        &mut self,
+        p1: Vector2,
+        p2: Vector2,
+        thick: f32,
+        color: impl Into<ffi::Color>,
+    ) {
+        unsafe { ffi::DrawSplineSegmentLinear(p1.into(), p2.into(), thick, color.into()) }
+    }
+
+    /// Draw spline segment: B-Spline, 4 points
+    fn draw_spline_segment_basis(
+        &mut self,
+        p1: Vector2,
+        p2: Vector2,
+        p3: Vector2,
+        p4: Vector2,
+        thick: f32,
+        color: impl Into<ffi::Color>,
+    ) {
+        unsafe {
+            ffi::DrawSplineSegmentBasis(
+                p1.into(),
+                p2.into(),
+                p3.into(),
+                p4.into(),
+                thick,
+                color.into(),
+            )
+        }
+    }
+
+    /// Draw spline segment: Catmull-Rom, 4 points
+    fn draw_spline_segment_catmull_rom(
+        &mut self,
+        p1: Vector2,
+        p2: Vector2,
+        p3: Vector2,
+        p4: Vector2,
+        thick: f32,
+        color: impl Into<ffi::Color>,
+    ) {
+        unsafe {
+            ffi::DrawSplineSegmentCatmullRom(
+                p1.into(),
+                p2.into(),
+                p3.into(),
+                p4.into(),
+                thick,
+                color.into(),
+            )
+        }
+    }
+
+    /// Draw spline segment: Quadratic Bezier, 2 points, 1 control point
+    fn draw_spline_segment_bezier_quadratic(
+        &mut self,
+        p1: Vector2,
+        c2: Vector2,
+        p3: Vector2,
+        thick: f32,
+        color: impl Into<ffi::Color>,
+    ) {
+        unsafe {
+            ffi::DrawSplineSegmentBezierQuadratic(
+                p1.into(),
+                c2.into(),
+                p3.into(),
+                thick,
+                color.into(),
+            )
+        }
+    }
+
+    /// Draw spline segment: Cubic Bezier, 2 points, 2 control points
+    fn draw_spline_segment_bezier_cubic(
+        &mut self,
+        p1: Vector2,
+        c2: Vector2,
+        c3: Vector2,
+        p4: Vector2,
+        thick: f32,
+        color: impl Into<ffi::Color>,
+    ) {
+        unsafe {
+            ffi::DrawSplineSegmentBezierCubic(
+                p1.into(),
+                c2.into(),
+                c3.into(),
+                p4.into(),
+                thick,
+                color.into(),
+            )
+        }
+    }
+
+    /// Get (evaluate) spline point: Linear
+    fn get_spline_point_linear(&mut self, start_pos: Vector2, end_pos: Vector2, t: f32) -> Vector2 {
+        unsafe { ffi::GetSplinePointLinear(start_pos.into(), end_pos.into(), t).into() }
+    }
+
+    /// Get (evaluate) spline point: B-Spline
+    fn get_spline_point_basis(
+        &mut self,
+        p1: Vector2,
+        p2: Vector2,
+        p3: Vector2,
+        p4: Vector2,
+        t: f32,
+    ) -> Vector2 {
+        unsafe { ffi::GetSplinePointBasis(p1.into(), p2.into(), p3.into(), p4.into(), t).into() }
+    }
+
+    /// Get (evaluate) spline point: Catmull-Rom
+    fn get_spline_point_catmull_rom(
+        &mut self,
+        p1: Vector2,
+        p2: Vector2,
+        p3: Vector2,
+        p4: Vector2,
+        t: f32,
+    ) -> Vector2 {
+        unsafe {
+            ffi::GetSplinePointCatmullRom(p1.into(), p2.into(), p3.into(), p4.into(), t).into()
+        }
+    }
+
+    /// Get (evaluate) spline point: Quadratic Bezier
+    fn get_spline_point_bezier_quad(
+        &mut self,
+        p1: Vector2,
+        c2: Vector2,
+        p3: Vector2,
+        t: f32,
+    ) -> Vector2 {
+        unsafe { ffi::GetSplinePointBezierQuad(p1.into(), c2.into(), p3.into(), t).into() }
+    }
+
+    fn get_spline_point_bezier_cubic(
+        &mut self,
+        p1: Vector2,
+        c2: Vector2,
+        c3: Vector2,
+        p4: Vector2,
+        t: f32,
+    ) -> Vector2 {
+        unsafe {
+            ffi::GetSplinePointBezierCubic(p1.into(), c2.into(), c3.into(), p4.into(), t).into()
         }
     }
 }
@@ -1264,29 +1370,6 @@ pub trait RaylibDraw3D {
     ) {
         unsafe {
             ffi::DrawCubeWires(position.into(), width, height, length, color.into());
-        }
-    }
-
-    /// Draws a textured cube.
-    #[inline]
-    fn draw_cube_texture(
-        &mut self,
-        texture: &Texture2D,
-        position: impl Into<ffi::Vector3>,
-        width: f32,
-        height: f32,
-        length: f32,
-        color: impl Into<ffi::Color>,
-    ) {
-        unsafe {
-            ffi::DrawCubeTexture(
-                texture.0,
-                position.into(),
-                width,
-                height,
-                length,
-                color.into(),
-            );
         }
     }
 
@@ -1517,7 +1600,7 @@ pub trait RaylibDraw3D {
         texture: &Texture2D,
         source_rec: impl Into<ffi::Rectangle>,
         center: impl Into<ffi::Vector3>,
-        size: f32,
+        size: impl Into<ffi::Vector2>,
         tint: impl Into<ffi::Color>,
     ) {
         unsafe {
@@ -1526,7 +1609,7 @@ pub trait RaylibDraw3D {
                 texture.0,
                 source_rec.into(),
                 center.into(),
-                size,
+                size.into(),
                 tint.into(),
             );
         }

@@ -88,7 +88,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
             );
         }
 
-        d.draw_rectangle_lines_ex(scissor_area, 1, Color::BLACK);
+        d.draw_rectangle_lines_ex(scissor_area, 1.0, Color::BLACK);
         d.draw_text("Press S to toggle scissor test", 10, 10, 20, Color::BLACK);
 
         //----------------------------------------------------------------------------------
