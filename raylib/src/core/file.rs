@@ -56,6 +56,16 @@ impl RaylibHandle {
         unsafe { ffi::IsFileDropped() }
     }
 
+    /// Checks if a file has been dropped into the window.
+    #[inline]
+    pub fn is_file_extension<A>(&self, file_name: OsString, file_ext: A) -> bool
+    where
+        A: Into<String>,
+    {
+        let file_name = CString::new(file_name.to_string_lossy().as_bytes()).unwrap();
+        let file_ext = CString::new(file_ext.into()).unwrap();
+        unsafe { ffi::IsFileExtension(file_name.as_ptr(), file_ext.as_ptr()) }
+    }
     /// Get the directory of the running application.
     pub fn application_directory(&self) -> String {
         unsafe {
