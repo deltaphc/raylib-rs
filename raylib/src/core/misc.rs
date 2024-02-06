@@ -1,10 +1,60 @@
 //! Useful functions that don't fit anywhere else
 
+use raylib_sys::LoadRandomSequence;
+
 use crate::core::texture::Image;
 use crate::core::{RaylibHandle, RaylibThread};
 use crate::ffi;
 use std::ffi::CString;
-use std::ops::Range;
+use std::ops::{Deref, DerefMut, Range};
+use std::slice::{Iter, IterMut};
+use std::usize;
+
+pub struct RandomSequence<'a>(&'a mut [i32]);
+
+impl<'a> Deref for RandomSequence<'a> {
+    type Target = [i32];
+
+    fn deref(&self) -> &Self::Target {
+        self.0
+    }
+}
+
+impl<'a> DerefMut for RandomSequence<'a> {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.0
+    }
+}
+
+impl<'a> Drop for RandomSequence<'a> {
+    fn drop(&mut self) {
+        unsafe { ffi::UnloadRandomSequence(self.0.as_mut_ptr()) }
+    }
+}
+
+impl<'a> IntoIterator for RandomSequence<'a> {
+    type Item = i32;
+
+    type IntoIter = RandSeqIterator<'a>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        RandSeqIterator(self, 0)
+    }
+}
+pub struct RandSeqIterator<'a>(RandomSequence<'a>, usize);
+
+impl<'a> Iterator for RandSeqIterator<'a> {
+    type Item = i32;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        let ret = self.0.get(self.1);
+        self.1 += 1;
+        match ret {
+            Some(a) => Some(*a),
+            None => None,
+        }
+    }
+}
 
 /// Open URL with default system browser (if available)
 /// ```ignore
@@ -20,6 +70,12 @@ pub fn open_url(url: &str) {
 }
 
 impl RaylibHandle {
+    pub fn load_random_sequence<'a>(&self, num: Range<i32>, count: u32) -> RandomSequence<'a> {
+        unsafe {
+            let ptr = ffi::LoadRandomSequence(count, num.start, num.end.into());
+            RandomSequence(std::slice::from_raw_parts_mut(ptr, count as usize))
+        }
+    }
     /// Load pixels from the screen into a CPU image
     pub fn load_image_from_screen(&self, _: &RaylibThread) -> Image {
         unsafe { Image(ffi::LoadImageFromScreen()) }
