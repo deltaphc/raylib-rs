@@ -2,13 +2,8 @@
 use crate::ffi;
 
 use crate::core::RaylibHandle;
-use std::{
-    ffi::{CStr, CString, NulError, OsString},
-    iter::FromIterator,
-    ops::Deref,
-};
+use std::ffi::{CStr, CString, NulError, OsString};
 
-use std::vec::IntoIter;
 make_thin_wrapper!(FilePathList, ffi::FilePathList, ffi::UnloadDirectoryFiles);
 make_thin_wrapper!(
     DroppedFilePathList,
