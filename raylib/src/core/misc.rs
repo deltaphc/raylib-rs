@@ -1,15 +1,15 @@
 //! Useful functions that don't fit anywhere else
 
-use raylib_sys::LoadRandomSequence;
-
 use crate::core::texture::Image;
 use crate::core::{RaylibHandle, RaylibThread};
 use crate::ffi;
 use std::ffi::CString;
 use std::ops::{Deref, DerefMut, Range};
-use std::slice::{Iter, IterMut};
 use std::usize;
 
+/// Struct for holding the result of RaylibHandle::load_random_sequence.
+/// This is a thin wrapper for an array of i32. The reason it exists is because Raylib expects you
+/// to unload the sequence it creates manually, and this struct does it for you.
 pub struct RandomSequence<'a>(&'a mut [i32]);
 
 impl<'a> Deref for RandomSequence<'a> {
@@ -70,6 +70,7 @@ pub fn open_url(url: &str) {
 }
 
 impl RaylibHandle {
+    /// Load random values sequence, no values repeated
     pub fn load_random_sequence<'a>(&self, num: Range<i32>, count: u32) -> RandomSequence<'a> {
         unsafe {
             let ptr = ffi::LoadRandomSequence(count, num.start, num.end.into());
