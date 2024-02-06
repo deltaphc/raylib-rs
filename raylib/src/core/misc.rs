@@ -6,17 +6,6 @@ use crate::ffi;
 use std::ffi::CString;
 use std::ops::Range;
 
-/// Returns a random value between min and max (both included)
-/// ```ignore
-/// use raylib::*;
-/// fn main() {
-///     let r = get_random_value::<i32>(0, 10);
-///     println!("random value: {}", r);
-/// }
-pub fn get_random_value<T: From<i32>>(min: i32, max: i32) -> T {
-    unsafe { (ffi::GetRandomValue(min, max) as i32).into() }
-}
-
 /// Open URL with default system browser (if available)
 /// ```ignore
 /// use raylib::*;
