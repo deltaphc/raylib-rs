@@ -184,7 +184,7 @@ impl RaylibHandle {
                 ),
             }
         };
-        if f.chars.is_null() || f.texture.id == 0 {
+        if f.glyphs.is_null() || f.texture.id == 0 {
             return Err(format!(
                 "Error loading font from memory. Is it the right type?"
             ));
