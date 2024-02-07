@@ -9,17 +9,13 @@ repository = "https://github.com/deltaphc/raylib-rs"
 keywords = ["bindings", "raylib", "gamedev", "ffi"]
 categories = ["external-ffi-bindings"]
 edition = "2018"
-exclude = [
-    "raylib/examples/*",
-    "raylib/projects/*",
-    "raylib/templates/*"
-]
+exclude = ["raylib/examples/*", "raylib/projects/*", "raylib/templates/*"]
 
 [build-dependencies]
 fs_extra = "1.2"
 cmake = "0.1.49"
 cc = "1.0"
-bindgen = "0.63.0"
+bindgen = "0.69.0"
 
 [features]
 default = []

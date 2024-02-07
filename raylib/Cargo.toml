@@ -20,6 +20,11 @@ serde = { version = "1.0.125", features = ["derive"], optional = true }
 serde_json = { version = "1.0.64", optional = true }
 nalgebra = { version = "0.26", optional = true }
 
+[dev-dependencies]
+structopt = "0.3"
+rand = "0.8.5"
+arr_macro = "0.1.3"
+
 [features]
 nightly = []
 #nobuild = ["raylib-sys/nobuild"]
@@ -30,3 +35,88 @@ custom_frame_control = ["raylib-sys/custom_frame_control"]
 
 #[package.metadata.docs.rs]
 #features = ["nobuild"]
+
+[[example]]
+name = "specs"
+path = "examples/samples/specs.rs"
+doc-scrape-examples = true
+
+[[example]]
+name = "rgui"
+path = "examples/samples/rgui.rs"
+doc-scrape-examples = true
+
+[[example]]
+name = "arkanoid"
+path = "examples/samples/arkanoid.rs"
+doc-scrape-examples = true
+
+[[example]]
+name = "logo"
+path = "examples/samples/logo.rs"
+doc-scrape-examples = true
+
+
+[[example]]
+name = "camera2D"
+path = "examples/samples/camera2D.rs"
+doc-scrape-examples = true
+
+[[example]]
+name = "raymarch"
+path = "examples/samples/raymarch.rs"
+doc-scrape-examples = true
+
+[[example]]
+name = "font"
+path = "examples/samples/font.rs"
+doc-scrape-examples = true
+
+[[example]]
+name = "drop"
+path = "examples/samples/drop.rs"
+doc-scrape-examples = true
+
+[[example]]
+name = "texture"
+path = "examples/samples/texture.rs"
+doc-scrape-examples = true
+
+
+[[example]]
+name = "yaw_pitch_roll"
+path = "examples/samples/yaw_pitch_roll.rs"
+doc-scrape-examples = true
+
+[[example]]
+name = "roguelike"
+path = "examples/samples/roguelike.rs"
+doc-scrape-examples = true
+
+[[example]]
+name = "input"
+path = "examples/samples/input.rs"
+doc-scrape-examples = true
+
+[[example]]
+name = "3d_camera_first_person"
+path = "examples/samples/3d_camera_first_person.rs"
+doc-scrape-examples = true
+
+[[example]]
+name = "model_shader"
+path = "examples/samples/model_shader.rs"
+doc-scrape-examples = true
+
+[[example]]
+name = "extensions"
+path = "examples/samples/extensions.rs"
+doc-scrape-examples = true
+
+[[example]]
+name = "asteroids"
+path = "examples/samples/asteroids.rs"
+doc-scrape-examples = true
+
+[package.metadata.docs.rs]
+cargo-args = ["-Zunstable-options", "-Zrustdoc-scrape-examples"]
