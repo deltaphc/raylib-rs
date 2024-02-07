@@ -5,6 +5,19 @@
 [![docs](https://docs.rs/raylib/badge.svg)](https://docs.rs/raylib)
 [discord](https://discord.gg/VkzNHUE)
 
+# NOTE:
+In order to build, you will need `ninja` in your PATH.
+### WINDOWS:
+On Windows it should come installed with Visual Studio. The following is where ninja is located in visual studio 2022, ![add it to your path](https://youtu.be/z84UIZy_qgE?si=j56ya4UfYkbQDgHe)
+```
+C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\Ninja
+```
+### LINUX(ubuntu/debian):
+Install it via your distros package manager and make sure it's in your path:
+```
+sudo apt-get install ninja-build
+whereis ninja
+```
 
 # NOTE 4.x version in progress. 
 
