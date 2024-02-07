@@ -67,7 +67,8 @@ fn build_with_cmake(src_path: &str) {
         .define("BUILD_EXAMPLES", "OFF")
         .define("CMAKE_BUILD_TYPE", profile)
         // turn off until this is fixed
-        .define("SUPPORT_BUSY_WAIT_LOOP", "OFF").define("SUPPORT_FILEFORMAT_JPG", "ON")
+        .define("SUPPORT_BUSY_WAIT_LOOP", "OFF")
+        .define("SUPPORT_FILEFORMAT_JPG", "ON");
 
     #[cfg(feature = "custom_frame_control")]
     {
