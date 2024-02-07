@@ -286,6 +286,16 @@ pub fn get_monitor_height(monitor: i32) -> i32 {
 /// Get number of connected monitors
 /// Only checks that monitor index is in range in debug mode
 #[inline]
+pub fn get_monitor_position(monitor: i32) -> Vector2 {
+    let len = get_monitor_count();
+    debug_assert!(monitor < len && monitor >= 0, "monitor index out of range");
+
+    unsafe { ffi::GetMonitorPosition(monitor).into() }
+}
+
+/// Get number of connected monitors
+/// Only checks that monitor index is in range in debug mode
+#[inline]
 pub fn get_monitor_physical_width(monitor: i32) -> i32 {
     let len = get_monitor_count();
     debug_assert!(monitor < len && monitor >= 0, "monitor index out of range");
