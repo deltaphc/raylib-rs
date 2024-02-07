@@ -685,11 +685,11 @@ impl Vector3 {
     }
 
     /// Returns a new `Vector3` with componenets clamp to a certain interval.
-    pub fn clamp(&self, min: f32, max: f32) -> Vector3 {
+    pub fn clamp(&self, num: Range<f32>) -> Vector3 {
         Vector3 {
-            x: self.x.clamp(min, max),
-            y: self.y.clamp(min, max),
-            z: self.z.clamp(min, max),
+            x: self.x.clamp(num.start, num.end),
+            y: self.y.clamp(num.start, num.end),
+            z: self.z.clamp(num.start, num.end),
         }
     }
 }
