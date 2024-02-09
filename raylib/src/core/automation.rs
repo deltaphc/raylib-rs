@@ -28,7 +28,7 @@ impl AutomationEventList {
         self.0.capacity
     }
     /// The events held in this list.
-    /// NOTE: This will copy the values into a vector. Use `AutomationEventList::events_raw` if you can't afford this.
+    /// NOTE: This will copy the values into a vector.
     pub fn events(&self) -> Vec<AutomationEvent> {
         unsafe { std::slice::from_raw_parts(self.0.events, self.count() as usize) }
             .iter()
