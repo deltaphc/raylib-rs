@@ -58,12 +58,12 @@ impl RaylibHandle {
 
     /// Checks a file's extension.
     #[inline]
-    pub fn is_file_extension<A>(&self, file_name: OsString, file_ext: A) -> bool
+    pub fn is_file_extension<A>(&self, file_name: A, file_ext: A) -> bool
     where
-        A: Into<String>,
+        A: Into<OsString>,
     {
-        let file_name = CString::new(file_name.to_string_lossy().as_bytes()).unwrap();
-        let file_ext = CString::new(file_ext.into()).unwrap();
+        let file_name = CString::new(file_name.into().to_string_lossy().as_bytes()).unwrap();
+        let file_ext = CString::new(file_ext.into().to_string_lossy().as_bytes()).unwrap();
         unsafe { ffi::IsFileExtension(file_name.as_ptr(), file_ext.as_ptr()) }
     }
     /// Get the directory of the running application.
@@ -101,9 +101,12 @@ impl RaylibHandle {
     }
 
     /// Load directory filepaths
-    pub fn load_directory_files(&self, dir_path: OsString) -> FilePathList {
+    pub fn load_directory_files<A>(&self, dir_path: A) -> FilePathList
+    where
+        A: Into<OsString>,
+    {
         unsafe {
-            let c_str = CString::new(dir_path.to_string_lossy().as_bytes()).unwrap(); // .unwrap() is okay here because any nul bytes placed into the actual string should be cleared out by to_string_lossy.
+            let c_str = CString::new(dir_path.into().to_string_lossy().as_bytes()).unwrap(); // .unwrap() is okay here because any nul bytes placed into the actual string should be cleared out by to_string_lossy.
             FilePathList(ffi::LoadDirectoryFiles(c_str.as_ptr()))
         }
     }
