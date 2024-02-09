@@ -79,7 +79,12 @@ impl RaylibHandle {
     /// Get default shader. Modifying it modifies everthing that uses that shader
     #[cfg(target_os = "windows")]
     pub fn get_shader_default() -> WeakShader {
-        unsafe { WeakShader(ffi::rlGetShaderDefault()) }
+        unsafe {
+            WeakShader(ffi::Shader {
+                id: ffi::rlGetShaderIdDefault(),
+                locs: ffi::rlGetShaderLocsDefault()
+            })
+        }
     }
 }
 

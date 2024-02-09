@@ -1,4 +1,4 @@
 [target.wasm32-unknown-emscripten]
-#rustflags = ["-C", "link-args=-s USE_GLFW=3 -s ASSERTIONS=1 -s ASYNCIFY=1 --profiling"]
-# rustflags = ["-C", "link-args=-s USE_GLFW=3 -s FORCE_FILESYSTEM=1 -s ALLOW_MEMORY_GROWTH=1 -s ASYNCIFY --preload-file /root/raylib-rs/showcase/original@original"]
-rustflags = ["-C", "link-args=-s USE_GLFW=3 -s FORCE_FILESYSTEM=1 -s ALLOW_MEMORY_GROWTH=1 -s ASYNCIFY --preload-file showcase/original@original"]
+#rustflags = ["-C", "link-args=-s USE_GLFW=3 -s ASSERTIONS=1 --profiling"]
+# rustflags = ["-C", "link-args=-s USE_GLFW=3 -s FORCE_FILESYSTEM=1 -s ALLOW_MEMORY_GROWTH=1 --preload-file /root/raylib-rs/showcase/original@original"]
+rustflags = ["-C", "link-args=-s USE_GLFW=3 -s FORCE_FILESYSTEM=1 -s ALLOW_MEMORY_GROWTH=1 --preload-file showcase/original@original"]

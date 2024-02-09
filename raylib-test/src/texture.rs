@@ -23,7 +23,7 @@ mod texture_test {
             .load_texture_from_image(thread, &i)
             .expect("could not load texture from image");
         let _ = t
-            .get_texture_data()
+            .load_image()
             .expect("can't get an image from a texture created from an image...");
         i.export_image("test_out/billboard_texture.png");
     }

@@ -1022,12 +1022,12 @@ extern "C"
     RLAPI const char *GetFileNameWithoutExt(const char *filePath);     // Get filename string without extension (memory should be freed)
     RLAPI const char *GetDirectoryPath(const char *fileName);          // Get full path for a given fileName (uses static string)
     RLAPI const char *GetWorkingDirectory(void);                       // Get current working directory (uses static string)
-    RLAPI char **GetDirectoryFiles(const char *dirPath, int *count);   // Get filenames in a directory path (memory should be freed)
-    RLAPI void ClearDirectoryFiles(void);                              // Clear directory files paths buffers (free memory)
+    RLAPI char **LoadDirectoryFiles()(const char *dirPath, int *count);   // Get filenames in a directory path (memory should be freed)
+    RLAPI void LoadDirectoryFiles()(void);                              // Clear directory files paths buffers (free memory)
     RLAPI bool ChangeDirectory(const char *dir);                       // Change working directory, returns true if success
     RLAPI bool IsFileDropped(void);                                    // Check if a file has been dropped into window
-    RLAPI char **GetDroppedFiles(int *count);                          // Get dropped files names (memory should be freed)
-    RLAPI void ClearDroppedFiles(void);                                // Clear dropped files paths buffer (free memory)
+    RLAPI char **LoadDroppedFiles(int *count);                          // Get dropped files names (memory should be freed)
+    RLAPI void UnloadDroppedFiles(void);                                // Clear dropped files paths buffer (free memory)
     RLAPI long GetFileModTime(const char *fileName);                   // Get file modification time (last write time)
 
     // Persistent storage management

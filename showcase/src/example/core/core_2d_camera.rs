@@ -28,17 +28,17 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
     let mut spacing = 0f32;
 
     for i in 0..MAX_BUILDINGS as usize {
-        buildings[i].width = get_random_value::<i32>(50, 200) as f32;
-        buildings[i].height = get_random_value::<i32>(100, 800) as f32;
+        buildings[i].width = rl.get_random_value::<i32>(50, 200) as f32;
+        buildings[i].height = rl.get_random_value::<i32>(100, 800) as f32;
         buildings[i].y = screen_height as f32 - 130.0 - buildings[i].height;
         buildings[i].x = -6000.0 + spacing;
 
         spacing += buildings[i].width;
 
         build_colors[i] = Color::new(
-            get_random_value::<i32>(200, 240) as u8,
-            get_random_value::<i32>(200, 240) as u8,
-            get_random_value::<i32>(200, 250) as u8,
+            rl.get_random_value::<i32>(200, 240) as u8,
+            rl.get_random_value::<i32>(200, 240) as u8,
+            rl.get_random_value::<i32>(200, 250) as u8,
             255,
         );
     }

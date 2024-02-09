@@ -38,9 +38,15 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut
     tower.materials_mut()[0].maps_mut()[raylib::consts::MaterialMapIndex::MATERIAL_MAP_ALBEDO as usize].texture = *texture.as_ref();                 // Set model diffuse texture
 
     let  towerPos = rvec3( 0.0, 0.0, 0.0 );                    // Set model position
-    let  towerBBox = tower.meshes_mut()[0].mesh_bounding_box();   // Get mesh bounding box
+    let  towerBBox = tower.meshes_mut()[0].get_mesh_bounding_box();   // Get mesh bounding box
     let mut hitMeshBBox = false;
     let mut hitTriangle = false;
+
+    // Ground quad
+    let g0 = rvec3( -50.0, 0.0, -50.0 );
+    let g1 = rvec3( -50.0, 0.0,  50.0 );
+    let g2 = rvec3(  50.0, 0.0,  50.0 );
+    let g3 = rvec3(  50.0, 0.0, -50.0 );
 
     // Test triangle
     let ta = rvec3( -25.0, 0.5,0.0 );
@@ -62,7 +68,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut
         rl.update_camera(&mut camera);          // Update camera
 
         // Display information about closest hit
-        let mut nearestHit = RayHitInfo::default();
+        let mut nearestHit = RayCollision::default();
         let mut hitObjectName = "None";
         nearestHit.distance = std::f32::MAX;
         nearestHit.hit = false;
@@ -72,7 +78,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut
         ray = rl.get_mouse_ray(rl.get_mouse_position(), camera);
 
         // Check ray collision aginst ground plane
-        let groundHitInfo = get_collision_ray_ground(ray, 0.0);
+        let groundHitInfo = get_ray_collision_quad(ray, g0, g1, g2, g3);
 
         if ((groundHitInfo.hit) && (groundHitInfo.distance < nearestHit.distance))
         {
@@ -82,7 +88,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut
         }
 
         // Check ray collision against test triangle
-        let triHitInfo = get_collision_ray_triangle(ray, ta, tb, tc);
+        let triHitInfo = get_ray_collision_triangle(ray, ta, tb, tc);
 
         if ((triHitInfo.hit) && (triHitInfo.distance < nearestHit.distance))
         {
@@ -90,21 +96,21 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut
             cursorColor = Color::PURPLE;
             hitObjectName = "Triangle";
 
-            bary = nearestHit.position.barycenter( ta, tb, tc);
+            bary = nearestHit.point.barycenter( ta, tb, tc);
             hitTriangle = true;
         }
         else {hitTriangle = false;}
 
-        let mut  meshHitInfo = RayHitInfo::default();
+        let mut meshHitInfo = RayCollision::default();
 
         // Check ray collision against bounding box first, before trying the full ray-mesh test
-        if (towerBBox.check_collision_ray_box(ray))
+        if (towerBBox.get_ray_collision_box(ray).hit)
         {
             hitMeshBBox = true;
 
             // Check ray collision against model
             // NOTE: It considers model.transform matrix!
-            meshHitInfo = get_collision_ray_model(ray, &tower);
+            meshHitInfo = get_ray_collision_model(ray, &tower);
 
             if ((meshHitInfo.hit) && (meshHitInfo.distance < nearestHit.distance))
             {
@@ -143,15 +149,15 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut
                     // If we hit something, draw the cursor at the hit point
                     if (nearestHit.hit)
                     {
-                        d.draw_cube(nearestHit.position, 0.3, 0.3, 0.3, cursorColor);
-                        d.draw_cube_wires(nearestHit.position, 0.3, 0.3, 0.3, Color::RED);
+                        d.draw_cube(nearestHit.point, 0.3, 0.3, 0.3, cursorColor);
+                        d.draw_cube_wires(nearestHit.point, 0.3, 0.3, 0.3, Color::RED);
     
                         let mut normalEnd = Vector3::default();
-                        normalEnd.x = nearestHit.position.x + nearestHit.normal.x;
-                        normalEnd.y = nearestHit.position.y + nearestHit.normal.y;
-                        normalEnd.z = nearestHit.position.z + nearestHit.normal.z;
+                        normalEnd.x = nearestHit.point.x + nearestHit.normal.x;
+                        normalEnd.y = nearestHit.point.y + nearestHit.normal.y;
+                        normalEnd.z = nearestHit.point.z + nearestHit.normal.z;
     
-                        d.draw_line_3D(nearestHit.position, normalEnd, Color::RED);
+                        d.draw_line_3D(nearestHit.point, normalEnd, Color::RED);
                     }
     
                     d.draw_ray(ray, Color::MAROON);
@@ -169,10 +175,10 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut
 
                 d.draw_text(&format!("Distance: {:3.2}", nearestHit.distance), 10, ypos, 10, Color::BLACK);
 
-                d.draw_text(&format!("Hit Pos: {:3.2} {:3.2} {:3.2}",
-                                    nearestHit.position.x,
-                                    nearestHit.position.y,
-                                    nearestHit.position.z), 10, ypos + 15, 10, Color::BLACK);
+                d.draw_text(&format!("Hit Point: {:3.2} {:3.2} {:3.2}",
+                                    nearestHit.point.x,
+                                    nearestHit.point.y,
+                                    nearestHit.point.z), 10, ypos + 15, 10, Color::BLACK);
 
                 d.draw_text(&format!("Hit Norm: {:3.2} {:3.2} {:3.2}",
                                     nearestHit.normal.x,

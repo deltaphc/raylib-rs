@@ -49,7 +49,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
         //----------------------------------------------------------------------------------
         rl.update_camera(&mut camera); // Update camera
 
-        if rl.is_mouse_button_pressed(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON)
+        if rl.is_mouse_button_pressed(raylib::consts::MouseButton::MOUSE_BUTTON_LEFT)
         {
             if !collision
             {
@@ -57,7 +57,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
 
                 // Check collision between ray and box
                 collision = BoundingBox::new(rvec3(cube_position.x - cube_size.x / 2.0, cube_position.y - cube_size.y / 2.0, cube_position.z - cube_size.z / 2.0),
-                    rvec3(cube_position.x + cube_size.x / 2.0, cube_position.y + cube_size.y / 2.0, cube_position.z + cube_size.z / 2.0)).check_collision_ray_box(ray);
+                    rvec3(cube_position.x + cube_size.x / 2.0, cube_position.y + cube_size.y / 2.0, cube_position.z + cube_size.z / 2.0)).get_ray_collision_box(ray).hit;
             }            else
              {
                  collision = false;

@@ -34,17 +34,17 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
         //----------------------------------------------------------------------------------
         ballPosition = rl.get_mouse_position();
 
-        if rl.is_mouse_button_pressed(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON)
+        if rl.is_mouse_button_pressed(raylib::consts::MouseButton::MOUSE_BUTTON_LEFT)
             {
 
                 ballColor = Color::MAROON;
             }
-        else if rl.is_mouse_button_pressed(raylib::consts::MouseButton::MOUSE_MIDDLE_BUTTON)
+        else if rl.is_mouse_button_pressed(raylib::consts::MouseButton::MOUSE_BUTTON_MIDDLE)
             {
 
                 ballColor = Color::LIME;
             }
-        else if rl.is_mouse_button_pressed(raylib::consts::MouseButton::MOUSE_RIGHT_BUTTON)
+        else if rl.is_mouse_button_pressed(raylib::consts::MouseButton::MOUSE_BUTTON_RIGHT)
             {
 
                 ballColor = Color::DARKBLUE;

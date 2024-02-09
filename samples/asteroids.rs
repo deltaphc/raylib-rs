@@ -147,11 +147,11 @@ fn init_game(game: &mut Game, rl: &RaylibHandle) {
     let mut correct_range = false;
 
     for meteor in &mut game.big_meteors {
-        let mut x: i32 = get_random_value(0, width as i32);
+        let mut x: i32 = rl.get_random_value(0, width as i32);
 
         while !correct_range {
             if x > half_width as i32 - 150 && x < half_width as i32 + 150 {
-                x = get_random_value(0, width as i32);
+                x = rl.get_random_value(0, width as i32);
             }
             else {
                 correct_range = true;
@@ -160,11 +160,11 @@ fn init_game(game: &mut Game, rl: &RaylibHandle) {
 
         correct_range = false;
 
-        let mut y: i32 = get_random_value(0, height as i32);
+        let mut y: i32 = rl.get_random_value(0, height as i32);
 
         while !correct_range {
             if y > half_height as i32 - 150 && y < half_height as i32 + 150 {
-                y = get_random_value(0, height as i32);
+                y = rl.get_random_value(0, height as i32);
             }
             else {
                 correct_range = true;
@@ -173,13 +173,13 @@ fn init_game(game: &mut Game, rl: &RaylibHandle) {
 
         correct_range = false;
 
-        let mut vel_x: i32 = get_random_value(-METEORS_SPEED as i32, METEORS_SPEED as i32);
-        let mut vel_y: i32 = get_random_value(-METEORS_SPEED as i32, METEORS_SPEED as i32);
+        let mut vel_x: i32 = rl.get_random_value(-METEORS_SPEED as i32, METEORS_SPEED as i32);
+        let mut vel_y: i32 = rl.get_random_value(-METEORS_SPEED as i32, METEORS_SPEED as i32);
 
         while !correct_range {
             if vel_x == 0 && vel_y == 0 {
-                vel_x = get_random_value(-METEORS_SPEED as i32, METEORS_SPEED as i32);
-                vel_y = get_random_value(-METEORS_SPEED as i32, METEORS_SPEED as i32);
+                vel_x = rl.get_random_value(-METEORS_SPEED as i32, METEORS_SPEED as i32);
+                vel_y = rl.get_random_value(-METEORS_SPEED as i32, METEORS_SPEED as i32);
             }
             else {
                 correct_range = true;

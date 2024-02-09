@@ -14,6 +14,7 @@ use std::fs::File;
 use std::io::{Read, Write};
 use structopt::StructOpt;
 use tcod::map::{FovAlgorithm, Map as FovMap};
+use crate::KeyboardKey::KEY_A;
 
 mod options;
 
@@ -589,10 +590,10 @@ fn make_map(objects: &mut Vec<Object>, level: u32) -> Map {
 
     let mut rooms = vec![];
     for _ in 0..MAX_ROOMS {
-        let w = rand::thread_rng().gen_range(ROOM_MIN_SIZE, ROOM_MAX_SIZE + 1);
-        let h = rand::thread_rng().gen_range(ROOM_MIN_SIZE, ROOM_MAX_SIZE + 1);
-        let x = rand::thread_rng().gen_range(0, MAP_WIDTH - w);
-        let y = rand::thread_rng().gen_range(0, MAP_HEIGHT - h);
+        let w = rand::thread_rng().gen_range(ROOM_MIN_SIZE..ROOM_MAX_SIZE + 1);
+        let h = rand::thread_rng().gen_range(ROOM_MIN_SIZE..ROOM_MAX_SIZE + 1);
+        let x = rand::thread_rng().gen_range(0..MAP_WIDTH - w);
+        let y = rand::thread_rng().gen_range(0..MAP_HEIGHT - h);
 
         let new_room = Rectangle::new(x as f32, y as f32, w as f32, h as f32);
         let failed = rooms
@@ -646,11 +647,11 @@ fn place_objects(room: Rectangle, map: &Map, objects: &mut Vec<Object>, level: u
     );
 
     // choose random number of monsters
-    let num_monsters = rand::thread_rng().gen_range(0, max_monsters + 1);
+    let num_monsters = rand::thread_rng().gen_range(0..max_monsters + 1);
 
     for _ in 0..num_monsters {
-        let x = rand::thread_rng().gen_range(room.x + 1.0, room.x + room.width) as i32;
-        let y = rand::thread_rng().gen_range(room.y + 1.0, room.y + room.height) as i32;
+        let x = rand::thread_rng().gen_range(room.x + 1.0..room.x + room.width) as i32;
+        let y = rand::thread_rng().gen_range(room.y + 1.0..room.y + room.height) as i32;
 
         // monster random table
         let troll_chance = from_dungeon_level(
@@ -767,11 +768,11 @@ fn place_objects(room: Rectangle, map: &Map, objects: &mut Vec<Object>, level: u
     ];
 
     // choose random number of items
-    let num_items = rand::thread_rng().gen_range(0, max_items + 1);
+    let num_items = rand::thread_rng().gen_range(0..max_items + 1);
     for _ in 0..num_items {
         // choose random spot for this item
-        let x = rand::thread_rng().gen_range(room.x as i32 + 1, (room.x + room.width) as i32);
-        let y = rand::thread_rng().gen_range(room.y as i32 + 1, (room.y + room.height) as i32);
+        let x = rand::thread_rng().gen_range(room.x as i32 + 1..(room.x + room.width) as i32);
+        let y = rand::thread_rng().gen_range(room.y as i32 + 1..(room.y + room.height) as i32);
 
         // only place it if the tile is not blocked
         if !is_blocked(x, y, map, objects) {
@@ -933,7 +934,7 @@ fn play_game(
         // handle game logic
         level_up(rl, thread, game, objects);
 
-        if rl.is_mouse_button_pressed(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON) {
+        if rl.is_mouse_button_pressed(raylib::consts::MouseButton::MOUSE_BUTTON_LEFT) {
             tcod.mouse = rl.get_mouse_position();
         }
 
@@ -1411,8 +1412,8 @@ fn ai_confused(
         // move in a random direction, and decrease the number of turns confused
         move_by(
             monster_id,
-            rand::thread_rng().gen_range(-1, 2),
-            rand::thread_rng().gen_range(-1, 2),
+            rand::thread_rng().gen_range(-1..2),
+            rand::thread_rng().gen_range(-1..2),
             &game.map,
             objects,
         );
@@ -1802,14 +1803,14 @@ fn target_tile(
         let (x, y) = (pos.x as i32 / TILE_WIDTH, pos.y as i32 / TILE_HEIGHT);
         let in_fov = (x < MAP_WIDTH) && (y < MAP_HEIGHT) && tcod.fov.is_in_fov(x, y);
         let in_range = max_range.map_or(true, |range| objects[PLAYER].distance(x, y) <= range);
-        if rl.is_mouse_button_pressed(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON)
+        if rl.is_mouse_button_pressed(raylib::consts::MouseButton::MOUSE_BUTTON_LEFT)
             && in_fov
             && in_range
         {
             return Some((x, y));
         }
 
-        if rl.is_mouse_button_pressed(raylib::consts::MouseButton::MOUSE_RIGHT_BUTTON) {
+        if rl.is_mouse_button_pressed(raylib::consts::MouseButton::MOUSE_BUTTON_RIGHT) {
             return None;
         }
         // ...
@@ -1893,7 +1894,7 @@ fn menu<T: AsRef<str>>(
     if let Some(pressed_key) = pressed_key {
         dbg!(pressed_key);
         use std::num::Wrapping;
-        let index = Wrapping(pressed_key) - Wrapping('a' as u32);
+        let index = Wrapping(pressed_key) - Wrapping(KEY_A as u32);
         let index: u32 = index.0;
         if (index as usize) < options.len() {
             Some(index as usize)

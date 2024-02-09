@@ -39,7 +39,7 @@ pub fn run(rl
         //----------------------------------------------------------------------------------
         if rl.is_file_dropped()
         {
-            dropped_files = rl.get_dropped_files();
+            dropped_files = rl.load_dropped_files();
         }
         //----------------------------------------------------------------------------------
 
@@ -78,7 +78,7 @@ pub fn run(rl
             //----------------------------------------------------------------------------------
         }
         if rl.is_key_down(crate::EXIT_KEY) {
-            rl.clear_dropped_files();
+            rl.unload_dropped_files();
         }
     });
 

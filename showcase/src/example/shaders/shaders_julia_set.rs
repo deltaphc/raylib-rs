@@ -136,11 +136,11 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
 
             // TODO: The idea is to zoom and move around with mouse
             // Probably offset movement should be proportional to zoom level
-            if rl.is_mouse_button_down(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON) || rl.is_mouse_button_down(raylib::consts::MouseButton::MOUSE_RIGHT_BUTTON)
+            if rl.is_mouse_button_down(raylib::consts::MouseButton::MOUSE_BUTTON_LEFT) || rl.is_mouse_button_down(raylib::consts::MouseButton::MOUSE_BUTTON_RIGHT)
             {
-                if rl.is_mouse_button_down(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON)
+                if rl.is_mouse_button_down(raylib::consts::MouseButton::MOUSE_BUTTON_LEFT)
                    { zoom += zoom * 0.003;}
-                if rl.is_mouse_button_down(raylib::consts::MouseButton::MOUSE_RIGHT_BUTTON)
+                if rl.is_mouse_button_down(raylib::consts::MouseButton::MOUSE_BUTTON_RIGHT)
                    { zoom -= zoom * 0.003;}
 
                 let mousePos = rl.get_mouse_position();

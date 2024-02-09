@@ -12,27 +12,19 @@ impl RaylibHandle {
     }
 
     /// Gets dropped filenames.
-    pub fn get_dropped_files(&self) -> Vec<String> {
+    pub fn load_dropped_files(&self) -> Vec<String> {
         let mut v = Vec::new();
         unsafe {
-            let mut count: i32 = 0;
-            let dropfiles = ffi::GetDroppedFiles(&mut count);
-            for i in 0..count {
-                let filestr = CStr::from_ptr(*dropfiles.offset(i as isize))
+            let dropfiles = ffi::LoadDroppedFiles();
+            for i in 0..dropfiles.count {
+                let filestr = CStr::from_ptr(*dropfiles.paths.offset(i as isize))
                     .to_str()
                     .unwrap();
                 let file = String::from(filestr);
                 v.push(file);
             }
+            ffi::UnloadDroppedFiles(dropfiles)
         }
         v
-    }
-
-    /// Clears dropped files paths buffer.
-    #[inline]
-    pub fn clear_dropped_files(&mut self) {
-        unsafe {
-            ffi::ClearDroppedFiles();
-        }
     }
 }

@@ -43,33 +43,33 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
 
         ball_color = Color::BEIGE;
 
-        if rl.is_mouse_button_down(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON)
+        if rl.is_mouse_button_down(raylib::consts::MouseButton::MOUSE_BUTTON_LEFT)
             {
 
                 ball_color = Color::MAROON;
             }
-        if rl.is_mouse_button_down(raylib::consts::MouseButton::MOUSE_MIDDLE_BUTTON)
+        if rl.is_mouse_button_down(raylib::consts::MouseButton::MOUSE_BUTTON_MIDDLE)
             {
 
                 ball_color = Color::LIME;
             }
-        if rl.is_mouse_button_down(raylib::consts::MouseButton::MOUSE_RIGHT_BUTTON)
+        if rl.is_mouse_button_down(raylib::consts::MouseButton::MOUSE_BUTTON_RIGHT)
             {
 
                 ball_color = Color::DARKBLUE;
             }
 
-        if rl.is_mouse_button_pressed(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON)
+        if rl.is_mouse_button_pressed(raylib::consts::MouseButton::MOUSE_BUTTON_LEFT)
             {
 
                 touch_counter = 10;
             }
-        if rl.is_mouse_button_pressed(raylib::consts::MouseButton::MOUSE_MIDDLE_BUTTON)
+        if rl.is_mouse_button_pressed(raylib::consts::MouseButton::MOUSE_BUTTON_MIDDLE)
             {
 
                 touch_counter = 10;
             }
-        if rl.is_mouse_button_pressed(raylib::consts::MouseButton::MOUSE_RIGHT_BUTTON)
+        if rl.is_mouse_button_pressed(raylib::consts::MouseButton::MOUSE_BUTTON_RIGHT)
             {
 
                 touch_counter = 10;

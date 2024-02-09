@@ -23,6 +23,10 @@
 
 use raylib::prelude::*;
 
+pub enum GuiScrollBarSide {
+    SCROLLBAR_LEFT_SIDE,
+    SCROLLBAR_RIGHT_SIDE,
+}
 //------------------------------------------------------------------------------------
 // Program main entry point
 //------------------------------------------------------------------------------------
@@ -90,7 +94,7 @@ fn DrawStyleEditControls(d: &mut RaylibDrawHandle) {
     use raylib::consts::GuiControlProperty::*;
     use raylib::consts::GuiListViewProperty::*;
     use raylib::consts::GuiScrollBarProperty::*;
-    use raylib::consts::GuiScrollBarSide::*;
+    //use raylib::consts::GuiScrollBarSide::*;
     use raylib::consts::GuiSliderProperty::*;
     // ScrollPanel style controls
     //----------------------------------------------------------
@@ -137,7 +141,7 @@ fn DrawStyleEditControls(d: &mut RaylibDrawHandle) {
     d.gui_spinner(rrect(670, 345, 90, 20), None, &mut style, 2, 100, false);
     d.gui_set_style(SCROLLBAR, SLIDER_WIDTH as i32, style);
 
-    let text = if d.gui_get_style(LISTVIEW, SCROLLBAR_SIDE as i32) == SCROLLBAR_LEFT_SIDE as i32 {
+    let text = if d.gui_get_style(LISTVIEW, SCROLLBAR_SIDE as i32) == 0 as i32 {
         Some(rstr!("SCROLLBAR: LEFT"))
     } else {
         Some(rstr!("SCROLLBAR: RIGHT"))

@@ -67,7 +67,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut
         //----------------------------------------------------------------------------------
         rl.update_camera(&mut camera);      // Update internal camera and our camera
 
-        if (rl.is_mouse_button_pressed(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON))
+        if (rl.is_mouse_button_pressed(raylib::consts::MouseButton::MOUSE_BUTTON_LEFT))
         {
             currentModel = (currentModel + 1)%NUM_MODELS; // Cycle between the textures
         }

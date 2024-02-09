@@ -31,15 +31,15 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
     let mut colors = [Color::default(); MAX_COLUMNS];
 
     for i in 0..MAX_COLUMNS {
-        heights[i] = raylib::get_random_value::<i32>(1, 12) as f32;
+        heights[i] = rl.get_random_value::<i32>(1, 12) as f32;
         positions[i] = rvec3(
-            raylib::get_random_value::<i32>(-15, 15),
+            rl.get_random_value::<i32>(-15, 15),
             heights[i] / 2.0,
-            raylib::get_random_value::<i32>(-15, 15),
+            rl.get_random_value::<i32>(-15, 15),
         );
         colors[i] = Color::new(
-            raylib::get_random_value::<i32>(20, 255) as u8,
-            raylib::get_random_value::<i32>(10, 55) as u8,
+            rl.get_random_value::<i32>(20, 255) as u8,
+            rl.get_random_value::<i32>(10, 55) as u8,
             30,
             255,
         );

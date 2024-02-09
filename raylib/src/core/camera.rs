@@ -95,72 +95,14 @@ impl Camera3D {
 }
 
 impl RaylibHandle {
-    /// Sets camera mode.
-    #[inline]
-    pub fn set_camera_mode(
-        &mut self,
-        camera: impl Into<ffi::Camera3D>,
-        mode: crate::consts::CameraMode,
-    ) {
-        unsafe {
-            ffi::SetCameraMode(camera.into(), mode as i32);
-        }
-    }
-
+    
     /// Updates camera position for selected mode.
     #[inline]
-    pub fn update_camera(&self, camera: &mut Camera3D) {
+    pub fn update_camera(&self, camera: &mut Camera3D, mode: i32) {
         unsafe {
             let mut fficam: ffi::Camera3D = (*camera).into();
-            ffi::UpdateCamera(&mut fficam);
+            ffi::UpdateCamera(&mut fficam, mode);
             *camera = fficam.into();
-        }
-    }
-
-    /// Sets camera pan key to combine with mouse movement (free camera).
-    #[inline]
-    pub fn set_camera_pan_control(&mut self, pan_key: crate::consts::KeyboardKey) {
-        unsafe {
-            ffi::SetCameraPanControl(pan_key as i32);
-        }
-    }
-
-    /// Sets camera alt key to combine with mouse movement (free camera).
-    #[inline]
-    pub fn set_camera_alt_control(&mut self, alt_key: crate::consts::KeyboardKey) {
-        unsafe {
-            ffi::SetCameraAltControl(alt_key as i32);
-        }
-    }
-
-    /// Sets camera smooth zoom key to combine with mouse (free camera).
-    #[inline]
-    pub fn set_camera_smooth_zoom_control(&mut self, sz_key: crate::consts::KeyboardKey) {
-        unsafe {
-            ffi::SetCameraSmoothZoomControl(sz_key as i32);
-        }
-    }
-
-    /// Sets camera move controls (1st person and 3rd person cameras).
-    #[inline]
-    pub fn set_camera_move_controls(
-        &mut self,
-        front_key: crate::consts::KeyboardKey,
-        back_key: crate::consts::KeyboardKey,
-        right_key: crate::consts::KeyboardKey,
-        left_key: crate::consts::KeyboardKey,
-        up_key: crate::consts::KeyboardKey,
-        down_key: crate::consts::KeyboardKey,
-    ) {
-        unsafe {
-            ffi::SetCameraMoveControls(
-                front_key as i32,
-                back_key as i32,
-                right_key as i32,
-                left_key as i32,
-                up_key as i32,
-                down_key as i32,
-            );
         }
     }
 }

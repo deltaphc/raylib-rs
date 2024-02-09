@@ -66,7 +66,7 @@ int main(void)
         if (IsFileDropped())
         {
             int count = 0;
-            char **droppedFiles = GetDroppedFiles(&count);
+            char **droppedFiles = LoadDroppedFiles(&count);
 
             if (count == 1) // Only support one file dropped
             {
@@ -91,7 +91,7 @@ int main(void)
                 }
             }
 
-            ClearDroppedFiles();    // Clear internal buffers
+            UnloadDroppedFiles();    // Clear internal buffers
         }
 
         // Select model on mouse click
