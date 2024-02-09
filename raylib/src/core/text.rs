@@ -6,7 +6,7 @@ use crate::core::{RaylibHandle, RaylibThread};
 use crate::ffi;
 
 use std::convert::{AsMut, AsRef};
-use std::ffi::CString;
+use std::ffi::{CString, OsString};
 
 fn no_drop<T>(_thing: T) {}
 make_thin_wrapper!(Font, ffi::Font, ffi::UnloadFont);
@@ -258,6 +258,17 @@ pub trait RaylibFont: AsRef<ffi::Font> + AsMut<ffi::Font> {
             )
         }
     }
+    fn is_ready(&self) -> bool {
+        unsafe { ffi::IsFontReady(*self.as_ref()) }
+    }
+
+    fn export_as_code<A>(&self, filename: A) -> bool
+    where
+        A: Into<OsString>,
+    {
+        let c_str = CString::new(filename.into().to_string_lossy().as_bytes()).unwrap();
+        unsafe { ffi::ExportFontAsCode(*self.as_ref(), c_str.as_ptr()) }
+    }
 }
 
 impl Font {
@@ -265,9 +276,6 @@ impl Font {
         let w = WeakFont(self.0);
         std::mem::forget(self);
         return w;
-    }
-    pub fn is_ready(&self) -> bool {
-        unsafe { ffi::IsFontReady(self.0) }
     }
     /// Returns a new `Font` using provided `GlyphInfo` data and parameters.
     fn from_data(
