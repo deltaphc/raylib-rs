@@ -11,6 +11,16 @@ mod text_test {
             .expect("couldn't load font");
     }
 
+    ray_test!(test_font_export);
+    fn test_font_export(thread: &RaylibThread) {
+        let mut handle = TEST_HANDLE.write().unwrap();
+        let rl = handle.as_mut().unwrap();
+        let f = rl
+            .load_font(thread, "resources/alagard.png")
+            .expect("couldn't load font");
+        f.export_as_code("test_out/font.h");
+    }
+
     ray_draw_test!(test_default_font);
     fn test_default_font(d: &mut RaylibDrawHandle, _: &TestAssets) {
         d.clear_background(Color::WHITE);
