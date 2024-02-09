@@ -56,7 +56,7 @@ impl RaylibHandle {
         unsafe { ffi::IsFileDropped() }
     }
 
-    /// Checks if a file has been dropped into the window.
+    /// Checks a file's extension.
     #[inline]
     pub fn is_file_extension<A>(&self, file_name: OsString, file_ext: A) -> bool
     where
