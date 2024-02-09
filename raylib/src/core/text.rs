@@ -4,6 +4,7 @@ use crate::core::math::Vector2;
 use crate::core::texture::{Image, Texture2D};
 use crate::core::{RaylibHandle, RaylibThread};
 use crate::ffi;
+use crate::math::Rectangle;
 
 use std::convert::{AsMut, AsRef};
 use std::ffi::{CString, OsString};
@@ -258,16 +259,39 @@ pub trait RaylibFont: AsRef<ffi::Font> + AsMut<ffi::Font> {
             )
         }
     }
+    /// Check if a font is ready
     fn is_ready(&self) -> bool {
         unsafe { ffi::IsFontReady(*self.as_ref()) }
     }
 
+    /// Export font as code file, returns true on success
     fn export_as_code<A>(&self, filename: A) -> bool
     where
         A: Into<OsString>,
     {
         let c_str = CString::new(filename.into().to_string_lossy().as_bytes()).unwrap();
         unsafe { ffi::ExportFontAsCode(*self.as_ref(), c_str.as_ptr()) }
+    }
+
+    /// Get glyph font info data for a codepoint (unicode character), fallback to '?' if not found
+    fn get_glyph_info(&self, codepoint: char) -> GlyphInfo {
+        unsafe { GlyphInfo(ffi::GetGlyphInfo(*self.as_ref(), codepoint as i32)) }
+    }
+
+    /// Gets index position for a unicode character on `font`.
+    fn get_glyph_index(&self, codepoint: char) -> i32 {
+        unsafe { ffi::GetGlyphIndex(*self.as_ref(), codepoint as i32) }
+    }
+
+    /// Get glyph rectangle in font atlas for a codepoint (unicode character), fallback to '?' if not found
+    fn get_glyph_atlas_rec(&self, codepoint: char) -> Rectangle {
+        unsafe { ffi::GetGlyphAtlasRec(*self.as_ref(), codepoint as i32).into() }
+    }
+
+    /// Measures string width in pixels for `font`.
+    fn measure_text(&self, text: &str, font_size: f32, spacing: f32) -> Vector2 {
+        let c_text = CString::new(text).unwrap();
+        unsafe { ffi::MeasureTextEx(*self.as_ref(), c_text.as_ptr(), font_size, spacing).into() }
     }
 }
 
@@ -367,29 +391,10 @@ impl RaylibHandle {
     pub fn get_font_default(&self) -> WeakFont {
         WeakFont(unsafe { ffi::GetFontDefault() })
     }
-}
-
-/// Measures string width in pixels for default font.
-#[inline]
-pub fn measure_text(text: &str, font_size: i32) -> i32 {
-    let c_text = CString::new(text).unwrap();
-    unsafe { ffi::MeasureText(c_text.as_ptr(), font_size) }
-}
-
-/// Measures string width in pixels for `font`.
-#[inline]
-pub fn measure_text_ex(
-    font: impl std::convert::AsRef<ffi::Font>,
-    text: &str,
-    font_size: f32,
-    spacing: f32,
-) -> Vector2 {
-    let c_text = CString::new(text).unwrap();
-    unsafe { ffi::MeasureTextEx(*font.as_ref(), c_text.as_ptr(), font_size, spacing).into() }
-}
-
-/// Gets index position for a unicode character on `font`.
-#[inline]
-pub fn get_glyph_index(font: impl std::convert::AsRef<ffi::Font>, character: i32) -> i32 {
-    unsafe { ffi::GetGlyphIndex(*font.as_ref(), character) }
+    /// Measures string width in pixels for default font.
+    #[inline]
+    pub fn measure_text(&self, text: &str, font_size: i32) -> i32 {
+        let c_text = CString::new(text).unwrap();
+        unsafe { ffi::MeasureText(c_text.as_ptr(), font_size) }
+    }
 }
