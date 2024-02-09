@@ -17,7 +17,7 @@ Permission is granted to anyone to use this software for any purpose, including 
 use crate::ffi;
 use crate::misc::AsF32;
 use std::f32::consts::PI;
-use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssign};
+use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Range, Sub, SubAssign};
 
 #[cfg(feature = "nalgebra_interop")]
 use nalgebra as na;
@@ -203,6 +203,31 @@ impl Vector2 {
         *self / length_sqr.sqrt()
     }
 
+    /// Rotates the vector by `angle` radians.
+    pub fn rotate(&mut self, angle: f32) {
+        let cos_res = angle.cos();
+        let sin_res = angle.sin();
+
+        let result = Vector2::new(
+            self.x * cos_res - self.y * sin_res,
+            self.x * sin_res + self.y * cos_res,
+        );
+
+        self.x = result.x;
+        self.y = result.y;
+    }
+
+    /// Returns a new `Vector2` rotated by `angle` radians.
+    pub fn rotated(&self, angle: f32) -> Vector2 {
+        let cos_res = angle.cos();
+        let sin_res = angle.sin();
+
+        Vector2::new(
+            self.x * cos_res - self.y * sin_res,
+            self.x * sin_res + self.y * cos_res,
+        )
+    }
+
     /// Returns a new `Vector2` with componenets linearly interpolated by `amount` towards vector `v`.
     pub fn lerp(&self, v: Vector2, amount: f32) -> Vector2 {
         Vector2 {
@@ -212,10 +237,10 @@ impl Vector2 {
     }
 
     /// Returns a new `Vector2` with componenets clamp to a certain interval.
-    pub fn clamp(&self, min: f32, max: f32) -> Vector2 {
+    pub fn clamp(&self, num: Range<f32>) -> Vector2 {
         Vector2 {
-            x: self.x.clamp(min, max),
-            y: self.y.clamp(min, max),
+            x: self.x.clamp(num.start, num.end),
+            y: self.y.clamp(num.start, num.end),
         }
     }
 }
@@ -660,11 +685,11 @@ impl Vector3 {
     }
 
     /// Returns a new `Vector3` with componenets clamp to a certain interval.
-    pub fn clamp(&self, min: f32, max: f32) -> Vector3 {
+    pub fn clamp(&self, num: Range<f32>) -> Vector3 {
         Vector3 {
-            x: self.x.clamp(min, max),
-            y: self.y.clamp(min, max),
-            z: self.z.clamp(min, max),
+            x: self.x.clamp(num.start, num.end),
+            y: self.y.clamp(num.start, num.end),
+            z: self.z.clamp(num.start, num.end),
         }
     }
 }
@@ -910,7 +935,7 @@ impl Quaternion {
         Quaternion {
             x: cross.x,
             y: cross.y,
-            z: cross.y,
+            z: cross.z,
             w: 1.0 + from.dot(to),
         }
         .normalized()
@@ -1016,13 +1041,13 @@ impl Quaternion {
     }
 
     /// Returns a quaternion equivalent to Euler angles.
-    pub fn from_euler(roll: f32, pitch: f32, yaw: f32) -> Quaternion {
-        let x0 = (roll * 0.5).cos();
-        let x1 = (roll * 0.5).sin();
-        let y0 = (pitch * 0.5).cos();
-        let y1 = (pitch * 0.5).sin();
-        let z0 = (yaw * 0.5).cos();
-        let z1 = (yaw * 0.5).sin();
+    pub fn from_euler(pitch: f32, yaw: f32, roll: f32) -> Quaternion {
+        let x0 = (pitch * 0.5).cos();
+        let x1 = (pitch * 0.5).sin();
+        let y0 = (yaw * 0.5).cos();
+        let y1 = (yaw * 0.5).sin();
+        let z0 = (roll * 0.5).cos();
+        let z1 = (roll * 0.5).sin();
 
         Quaternion {
             x: (x1 * y0 * z0) - (x0 * y1 * z1),
@@ -1196,12 +1221,12 @@ impl Quaternion {
     }
 
     /// Returns a new `Quaternion` with componenets clamp to a certain interval.
-    pub fn clamp(&self, min: f32, max: f32) -> Quaternion {
+    pub fn clamp(&self, num: Range<f32>) -> Quaternion {
         Quaternion {
-            x: self.x.clamp(min, max),
-            y: self.y.clamp(min, max),
-            z: self.z.clamp(min, max),
-            w: self.w.clamp(min, max),
+            x: self.x.clamp(num.start, num.end),
+            y: self.y.clamp(num.start, num.end),
+            z: self.z.clamp(num.start, num.end),
+            w: self.w.clamp(num.start, num.end),
         }
     }
 }

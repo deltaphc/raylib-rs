@@ -4,6 +4,7 @@ use crate::core::color::Color;
 use crate::core::math::Rectangle;
 use crate::core::{RaylibHandle, RaylibThread};
 use crate::ffi;
+use std::convert::TryInto;
 use std::ffi::CString;
 use std::mem::ManuallyDrop;
 
@@ -724,15 +725,18 @@ impl Image {
         Ok(Image(i))
     }
 
-    /// Loads image from a given memory buffer as a vector of arrays
-    pub fn load_image_from_mem(
-        filetype: &str,
-        bytes: &Vec<u8>,
-        size: i32,
-    ) -> Result<Image, String> {
+    /// Loads image from a given memory buffer
+    /// The input data is expected to be in a supported file format such as png. Which formats are
+    /// supported depend on the build flags used for the raylib (C) library.
+    pub fn load_image_from_mem(filetype: &str, bytes: &[u8]) -> Result<Image, String> {
         let c_filetype = CString::new(filetype).unwrap();
-        let c_bytes = bytes.as_ptr();
-        let i = unsafe { ffi::LoadImageFromMemory(c_filetype.as_ptr(), c_bytes, size) };
+        let i = unsafe {
+            ffi::LoadImageFromMemory(
+                c_filetype.as_ptr(),
+                bytes.as_ptr(),
+                bytes.len().try_into().unwrap(),
+            )
+        };
         if i.data.is_null() {
             return Err(format!("Image data is null. Check provided buffer data"));
         };

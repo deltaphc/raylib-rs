@@ -27,14 +27,10 @@ arr_macro = "0.1.3"
 
 [features]
 nightly = []
-#nobuild = ["raylib-sys/nobuild"]
 with_serde = ["serde", "serde_json"]
 nalgebra_interop = ["nalgebra"]
 wayland = ["raylib-sys/wayland"]
 custom_frame_control = ["raylib-sys/custom_frame_control"]
-
-#[package.metadata.docs.rs]
-#features = ["nobuild"]
 
 [[target.'cfg(not(target_os = "windows"))'.example]]
 name = "specs"

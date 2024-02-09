@@ -67,7 +67,8 @@ fn build_with_cmake(src_path: &str) {
         .define("BUILD_EXAMPLES", "OFF")
         .define("CMAKE_BUILD_TYPE", profile)
         // turn off until this is fixed
-        .define("SUPPORT_BUSY_WAIT_LOOP", "OFF");
+        .define("SUPPORT_BUSY_WAIT_LOOP", "OFF")
+        .define("SUPPORT_FILEFORMAT_JPG", "ON");
 
     #[cfg(feature = "custom_frame_control")]
     {
@@ -309,8 +310,10 @@ fn run_command(cmd: &str, args: &[&str]) {
 fn platform_from_target(target: &str) -> (Platform, PlatformOS) {
     let platform = if target.contains("wasm32") {
         // make sure cmake knows that it should bundle glfw in
-        // Cargo web takes care of this but better safe than sorry
-        env::set_var("EMMAKEN_CFLAGS", "-s USE_GLFW=3");
+        env::set_var(
+            "EMCC_CFLAGS",
+            "-sUSE_GLFW=3 -sGL_ENABLE_GET_PROC_ADDRESS -sWASM=1 -sALLOW_MEMORY_GROWTH=1 -sWASM_MEM_MAX=512MB -sTOTAL_MEMORY=512MB -sABORTING_MALLOC=0 -sASYNCIFY -sFORCE_FILESYSTEM=1 -sASSERTIONS=1 -sERROR_ON_UNDEFINED_SYMBOLS=0 -sEXPORTED_FUNCTIONS=['_malloc''_free''_main''_emsc_main''_emsc_set_window_size'] -sEXPORTED_RUNTIME_METHODS=ccallcwrap",
+        );
         Platform::Web
     } else if target.contains("armv7-unknown-linux") {
         Platform::RPI

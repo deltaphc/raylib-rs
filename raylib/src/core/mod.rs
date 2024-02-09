@@ -2,6 +2,7 @@
 mod macros;
 
 pub mod audio;
+pub mod automation;
 pub mod camera;
 pub mod collision;
 pub mod color;
