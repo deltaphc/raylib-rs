@@ -37,6 +37,9 @@ mod tests;
 mod audio;
 #[cfg(not(feature = "custom_frame_control"))]
 #[cfg(not(feature = "automation_event_test"))]
+mod callbacks;
+#[cfg(not(feature = "custom_frame_control"))]
+#[cfg(not(feature = "automation_event_test"))]
 mod data;
 #[cfg(not(feature = "custom_frame_control"))]
 #[cfg(not(feature = "automation_event_test"))]
