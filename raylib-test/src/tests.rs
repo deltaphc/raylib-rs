@@ -150,7 +150,7 @@ pub fn test_runner(tests: &[&dyn Testable]) {
         //assert!(std::path::Path::new(&format!("{}.png", t.name)).exists());
     }
     let camera = Camera3D::orthographic(
-        Vector3::new(10.0, 10.0, 10.0),
+        Vector3::new(-125.0, 125.0, 125.0),
         Vector3::new(0.0, 0.0, 0.0),
         Vector3::new(0.0, 1.0, 0.0),
         90.0,
@@ -162,14 +162,15 @@ pub fn test_runner(tests: &[&dyn Testable]) {
         {
             let mut d_ = rl.begin_drawing(&thread);
             let mut d = d_.begin_mode3D(&camera);
-            (t.test)(&mut d, &assets);
+            d.clear_background(Color::GRAY);
+            (t.test)(&mut d, &thread, &assets);
         }
         // take_screenshot takes the last frames screenshot
         rl.take_screenshot(&thread, &format!("{}.png", t.name));
         {
             let mut d_ = rl.begin_drawing(&thread);
             let mut d = d_.begin_mode3D(&camera);
-            d.clear_background(Color::WHITE);
+            d.clear_background(Color::GRAY);
         }
         //assert!(std::path::Path::new(&format!("{}.png", t.name)).exists());
     }
@@ -198,7 +199,7 @@ pub struct RayDrawTest {
 
 pub struct Ray3DDrawTest {
     pub name: &'static str,
-    pub test: fn(&mut RaylibMode3D<RaylibDrawHandle>, &TestAssets),
+    pub test: fn(&mut RaylibMode3D<RaylibDrawHandle>, &RaylibThread, &TestAssets),
 }
 
 macro_rules! ray_test {

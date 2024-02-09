@@ -17,6 +17,7 @@ Permission is granted to anyone to use this software for any purpose, including 
 
 extern crate bindgen;
 
+use std::collections::HashSet;
 use std::env;
 use std::path::{Path, PathBuf};
 
@@ -24,6 +25,18 @@ use std::path::{Path, PathBuf};
 const LATEST_RAYLIB_VERSION: &str = "4.2.0";
 const LATEST_RAYLIB_API_VERSION: &str = "4";
 
+#[derive(Debug)]
+struct IgnoreMacros(HashSet<String>);
+
+impl bindgen::callbacks::ParseCallbacks for IgnoreMacros {
+    fn will_parse_macro(&self, name: &str) -> bindgen::callbacks::MacroParsingBehavior {
+        if self.0.contains(name) {
+            bindgen::callbacks::MacroParsingBehavior::Ignore
+        } else {
+            bindgen::callbacks::MacroParsingBehavior::Default
+        }
+    }
+}
 #[cfg(feature = "nobuild")]
 fn build_with_cmake(_src_path: &str) {}
 
@@ -68,7 +81,8 @@ fn build_with_cmake(src_path: &str) {
         .define("CMAKE_BUILD_TYPE", profile)
         // turn off until this is fixed
         .define("SUPPORT_BUSY_WAIT_LOOP", "OFF")
-        .define("SUPPORT_FILEFORMAT_JPG", "ON");
+        .define("SUPPORT_FILEFORMAT_JPG", "ON")
+        .define("RAYMATH_STATIC_INLINE", "ON");
 
     #[cfg(feature = "custom_frame_control")]
     {
@@ -161,12 +175,25 @@ fn gen_bindings() {
         Platform::Web => "-DPLATFORM_WEB",
     };
 
+    let ignored_macros = IgnoreMacros(
+        vec![
+            "FP_INFINITE".into(),
+            "FP_NAN".into(),
+            "FP_NORMAL".into(),
+            "FP_SUBNORMAL".into(),
+            "FP_ZERO".into(),
+            "IPPORT_RESERVED".into(),
+        ]
+        .into_iter()
+        .collect(),
+    );
+
     let mut builder = bindgen::Builder::default()
         .header("binding/binding.h")
         .rustified_enum(".+")
         .clang_arg("-std=c99")
         .clang_arg(plat)
-        .parse_callbacks(Box::new(bindgen::CargoCallbacks));
+        .parse_callbacks(Box::new(ignored_macros));
 
     if platform == Platform::Desktop && os == PlatformOS::Windows {
         // odd workaround for booleans being broken
@@ -264,6 +291,8 @@ fn link(platform: Platform, platform_os: PlatformOS) {
 }
 
 fn main() {
+    println!("cargo:rerun-if-changed=build.rs");
+    println!("cargo:rerun-if-changed=./binding/binding.h");
     let target = env::var("TARGET").expect("Cargo build scripts always have TARGET");
     let (platform, platform_os) = platform_from_target(&target);
 

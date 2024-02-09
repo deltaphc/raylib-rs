@@ -209,4 +209,16 @@ mod draw_test {
             Color::BLACK,
         );
     }
+
+    ray_3d_draw_test!(test_draw_mesh);
+    fn test_draw_mesh(
+        d: &mut RaylibMode3D<RaylibDrawHandle>,
+        thread: &RaylibThread,
+        _: &TestAssets,
+    ) {
+        let mesh = Mesh::gen_mesh_sphere(&thread, 25.0, 5, 5);
+        let material = d.load_material_default(&thread);
+
+        d.draw_mesh(mesh, material, Matrix::translate(0.0, 0.0, 0.0));
+    }
 }
