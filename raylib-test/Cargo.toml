@@ -15,3 +15,4 @@ colored = "2.1.0"
 
 [features]
 custom_frame_control = ["raylib/custom_frame_control"]
+automation_event_test = []

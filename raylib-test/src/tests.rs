@@ -45,6 +45,21 @@ pub fn initialize_globals() -> (RaylibThread, TestAssets) {
     (thread, asset)
 }
 
+#[cfg(feature = "automation_event_test")]
+pub fn test_runner(tests: &[&dyn Testable]) {
+    use crate::automation::automation_test::automation_test;
+
+    let (thread, assets) = initialize_globals();
+    let args = std::env::args().collect::<Vec<_>>();
+    let opts = match parse_opts(&args) {
+        Some(Ok(o)) => o,
+        Some(Err(msg)) => panic!("{:?}", msg),
+        None => return,
+    };
+
+    automation_test(&thread);
+}
+
 #[cfg(feature = "custom_frame_control")]
 pub fn test_runner(tests: &[&dyn Testable]) {
     use crate::manual::manual_test::test_manual;
@@ -59,7 +74,7 @@ pub fn test_runner(tests: &[&dyn Testable]) {
 
     test_manual(&thread);
 }
-
+#[cfg(not(feature = "automation_event_test"))]
 #[cfg(not(feature = "custom_frame_control"))]
 pub fn test_runner(tests: &[&dyn Testable]) {
     let (thread, assets) = initialize_globals();

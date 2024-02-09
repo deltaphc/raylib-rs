@@ -982,6 +982,32 @@ pub trait RaylibDraw {
         }
     }
 
+    fn draw_text_pro(
+        &mut self,
+        font: impl AsRef<ffi::Font>,
+        text: &str,
+        position: impl Into<ffi::Vector2>,
+        origin: impl Into<ffi::Vector2>,
+        rotation: f32,
+        font_size: f32,
+        spacing: f32,
+        tint: impl Into<ffi::Color>,
+    ) {
+        let c_text = CString::new(text).unwrap();
+        unsafe {
+            ffi::DrawTextPro(
+                *font.as_ref(),
+                c_text.as_ptr(),
+                position.into(),
+                origin.into(),
+                rotation,
+                font_size,
+                spacing,
+                tint.into(),
+            );
+        }
+    }
+
     /// Draw one character (codepoint)
     #[inline]
     fn draw_text_codepoint(
