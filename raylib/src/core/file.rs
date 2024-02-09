@@ -2,7 +2,7 @@
 use crate::ffi;
 
 use crate::core::RaylibHandle;
-use std::ffi::{CStr, CString, NulError, OsString};
+use std::ffi::{CStr, CString, OsString};
 
 make_thin_wrapper!(FilePathList, ffi::FilePathList, ffi::UnloadDirectoryFiles);
 make_thin_wrapper!(
@@ -81,23 +81,23 @@ impl RaylibHandle {
     ///
     /// # Errors
     /// This function will return an error if the supplied bytes contain an internal 0 byte. The NulError returned will contain the bytes as well as the position of the nul byte.
-    pub fn get_file_length<A>(&self, filename: A) -> Result<i32, NulError>
+    pub fn get_file_length<A>(&self, filename: A) -> i32
     where
-        A: Into<String>,
+        A: Into<OsString>,
     {
-        let c_str = CString::new(filename.into())?;
-        unsafe { Ok(ffi::GetFileLength(c_str.as_ptr())) }
+        let c_str = CString::new(filename.into().to_string_lossy().as_bytes()).unwrap();
+        unsafe { ffi::GetFileLength(c_str.as_ptr()) }
     }
 
     /// Check if a given path is a file or a directory
     /// # Errors
     /// This function will return an error if the supplied bytes contain an internal 0 byte. The NulError returned will contain the bytes as well as the position of the nul byte.
-    pub fn is_path_file<A>(&self, filename: A) -> Result<bool, NulError>
+    pub fn is_path_file<A>(&self, filename: A) -> bool
     where
-        A: Into<String>,
+        A: Into<OsString>,
     {
-        let c_str = CString::new(filename.into())?;
-        unsafe { Ok(ffi::IsPathFile(c_str.as_ptr())) }
+        let c_str = CString::new(filename.into().to_string_lossy().as_bytes()).unwrap();
+        unsafe { ffi::IsPathFile(c_str.as_ptr()) }
     }
 
     /// Load directory filepaths
@@ -109,14 +109,17 @@ impl RaylibHandle {
     }
 
     /// Load directory filepaths with extension filtering and recursive directory scan
-    pub fn load_directory_files_ex(
+    pub fn load_directory_files_ex<A>(
         &self,
-        dir_path: OsString,
+        dir_path: A,
         filter: String,
         scan_sub_dirs: bool,
-    ) -> FilePathList {
+    ) -> FilePathList
+    where
+        A: Into<OsString>,
+    {
         unsafe {
-            let dir_c_str = CString::new(dir_path.to_string_lossy().as_bytes()).unwrap(); // .unwrap() is okay here because any nul bytes placed into the actual string should be cleared out by to_string_lossy.
+            let dir_c_str = CString::new(dir_path.into().to_string_lossy().as_bytes()).unwrap(); // .unwrap() is okay here because any nul bytes placed into the actual string should be cleared out by to_string_lossy.
             let filter_c_str = CString::new(filter.replace("\0", "").as_bytes()).unwrap();
             FilePathList(ffi::LoadDirectoryFilesEx(
                 dir_c_str.as_ptr(),

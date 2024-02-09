@@ -32,7 +32,7 @@ mod data_test {
         let mut handle = TEST_HANDLE.write().unwrap();
         let rl = handle.as_mut().unwrap();
 
-        let len = rl.get_file_length("./resources/just_exists.txt").unwrap();
+        let len = rl.get_file_length("./resources/just_exists.txt");
         assert!(len == 18);
     }
 
@@ -41,9 +41,9 @@ mod data_test {
         let mut handle = TEST_HANDLE.write().unwrap();
         let rl = handle.as_mut().unwrap();
 
-        let len = rl.is_path_file("./resources/just_exists.txt").unwrap();
+        let len = rl.is_path_file("./resources/just_exists.txt");
         assert!(len == true);
-        let len = rl.is_path_file("./resources/").unwrap();
+        let len = rl.is_path_file("./resources/");
         assert!(len == false);
     }
 
