@@ -397,4 +397,8 @@ impl RaylibHandle {
         let c_text = CString::new(text).unwrap();
         unsafe { ffi::MeasureText(c_text.as_ptr(), font_size) }
     }
+
+    pub fn set_text_line_spacing(&self, spacing: i32) {
+        unsafe { ffi::SetTextLineSpacing(spacing) }
+    }
 }
