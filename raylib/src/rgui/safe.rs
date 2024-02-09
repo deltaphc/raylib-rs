@@ -249,7 +249,7 @@ pub trait RaylibDrawGui {
         &mut self,
         bounds: impl Into<ffi::Rectangle>,
         text: impl IntoCStr,
-        active: *mut i32,
+        active: &mut i32,
     ) -> i32 {
         unsafe { ffi::GuiToggleGroup(bounds.into(), text.as_cstr_ptr(), active) }
     }
@@ -259,7 +259,7 @@ pub trait RaylibDrawGui {
         &mut self,
         bounds: impl Into<ffi::Rectangle>,
         text: impl IntoCStr,
-        checked: *mut bool,
+        checked: &mut bool,
     ) -> bool {
         unsafe { ffi::GuiCheckBox(bounds.into(), text.as_cstr_ptr(), checked) > 0 }
     }
@@ -269,7 +269,7 @@ pub trait RaylibDrawGui {
         &mut self,
         bounds: impl Into<ffi::Rectangle>,
         text: impl IntoCStr,
-        active: *mut i32,
+        active: &mut i32,
     ) -> i32 {
         unsafe { ffi::GuiComboBox(bounds.into(), text.as_cstr_ptr(), active) }
     }
@@ -357,7 +357,7 @@ pub trait RaylibDrawGui {
         bounds: impl Into<ffi::Rectangle>,
         text_left: impl IntoCStr,
         text_right: impl IntoCStr,
-        value: *mut f32,
+        value: &mut f32,
         min_value: f32,
         max_value: f32,
     ) -> bool {
@@ -379,7 +379,7 @@ pub trait RaylibDrawGui {
         bounds: impl Into<ffi::Rectangle>,
         text_left: impl IntoCStr,
         text_right: impl IntoCStr,
-        value: *mut f32,
+        value: &mut f32,
         min_value: f32,
         max_value: f32,
     ) -> bool {
@@ -401,7 +401,7 @@ pub trait RaylibDrawGui {
         bounds: impl Into<ffi::Rectangle>,
         text_left: impl IntoCStr,
         text_right: impl IntoCStr,
-        value: *mut f32,
+        value: &mut f32,
         min_value: f32,
         max_value: f32,
     ) -> bool {
@@ -456,7 +456,7 @@ pub trait RaylibDrawGui {
         bounds: impl Into<ffi::Rectangle>,
         text: impl IntoCStr,
         scroll_index: &mut i32,
-        active: *mut i32,
+        active: &mut i32,
     ) -> i32 {
         unsafe { ffi::GuiListView(bounds.into(), text.as_cstr_ptr(), scroll_index, active) }
     }
@@ -468,7 +468,7 @@ pub trait RaylibDrawGui {
         text: &[&CStr],
         focus: &mut i32,
         scroll_index: &mut i32,
-        active: *mut i32,
+        active: &mut i32,
     ) -> i32 {
         let mut buffer = Vec::with_capacity(text.len());
         for t in text {
@@ -575,7 +575,7 @@ pub trait RaylibDrawGui {
         &mut self,
         bounds: impl Into<ffi::Rectangle>,
         text: impl IntoCStr,
-        alpha: *mut f32,
+        alpha: &mut f32,
     ) -> bool {
         unsafe { ffi::GuiColorBarAlpha(bounds.into(), text.as_cstr_ptr(), alpha) > 0 }
     }
