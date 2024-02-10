@@ -55,7 +55,7 @@ jobs:
       - name: Install alsa, udev, glfw3, and wayland
         run: sudo apt-get update; sudo apt-get install --no-install-recommends libasound2-dev libudev-dev libglfw3-dev libwayland-dev
       - name: Run doc tests with all features (this also compiles README examples)
-        run: cargo build && cd raylib-test && cargo test --doc --all-features
+        run: cargo test --doc --all-features
   lint:
     runs-on: ubuntu-latest
     steps:
