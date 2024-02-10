@@ -21,6 +21,8 @@ pub mod texture;
 pub mod vr;
 pub mod window;
 
+use raylib_sys::TraceLogLevel;
+
 use crate::ffi;
 use std::ffi::CString;
 use std::marker::PhantomData;
@@ -81,6 +83,7 @@ pub struct RaylibBuilder {
     window_transparent: bool,
     msaa_4x_hint: bool,
     vsync_hint: bool,
+    log_level: TraceLogLevel,
     width: i32,
     height: i32,
     title: String,
@@ -103,6 +106,11 @@ impl RaylibBuilder {
         self
     }
 
+    /// Set the builder's log level.
+    pub fn log_level(&mut self, level: TraceLogLevel) -> &mut Self {
+        self.log_level = level;
+        self
+    }
     /// Sets the window to be resizable.
     pub fn resizable(&mut self) -> &mut Self {
         self.window_resizable = true;
@@ -189,6 +197,7 @@ impl RaylibBuilder {
             ffi::SetConfigFlags(flags as u32);
         }
         let rl = init_window(self.width, self.height, &self.title);
+        rl.set_trace_log(self.log_level);
         (rl, RaylibThread(PhantomData))
     }
 }

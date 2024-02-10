@@ -68,4 +68,8 @@ mod texture;
 #[cfg(not(feature = "automation_event_test"))]
 mod window;
 
+#[cfg(not(feature = "custom_frame_control"))]
+#[cfg(not(feature = "automation_event_test"))]
+mod logging;
+
 mod automation;

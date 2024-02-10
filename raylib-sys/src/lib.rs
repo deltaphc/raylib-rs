@@ -6,3 +6,9 @@ include!(concat!(env!("OUT_DIR"), "/bindings.rs"));
 
 #[cfg(target_os = "macos")]
 pub const MAX_MATERIAL_MAPS: u32 = 12;
+
+impl Default for TraceLogLevel {
+    fn default() -> Self {
+        TraceLogLevel::LOG_INFO
+    }
+}
