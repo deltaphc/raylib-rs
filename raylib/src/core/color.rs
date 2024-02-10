@@ -129,7 +129,7 @@ impl Color {
 
     /// Returns a Color struct from hexadecimal value
     #[inline]
-    pub fn get_color(hex_value: i32) -> Color {
+    pub fn get_color(hex_value: u32) -> Color {
         unsafe { ffi::GetColor(hex_value).into() }
     }
 
