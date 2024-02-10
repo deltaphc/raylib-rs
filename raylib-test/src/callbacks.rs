@@ -1,7 +1,7 @@
 #[cfg(test)]
 pub mod callback_tests {
     use std::{
-        fs::{File, OpenOptions},
+        fs::OpenOptions,
         io::{Read, Write},
     };
 

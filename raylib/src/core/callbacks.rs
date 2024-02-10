@@ -11,6 +11,15 @@ extern "C" {
     fn sprintf(fmt: *const c_char, ...) -> c_int;
 }
 
+#[cfg(target_os = "wasm32")]
+type __va_list_tag = c_void;
+#[cfg(target_os = "windows")]
+type __va_list_tag = i8;
+#[cfg(target_os = "linux")]
+type __va_list_tag = raylib_sys::__va_list_tag;
+#[cfg(target_os = "darwin")]
+type __va_list_tag = raylib_sys::__va_list_tag;
+
 type RustTraceLogCallback = Option<fn(TraceLogLevel, &str)>;
 type RustSaveFileDataCallback = Option<fn(&str, &[u8]) -> bool>;
 type RustLoadFileDataCallback = Option<fn(&str) -> Vec<u8>>;
@@ -67,7 +76,7 @@ fn set_audio_stream_callback(f: RustAudioStreamCallback) {
 extern "C" fn custom_trace_log_callback(
     log_level: ::std::os::raw::c_int,
     text: *const ::std::os::raw::c_char,
-    args: *mut raylib_sys::__va_list_tag,
+    args: *mut __va_list_tag,
 ) {
     if let Some(trace_log) = trace_log_callback() {
         let a = match log_level {
