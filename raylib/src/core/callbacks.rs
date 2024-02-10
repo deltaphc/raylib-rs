@@ -1,10 +1,7 @@
-use crate::{
-    audio::{self, AudioStream},
-    ffi, RaylibHandle,
-};
-use libc::{c_char, c_int, c_void, CS};
+use crate::{audio::AudioStream, ffi, RaylibHandle};
+use libc::{c_char, c_int, c_void};
 use parking_lot::Mutex;
-use raylib_sys::{SaveFileTextCallback, TraceLogLevel, __va_list_tag};
+use raylib_sys::{TraceLogLevel, __va_list_tag};
 use std::{
     ffi::{CStr, CString},
     ptr,
