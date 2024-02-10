@@ -30,7 +30,7 @@ extern crate test;
 
 #[cfg(test)]
 #[macro_use]
-mod tests;
+pub mod tests;
 
 #[cfg(not(feature = "custom_frame_control"))]
 #[cfg(not(feature = "automation_event_test"))]

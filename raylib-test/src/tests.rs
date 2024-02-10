@@ -77,7 +77,16 @@ pub fn test_runner(tests: &[&dyn Testable]) {
 #[cfg(not(feature = "automation_event_test"))]
 #[cfg(not(feature = "custom_frame_control"))]
 pub fn test_runner(tests: &[&dyn Testable]) {
+    use crate::callbacks;
+
     let (thread, assets) = initialize_globals();
+
+    callbacks::callback_tests::set_logger(&thread);
+    callbacks::callback_tests::set_file_data_saver(&thread);
+    callbacks::callback_tests::set_file_text_saver(&thread);
+    callbacks::callback_tests::set_file_data_loader(&thread);
+    callbacks::callback_tests::set_file_text_loader(&thread);
+
     let args = std::env::args().collect::<Vec<_>>();
     let opts = match parse_opts(&args) {
         Some(Ok(o)) => o,
