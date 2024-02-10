@@ -260,6 +260,10 @@ fn main() {
             rstr!("raylib [textures] example - mouse painting"),
             example::textures::textures_mouse_painting::run,
         ),
+        (
+            rstr!("raylib [textures] example - image processing"),
+            example::textures::textures_image_processing::run,
+        ),
         #[cfg(target_os = "windows")]
         (
             rstr!("rlgl standalone"),
