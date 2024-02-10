@@ -43,5 +43,3 @@ pub use ffi::GuiToggleProperty;
 pub use ffi::MouseCursor;
 pub use ffi::PI;
 pub use ffi::RAD2DEG;
-
-pub use ffi::__va_list_tag;
