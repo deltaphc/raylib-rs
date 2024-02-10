@@ -1,12 +1,13 @@
 use crate::{audio::AudioStream, ffi, RaylibHandle};
 use libc::{c_char, c_int, c_void};
 use parking_lot::Mutex;
-use raylib_sys::{TraceLogLevel, __va_list_tag};
+use raylib_sys::TraceLogLevel;
 use std::{
     ffi::{CStr, CString},
     ptr,
 };
 
+use crate::consts::__va_list_tag;
 extern "C" {
     fn sprintf(fmt: *const c_char, ...) -> c_int;
 }
