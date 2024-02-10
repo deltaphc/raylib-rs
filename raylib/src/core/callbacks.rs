@@ -7,16 +7,10 @@ use std::{
     ptr,
 };
 
-use crate::consts::__va_list_tag;
 extern "C" {
     fn sprintf(fmt: *const c_char, ...) -> c_int;
 }
 
-/* SetLoadFileDataCallback;
-SetSaveFileDataCallback;
-SetLoadFileTextCallback;
-SetSaveFileTextCallback;
-SetAudioStreamCallback */
 type RustTraceLogCallback = Option<fn(TraceLogLevel, &str)>;
 type RustSaveFileDataCallback = Option<fn(&str, &[u8]) -> bool>;
 type RustLoadFileDataCallback = Option<fn(&str) -> Vec<u8>>;
@@ -73,7 +67,7 @@ fn set_audio_stream_callback(f: RustAudioStreamCallback) {
 extern "C" fn custom_trace_log_callback(
     log_level: ::std::os::raw::c_int,
     text: *const ::std::os::raw::c_char,
-    args: *mut __va_list_tag,
+    args: *mut raylib_sys::__va_list_tag,
 ) {
     if let Some(trace_log) = trace_log_callback() {
         let a = match log_level {
