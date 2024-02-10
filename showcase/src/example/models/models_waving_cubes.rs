@@ -49,7 +49,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut
         let scale = 2.0 + time.sin()*0.7;
 
         // Move camera around the scene
-        let mut cameraTime = time*0.3;
+        let cameraTime = time*0.3;
         camera.position.x = (cameraTime).cos()*40.0;
         camera.position.z = (cameraTime).sin()*40.0;
         //----------------------------------------------------------------------------------

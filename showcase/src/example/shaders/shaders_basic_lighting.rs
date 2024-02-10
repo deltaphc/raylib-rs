@@ -129,28 +129,28 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
     // Using 4 point lights, white,Color::RED, green and blue
     let mut lights = [
         create_light(
-            LightType::LIGHT_POINT,
+            LightType::LightPoint,
             rvec3(4, 2, 4),
             Vector3::zero(),
             Color::WHITE,
             &mut shader,
         ),
         create_light(
-            LightType::LIGHT_POINT,
+            LightType::LightPoint,
             rvec3(4, 2, 4),
             Vector3::zero(),
             Color::RED,
             &mut shader,
         ),
         create_light(
-            LightType::LIGHT_POINT,
+            LightType::LightPoint,
             rvec3(0, 4, 2),
             Vector3::zero(),
             Color::GREEN,
             &mut shader,
         ),
         create_light(
-            LightType::LIGHT_POINT,
+            LightType::LightPoint,
             rvec3(0, 4, 2),
             Vector3::zero(),
             Color::BLUE,
@@ -211,7 +211,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
         modelA.set_transform(&(*modelA.transform() * Matrix::rotate_z(0.012)));
 
         // Update the light shader with the camera view position
-        let mut cameraPos = Vector3::new(camera.position.x, camera.position.y, camera.position.z);
+        let cameraPos = Vector3::new(camera.position.x, camera.position.y, camera.position.z);
         let loc = shader.locs_mut()[raylib::consts::ShaderLocationIndex::SHADER_LOC_VECTOR_VIEW as usize];
         shader.set_shader_value( loc, cameraPos);
         //----------------------------------------------------------------------------------
@@ -278,13 +278,13 @@ const MAX_LIGHTS: u32 = 4;
 #[repr(i32)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub enum LightType {
-    LIGHT_DIRECTIONAL = 0,
-    LIGHT_POINT = 1,
+    LightDirectional = 0,
+    LightPoint = 1,
 }
 
 impl Default for LightType {
     fn default() -> Self {
-        Self::LIGHT_DIRECTIONAL
+        Self::LightDirectional
     }
 }
 

@@ -31,16 +31,12 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut
      45.0,                                // Camera field-of-view Y
     );
 
-    let mut ray = Ray::default();        // Picking ray
-
    let mut tower  = rl.load_model(thread, "original/model/resources/models/turret.obj").unwrap();                 // Load OBJ model
     let texture = rl.load_texture(thread, "original/models/resources/models/turret_diffuse.png").unwrap(); // Load model texture
     tower.materials_mut()[0].maps_mut()[raylib::consts::MaterialMapIndex::MATERIAL_MAP_ALBEDO as usize].texture = *texture.as_ref();                 // Set model diffuse texture
 
     let  towerPos = rvec3( 0.0, 0.0, 0.0 );                    // Set model position
     let  towerBBox = tower.meshes_mut()[0].mesh_bounding_box();   // Get mesh bounding box
-    let mut hitMeshBBox = false;
-    let mut hitTriangle = false;
 
     // Test triangle
     let ta = rvec3( -25.0, 0.5,0.0 );
@@ -69,7 +65,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut
         let mut cursorColor = Color::WHITE;
 
         // Get ray and test against ground, triangle, and mesh
-        ray = rl.get_mouse_ray(rl.get_mouse_position(), camera);
+        let ray = rl.get_mouse_ray(rl.get_mouse_position(), camera);
 
         // Check ray collision aginst ground plane
         let groundHitInfo = get_collision_ray_ground(ray, 0.0);
@@ -84,6 +80,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut
         // Check ray collision against test triangle
         let triHitInfo = get_collision_ray_triangle(ray, ta, tb, tc);
 
+        let hitTriangle;
         if ((triHitInfo.hit) && (triHitInfo.distance < nearestHit.distance))
         {
             nearestHit = triHitInfo;
@@ -95,9 +92,10 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut
         }
         else {hitTriangle = false;}
 
-        let mut  meshHitInfo = RayHitInfo::default();
+        let meshHitInfo;
 
         // Check ray collision against bounding box first, before trying the full ray-mesh test
+        let hitMeshBBox;
         if (towerBBox.check_collision_ray_box(ray))
         {
             hitMeshBBox = true;
@@ -112,9 +110,9 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut
                 cursorColor = Color::ORANGE;
                 hitObjectName = "Mesh";
             }
+        } else {
+            hitMeshBBox = false; // <- ???
         }
-
-        hitMeshBBox = false;
         //----------------------------------------------------------------------------------
 
         // Draw

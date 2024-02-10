@@ -47,7 +47,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
         mats[raylib::consts::MaterialMapIndex::MATERIAL_MAP_ALBEDO as usize].texture = texture;
     }
 
-    let mut camera = Camera3D::perspective(
+    let camera = Camera3D::perspective(
         Vector3::new(0.0, 60.0, -120.0),
         Vector3::new(0.0, 12.0, 0.0),
         Vector3::new(0.0, 1.0, 0.0),

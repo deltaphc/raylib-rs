@@ -65,7 +65,6 @@ pub fn run(mut rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut
     let mut brush_size = 20;
 
     let btn_save_rec = rrect::<i32, i32, i32, i32>(750, 10, 40, 30);
-    let mut btn_save_mouse_hover = false;
     let mut show_save_message = false;
     let mut save_message_counter = 0;
 
@@ -171,11 +170,11 @@ pub fn run(mut rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut
             }
 
             // Check mouse hover save button
-            if btn_save_rec.check_collision_point_rec(mouse_pos) {
-                btn_save_mouse_hover = true;
+            let btn_save_mouse_hover = if btn_save_rec.check_collision_point_rec(mouse_pos) {
+                true
             } else {
-                btn_save_mouse_hover = false;
-            }
+                false
+            };
 
             // Image saving logic
             // NOTE: Saving painted texture to a default named image

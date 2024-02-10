@@ -15,9 +15,9 @@ fn main() {
 }
 
 fn test_rslice(opt: &options::Opt) {
-    let (mut rl, thread) = opt.open_window("Drop Allocs");
+    let (mut _rl, _thread) = opt.open_window("Drop Allocs");
     let img = Image::gen_image_color(256, 256, Color::RED);
-    let pallet = img.extract_palette(16);
+    let _pallet = img.extract_palette(16);
 }
 
 /// Checks that shader files are droppable after window is closed

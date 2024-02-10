@@ -16,11 +16,11 @@ const MAX_CIRCLES: usize = 64;
 #[derive(Default, Copy, Clone)]
 struct CircleWave
 {
-    position: Vector2 ,
+    position: Vector2,
      radius: f32,
      alpha: f32,
      speed: f32,
-    color: Color ,
+    color: Color,
 }
 
 pub fn run(rl
@@ -60,7 +60,6 @@ pub fn run(rl
 
     audio.play_music_stream(&mut music);
 
-    let mut timePlayed = 0.0;
     let mut pause = false;
 
     rl.set_target_fps(60); // Set our game to run at 60 frames-per-second
@@ -98,7 +97,7 @@ pub fn run(rl
         }
 
         // Get timePlayed scaled to bar dimensions
-        timePlayed = audio.get_music_time_played(&music) / audio.get_music_time_length(&music) * (screen_width - 40) as f32;
+        let time_played = audio.get_music_time_played(&music) / audio.get_music_time_length(&music) * (screen_width - 40) as f32;
 
         // Color circles animation
         for i in 0..MAX_CIRCLES 
@@ -137,7 +136,7 @@ pub fn run(rl
 
         // Draw time bar
         d.draw_rectangle(20, screen_height - 20 - 12, screen_width - 40, 12, Color::LIGHTGRAY);
-        d.draw_rectangle(20, screen_height - 20 - 12, timePlayed as i32, 12, Color::MAROON);
+        d.draw_rectangle(20, screen_height - 20 - 12, time_played as i32, 12, Color::MAROON);
         d.draw_rectangle_lines(20, screen_height - 20 - 12, screen_width - 40, 12, Color::GRAY);
 
         //----------------------------------------------------------------------------------

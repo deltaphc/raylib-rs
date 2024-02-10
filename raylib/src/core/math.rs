@@ -184,7 +184,7 @@ impl Vector2 {
 
     /// Calculates the vector length square (**2);
     pub fn length_sqr(&self) -> f32 {
-        ((self.x * self.x) + (self.y * self.y))
+        (self.x * self.x) + (self.y * self.y)
     }
 
     /// Calculates the dot product with vector `v`.

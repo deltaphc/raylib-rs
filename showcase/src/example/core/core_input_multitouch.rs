@@ -24,11 +24,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
     rl.set_window_size(screen_width, screen_height);
     rl.set_window_title(thread, "raylib [core] example - input multitouch");
 
-    let mut ball_position = rvec2(-100.0, -100.0);
-    let mut ball_color = Color::BEIGE;
-
     let mut touch_counter = 0;
-    let mut touch_position = Vector2::zero();
 
     rl.set_target_fps(60); // Set our game to run at 60 frames-per-second
                            //---------------------------------------------------------------------------------------
@@ -39,9 +35,8 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
     {
         // Update
         //----------------------------------------------------------------------------------
-        ball_position = rl.get_mouse_position();
-
-        ball_color = Color::BEIGE;
+        let ball_position = rl.get_mouse_position();
+        let mut ball_color = Color::BEIGE;
 
         if rl.is_mouse_button_down(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON)
             {
@@ -91,7 +86,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
         // Multitouch
         for i in 0..MAX_TOUCH_POINTS
         {
-            touch_position = d.get_touch_position(i); // Get the touch point
+            let touch_position = d.get_touch_position(i); // Get the touch point
 
             if (touch_position.x >= 0.0) && (touch_position.y >= 0.0) // Make sure point is not (-1,-1 as this means there is no touch for it
             {
