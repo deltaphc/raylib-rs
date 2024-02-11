@@ -1,3 +1,5 @@
+#![allow(non_camel_case_types)]
+
 use crate::{audio::AudioStream, ffi, RaylibHandle};
 use libc::{c_char, c_int, c_void};
 use parking_lot::Mutex;
@@ -27,50 +29,50 @@ type RustSaveFileTextCallback = Option<fn(&str, &str) -> bool>;
 type RustLoadFileTextCallback = Option<fn(&str) -> String>;
 type RustAudioStreamCallback = Option<fn(&[u8])>;
 
-static mut __TRACE_LOG_CALLBACK: Mutex<RustTraceLogCallback> = Mutex::new(None);
-static mut __SAVE_FILE_DATA_CALLBACK: Mutex<RustSaveFileDataCallback> = Mutex::new(None);
-static mut __LOAD_FILE_DATA_CALLBACK: Mutex<RustLoadFileDataCallback> = Mutex::new(None);
-static mut __SAVE_FILE_TEXT_CALLBACK: Mutex<RustSaveFileTextCallback> = Mutex::new(None);
-static mut __LOAD_FILE_TEXT_CALLBACK: Mutex<RustLoadFileTextCallback> = Mutex::new(None);
-static mut __AUDIO_STREAM_CALLBACK: Mutex<RustAudioStreamCallback> = Mutex::new(None);
+static __TRACE_LOG_CALLBACK: Mutex<RustTraceLogCallback> = Mutex::new(None);
+static __SAVE_FILE_DATA_CALLBACK: Mutex<RustSaveFileDataCallback> = Mutex::new(None);
+static __LOAD_FILE_DATA_CALLBACK: Mutex<RustLoadFileDataCallback> = Mutex::new(None);
+static __SAVE_FILE_TEXT_CALLBACK: Mutex<RustSaveFileTextCallback> = Mutex::new(None);
+static __LOAD_FILE_TEXT_CALLBACK: Mutex<RustLoadFileTextCallback> = Mutex::new(None);
+static __AUDIO_STREAM_CALLBACK: Mutex<RustAudioStreamCallback> = Mutex::new(None);
 
 fn trace_log_callback() -> RustTraceLogCallback {
-    unsafe { *__TRACE_LOG_CALLBACK.lock() }
+    *__TRACE_LOG_CALLBACK.lock()
 }
 fn set_trace_log_callback(f: RustTraceLogCallback) {
-    unsafe { *__TRACE_LOG_CALLBACK.lock() = f }
+    *__TRACE_LOG_CALLBACK.lock() = f
 }
 fn save_file_data_callback() -> RustSaveFileDataCallback {
-    unsafe { *__SAVE_FILE_DATA_CALLBACK.lock() }
+    *__SAVE_FILE_DATA_CALLBACK.lock()
 }
 fn set_save_file_data_callback(f: RustSaveFileDataCallback) {
-    unsafe { *__SAVE_FILE_DATA_CALLBACK.lock() = f }
+    *__SAVE_FILE_DATA_CALLBACK.lock() = f
 }
 fn load_file_data_callback() -> RustLoadFileDataCallback {
-    unsafe { *__LOAD_FILE_DATA_CALLBACK.lock() }
+    *__LOAD_FILE_DATA_CALLBACK.lock()
 }
 fn set_load_file_data_callback(f: RustLoadFileDataCallback) {
-    unsafe { *__LOAD_FILE_DATA_CALLBACK.lock() = f }
+    *__LOAD_FILE_DATA_CALLBACK.lock() = f
 }
 
 fn save_file_text_callback() -> RustSaveFileTextCallback {
-    unsafe { *__SAVE_FILE_TEXT_CALLBACK.lock() }
+    *__SAVE_FILE_TEXT_CALLBACK.lock()
 }
 fn set_save_file_text_callback(f: RustSaveFileTextCallback) {
-    unsafe { *__SAVE_FILE_TEXT_CALLBACK.lock() = f }
+    *__SAVE_FILE_TEXT_CALLBACK.lock() = f
 }
 fn load_file_text_callback() -> RustLoadFileTextCallback {
-    unsafe { *__LOAD_FILE_TEXT_CALLBACK.lock() }
+    *__LOAD_FILE_TEXT_CALLBACK.lock()
 }
 fn set_load_file_text_callback(f: RustLoadFileTextCallback) {
-    unsafe { *__LOAD_FILE_TEXT_CALLBACK.lock() = f }
+    *__LOAD_FILE_TEXT_CALLBACK.lock() = f
 }
 
 fn audio_stream_callback() -> RustAudioStreamCallback {
-    unsafe { *__AUDIO_STREAM_CALLBACK.lock() }
+    *__AUDIO_STREAM_CALLBACK.lock()
 }
 fn set_audio_stream_callback(f: RustAudioStreamCallback) {
-    unsafe { *__AUDIO_STREAM_CALLBACK.lock() = f }
+    *__AUDIO_STREAM_CALLBACK.lock() = f
 }
 
 extern "C" fn custom_trace_log_callback(
@@ -101,62 +103,50 @@ extern "C" fn custom_trace_log_callback(
             unsafe { CStr::from_ptr(buf.as_ptr()) }
         };
 
-        trace_log(a, b.to_string_lossy().to_string().as_str())
+        trace_log(a, b.to_string_lossy().as_ref())
     }
 }
 
 extern "C" fn custom_save_file_data_callback(a: *const i8, b: *mut c_void, c: i32) -> bool {
-    if let Some(save_file_data) = save_file_data_callback() {
-        let a = unsafe { CStr::from_ptr(a) };
-        let b = unsafe { std::slice::from_raw_parts_mut(b as *mut u8, c as usize) };
-        return save_file_data(a.to_str().unwrap(), b);
-    }
-    false
+    let save_file_data = save_file_data_callback().unwrap();
+    let a = unsafe { CStr::from_ptr(a) };
+    let b = unsafe { std::slice::from_raw_parts_mut(b as *mut u8, c as usize) };
+    return save_file_data(a.to_str().unwrap(), b);
 }
 
 extern "C" fn custom_load_file_data_callback(a: *const i8, b: *mut i32) -> *mut u8 {
-    if let Some(load_file_data) = load_file_data_callback() {
-        let a = unsafe { CStr::from_ptr(a) };
-        let b = unsafe { b.as_mut().unwrap() };
-        let d = load_file_data(a.to_str().unwrap());
-        *b = d.len() as i32;
-        if *b == 0 {
-            return ptr::null_mut();
-        } else {
-            // Leak the data that we just created. It's in Raylib's hands now.
-            let uh = Box::leak(Box::new(d)).as_mut_ptr();
-            return uh;
-        }
+    let load_file_data = load_file_data_callback().unwrap();
+    let a = unsafe { CStr::from_ptr(a) };
+    let b = unsafe { b.as_mut().unwrap() };
+    let d = load_file_data(a.to_str().unwrap());
+    *b = d.len() as i32;
+    if *b == 0 {
+        return ptr::null_mut();
     } else {
-        panic!();
+        // Leak the data that we just created. It's in Raylib's hands now.
+        let uh = Box::leak(Box::new(d)).as_mut_ptr();
+        return uh;
     }
 }
 
 extern "C" fn custom_save_file_text_callback(a: *const i8, b: *mut i8) -> bool {
-    if let Some(save_file_text) = save_file_text_callback() {
-        let a = unsafe { CStr::from_ptr(a) };
-        let b = unsafe { CStr::from_ptr(b) };
-        return save_file_text(a.to_str().unwrap(), b.to_str().unwrap());
-    } else {
-        panic!();
-    }
+    let save_file_text = save_file_text_callback().unwrap();
+    let a = unsafe { CStr::from_ptr(a) };
+    let b = unsafe { CStr::from_ptr(b) };
+    return save_file_text(a.to_str().unwrap(), b.to_str().unwrap());
 }
 extern "C" fn custom_load_file_text_callback(a: *const i8) -> *mut i8 {
-    if let Some(load_file_text) = load_file_text_callback() {
-        let a = unsafe { CStr::from_ptr(a) };
-        let st = load_file_text(a.to_str().unwrap());
-        let oh = Box::leak(Box::new(CString::new(st).unwrap()));
-        oh.as_ptr() as *mut i8
-    } else {
-        panic!();
-    }
+    let load_file_text = load_file_text_callback().unwrap();
+    let a = unsafe { CStr::from_ptr(a) };
+    let st = load_file_text(a.to_str().unwrap());
+    let oh = Box::leak(Box::new(CString::new(st).unwrap()));
+    oh.as_ptr() as *mut i8
 }
 
 extern "C" fn custom_audio_stream_callback(a: *mut c_void, b: u32) {
-    if let Some(audio_stream) = audio_stream_callback() {
-        let a = unsafe { std::slice::from_raw_parts(a as *mut u8, b as usize) };
-        audio_stream(a);
-    }
+    let audio_stream = audio_stream_callback().unwrap();
+    let a = unsafe { std::slice::from_raw_parts(a as *mut u8, b as usize) };
+    audio_stream(a);
 }
 #[derive(Debug)]
 pub struct SetLogError<'a>(&'a str);
