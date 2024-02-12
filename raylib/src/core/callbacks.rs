@@ -99,8 +99,8 @@ extern "C" fn custom_trace_log_callback(
             let mut buf: [i8; MAX_TRACELOG_MSG_LENGTH] = [0; MAX_TRACELOG_MSG_LENGTH];
 
             unsafe { sprintf(buf.as_mut_ptr(), text, args) };
-
-            unsafe { CStr::from_ptr(buf.as_ptr()) }
+            let b = buf.as_ptr();
+            unsafe { CStr::from_ptr(b) }
         };
 
         trace_log(a, b.to_string_lossy().as_ref())
