@@ -24,6 +24,7 @@ Permission is granted to anyone to use this software for any purpose, including 
 //! use raylib::prelude::*;
 //! ```
 
+pub use crate::callbacks::*;
 pub use crate::consts::*;
 pub use crate::core::audio::*;
 pub use crate::core::automation::*;

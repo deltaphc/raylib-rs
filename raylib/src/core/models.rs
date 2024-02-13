@@ -389,7 +389,7 @@ pub trait RaylibMesh: AsRef<ffi::Mesh> + AsMut<ffi::Mesh> {
 
     /// Exports mesh as an OBJ file.
     #[inline]
-    fn export_mesh(&self, filename: &str) {
+    fn export(&self, filename: &str) {
         let c_filename = CString::new(filename).unwrap();
         unsafe {
             ffi::ExportMesh(*self.as_ref(), c_filename.as_ptr());

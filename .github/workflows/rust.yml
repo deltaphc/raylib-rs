@@ -4,12 +4,11 @@ on: [push]
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v1
-    - name: Build
-      run: cd raylib && cargo build --verbose --features nobuild
+      - uses: actions/checkout@v1
+      - name: Build
+        run: cd raylib && cargo build --verbose
     # - name: Run tests [Requires window system]
-      # run: cargo test -p raylib-test --verbose
+    # run: cargo test -p raylib-test --verbose
