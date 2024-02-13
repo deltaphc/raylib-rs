@@ -38,6 +38,11 @@ impl RaylibAudio {
         unsafe { ffi::IsAudioDeviceReady() }
     }
 
+    /// Get master volume (listener)
+    pub fn get_master_volume(&mut self) -> f32 {
+        unsafe { ffi::GetMasterVolume() }
+    }
+
     /// Sets master volume (listener).
     #[inline]
     pub fn set_master_volume(&self, volume: f32) {
@@ -276,14 +281,31 @@ impl Wave {
         Ok(Wave(w))
     }
 
-    pub fn load_wave_from_mem(filetype: &str, bytes: &Vec<u8>, size: i32) -> Result<Wave, String> {
+    /// Load wave from memory buffer, fileType refers to extension: i.e. '.wav'
+    pub fn load_wave_from_mem(filetype: &str, bytes: &Vec<u8>) -> Result<Wave, String> {
         let c_filetype = CString::new(filetype).unwrap();
         let c_bytes = bytes.as_ptr();
-        let w = unsafe { ffi::LoadWaveFromMemory(c_filetype.as_ptr(), c_bytes, size) };
+        let w =
+            unsafe { ffi::LoadWaveFromMemory(c_filetype.as_ptr(), c_bytes, bytes.len() as i32) };
         if w.data.is_null() {
             return Err(format!("Wave data is null. Check provided buffer data"));
         };
         Ok(Wave(w))
+    }
+
+    /// Load music stream from data
+    pub fn load_music_stream_from_mem(filetype: &str, bytes: &Vec<u8>) -> Result<Music, String> {
+        let c_filetype = CString::new(filetype).unwrap();
+        let c_bytes = bytes.as_ptr();
+        let w = unsafe {
+            ffi::LoadMusicStreamFromMemory(c_filetype.as_ptr(), c_bytes, bytes.len() as i32)
+        };
+        if w.stream.buffer.is_null() {
+            return Err(format!(
+                "Music's buffer data data is null. Check provided buffer data"
+            ));
+        };
+        Ok(Music(w))
     }
 
     /// Export wave file. Extension must be .wav or .raw
