@@ -196,8 +196,11 @@ impl RaylibBuilder {
         unsafe {
             ffi::SetConfigFlags(flags as u32);
         }
+
+        unsafe {
+            ffi::SetTraceLogLevel(self.log_level as i32);
+        }
         let rl = init_window(self.width, self.height, &self.title);
-        rl.set_trace_log(self.log_level);
         (rl, RaylibThread(PhantomData))
     }
 }
