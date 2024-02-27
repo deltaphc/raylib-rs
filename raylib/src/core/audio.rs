@@ -9,6 +9,23 @@ make_thin_wrapper!(Wave, ffi::Wave, ffi::UnloadWave);
 make_thin_wrapper!(Sound, ffi::Sound, ffi::UnloadSound);
 make_thin_wrapper!(Music, ffi::Music, ffi::UnloadMusicStream);
 make_thin_wrapper!(AudioStream, ffi::AudioStream, ffi::UnloadAudioStream);
+make_thin_wrapper!(SoundAlias, ffi::Sound, ffi::UnloadSoundAlias);
+
+pub trait SoundType {
+    fn inner(&self) -> ffi::Sound;
+}
+
+impl SoundType for Sound {
+    fn inner(&self) -> ffi::Sound {
+        self.0
+    }
+}
+
+impl SoundType for SoundAlias {
+    fn inner(&self) -> ffi::Sound {
+        self.0
+    }
+}
 
 make_rslice!(WaveSamples, f32, ffi::UnloadWaveSamples);
 
@@ -53,55 +70,76 @@ impl RaylibAudio {
 
     /// Plays a sound.
     #[inline]
-    pub fn play_sound(&mut self, sound: &Sound) {
+    pub fn play_sound<A>(&mut self, sound: &A)
+    where
+        A: SoundType,
+    {
         unsafe {
-            ffi::PlaySound(sound.0);
+            ffi::PlaySound(sound.inner());
         }
     }
 
     /// Pauses a sound.
     #[inline]
-    pub fn pause_sound(&mut self, sound: &Sound) {
+    pub fn pause_sound<A>(&mut self, sound: &A)
+    where
+        A: SoundType,
+    {
         unsafe {
-            ffi::PauseSound(sound.0);
+            ffi::PauseSound(sound.inner());
         }
     }
 
     /// Resumes a paused sound.
     #[inline]
-    pub fn resume_sound(&mut self, sound: &Sound) {
+    pub fn resume_sound<A>(&mut self, sound: &A)
+    where
+        A: SoundType,
+    {
         unsafe {
-            ffi::ResumeSound(sound.0);
+            ffi::ResumeSound(sound.inner());
         }
     }
 
     /// Stops playing a sound.
     #[inline]
-    pub fn stop_sound(&mut self, sound: &Sound) {
+    pub fn stop_sound<A>(&mut self, sound: &A)
+    where
+        A: SoundType,
+    {
         unsafe {
-            ffi::StopSound(sound.0);
+            ffi::StopSound(sound.inner());
         }
     }
 
     /// Checks if a sound is currently playing.
     #[inline]
-    pub fn is_sound_playing(&self, sound: &Sound) -> bool {
-        unsafe { ffi::IsSoundPlaying(sound.0) }
+    pub fn is_sound_playing<A>(&self, sound: &A) -> bool
+    where
+        A: SoundType,
+    {
+        unsafe { ffi::IsSoundPlaying(sound.inner()) }
     }
 
     /// Sets volume for a sound (`1.0` is max level).
     #[inline]
-    pub fn set_sound_volume(&mut self, sound: &Sound, volume: f32) {
+    pub fn set_sound_volume<A>(&mut self, sound: &A, volume: f32)
+    where
+        A: SoundType,
+    {
         unsafe {
-            ffi::SetSoundVolume(sound.0, volume);
+            ffi::SetSoundVolume(sound.inner(), volume);
         }
     }
 
     /// Sets pitch for a sound (`1.0` is base level).
     #[inline]
-    pub fn set_sound_pitch(&mut self, sound: &Sound, pitch: f32) {
+    pub fn set_sound_pitch<A>(&mut self, sound: &A, pitch: f32)
+    where
+        A: SoundType,
+    {
         unsafe {
-            ffi::SetSoundPitch(sound.0, pitch);
+            ffi::SetSoundPitch(sound.inner(), pitch);
         }
     }
 
@@ -376,9 +414,12 @@ impl Wave {
         }
     }
 
-    pub fn set_sound_pan(&mut self, sound: &mut Sound, pan: f32) {
+    pub fn set_sound_pan<A>(&mut self, sound: &mut A, pan: f32)
+    where
+        A: SoundType,
+    {
         unsafe {
-            ffi::SetSoundPan(sound.0, pan);
+            ffi::SetSoundPan(sound.inner(), pan);
         }
     }
 }
