@@ -63,7 +63,7 @@ pub struct RaylibHandle(()); // inner field is private, preventing manual constr
 impl Drop for RaylibHandle {
     fn drop(&mut self) {
         unsafe {
-            if !ffi::IsWindowReady() {
+            if ffi::IsWindowReady() {
                 ffi::CloseWindow();
             }
         }
