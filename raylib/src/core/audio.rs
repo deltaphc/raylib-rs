@@ -61,7 +61,8 @@ impl std::fmt::Display for RaylibAudioInitError {
 
 impl std::error::Error for RaylibAudioInitError {}
 
-/// This token is used to indicate audio is initialized
+/// This token is used to indicate audio is initialized. It's also used to create [`Wave`], [`Sound`], [`Music`], [`AudioStream`], and [`SoundAlias`].
+/// All of those have a lifetime that is bound to RaylibAudio. The compiler will disallow you from using them without ensuring that the [`RaylibAudio`] is present while doing so.
 #[derive(Debug, Clone)]
 pub struct RaylibAudio<'aud>(PhantomData<&'aud ()>);
 
@@ -98,7 +99,7 @@ impl<'aud> RaylibAudio<'aud> {
         }
     }
 
-    /// Loads sound from file.
+    /// Loads a new sound from file.
     pub fn new_sound(&'aud self, filename: &str) -> Result<Sound<'aud>, String> {
         let c_filename = CString::new(filename).unwrap();
         let s = unsafe { ffi::LoadSound(c_filename.as_ptr()) };
