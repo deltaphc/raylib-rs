@@ -364,18 +364,19 @@ impl<'aud> Sound<'aud> {
             ffi::SetSoundPan(self.0, pan);
         }
     }
-    // Figure out how to make this safe
+
+    // Uncomment this when Raylib fulfills the todo comment within the original function to make the function safe.
     // /// Updates sound buffer with new data.
     // #[inline]
-    // pub fn update_sound(&mut self, data: &[impl AudioSample]) {
+    // pub fn update<T: AudioSample>(&mut self, data: &[T]) {
     //     unsafe {
     //         ffi::UpdateSound(
     //             self.0,
     //             data.as_ptr() as *const std::os::raw::c_void,
-    //             data.len() as i32,
+    //             (data.len() * std::mem::size_of::<T>()) as i32,
     //         );
     //     }
-    // }
+    // }}
 }
 
 impl<'aud> Music<'aud> {
