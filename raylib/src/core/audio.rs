@@ -1,27 +1,38 @@
 //! Contains code related to audio. [`RaylibAudio`] plays sounds and music.
 
-use crate::core::RaylibThread;
-use crate::ffi;
+use crate::{ffi, RaylibThread};
 use std::ffi::CString;
+use std::marker::PhantomData;
 use std::mem::ManuallyDrop;
 
-make_thin_wrapper!(Wave, ffi::Wave, ffi::UnloadWave);
-make_thin_wrapper!(Sound, ffi::Sound, ffi::UnloadSound);
-make_thin_wrapper!(Music, ffi::Music, ffi::UnloadMusicStream);
-make_thin_wrapper!(AudioStream, ffi::AudioStream, ffi::UnloadAudioStream);
-make_thin_wrapper!(SoundAlias, ffi::Sound, ffi::UnloadSoundAlias);
+make_thin_wrapper_lifetime!(Wave, ffi::Wave, RaylibAudio<'a>, ffi::UnloadWave);
+
+make_thin_wrapper_lifetime!(Sound, ffi::Sound, RaylibAudio<'a>, ffi::UnloadSound);
+make_thin_wrapper_lifetime!(Music, ffi::Music, RaylibAudio<'a>, ffi::UnloadMusicStream);
+make_thin_wrapper_lifetime!(
+    AudioStream,
+    ffi::AudioStream,
+    RaylibAudio<'a>,
+    ffi::UnloadAudioStream
+);
+make_thin_wrapper_lifetime!(
+    SoundAlias,
+    ffi::Sound,
+    RaylibAudio<'a>,
+    ffi::UnloadSoundAlias
+);
 
 pub trait SoundType {
     fn inner(&self) -> ffi::Sound;
 }
 
-impl SoundType for Sound {
+impl<'aud> SoundType for Sound<'aud> {
     fn inner(&self) -> ffi::Sound {
         self.0
     }
 }
 
-impl SoundType for SoundAlias {
+impl<'aud> SoundType for SoundAlias<'aud> {
     fn inner(&self) -> ffi::Sound {
         self.0
     }
@@ -35,23 +46,23 @@ impl AudioSample for u8 {}
 impl AudioSample for i16 {}
 impl AudioSample for f32 {}
 
-/// This token is used to indicate VR is initialized
-#[derive(Debug)]
-pub struct RaylibAudio(());
+/// This token is used to indicate audio is initialized
+#[derive(Debug, Clone)]
+pub struct RaylibAudio<'aud>(PhantomData<&'aud ()>);
 
-impl RaylibAudio {
+impl<'aud> RaylibAudio<'aud> {
     /// Initializes audio device and context.
     #[inline]
-    pub fn init_audio_device() -> RaylibAudio {
+    pub fn init() -> RaylibAudio<'aud> {
         unsafe {
             ffi::InitAudioDevice();
         }
-        RaylibAudio(())
+        RaylibAudio(PhantomData)
     }
 
     /// Checks if audio device is ready.
     #[inline]
-    pub fn is_audio_device_ready(&self) -> bool {
+    pub fn ready(&self) -> bool {
         unsafe { ffi::IsAudioDeviceReady() }
     }
 
@@ -68,217 +79,92 @@ impl RaylibAudio {
         }
     }
 
-    /// Plays a sound.
-    #[inline]
-    pub fn play_sound<A>(&mut self, sound: &A)
-    where
-        A: SoundType,
-    {
-        unsafe {
-            ffi::PlaySound(sound.inner());
+    /// Loads sound from file.
+    pub fn new_sound(&'aud self, filename: &str) -> Result<Sound<'aud>, String> {
+        let c_filename = CString::new(filename).unwrap();
+        let s = unsafe { ffi::LoadSound(c_filename.as_ptr()) };
+        if s.stream.buffer.is_null() {
+            return Err(format!("failed to load sound {}", filename));
         }
+
+        Ok(Sound(s, self))
     }
 
-    /// Pauses a sound.
+    /// Loads wave data from file into RAM.
     #[inline]
-    pub fn pause_sound<A>(&mut self, sound: &A)
-    where
-        A: SoundType,
-    {
-        unsafe {
-            ffi::PauseSound(sound.inner());
+    pub fn new_wave(&'aud self, filename: &str) -> Result<Wave<'aud>, String> {
+        let c_filename = CString::new(filename).unwrap();
+        let w = unsafe { ffi::LoadWave(c_filename.as_ptr()) };
+        if w.data.is_null() {
+            return Err(format!("Cannot load wave {}", filename));
         }
+        Ok(Wave(w, self))
     }
 
-    /// Resumes a paused sound.
-    #[inline]
-    pub fn resume_sound<A>(&mut self, sound: &A)
-    where
-        A: SoundType,
-    {
-        unsafe {
-            ffi::ResumeSound(sound.inner());
+    /// Load wave from memory buffer, fileType refers to extension: i.e. '.wav'
+    pub fn new_wave_from_memory(
+        &'aud self,
+        filetype: &str,
+        bytes: &Vec<u8>,
+    ) -> Result<Wave<'aud>, String> {
+        let c_filetype = CString::new(filetype).unwrap();
+        let c_bytes = bytes.as_ptr();
+        let w =
+            unsafe { ffi::LoadWaveFromMemory(c_filetype.as_ptr(), c_bytes, bytes.len() as i32) };
+        if w.data.is_null() {
+            return Err(format!("Wave data is null. Check provided buffer data"));
+        };
+        Ok(Wave(w, self))
+    }
+
+    /// Loads music stream from file.
+    // #[inline]
+    pub fn new_music(&'aud self, filename: &str) -> Result<Music<'aud>, String> {
+        let c_filename = CString::new(filename).unwrap();
+        let m = unsafe { ffi::LoadMusicStream(c_filename.as_ptr()) };
+        if m.stream.buffer.is_null() {
+            return Err(format!("music could not be loaded from file {}", filename));
         }
+        Ok(Music(m, self))
     }
 
-    /// Stops playing a sound.
+    /// Load music stream from data
+    pub fn new_music_from_memory(
+        &'aud self,
+        filetype: &str,
+        bytes: &Vec<u8>,
+    ) -> Result<Music<'aud>, String> {
+        let c_filetype = CString::new(filetype).unwrap();
+        let c_bytes = bytes.as_ptr();
+        let w = unsafe {
+            ffi::LoadMusicStreamFromMemory(c_filetype.as_ptr(), c_bytes, bytes.len() as i32)
+        };
+        if w.stream.buffer.is_null() {
+            return Err(format!(
+                "Music's buffer data data is null. Check provided buffer data"
+            ));
+        };
+        Ok(Music(w, self))
+    }
+
+    /// Initializes audio stream (to stream raw PCM data).
     #[inline]
-    pub fn stop_sound<A>(&mut self, sound: &A)
-    where
-        A: SoundType,
-    {
+    pub fn new_audio_stream(
+        &'aud self,
+        sample_rate: u32,
+        sample_size: u32,
+        channels: u32,
+    ) -> AudioStream<'aud> {
         unsafe {
-            ffi::StopSound(sound.inner());
+            AudioStream(
+                ffi::LoadAudioStream(sample_rate, sample_size, channels),
+                self,
+            )
         }
-    }
-
-    /// Checks if a sound is currently playing.
-    #[inline]
-    pub fn is_sound_playing<A>(&self, sound: &A) -> bool
-    where
-        A: SoundType,
-    {
-        unsafe { ffi::IsSoundPlaying(sound.inner()) }
-    }
-
-    /// Sets volume for a sound (`1.0` is max level).
-    #[inline]
-    pub fn set_sound_volume<A>(&mut self, sound: &A, volume: f32)
-    where
-        A: SoundType,
-    {
-        unsafe {
-            ffi::SetSoundVolume(sound.inner(), volume);
-        }
-    }
-
-    /// Sets pitch for a sound (`1.0` is base level).
-    #[inline]
-    pub fn set_sound_pitch<A>(&mut self, sound: &A, pitch: f32)
-    where
-        A: SoundType,
-    {
-        unsafe {
-            ffi::SetSoundPitch(sound.inner(), pitch);
-        }
-    }
-
-    /// Starts music playing.
-    #[inline]
-    pub fn play_music_stream(&mut self, music: &mut Music) {
-        unsafe {
-            ffi::PlayMusicStream(music.0);
-        }
-    }
-
-    /// Updates buffers for music streaming.
-    #[inline]
-    pub fn update_music_stream(&mut self, music: &mut Music) {
-        unsafe {
-            ffi::UpdateMusicStream(music.0);
-        }
-    }
-
-    /// Stops music playing.
-    #[inline]
-    pub fn stop_music_stream(&mut self, music: &mut Music) {
-        unsafe {
-            ffi::StopMusicStream(music.0);
-        }
-    }
-
-    /// Pauses music playing.
-    #[inline]
-    pub fn pause_music_stream(&mut self, music: &mut Music) {
-        unsafe {
-            ffi::PauseMusicStream(music.0);
-        }
-    }
-
-    /// Resumes playing paused music.
-    #[inline]
-    pub fn resume_music_stream(&mut self, music: &mut Music) {
-        unsafe {
-            ffi::ResumeMusicStream(music.0);
-        }
-    }
-
-    /// Checks if music is playing.
-    #[inline]
-    pub fn is_music_stream_playing(&self, music: &Music) -> bool {
-        unsafe { ffi::IsMusicStreamPlaying(music.0) }
-    }
-
-    /// Sets volume for music (`1.0` is max level).
-    #[inline]
-    pub fn set_music_volume(&mut self, music: &mut Music, volume: f32) {
-        unsafe {
-            ffi::SetMusicVolume(music.0, volume);
-        }
-    }
-
-    /// Sets pitch for music (`1.0` is base level).
-    #[inline]
-    pub fn set_music_pitch(&mut self, music: &mut Music, pitch: f32) {
-        unsafe {
-            ffi::SetMusicPitch(music.0, pitch);
-        }
-    }
-
-    /// Gets music time length in seconds.
-    #[inline]
-    pub fn get_music_time_length(&self, music: &Music) -> f32 {
-        unsafe { ffi::GetMusicTimeLength(music.0) }
-    }
-
-    /// Gets current music time played in seconds.
-    #[inline]
-    pub fn get_music_time_played(&self, music: &Music) -> f32 {
-        unsafe { ffi::GetMusicTimePlayed(music.0) }
-    }
-
-    /// Plays audio stream.
-    #[inline]
-    pub fn play_audio_stream(&mut self, stream: &mut AudioStream) {
-        unsafe {
-            ffi::PlayAudioStream(stream.0);
-        }
-    }
-
-    /// Pauses audio stream.
-    #[inline]
-    pub fn pause_audio_stream(&mut self, stream: &mut AudioStream) {
-        unsafe {
-            ffi::PauseAudioStream(stream.0);
-        }
-    }
-
-    /// Resumes audio stream.
-    #[inline]
-    pub fn resume_audio_stream(&mut self, stream: &mut AudioStream) {
-        unsafe {
-            ffi::ResumeAudioStream(stream.0);
-        }
-    }
-
-    /// Checks if audio stream is currently playing.
-    #[inline]
-    pub fn is_audio_stream_playing(&self, stream: &AudioStream) -> bool {
-        unsafe { ffi::IsAudioStreamPlaying(stream.0) }
-    }
-
-    /// Stops audio stream.
-    #[inline]
-    pub fn stop_audio_stream(&mut self, stream: &mut AudioStream) {
-        unsafe {
-            ffi::StopAudioStream(stream.0);
-        }
-    }
-
-    /// Sets volume for audio stream (`1.0` is max level).
-    #[inline]
-    pub fn set_audio_stream_volume(&mut self, stream: &mut AudioStream, volume: f32) {
-        unsafe {
-            ffi::SetAudioStreamVolume(stream.0, volume);
-        }
-    }
-
-    /// Sets pitch for audio stream (`1.0` is base level).
-    #[inline]
-    pub fn set_audio_stream_pitch(&mut self, stream: &mut AudioStream, pitch: f32) {
-        unsafe {
-            ffi::SetAudioStreamPitch(stream.0, pitch);
-        }
-    }
-
-    /// Sets pitch for audio stream (`1.0` is base level).
-    #[inline]
-    pub fn is_audio_stream_processed(&mut self, stream: &AudioStream) -> bool {
-        unsafe { ffi::IsAudioStreamProcessed(stream.0) }
     }
 }
 
-impl Drop for RaylibAudio {
+impl<'aud> Drop for RaylibAudio<'aud> {
     fn drop(&mut self) {
         unsafe {
             ffi::CloseAudioDevice();
@@ -286,11 +172,11 @@ impl Drop for RaylibAudio {
     }
 }
 
-impl Wave {
+impl<'aud> Wave<'aud> {
     pub fn frame_count(&self) -> u32 {
         self.0.frameCount
     }
-    pub fn smaple_rate(&self) -> u32 {
+    pub fn sample_rate(&self) -> u32 {
         self.0.sampleRate
     }
     pub fn sample_size(&self) -> u32 {
@@ -305,50 +191,13 @@ impl Wave {
         inner
     }
 
-    pub fn is_ready(&self) -> bool {
+    pub fn ready(&self) -> bool {
         unsafe { ffi::IsWaveReady(self.0) }
-    }
-    /// Loads wave data from file into RAM.
-    #[inline]
-    pub fn load_wave(filename: &str) -> Result<Wave, String> {
-        let c_filename = CString::new(filename).unwrap();
-        let w = unsafe { ffi::LoadWave(c_filename.as_ptr()) };
-        if w.data.is_null() {
-            return Err(format!("Cannot load wave {}", filename));
-        }
-        Ok(Wave(w))
-    }
-
-    /// Load wave from memory buffer, fileType refers to extension: i.e. '.wav'
-    pub fn load_wave_from_mem(filetype: &str, bytes: &Vec<u8>) -> Result<Wave, String> {
-        let c_filetype = CString::new(filetype).unwrap();
-        let c_bytes = bytes.as_ptr();
-        let w =
-            unsafe { ffi::LoadWaveFromMemory(c_filetype.as_ptr(), c_bytes, bytes.len() as i32) };
-        if w.data.is_null() {
-            return Err(format!("Wave data is null. Check provided buffer data"));
-        };
-        Ok(Wave(w))
-    }
-
-    /// Load music stream from data
-    pub fn load_music_stream_from_mem(filetype: &str, bytes: &Vec<u8>) -> Result<Music, String> {
-        let c_filetype = CString::new(filetype).unwrap();
-        let c_bytes = bytes.as_ptr();
-        let w = unsafe {
-            ffi::LoadMusicStreamFromMemory(c_filetype.as_ptr(), c_bytes, bytes.len() as i32)
-        };
-        if w.stream.buffer.is_null() {
-            return Err(format!(
-                "Music's buffer data data is null. Check provided buffer data"
-            ));
-        };
-        Ok(Music(w))
     }
 
     /// Export wave file. Extension must be .wav or .raw
     #[inline]
-    pub fn export_wave(&self, filename: &str) -> bool {
+    pub fn export(&self, filename: &str) -> bool {
         let c_filename = CString::new(filename).unwrap();
         unsafe { ffi::ExportWave(self.0, c_filename.as_ptr()) }
     }
@@ -360,23 +209,23 @@ impl Wave {
         unsafe { ffi::ExportWaveAsCode(self.0, c_filename.as_ptr()) }
     }*/
 
+    /// Copies a wave to a new wave.
+    #[inline]
+    pub(crate) fn copy(&self) -> Wave {
+        unsafe { Wave(ffi::WaveCopy(self.0), self.1) }
+    }
+
     /// Converts wave data to desired format.
     #[inline]
-    pub fn wave_format(&mut self, sample_rate: i32, sample_size: i32, channels: i32) {
+    pub fn format(&mut self, sample_rate: i32, sample_size: i32, channels: i32) {
         unsafe {
             ffi::WaveFormat(&mut self.0, sample_rate, sample_size, channels);
         }
     }
 
-    /// Copies a wave to a new wave.
-    #[inline]
-    pub fn wave_copy(&self) -> Wave {
-        unsafe { Wave(ffi::WaveCopy(self.0)) }
-    }
-
     /// Crops a wave to defined sample range.
     #[inline]
-    pub fn wave_crop(&mut self, init_sample: i32, final_sample: i32) {
+    pub fn crop(&mut self, init_sample: i32, final_sample: i32) {
         unsafe {
             ffi::WaveCrop(&mut self.0, init_sample, final_sample);
         }
@@ -386,7 +235,7 @@ impl Wave {
     /// NOTE 1: Returned sample values are normalized to range [-1..1]
     /// NOTE 2: Sample data allocated should be freed with UnloadWaveSamples()
     #[inline]
-    pub fn load_wave_samples(&self) -> WaveSamples {
+    pub fn load_samples(&self) -> WaveSamples {
         let as_slice = unsafe {
             let data = ffi::LoadWaveSamples(self.0);
             Box::from_raw(std::slice::from_raw_parts_mut(
@@ -396,48 +245,22 @@ impl Wave {
         };
         WaveSamples(ManuallyDrop::new(as_slice))
     }
-
-    pub fn seek_music_stream(&mut self, music: &mut Music, position: f32) {
-        unsafe {
-            ffi::SeekMusicStream(music.0, position);
-        }
-    }
-
-    pub fn set_music_pan(&mut self, music: &mut Music, pan: f32) {
-        unsafe {
-            ffi::SetMusicPan(music.0, pan);
-        }
-    }
-    pub fn set_audio_stream_pan(&mut self, audio_stream: &mut AudioStream, pan: f32) {
-        unsafe {
-            ffi::SetAudioStreamPan(audio_stream.0, pan);
-        }
-    }
-
-    pub fn set_sound_pan<A>(&mut self, sound: &mut A, pan: f32)
-    where
-        A: SoundType,
-    {
-        unsafe {
-            ffi::SetSoundPan(sound.inner(), pan);
-        }
-    }
 }
 
-impl AsRef<ffi::AudioStream> for Sound {
+impl<'aud> AsRef<ffi::AudioStream> for Sound<'aud> {
     fn as_ref(&self) -> &ffi::AudioStream {
         &self.0.stream
     }
 }
 
-impl AsMut<ffi::AudioStream> for Sound {
+impl<'aud> AsMut<ffi::AudioStream> for Sound<'aud> {
     fn as_mut(&mut self) -> &mut ffi::AudioStream {
         &mut self.0.stream
     }
 }
 
-impl Sound {
-    pub fn is_ready(&self) -> bool {
+impl<'aud> Sound<'aud> {
+    pub fn ready(&self) -> bool {
         unsafe { ffi::IsSoundReady(self.0) }
     }
 
@@ -449,25 +272,78 @@ impl Sound {
         std::mem::forget(self);
         inner
     }
-    /// Loads sound from file.
-    pub fn load_sound(filename: &str) -> Result<Sound, String> {
-        let c_filename = CString::new(filename).unwrap();
-        let s = unsafe { ffi::LoadSound(c_filename.as_ptr()) };
-        if s.stream.buffer.is_null() {
-            return Err(format!("failed to load sound {}", filename));
-        }
-        Ok(Sound(s))
-    }
 
     /// Loads sound from wave data.
-    pub fn load_sound_from_wave(wave: &Wave) -> Result<Sound, String> {
+    pub fn new_from_wave(
+        thread: &'aud RaylibAudio<'aud>,
+        wave: &Wave,
+    ) -> Result<Sound<'aud>, String> {
         let s = unsafe { ffi::LoadSoundFromWave(wave.0) };
         if s.stream.buffer.is_null() {
             return Err(format!("failed to load sound from wave"));
         }
-        Ok(Sound(s))
+        Ok(Sound(s, thread))
+    }
+    /// Plays a sound.
+    #[inline]
+    pub fn play(&mut self) {
+        println!("null? {}", self.0.stream.buffer.is_null());
+
+        unsafe {
+            ffi::PlaySound(self.0);
+        }
     }
 
+    /// Pauses a sound.
+    #[inline]
+    pub fn pause(&mut self) {
+        unsafe {
+            ffi::PauseSound(self.0);
+        }
+    }
+
+    /// Resumes a paused sound.
+    #[inline]
+    pub fn resume(&mut self) {
+        unsafe {
+            ffi::ResumeSound(self.0);
+        }
+    }
+
+    /// Stops playing a sound.
+    #[inline]
+    pub fn stop(&mut self) {
+        unsafe {
+            ffi::StopSound(self.0);
+        }
+    }
+
+    /// Checks if a sound is currently playing.
+    #[inline]
+    pub fn is_playing(&self) -> bool {
+        unsafe { ffi::IsSoundPlaying(self.0) }
+    }
+
+    /// Sets volume for a sound (`1.0` is max level).
+    #[inline]
+    pub fn set_volume(&mut self, volume: f32) {
+        unsafe {
+            ffi::SetSoundVolume(self.0, volume);
+        }
+    }
+
+    /// Sets pitch for a sound (`1.0` is base level).
+    #[inline]
+    pub fn set_pitch(&mut self, pitch: f32) {
+        unsafe {
+            ffi::SetSoundPitch(self.0, pitch);
+        }
+    }
+    pub fn set_pan(&mut self, pan: f32) {
+        unsafe {
+            ffi::SetSoundPan(self.0, pan);
+        }
+    }
     // Figure out how to make this safe
     // /// Updates sound buffer with new data.
     // #[inline]
@@ -482,21 +358,96 @@ impl Sound {
     // }
 }
 
-impl Music {
-    /// Loads music stream from file.
-    // #[inline]
-    pub fn load_music_stream(_: &RaylibThread, filename: &str) -> Result<Music, String> {
-        let c_filename = CString::new(filename).unwrap();
-        let m = unsafe { ffi::LoadMusicStream(c_filename.as_ptr()) };
-        if m.stream.buffer.is_null() {
-            return Err(format!("music could not be loaded from file {}", filename));
+impl<'aud> Music<'aud> {
+    /// Starts music playing.
+    #[inline]
+    pub fn play_stream(&mut self) {
+        unsafe {
+            ffi::PlayMusicStream(self.0);
         }
-        Ok(Music(m))
+    }
+
+    /// Updates buffers for music streaming.
+    #[inline]
+    pub fn update_stream(&mut self) {
+        unsafe {
+            ffi::UpdateMusicStream(self.0);
+        }
+    }
+
+    /// Stops music playing.
+    #[inline]
+    pub fn stop_stream(&mut self) {
+        unsafe {
+            ffi::StopMusicStream(self.0);
+        }
+    }
+
+    /// Pauses music playing.
+    #[inline]
+    pub fn pause_stream(&mut self) {
+        unsafe {
+            ffi::PauseMusicStream(self.0);
+        }
+    }
+
+    /// Resumes playing paused music.
+    #[inline]
+    pub fn resume_stream(&mut self) {
+        unsafe {
+            ffi::ResumeMusicStream(self.0);
+        }
+    }
+
+    /// Checks if music is playing.
+    #[inline]
+    pub fn is_stream_playing(&self) -> bool {
+        unsafe { ffi::IsMusicStreamPlaying(self.0) }
+    }
+
+    /// Sets volume for music (`1.0` is max level).
+    #[inline]
+    pub fn set_volume(&mut self, volume: f32) {
+        unsafe {
+            ffi::SetMusicVolume(self.0, volume);
+        }
+    }
+
+    /// Sets pitch for music (`1.0` is base level).
+    #[inline]
+    pub fn set_pitch(&mut self, pitch: f32) {
+        unsafe {
+            ffi::SetMusicPitch(self.0, pitch);
+        }
+    }
+
+    /// Gets music time length in seconds.
+    #[inline]
+    pub fn get_time_length(&self) -> f32 {
+        unsafe { ffi::GetMusicTimeLength(self.0) }
+    }
+
+    /// Gets current music time played in seconds.
+    #[inline]
+    pub fn get_time_played(&self) -> f32 {
+        unsafe { ffi::GetMusicTimePlayed(self.0) }
+    }
+
+    pub fn seek_stream(&mut self, position: f32) {
+        unsafe {
+            ffi::SeekMusicStream(self.0, position);
+        }
+    }
+
+    pub fn set_pan(&mut self, pan: f32) {
+        unsafe {
+            ffi::SetMusicPan(self.0, pan);
+        }
     }
 }
 
-impl AudioStream {
-    pub fn is_ready(&self) -> bool {
+impl<'aud> AudioStream<'aud> {
+    pub fn ready(&self) -> bool {
         unsafe { ffi::IsAudioStreamReady(self.0) }
     }
     pub fn sample_rate(&self) -> u32 {
@@ -514,26 +465,82 @@ impl AudioStream {
         std::mem::forget(self);
         inner
     }
-    /// Initializes audio stream (to stream raw PCM data).
-    #[inline]
-    pub fn load_audio_stream(
-        _: &RaylibThread,
-        sample_rate: u32,
-        sample_size: u32,
-        channels: u32,
-    ) -> AudioStream {
-        unsafe { AudioStream(ffi::LoadAudioStream(sample_rate, sample_size, channels)) }
-    }
 
     /// Updates audio stream buffers with data.
     #[inline]
-    pub fn update_audio_stream<T: AudioSample>(&mut self, data: &[T]) {
+    pub fn update<T: AudioSample>(&mut self, data: &[T]) {
         unsafe {
             ffi::UpdateAudioStream(
                 self.0,
                 data.as_ptr() as *const std::os::raw::c_void,
                 (data.len() * std::mem::size_of::<T>()) as i32,
             );
+        }
+    }
+
+    /// Plays audio stream.
+    #[inline]
+    pub fn play(&mut self) {
+        unsafe {
+            ffi::PlayAudioStream(self.0);
+        }
+    }
+
+    /// Pauses audio stream.
+    #[inline]
+    pub fn pause(&mut self) {
+        unsafe {
+            ffi::PauseAudioStream(self.0);
+        }
+    }
+
+    /// Resumes audio stream.
+    #[inline]
+    pub fn resume(&mut self) {
+        unsafe {
+            ffi::ResumeAudioStream(self.0);
+        }
+    }
+
+    /// Checks if audio stream is currently playing.
+    #[inline]
+    pub fn is_playing(&self) -> bool {
+        unsafe { ffi::IsAudioStreamPlaying(self.0) }
+    }
+
+    /// Stops audio stream.
+    #[inline]
+    pub fn stop(&mut self) {
+        unsafe {
+            ffi::StopAudioStream(self.0);
+        }
+    }
+
+    /// Sets volume for audio stream (`1.0` is max level).
+    #[inline]
+    pub fn set_volume(&mut self, volume: f32) {
+        unsafe {
+            ffi::SetAudioStreamVolume(self.0, volume);
+        }
+    }
+
+    /// Sets pitch for audio stream (`1.0` is base level).
+    #[inline]
+    pub fn set_pitch(&mut self, pitch: f32) {
+        unsafe {
+            ffi::SetAudioStreamPitch(self.0, pitch);
+        }
+    }
+
+    /// Sets pitch for audio stream (`1.0` is base level).
+    #[inline]
+    pub fn is_processed(&mut self) -> bool {
+        unsafe { ffi::IsAudioStreamProcessed(self.0) }
+    }
+
+    pub fn set_pan(&mut self, pan: f32) {
+        unsafe {
+            ffi::SetAudioStreamPan(self.0, pan);
         }
     }
 }
