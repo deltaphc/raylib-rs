@@ -88,7 +88,9 @@ pub(crate) struct Codepoints(pub(crate) ManuallyDrop<Box<[i32]>>);
 
 impl Drop for Codepoints {
     fn drop(&mut self) {
-        unsafe { ffi::UnloadCodepoints(self.0.as_mut_ptr()) }
+        unsafe {
+            ffi::UnloadCodepoints(self.0.as_mut_ptr());
+        }
     }
 }
 

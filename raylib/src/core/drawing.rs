@@ -1,4 +1,5 @@
 //! Contains code related to drawing. Types that can be set as a surface to draw will implement the [`RaylibDraw`] trait
+
 use crate::core::camera::Camera3D;
 use crate::core::math::Ray;
 use crate::core::math::{Vector2, Vector3};
@@ -9,6 +10,7 @@ use crate::core::{RaylibHandle, RaylibThread};
 use crate::ffi;
 use crate::math::Matrix;
 use crate::models::{Mesh, WeakMaterial};
+use crate::text::Codepoints;
 use std::convert::AsRef;
 use std::ffi::CString;
 
@@ -945,6 +947,7 @@ pub trait RaylibDraw {
     }
 
     /// Draws text (using default font).
+    /// This does not support UTF-8. Use `[RaylibDrawHandle::draw_text_codepoints]` for that.
     #[inline]
     fn draw_text(
         &mut self,
@@ -955,11 +958,39 @@ pub trait RaylibDraw {
         color: impl Into<ffi::Color>,
     ) {
         let c_text = CString::new(text).unwrap();
+
         unsafe {
             ffi::DrawText(c_text.as_ptr(), x, y, font_size, color.into());
         }
     }
 
+    /// Draws text (using default font) with support for UTF-8.
+    /// If you do not need UTF-8, use `[RaylibDrawHandle::draw_text]`.
+    fn draw_text_codepoints(
+        &mut self,
+        text: &str,
+        position: Vector2,
+        font_size: f32,
+        spacing: f32,
+        tint: impl Into<ffi::Color>,
+    ) {
+        unsafe {
+            let c_text = CString::new(text).unwrap();
+
+            let mut len = 0;
+            let u = ffi::LoadCodepoints(c_text.as_ptr(), &mut len);
+
+            ffi::DrawTextCodepoints(
+                ffi::GetFontDefault(),
+                u,
+                text.len() as i32,
+                position.into(),
+                font_size,
+                spacing,
+                tint.into(),
+            )
+        }
+    }
     /// Draws text using `font` and additional parameters.
     #[inline]
     fn draw_text_ex(
