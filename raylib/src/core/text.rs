@@ -1,5 +1,7 @@
 //! Text and Font related functions
 //! Text manipulation functions are super unsafe so use rust String functions
+use raylib_sys::LoadUTF8;
+
 use crate::core::math::Vector2;
 use crate::core::texture::{Image, Texture2D};
 use crate::core::{RaylibHandle, RaylibThread};
@@ -8,6 +10,8 @@ use crate::math::Rectangle;
 
 use std::convert::{AsMut, AsRef};
 use std::ffi::{CString, OsString};
+use std::mem::ManuallyDrop;
+use std::ops::Deref;
 
 fn no_drop<T>(_thing: T) {}
 make_thin_wrapper!(Font, ffi::Font, ffi::UnloadFont);
@@ -80,14 +84,32 @@ impl AsRef<ffi::Texture2D> for WeakFont {
     }
 }
 
-/// Parameters for Font::load_font_ex
-pub enum FontLoadEx<'a> {
-    /// Count from default font
-    Default(i32),
-    Chars(&'a [i32]),
+pub(crate) struct Codepoints(pub(crate) ManuallyDrop<Box<[i32]>>);
+
+impl Drop for Codepoints {
+    fn drop(&mut self) {
+        unsafe { ffi::UnloadCodepoints(self.0.as_mut_ptr()) }
+    }
 }
 
 impl RaylibHandle {
+    pub(crate) fn load_codepoints(&mut self, text: &str) -> Codepoints {
+        let ptr = CString::new(text).unwrap();
+        let mut len = 0;
+        let u = unsafe { ffi::LoadCodepoints(ptr.as_ptr(), &mut len) };
+
+        unsafe {
+            Codepoints(std::mem::ManuallyDrop::new(Box::from_raw(
+                std::slice::from_raw_parts_mut(u, text.len()),
+            )))
+        }
+    }
+
+    pub fn get_codepoint_count(text: &str) -> i32 {
+        let ptr = CString::new(text).unwrap();
+        unsafe { ffi::GetCodepointCount(ptr.as_ptr()) }
+    }
+
     pub fn unload_font(&mut self, font: WeakFont) {
         unsafe { ffi::UnloadFont(font.0) };
     }
@@ -107,26 +129,28 @@ impl RaylibHandle {
     }
 
     /// Loads font from file with extended parameters.
+    /// Supplying None for chars loads the entire character set.
     #[inline]
     pub fn load_font_ex(
         &mut self,
         _: &RaylibThread,
         filename: &str,
         font_size: i32,
-        chars: FontLoadEx,
+        chars: Option<&str>,
     ) -> Result<Font, String> {
         let c_filename = CString::new(filename).unwrap();
         let f = unsafe {
             match chars {
-                FontLoadEx::Chars(c) => ffi::LoadFontEx(
-                    c_filename.as_ptr(),
-                    font_size,
-                    c.as_ptr() as *mut i32,
-                    c.len() as i32,
-                ),
-                FontLoadEx::Default(count) => {
-                    ffi::LoadFontEx(c_filename.as_ptr(), font_size, std::ptr::null_mut(), count)
+                Some(c) => {
+                    let mut co = self.load_codepoints(c);
+                    ffi::LoadFontEx(
+                        c_filename.as_ptr(),
+                        font_size,
+                        co.0.as_mut_ptr(),
+                        c.len() as i32,
+                    )
                 }
+                None => ffi::LoadFontEx(c_filename.as_ptr(), font_size, std::ptr::null_mut(), 0),
             }
         };
         if f.glyphs.is_null() || f.texture.id == 0 {
@@ -155,6 +179,7 @@ impl RaylibHandle {
     }
     /// Load font data from a given memory buffer.
     /// `file_type` refers to the extension, e.g. ".ttf".
+    /// You can pass Some(...) to chars to get the desired charaters, or None to get the whole set.
     #[inline]
     pub fn load_font_from_memory(
         &mut self,
@@ -162,26 +187,29 @@ impl RaylibHandle {
         file_type: &str,
         file_data: &[u8],
         font_size: i32,
-        chars: FontLoadEx,
+        chars: Option<&str>,
     ) -> Result<Font, String> {
         let c_file_type = CString::new(file_type).unwrap();
         let f = unsafe {
             match chars {
-                FontLoadEx::Chars(c) => ffi::LoadFontFromMemory(
-                    c_file_type.as_ptr(),
-                    file_data.as_ptr(),
-                    file_data.len() as i32,
-                    font_size,
-                    c.as_ptr() as *mut i32,
-                    c.len() as i32,
-                ),
-                FontLoadEx::Default(count) => ffi::LoadFontFromMemory(
+                Some(c) => {
+                    let mut co = self.load_codepoints(c);
+                    ffi::LoadFontFromMemory(
+                        c_file_type.as_ptr(),
+                        file_data.as_ptr(),
+                        file_data.len() as i32,
+                        font_size,
+                        co.0.as_mut_ptr(),
+                        c.len() as i32,
+                    )
+                }
+                None => ffi::LoadFontFromMemory(
                     c_file_type.as_ptr(),
                     file_data.as_ptr(),
                     file_data.len() as i32,
                     font_size,
                     std::ptr::null_mut(),
-                    count,
+                    0,
                 ),
             }
         };
@@ -199,19 +227,22 @@ impl RaylibHandle {
         &mut self,
         data: &[u8],
         font_size: i32,
-        chars: Option<&[i32]>,
+        chars: Option<&str>,
         sdf: i32,
     ) -> Option<RSliceGlyphInfo> {
         unsafe {
             let ci_arr_ptr = match chars {
-                Some(c) => ffi::LoadFontData(
-                    data.as_ptr(),
-                    data.len() as i32,
-                    font_size,
-                    c.as_ptr() as *mut i32,
-                    c.len() as i32,
-                    sdf,
-                ),
+                Some(c) => {
+                    let mut co = self.load_codepoints(c);
+                    ffi::LoadFontData(
+                        data.as_ptr(),
+                        data.len() as i32,
+                        font_size,
+                        co.0.as_mut_ptr(),
+                        c.len() as i32,
+                        sdf,
+                    )
+                }
                 None => ffi::LoadFontData(
                     data.as_ptr(),
                     data.len() as i32,
