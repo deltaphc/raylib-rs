@@ -1,6 +1,6 @@
 //! Contains code related to audio. [`RaylibAudio`] plays sounds and music.
 
-use crate::{ffi, RaylibThread};
+use crate::ffi;
 use std::ffi::CString;
 use std::marker::PhantomData;
 use std::mem::ManuallyDrop;
@@ -46,6 +46,21 @@ impl AudioSample for u8 {}
 impl AudioSample for i16 {}
 impl AudioSample for f32 {}
 
+pub struct RaylibAudioInitError;
+
+impl std::fmt::Debug for RaylibAudioInitError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str("RaylibAudio cannot be instantiated more then once at a time.")
+    }
+}
+impl std::fmt::Display for RaylibAudioInitError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str("RaylibAudio cannot be instantiated more then once at a time.")
+    }
+}
+
+impl std::error::Error for RaylibAudioInitError {}
+
 /// This token is used to indicate audio is initialized
 #[derive(Debug, Clone)]
 pub struct RaylibAudio<'aud>(PhantomData<&'aud ()>);
@@ -53,11 +68,15 @@ pub struct RaylibAudio<'aud>(PhantomData<&'aud ()>);
 impl<'aud> RaylibAudio<'aud> {
     /// Initializes audio device and context.
     #[inline]
-    pub fn init() -> RaylibAudio<'aud> {
+    pub fn init() -> Result<RaylibAudio<'aud>, RaylibAudioInitError> {
         unsafe {
+            let t = ffi::IsAudioDeviceReady();
+            if t {
+                return Err(RaylibAudioInitError);
+            }
             ffi::InitAudioDevice();
         }
-        RaylibAudio(PhantomData)
+        Ok(RaylibAudio(PhantomData))
     }
 
     /// Checks if audio device is ready.

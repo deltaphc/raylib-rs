@@ -8,7 +8,7 @@ use crate::core::vr::VrStereoConfig;
 use crate::core::{RaylibHandle, RaylibThread};
 use crate::ffi;
 use crate::math::Matrix;
-use crate::models::{Material, Mesh, WeakMaterial};
+use crate::models::{Mesh, WeakMaterial};
 use std::convert::AsRef;
 use std::ffi::CString;
 
