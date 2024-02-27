@@ -7,7 +7,7 @@ use std::mem::ManuallyDrop;
 
 make_thin_wrapper_lifetime!(Wave, ffi::Wave, RaylibAudio<'a>, ffi::UnloadWave);
 
-make_thin_wrapper_lifetime!(Sound, ffi::Sound, RaylibAudio<'a>, ffi::UnloadSound);
+make_thin_wrapper_lifetime!(Sound, ffi::Sound, RaylibAudio<'a>, (ffi::UnloadSound), true);
 make_thin_wrapper_lifetime!(Music, ffi::Music, RaylibAudio<'a>, ffi::UnloadMusicStream);
 make_thin_wrapper_lifetime!(
     AudioStream,
@@ -100,7 +100,7 @@ impl<'aud> RaylibAudio<'aud> {
     }
 
     /// Loads a new sound from file.
-    pub fn new_sound(&'aud self, filename: &str) -> Result<Sound<'aud>, String> {
+    pub fn new_sound(&'aud self, filename: &'aud str) -> Result<Sound<'aud>, String> {
         let c_filename = CString::new(filename).unwrap();
         let s = unsafe { ffi::LoadSound(c_filename.as_ptr()) };
         if s.stream.buffer.is_null() {
