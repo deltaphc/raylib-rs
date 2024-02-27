@@ -968,6 +968,7 @@ pub trait RaylibDraw {
     /// If you do not need UTF-8, use `[RaylibDrawHandle::draw_text]`.
     fn draw_text_codepoints(
         &mut self,
+        font: impl AsRef<ffi::Font>,
         text: &str,
         position: Vector2,
         font_size: f32,
@@ -981,7 +982,7 @@ pub trait RaylibDraw {
             let u = ffi::LoadCodepoints(c_text.as_ptr(), &mut len);
 
             ffi::DrawTextCodepoints(
-                ffi::GetFontDefault(),
+                *font.as_ref(),
                 u,
                 text.len() as i32,
                 position.into(),
