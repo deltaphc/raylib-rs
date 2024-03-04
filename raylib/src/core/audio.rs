@@ -4,22 +4,17 @@ use crate::ffi;
 use std::ffi::CString;
 use std::marker::PhantomData;
 use std::mem::ManuallyDrop;
+use std::ops::{Deref, DerefMut};
 
-make_thin_wrapper_lifetime!(Wave, ffi::Wave, RaylibAudio<'a>, ffi::UnloadWave);
+make_thin_wrapper_lifetime!(Wave, ffi::Wave, RaylibAudio, ffi::UnloadWave);
 
-make_thin_wrapper_lifetime!(Sound, ffi::Sound, RaylibAudio<'a>, (ffi::UnloadSound), true);
-make_thin_wrapper_lifetime!(Music, ffi::Music, RaylibAudio<'a>, ffi::UnloadMusicStream);
+make_thin_wrapper_lifetime!(Sound, ffi::Sound, RaylibAudio, (ffi::UnloadSound), true);
+make_thin_wrapper_lifetime!(Music, ffi::Music, RaylibAudio, ffi::UnloadMusicStream);
 make_thin_wrapper_lifetime!(
     AudioStream,
     ffi::AudioStream,
-    RaylibAudio<'a>,
+    RaylibAudio,
     ffi::UnloadAudioStream
-);
-make_thin_wrapper_lifetime!(
-    SoundAlias,
-    ffi::Sound,
-    RaylibAudio<'a>,
-    ffi::UnloadSoundAlias
 );
 
 make_rslice!(WaveSamples, f32, ffi::UnloadWaveSamples);
@@ -48,12 +43,12 @@ impl std::error::Error for RaylibAudioInitError {}
 /// This token is used to indicate audio is initialized. It's also used to create [`Wave`], [`Sound`], [`Music`], [`AudioStream`], and [`SoundAlias`].
 /// All of those have a lifetime that is bound to RaylibAudio. The compiler will disallow you from using them without ensuring that the [`RaylibAudio`] is present while doing so.
 #[derive(Debug, Clone)]
-pub struct RaylibAudio<'aud>(PhantomData<&'aud ()>);
+pub struct RaylibAudio(());
 
-impl<'aud> RaylibAudio<'aud> {
+impl RaylibAudio {
     /// Initializes audio device and context.
     #[inline]
-    pub fn init() -> Result<RaylibAudio<'aud>, RaylibAudioInitError> {
+    pub fn new() -> Result<RaylibAudio, RaylibAudioInitError> {
         unsafe {
             let t = ffi::IsAudioDeviceReady();
             if t {
@@ -61,7 +56,7 @@ impl<'aud> RaylibAudio<'aud> {
             }
             ffi::InitAudioDevice();
         }
-        Ok(RaylibAudio(PhantomData))
+        Ok(RaylibAudio(()))
     }
 
     /// Checks if audio device is ready.
@@ -84,7 +79,7 @@ impl<'aud> RaylibAudio<'aud> {
     }
 
     /// Loads a new sound from file.
-    pub fn new_sound(&'aud self, filename: &'aud str) -> Result<Sound<'aud>, String> {
+    pub fn new_sound<'aud>(&'aud self, filename: &str) -> Result<Sound<'aud>, String> {
         let c_filename = CString::new(filename).unwrap();
         let s = unsafe { ffi::LoadSound(c_filename.as_ptr()) };
         if s.stream.buffer.is_null() {
@@ -94,9 +89,17 @@ impl<'aud> RaylibAudio<'aud> {
         Ok(Sound(s, self))
     }
 
+    /// Loads sound from wave data.
+    pub fn new_sound_from_wave<'aud>(&'aud self, wave: &Wave) -> Result<Sound<'aud>, String> {
+        let s = unsafe { ffi::LoadSoundFromWave(wave.0) };
+        if s.stream.buffer.is_null() {
+            return Err(format!("failed to load sound from wave"));
+        }
+        Ok(Sound(s, self))
+    }
     /// Loads wave data from file into RAM.
     #[inline]
-    pub fn new_wave(&'aud self, filename: &str) -> Result<Wave<'aud>, String> {
+    pub fn new_wave<'aud>(&'aud self, filename: &str) -> Result<Wave<'aud>, String> {
         let c_filename = CString::new(filename).unwrap();
         let w = unsafe { ffi::LoadWave(c_filename.as_ptr()) };
         if w.data.is_null() {
@@ -106,10 +109,10 @@ impl<'aud> RaylibAudio<'aud> {
     }
 
     /// Load wave from memory buffer, fileType refers to extension: i.e. '.wav'
-    pub fn new_wave_from_memory(
+    pub fn new_wave_from_memory<'aud>(
         &'aud self,
         filetype: &str,
-        bytes: &Vec<u8>,
+        bytes: &[u8],
     ) -> Result<Wave<'aud>, String> {
         let c_filetype = CString::new(filetype).unwrap();
         let c_bytes = bytes.as_ptr();
@@ -123,7 +126,7 @@ impl<'aud> RaylibAudio<'aud> {
 
     /// Loads music stream from file.
     // #[inline]
-    pub fn new_music(&'aud self, filename: &str) -> Result<Music<'aud>, String> {
+    pub fn new_music<'aud>(&'aud self, filename: &str) -> Result<Music<'aud>, String> {
         let c_filename = CString::new(filename).unwrap();
         let m = unsafe { ffi::LoadMusicStream(c_filename.as_ptr()) };
         if m.stream.buffer.is_null() {
@@ -133,7 +136,7 @@ impl<'aud> RaylibAudio<'aud> {
     }
 
     /// Load music stream from data
-    pub fn new_music_from_memory(
+    pub fn new_music_from_memory<'aud>(
         &'aud self,
         filetype: &str,
         bytes: &Vec<u8>,
@@ -153,7 +156,7 @@ impl<'aud> RaylibAudio<'aud> {
 
     /// Initializes audio stream (to stream raw PCM data).
     #[inline]
-    pub fn new_audio_stream(
+    pub fn new_audio_stream<'aud>(
         &'aud self,
         sample_rate: u32,
         sample_size: u32,
@@ -168,7 +171,7 @@ impl<'aud> RaylibAudio<'aud> {
     }
 }
 
-impl<'aud> Drop for RaylibAudio<'aud> {
+impl<'aud> Drop for RaylibAudio {
     fn drop(&mut self) {
         unsafe {
             ffi::CloseAudioDevice();
@@ -277,22 +280,9 @@ impl<'aud> Sound<'aud> {
         inner
     }
 
-    /// Loads sound from wave data.
-    pub fn new_from_wave(
-        thread: &'aud RaylibAudio<'aud>,
-        wave: &Wave,
-    ) -> Result<Sound<'aud>, String> {
-        let s = unsafe { ffi::LoadSoundFromWave(wave.0) };
-        if s.stream.buffer.is_null() {
-            return Err(format!("failed to load sound from wave"));
-        }
-        Ok(Sound(s, thread))
-    }
     /// Plays a sound.
     #[inline]
-    pub fn play(&mut self) {
-        println!("null? {}", self.0.stream.buffer.is_null());
-
+    pub fn play(&self) {
         unsafe {
             ffi::PlaySound(self.0);
         }
@@ -361,6 +351,80 @@ impl<'aud> Sound<'aud> {
     //         );
     //     }
     // }}
+}
+
+impl<'aud, 'bind> SoundAlias<'aud, 'bind> {
+    pub fn ready(&self) -> bool {
+        unsafe { ffi::IsSoundReady(self.0) }
+    }
+
+    pub fn frame_count(&self) -> u32 {
+        self.0.frameCount
+    }
+    pub unsafe fn inner(self) -> ffi::Sound {
+        let inner = self.0;
+        std::mem::forget(self);
+        inner
+    }
+
+    /// Plays a sound.
+    #[inline]
+    pub fn play(&self) {
+        unsafe {
+            ffi::PlaySound(self.0);
+        }
+    }
+
+    /// Pauses a sound.
+    #[inline]
+    pub fn pause(&mut self) {
+        unsafe {
+            ffi::PauseSound(self.0);
+        }
+    }
+
+    /// Resumes a paused sound.
+    #[inline]
+    pub fn resume(&mut self) {
+        unsafe {
+            ffi::ResumeSound(self.0);
+        }
+    }
+
+    /// Stops playing a sound.
+    #[inline]
+    pub fn stop(&mut self) {
+        unsafe {
+            ffi::StopSound(self.0);
+        }
+    }
+
+    /// Checks if a sound is currently playing.
+    #[inline]
+    pub fn is_playing(&self) -> bool {
+        unsafe { ffi::IsSoundPlaying(self.0) }
+    }
+
+    /// Sets volume for a sound (`1.0` is max level).
+    #[inline]
+    pub fn set_volume(&mut self, volume: f32) {
+        unsafe {
+            ffi::SetSoundVolume(self.0, volume);
+        }
+    }
+
+    /// Sets pitch for a sound (`1.0` is base level).
+    #[inline]
+    pub fn set_pitch(&mut self, pitch: f32) {
+        unsafe {
+            ffi::SetSoundPitch(self.0, pitch);
+        }
+    }
+    pub fn set_pan(&mut self, pan: f32) {
+        unsafe {
+            ffi::SetSoundPan(self.0, pan);
+        }
+    }
 }
 
 impl<'aud> Music<'aud> {
@@ -549,3 +613,15 @@ impl<'aud> AudioStream<'aud> {
         }
     }
 }
+
+impl<'bind> Sound<'_> {
+    pub fn alias<'snd>(&'snd self) -> Result<SoundAlias<'bind, 'snd>, String> {
+        let s = unsafe { ffi::LoadSoundAlias(self.0) };
+        if s.stream.buffer.is_null() {
+            return Err("failed to load sound from wave".to_string());
+        }
+        Ok(SoundAlias(s, PhantomData))
+    }
+}
+
+pub struct SoundAlias<'snd, 'bind>(ffi::Sound, PhantomData<&'snd Sound<'bind>>);
