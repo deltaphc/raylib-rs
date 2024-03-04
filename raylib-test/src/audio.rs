@@ -4,7 +4,7 @@ mod audio_test {
     use raylib::prelude::*;
     #[test]
     fn test_init_audio() {
-        let _ = RaylibAudio::init_audio_device();
+        let _ = RaylibAudio::init();
     }
     #[test]
     fn test_load_wave() {

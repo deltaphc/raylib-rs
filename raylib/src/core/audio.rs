@@ -22,22 +22,6 @@ make_thin_wrapper_lifetime!(
     ffi::UnloadSoundAlias
 );
 
-pub trait SoundType {
-    fn inner(&self) -> ffi::Sound;
-}
-
-impl<'aud> SoundType for Sound<'aud> {
-    fn inner(&self) -> ffi::Sound {
-        self.0
-    }
-}
-
-impl<'aud> SoundType for SoundAlias<'aud> {
-    fn inner(&self) -> ffi::Sound {
-        self.0
-    }
-}
-
 make_rslice!(WaveSamples, f32, ffi::UnloadWaveSamples);
 
 /// A marker trait specifying an audio sample (`u8`, `i16`, or `f32`).
