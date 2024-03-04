@@ -48,7 +48,7 @@ pub struct RaylibAudio(());
 impl RaylibAudio {
     /// Initializes audio device and context.
     #[inline]
-    pub fn new() -> Result<RaylibAudio, RaylibAudioInitError> {
+    pub fn init_audio_device() -> Result<RaylibAudio, RaylibAudioInitError> {
         unsafe {
             let t = ffi::IsAudioDeviceReady();
             if t {
