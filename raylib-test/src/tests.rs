@@ -15,6 +15,7 @@ lazy_static! {
 /// Bunch of iniialized assets for used in drawing
 pub struct TestAssets {
     pub font: Font,
+    pub font_ex: Font,
 }
 
 /// We need to build our own slice of test descriptors to pass to `test::test_main`. We cannot
@@ -40,6 +41,11 @@ pub fn initialize_globals() -> (RaylibThread, TestAssets) {
             .as_mut()
             .unwrap()
             .load_font(&thread, "resources/alagard.png")
+            .expect("couldn't load font"),
+        font_ex: handle
+            .as_mut()
+            .unwrap()
+            .load_font_ex(&thread, "resources/pixeloid.ttf", 32, None)
             .expect("couldn't load font"),
     };
     (thread, asset)

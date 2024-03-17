@@ -26,7 +26,6 @@ use raylib_sys::TraceLogLevel;
 use crate::ffi;
 use std::ffi::CString;
 use std::marker::PhantomData;
-use std::sync::atomic::{AtomicBool, Ordering};
 
 // shamelessly stolen from imgui
 #[macro_export]
@@ -44,8 +43,6 @@ macro_rules! rstr {
         }
     })
 }
-
-static IS_INITIALIZED: AtomicBool = AtomicBool::new(false);
 
 /// This token is used to ensure certain functions are only running on the same
 /// thread raylib was initialized from. This is useful for architectures like macos
@@ -65,11 +62,10 @@ pub struct RaylibHandle(()); // inner field is private, preventing manual constr
 
 impl Drop for RaylibHandle {
     fn drop(&mut self) {
-        if IS_INITIALIZED.load(Ordering::Relaxed) {
-            unsafe {
+        unsafe {
+            if ffi::IsWindowReady() {
                 ffi::CloseWindow();
             }
-            IS_INITIALIZED.store(false, Ordering::Relaxed);
         }
     }
 }
@@ -211,7 +207,7 @@ impl RaylibBuilder {
 ///
 /// Attempting to initialize Raylib more than once will result in a panic.
 fn init_window(width: i32, height: i32, title: &str) -> RaylibHandle {
-    if IS_INITIALIZED.load(Ordering::Relaxed) {
+    if unsafe { ffi::IsWindowReady() } {
         panic!("Attempted to initialize raylib-rs more than once!");
     } else {
         unsafe {
@@ -221,7 +217,6 @@ fn init_window(width: i32, height: i32, title: &str) -> RaylibHandle {
         if !unsafe { ffi::IsWindowReady() } {
             panic!("Attempting to create window failed!");
         }
-        IS_INITIALIZED.store(true, Ordering::Relaxed);
         RaylibHandle(())
     }
 }
