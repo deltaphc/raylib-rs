@@ -16,6 +16,7 @@ pub struct MonitorInfo {
     pub physical_width: i32,
     pub physical_height: i32,
     pub name: String,
+    pub position: Vector2,
 }
 
 #[derive(Copy, Clone, Debug, Default, PartialEq)]
@@ -263,7 +264,7 @@ pub fn get_monitor_refresh_rate(monitor: i32) -> i32 {
     unsafe { ffi::GetMonitorRefreshRate(monitor) }
 }
 
-/// Get number of connected monitors
+/// Get width of monitor
 /// Only checks that monitor index is in range in debug mode
 #[inline]
 pub fn get_monitor_width(monitor: i32) -> i32 {
@@ -273,7 +274,7 @@ pub fn get_monitor_width(monitor: i32) -> i32 {
     unsafe { ffi::GetMonitorWidth(monitor) }
 }
 
-/// Get number of connected monitors
+/// Get height of monitor
 /// Only checks that monitor index is in range in debug mode
 #[inline]
 pub fn get_monitor_height(monitor: i32) -> i32 {
@@ -283,7 +284,7 @@ pub fn get_monitor_height(monitor: i32) -> i32 {
     unsafe { ffi::GetMonitorHeight(monitor) }
 }
 
-/// Get number of connected monitors
+/// Get physical width of monitor
 /// Only checks that monitor index is in range in debug mode
 #[inline]
 pub fn get_monitor_physical_width(monitor: i32) -> i32 {
@@ -293,7 +294,7 @@ pub fn get_monitor_physical_width(monitor: i32) -> i32 {
     unsafe { ffi::GetMonitorPhysicalWidth(monitor) }
 }
 
-/// Get number of connected monitors
+/// Get physical height of monitor
 /// Only checks that monitor index is in range in debug mode
 #[inline]
 pub fn get_monitor_physical_height(monitor: i32) -> i32 {
@@ -303,7 +304,7 @@ pub fn get_monitor_physical_height(monitor: i32) -> i32 {
     unsafe { ffi::GetMonitorPhysicalHeight(monitor) }
 }
 
-/// Get number of connected monitors
+/// Get name of monitor
 /// Only checks that monitor index is in range in debug mode
 #[inline]
 pub fn get_monitor_name(monitor: i32) -> Result<String, IntoStringError> {
@@ -315,6 +316,17 @@ pub fn get_monitor_name(monitor: i32) -> Result<String, IntoStringError> {
         c.into_string()?
     })
 }
+
+/// Get position of monitor
+/// Only checks that monitor index is in range in debug mode
+#[inline]
+pub fn get_monitor_position(monitor: i32) -> Vector2 {
+    let len = get_monitor_count();
+    debug_assert!(monitor < len && monitor >= 0, "monitor index out of range");
+
+    unsafe { ffi::GetMonitorPosition(monitor).into() }
+}
+
 /// Gets the attributes of the monitor as well as the name
 /// fails if monitor name is not a utf8 string
 /// ```rust
@@ -338,6 +350,7 @@ pub fn get_monitor_info(monitor: i32) -> Result<MonitorInfo, IntoStringError> {
         physical_height: get_monitor_physical_height(monitor),
         physical_width: get_monitor_physical_width(monitor),
         name: get_monitor_name(monitor)?,
+        position: get_monitor_position(monitor)
     })
 }
 
