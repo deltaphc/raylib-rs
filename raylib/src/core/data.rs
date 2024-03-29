@@ -47,7 +47,7 @@ pub fn decompress_data(data: &[u8]) -> Result<&'static [u8], String> {
 }
 
 /// Export data to code (.h), returns true on success
-pub fn export_data_as_code<A>(data: &[u8], file_name: A) -> bool
+pub fn export_data_as_code(data: &[u8], file_name: impl AsRef<Path>) -> bool
 where
     A: Into<String>,
 {

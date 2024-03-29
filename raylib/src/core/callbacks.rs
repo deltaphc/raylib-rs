@@ -90,7 +90,7 @@ extern "C" fn custom_trace_log_callback(
             5 => TraceLogLevel::LOG_ERROR,
             6 => TraceLogLevel::LOG_FATAL,
             7 => TraceLogLevel::LOG_NONE,
-            _ => panic!("raylib gave invalid log level {}", log_level),
+            _ => unreachable!("raylib gave invalid log level {}", log_level),
         };
         let b = if text.is_null() {
             CStr::from_bytes_until_nul("(MESSAGE WAS NULL)\0".as_bytes()).unwrap()
