@@ -1,5 +1,6 @@
 use std::{
     ffi::{CString, OsString},
+    path::{Path, PathBuf},
     ptr::null,
 };
 
@@ -38,7 +39,7 @@ impl AutomationEventList {
 
     /// Export automation events list as text file
     pub fn export(&self, file_name: impl AsRef<Path>) -> bool {
-        let c_str = CString::new(file_name.to_string_lossy().as_bytes()).unwrap();
+        let c_str = CString::new(file_name.as_ref().to_string_lossy().as_bytes()).unwrap();
         unsafe { ffi::ExportAutomationEventList(self.0, c_str.as_ptr()) }
     }
 }
@@ -73,7 +74,7 @@ fn unload_automation_event(_s: ffi::AutomationEvent) {
 }
 
 impl RaylibHandle {
-    pub fn load_automation_event_list(&self, file_name: impl AsRef<Path>) -> AutomationEventList {
+    pub fn load_automation_event_list(&self, file_name: Option<PathBuf>) -> AutomationEventList {
         match file_name {
             Some(a) => {
                 let c_str = CString::new(a.to_string_lossy().as_bytes()).unwrap();

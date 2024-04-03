@@ -1,5 +1,5 @@
 //! Data manipulation functions. Compress and Decompress with DEFLATE
-use std::ffi::CString;
+use std::{ffi::CString, path::Path};
 
 use crate::ffi;
 
@@ -47,12 +47,9 @@ pub fn decompress_data(data: &[u8]) -> Result<&'static [u8], String> {
 }
 
 /// Export data to code (.h), returns true on success
-pub fn export_data_as_code(data: &[u8], file_name: impl AsRef<Path>) -> bool
-where
-    A: Into<String>,
-{
-    let file_name = file_name.into();
-    let c_str = CString::new(file_name).unwrap();
+pub fn export_data_as_code(data: &[u8], file_name: impl AsRef<Path>) -> bool {
+    let file_name = file_name.as_ref();
+    let c_str = CString::new(file_name.to_string_lossy().as_bytes()).unwrap();
 
     unsafe { ffi::ExportDataAsCode(data.as_ptr(), data.len() as i32, c_str.as_ptr()) }
 }
