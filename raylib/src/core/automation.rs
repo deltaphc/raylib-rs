@@ -74,10 +74,10 @@ fn unload_automation_event(_s: ffi::AutomationEvent) {
 }
 
 impl RaylibHandle {
-    pub fn load_automation_event_list(&self, file_name: Option<impl AsRef<Path>>) -> AutomationEventList {
+    pub fn load_automation_event_list(&self, file_name: Option<PathBuf>) -> AutomationEventList {
         match file_name {
             Some(a) => {
-                let c_str = CString::new(a.as_ref().to_string_lossy().as_bytes()).unwrap();
+                let c_str = CString::new(a.to_string_lossy().as_bytes()).unwrap();
                 AutomationEventList(unsafe { ffi::LoadAutomationEventList(c_str.as_ptr()) })
             }
             None => AutomationEventList(unsafe { ffi::LoadAutomationEventList(null()) }),
