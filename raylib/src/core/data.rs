@@ -61,8 +61,10 @@ fn path_to_bytes<P: AsRef<Path>>(path: P) -> Vec<u8> {
 }
 
 /// Export data to code (.h), returns true on success
-pub fn export_data_as_code(data: &[u8], file_name: impl AsRef<Path>) -> bool {
-    let c_str = CString::new(file_name.to_string_lossy().as_bytes()).unwrap();
+pub fn export_data_as_code(data: &[u8], file_name: impl AsRef<Path>) -> bool
+{
+    let c_str = CString::new(path_to_bytes(file_name)).unwrap();
+
     unsafe { ffi::ExportDataAsCode(data.as_ptr(), data.len() as i32, c_str.as_ptr()) }
 }
 
