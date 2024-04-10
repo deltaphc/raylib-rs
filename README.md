@@ -1,31 +1,33 @@
-# Remember to fix the examples befor creating a pullrequest, also rename the branch to 2.5.0
-![logo](logo/raylib-rust_256x256.png)
-
-![rust](https://img.shields.io/badge/rust-1.31+-orange.svg?style=flat-square&logo=rust)
+<p align="center">
+    
+![rust](https://img.shields.io/badge/rust-1.77+-orange.svg?style=flat-square&logo=rust)
 [![crates.io](https://img.shields.io/crates/v/raylib.svg?style=flat-square)](https://crates.io/crates/raylib)
 [![docs](https://docs.rs/raylib/badge.svg)](https://docs.rs/raylib)
-[discord](https://discord.gg/VkzNHUE)
+[![discord](https://img.shields.io/discord/426912293134270465)](https://discord.gg/VkzNHUE)
 
+</p>
 
-# NOTE 4.x version in progress. 
+<table border="0">
+<tr>
+<td>
 
-Raylib 4.2 is currenlty a work in progress. In the meantime you can use a fork: https://github.com/litten2up/raylib-rs
+![logo](logo/raylib-rust_256x256.png)
 
-Add this to your Cargo.toml
-```toml
-[dependencies.raylib]
-version = "4.5.0"
-git = "https://github.com/litten2up/raylib-rs"
-branch = "4.5.0"
-```
+</td>
+<td>
 
 # raylib-rs
 
-raylib-rs is a Rust binding for [raylib](http://www.raylib.com/) 4.5.0-dev. It currently targets the _stable_ Rust toolchain, version 1.31 or higher.
+raylib-rs is a Rust binding for [raylib](http://www.raylib.com/) 5.0. It currently targets the _stable_ Rust toolchain, version 1.77 or higher.
 
 Please checkout the showcase directory to find usage examples!
 
 Though this binding tries to stay close to the simple C API, it makes some changes to be more idiomatic for Rust.
+
+</td>
+</tr>
+</table>
+
 
 - Resources are automatically cleaned up when they go out of scope (or when `std::mem::drop` is called). This is essentially RAII. This means that "Unload" functions are not exposed (and not necessary unless you obtain a `Weak` resource using make_weak()).
 - Most of the Raylib API is exposed through `RaylibHandle`, which is for enforcing that Raylib is only initialized once, and for making sure the window is closed properly. RaylibHandle has no size and goes away at compile time. Because of mutability rules, Raylib-rs is thread safe!
@@ -34,8 +36,6 @@ Though this binding tries to stay close to the simple C API, it makes some chang
 - `Model::set_material`, `Material::set_shader`, and `MaterialMap::set_texture` methods were added since one cannot set the fields directly. Also enforces correct ownership semantics.
 - `Font::from_data`, `Font::set_chars`, and `Font::set_texture` methods were added to create a `Font` from loaded `CharInfo` data.
 - `SubText` and `FormatText` are omitted, and are instead covered by Rust's string slicing and Rust's `format!` macro, respectively.
-
-**Disclaimer: I created this binding as a way to learn Rust. There may be some things I can do better, or make more ergonomic for users. Feel free to make suggestions!**
 
 # Installation
 
@@ -57,7 +57,7 @@ Follow instructions for building raylib for your platform [here](https://github.
 
 ```toml
 [dependencies]
-raylib = { version = "3.7" }
+raylib = { version = "5.0" }
 ```
 
 2. Start coding!
@@ -82,7 +82,8 @@ fn main() {
 
 # Tech Notes
 
-- Structs holding resources have RAII/move semantics, including: `Image`, `Texture2D`, `RenderTexture2D`, `Font`, `Mesh`, `Shader`, `Material`, `Model`, `Wave`, `Sound`, `Music`, and `AudioStream`.
+- Structs holding resources have RAII/move semantics, including: `Image`, `Texture2D`, `RenderTexture2D`, `Font`, `Mesh`, `Shader`, `Material`, and `Model`.
+- `Wave`, `Sound`, `Music`, and `AudioStream` have lifetimes bound to `AudioHandle`. 
 - Functions dealing with string data take in `&str` and/or return an owned `String`, for the sake of safety. The exception to this is the gui draw functions which take &CStr to avoid per frame allocations. The `rstr!` macro helps make this easy.
 - In C, `LoadFontData` returns a pointer to a heap-allocated array of `CharInfo` structs. In this Rust binding, said array is copied into an owned `Vec<CharInfo>`, the original data is freed, and the owned Vec is returned.
 - In C, `LoadDroppedFiles` returns a pointer to an array of strings owned by raylib. Again, for safety and also ease of use, this binding copies said array into a `Vec<String>` which is returned to the caller.
