@@ -87,3 +87,7 @@ path = "extensions.rs"
 [[bin]]
 name = "asteroids"
 path = "./asteroids.rs"
+
+[[bin]]
+name = "floppy"
+path = "./floppy.rs"
