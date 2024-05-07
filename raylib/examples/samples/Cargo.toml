@@ -1,0 +1,93 @@
+[package]
+name = "raylib-examples"
+version = "3.7.0"
+authors = ["David Ayeke"]
+edition = "2018"
+license = "Zlib"
+readme = "../README.md"
+repository = "https://github.com/deltaphc/raylib-rs"
+
+
+[dependencies]
+raylib = { version = "3.7", path = "../raylib" }
+structopt = "0.2"
+specs-derive = "0.4.1"
+rand = "0.7"
+tcod = "0.15"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+arr_macro = "0.1.3"
+
+[dependencies.specs]
+version = "0.16.1"
+default-features = false
+
+[[bin]]
+name = "specs"
+path = "./specs.rs"
+
+[[bin]]
+name = "rgui"
+path = "./rgui.rs"
+
+[[bin]]
+name = "arkanoid"
+path = "./arkanoid.rs"
+
+[[bin]]
+name = "logo"
+path = "./logo.rs"
+
+
+[[bin]]
+name = "camera2D"
+path = "./camera2D.rs"
+
+[[bin]]
+name = "raymarch"
+path = "./raymarch.rs"
+
+[[bin]]
+name = "font"
+path = "./font.rs"
+
+[[bin]]
+name = "drop"
+path = "./drop.rs"
+
+[[bin]]
+name = "texture"
+path = "./texture.rs"
+
+
+[[bin]]
+name = "yaw_pitch_roll"
+path = "yaw_pitch_roll.rs"
+
+[[bin]]
+name = "roguelike"
+path = "roguelike.rs"
+
+[[bin]]
+name = "input"
+path = "input.rs"
+
+[[bin]]
+name = "3d_camera_first_person"
+path = "3d_camera_first_person.rs"
+
+[[bin]]
+name = "model_shader"
+path = "model_shader.rs"
+
+[[bin]]
+name = "extensions"
+path = "extensions.rs"
+
+[[bin]]
+name = "asteroids"
+path = "./asteroids.rs"
+
+[[bin]]
+name = "floppy"
+path = "./floppy.rs"
