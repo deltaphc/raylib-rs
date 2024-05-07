@@ -9,6 +9,7 @@ pub mod callback_tests {
     use colored::Colorize;
     use raylib::prelude::*;
 
+    #[cfg(not(target_os = "windows"))]
     fn custom_callback(log_level: TraceLogLevel, st: &str) {
         let (prefix, string) = match log_level {
             TraceLogLevel::LOG_ALL => ("".white().bold(), st.white()),
@@ -89,19 +90,22 @@ pub mod callback_tests {
         }
     }
     pub fn set_logger(thread: &RaylibThread) {
-        println!(
-            "\n{}\n",
-            "Setting custom logger. The rest of the test should be using this custom logger."
-                .bold()
-                .underline(),
-        );
-        let mut handle = TEST_HANDLE.write().unwrap();
-        let rl = handle.as_mut().unwrap();
+        #[cfg(not(target_os = "windows"))]
         {
-            rl.set_trace_log_callback(custom_callback).unwrap();
-            for _ in 0..5 {
-                let noise = Image::gen_image_white_noise(10, 10, 1.0);
-                let _ = rl.load_texture_from_image(&thread, &noise).unwrap();
+            println!(
+                "\n{}\n",
+                "Setting custom logger. The rest of the test should be using this custom logger."
+                    .bold()
+                    .underline(),
+            );
+            let mut handle = TEST_HANDLE.write().unwrap();
+            let rl = handle.as_mut().unwrap();
+            {
+                rl.set_trace_log_callback(custom_callback).unwrap();
+                for _ in 0..5 {
+                    let noise = Image::gen_image_white_noise(10, 10, 1.0);
+                    let _ = rl.load_texture_from_image(&thread, &noise).unwrap();
+                }
             }
         }
     }

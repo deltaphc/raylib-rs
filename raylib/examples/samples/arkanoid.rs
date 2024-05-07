@@ -140,11 +140,9 @@ fn update_game(game: &mut Game, rl: &RaylibHandle) {
             }
 
             // Ball launching logic
-            if !game.ball.active {
-                if rl.is_key_pressed(KEY_SPACE) {
-                    game.ball.active = true;
-                    game.ball.speed = Vector2::new(0.0, -5.0);
-                }
+            if !game.ball.active && rl.is_key_pressed(KEY_SPACE) {
+                game.ball.active = true;
+                game.ball.speed = Vector2::new(0.0, -5.0);
             }
 
             // Ball movement logic
@@ -176,13 +174,11 @@ fn update_game(game: &mut Game, rl: &RaylibHandle) {
                 game.player.size.x,
                 game.player.size.y,
             );
-            if r.check_collision_circle_rec(game.ball.position, game.ball.radius as f32) {
-                if game.ball.speed.y > 0.0 {
-                    game.ball.speed.y *= -1.0;
-                    game.ball.speed.x = (game.ball.position.x - game.player.position.x)
-                        / (game.player.size.x / 2.0)
-                        * 5.0;
-                }
+            if r.check_collision_circle_rec(game.ball.position, game.ball.radius as f32) && game.ball.speed.y > 0.0 {
+                game.ball.speed.y *= -1.0;
+                game.ball.speed.x = (game.ball.position.x - game.player.position.x)
+                    / (game.player.size.x / 2.0)
+                    * 5.0;
             }
 
             // Collision logic: ball vs bricks
@@ -265,11 +261,9 @@ fn update_game(game: &mut Game, rl: &RaylibHandle) {
                 }
             }
         }
-    } else {
-        if rl.is_key_pressed(KEY_ENTER) {
-            init_game(game, rl);
-            game.game_over = false;
-        }
+    } else if rl.is_key_pressed(KEY_ENTER) {
+        init_game(game, rl);
+        game.game_over = false;
     }
 }
 

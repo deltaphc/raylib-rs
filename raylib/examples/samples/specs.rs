@@ -22,9 +22,9 @@ impl From<&Pos> for Vector2 {
     }
 }
 
-impl Into<(i32, i32)> for Pos {
-    fn into(self) -> (i32, i32) {
-        (self.0, self.1)
+impl From<Pos> for (i32, i32) {
+    fn from(val: Pos) -> Self {
+        (val.0, val.1)
     }
 }
 
@@ -56,7 +56,7 @@ impl<'a> System<'a> for DeathSys {
 
     fn run(&mut self, (mut gs, players, fire): Self::SystemData) {
         // Touch fire then die
-        if let Some(_) = (&players, &fire).join().nth(0) {
+        if (&players, &fire).join().nth(0).is_some() {
             *gs = GameState::LOST;
             println!("Lost");
         }

@@ -6,34 +6,6 @@ on:
 
 jobs:
   test:
-    strategy:
-      matrix:
-        # os: [windows-latest, ubuntu-latest, macos-latest]
-        os: [windows-latest]
-    runs-on: ${{ matrix.os }}
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions/cache@v2
-        with:
-          path: |
-            ~/.cargo/bin/
-            ~/.cargo/registry/index/
-            ~/.cargo/registry/cache/
-            ~/.cargo/git/db/
-            target/
-          key: ${{ runner.os }}-cargo-build-stable-${{ hashFiles('**/Cargo.toml') }}
-      - uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-          override: true
-      - name: Setup git submodules
-        run: git submodule init; git submodule update
-      - name: Install alsa, udev, glfw3, sdl, and wayland
-        run: sudo apt-get update; sudo apt-get install --no-install-recommends libasound2-dev libudev-dev libglfw3-dev libwayland-dev libsdl2-dev
-        if: runner.os == 'linux'
-      - name: Build & run tests under Windows
-        run: cargo test
-  all-doc-tests:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2

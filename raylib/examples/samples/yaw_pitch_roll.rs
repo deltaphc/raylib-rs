@@ -56,12 +56,10 @@ fn main() {
             roll += 1.0;
         } else if rl.is_key_down(raylib::consts::KeyboardKey::KEY_RIGHT) {
             roll -= 1.0;
-        } else {
-            if roll > 0.0 {
-                roll -= 0.5;
-            } else if roll < 0.0 {
-                roll += 0.5;
-            }
+        } else if roll > 0.0 {
+            roll -= 0.5;
+        } else if roll < 0.0 {
+            roll += 0.5;
         }
 
         // Plane yaw (y-axis) controls
@@ -69,12 +67,10 @@ fn main() {
             yaw += 1.0;
         } else if rl.is_key_down(raylib::consts::KeyboardKey::KEY_A) {
             yaw -= 1.0;
-        } else {
-            if yaw > 0.0 {
-                yaw -= 0.5;
-            } else if yaw < 0.0 {
-                yaw += 0.5;
-            }
+        } else if yaw > 0.0 {
+            yaw -= 0.5;
+        } else if yaw < 0.0 {
+            yaw += 0.5;
         }
 
         // Plane pitch (z-axis) controls
@@ -82,12 +78,10 @@ fn main() {
             pitch += 0.6;
         } else if rl.is_key_down(raylib::consts::KeyboardKey::KEY_UP) {
             pitch -= 0.6;
-        } else {
-            if pitch > 0.3 {
-                pitch -= 0.3;
-            } else if pitch < -0.3 {
-                pitch += 0.3;
-            }
+        } else if pitch > 0.3 {
+            pitch -= 0.3;
+        } else if pitch < -0.3 {
+            pitch += 0.3;
         }
 
         // Wraps the phase of an angle to fit between -180 and +180 degrees

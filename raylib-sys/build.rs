@@ -22,8 +22,8 @@ use std::env;
 use std::path::{Path, PathBuf};
 
 /// latest version on github's release page as of time or writing
-const LATEST_RAYLIB_VERSION: &str = "4.2.0";
-const LATEST_RAYLIB_API_VERSION: &str = "4";
+const LATEST_RAYLIB_VERSION: &str = "5.0.0";
+const LATEST_RAYLIB_API_VERSION: &str = "5";
 
 #[derive(Debug)]
 struct IgnoreMacros(HashSet<String>);
@@ -57,6 +57,7 @@ fn build_with_cmake(src_path: &str) {
     }
 
     let target = env::var("TARGET").expect("Cargo build scripts always have TARGET");
+
     let (platform, platform_os) = platform_from_target(&target);
 
     let mut conf = cmake::Config::new(src_path);
@@ -220,7 +221,7 @@ fn gen_rgui() {
     #[cfg(target_os = "windows")]
     {
         cc::Build::new()
-            .file("binding/rgui_wrapper.cpp")
+            .files(vec!["binding/rgui_wrapper.cpp", "binding/utils_log.cpp"])
             .include("binding")
             .warnings(false)
             // .flag("-std=c99")
@@ -230,7 +231,7 @@ fn gen_rgui() {
     #[cfg(not(target_os = "windows"))]
     {
         cc::Build::new()
-            .file("binding/rgui_wrapper.c")
+            .files(vec!["binding/rgui_wrapper.c", "binding/utils_log.c"])
             .include("binding")
             .warnings(false)
             // .flag("-std=c99")
@@ -294,6 +295,22 @@ fn main() {
     println!("cargo:rerun-if-changed=build.rs");
     println!("cargo:rerun-if-changed=./binding/binding.h");
     let target = env::var("TARGET").expect("Cargo build scripts always have TARGET");
+
+    // make sure cmake knows that it should bundle glfw in
+    if target.contains("wasm") {
+        if let Err(e) = env::var("EMCC_CFLAGS") {
+            if e == std::env::VarError::NotPresent {
+                panic!("\nYou must set the following environment variables yourself to compile for WASM. We are sorry for the inconvienence; this will be fixed in 5.1.0.\n{}{}\"\n",{
+                    #[cfg(target_family = "windows")]
+                    {"Paste this before executing the command: set EMCC_CFLAGS="}
+                    #[cfg(not(target_family = "windows"))]
+                    {"Prefix your command with this (you may want to make a build script for obvious reasons...): EMCC_CFLAGS="}
+                },"\"-O3 -sUSE_GLFW=3 -sGL_ENABLE_GET_PROC_ADDRESS -sWASM=1 -sALLOW_MEMORY_GROWTH=1 -sWASM_MEM_MAX=512MB -sTOTAL_MEMORY=512MB -sABORTING_MALLOC=0 -sASYNCIFY -sFORCE_FILESYSTEM=1 -sASSERTIONS=1 -sERROR_ON_UNDEFINED_SYMBOLS=0 -sEXPORTED_RUNTIME_METHODS=ccallcwrap\"");
+            } else {
+                panic!("\nError regarding EMCC_CFLAGS: {:?}\n", e);
+            }
+        }
+    }
     let (platform, platform_os) = platform_from_target(&target);
 
     // Donwload raylib source
@@ -337,12 +354,7 @@ fn run_command(cmd: &str, args: &[&str]) {
 }
 
 fn platform_from_target(target: &str) -> (Platform, PlatformOS) {
-    let platform = if target.contains("wasm32") {
-        // make sure cmake knows that it should bundle glfw in
-        env::set_var(
-            "EMCC_CFLAGS",
-            "-sUSE_GLFW=3 -sGL_ENABLE_GET_PROC_ADDRESS -sWASM=1 -sALLOW_MEMORY_GROWTH=1 -sWASM_MEM_MAX=512MB -sTOTAL_MEMORY=512MB -sABORTING_MALLOC=0 -sASYNCIFY -sFORCE_FILESYSTEM=1 -sASSERTIONS=1 -sERROR_ON_UNDEFINED_SYMBOLS=0 -sEXPORTED_FUNCTIONS=['_malloc''_free''_main''_emsc_main''_emsc_set_window_size'] -sEXPORTED_RUNTIME_METHODS=ccallcwrap",
-        );
+    let platform = if target.contains("wasm") {
         Platform::Web
     } else if target.contains("armv7-unknown-linux") {
         Platform::RPI

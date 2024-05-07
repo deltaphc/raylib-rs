@@ -231,12 +231,10 @@ fn update_game(game: &mut Game, rl: &RaylibHandle) {
                 if game.player.acceleration < 1f32 {
                     game.player.acceleration += 0.04;
                 }
-            } else {
-                if game.player.acceleration > 0f32 {
-                    game.player.acceleration -= 0.02;
-                } else if game.player.acceleration < 0f32 {
-                    game.player.acceleration = 0f32;
-                }
+            } else if game.player.acceleration > 0f32 {
+                game.player.acceleration -= 0.02;
+            } else if game.player.acceleration < 0f32 {
+                game.player.acceleration = 0f32;
             }
 
             if rl.is_key_down(KEY_DOWN) {
@@ -530,16 +528,14 @@ fn update_game(game: &mut Game, rl: &RaylibHandle) {
         {
             game.victory = true;
         }
-    } else {
-        if rl.is_key_pressed(KEY_ENTER) {
-            init_game(game, rl);
-            game.game_over = false;
-        }
+    } else if rl.is_key_pressed(KEY_ENTER) {
+        init_game(game, rl);
+        game.game_over = false;
     }
 }
 
 fn draw_game(game: &Game, rl: &mut RaylibHandle, thread: &RaylibThread) {
-    let (width, height) = (rl.get_screen_width() as i32, rl.get_screen_height() as i32);
+    let (width, height) = (rl.get_screen_width(), rl.get_screen_height());
     let mut d = rl.begin_drawing(thread);
 
     let half_width = width / 2;

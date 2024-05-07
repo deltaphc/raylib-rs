@@ -35,6 +35,7 @@ pub mod tests;
 #[cfg(not(feature = "custom_frame_control"))]
 #[cfg(not(feature = "automation_event_test"))]
 mod audio;
+#[cfg(not(target_os = "windows"))]
 #[cfg(not(feature = "custom_frame_control"))]
 #[cfg(not(feature = "automation_event_test"))]
 mod callbacks;

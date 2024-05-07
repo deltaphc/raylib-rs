@@ -5,6 +5,7 @@ use std::ffi::CString;
 use std::marker::PhantomData;
 use std::mem::ManuallyDrop;
 use std::ops::{Deref, DerefMut};
+use std::path::Path;
 
 make_thin_wrapper_lifetime!(Wave, ffi::Wave, RaylibAudio, ffi::UnloadWave);
 
@@ -43,7 +44,7 @@ impl std::error::Error for RaylibAudioInitError {}
 /// This token is used to indicate audio is initialized. It's also used to create [`Wave`], [`Sound`], [`Music`], [`AudioStream`], and [`SoundAlias`].
 /// All of those have a lifetime that is bound to RaylibAudio. The compiler will disallow you from using them without ensuring that the [`RaylibAudio`] is present while doing so.
 #[derive(Debug, Clone)]
-pub struct RaylibAudio(());
+pub struct RaylibAudio(PhantomData<()>);
 
 impl RaylibAudio {
     /// Initializes audio device and context.
@@ -56,12 +57,12 @@ impl RaylibAudio {
             }
             ffi::InitAudioDevice();
         }
-        Ok(RaylibAudio(()))
+        Ok(RaylibAudio(PhantomData))
     }
 
     /// Checks if audio device is ready.
     #[inline]
-    pub fn ready(&self) -> bool {
+    pub fn is_audio_device_ready(&self) -> bool {
         unsafe { ffi::IsAudioDeviceReady() }
     }
 
@@ -198,14 +199,14 @@ impl<'aud> Wave<'aud> {
         inner
     }
 
-    pub fn ready(&self) -> bool {
+    pub fn is_wave_ready(&self) -> bool {
         unsafe { ffi::IsWaveReady(self.0) }
     }
 
     /// Export wave file. Extension must be .wav or .raw
     #[inline]
-    pub fn export(&self, filename: &str) -> bool {
-        let c_filename = CString::new(filename).unwrap();
+    pub fn export(&self, filename: impl AsRef<Path>) -> bool {
+        let c_filename = CString::new(filename.as_ref().to_string_lossy().as_bytes()).unwrap();
         unsafe { ffi::ExportWave(self.0, c_filename.as_ptr()) }
     }
 
@@ -267,7 +268,7 @@ impl<'aud> AsMut<ffi::AudioStream> for Sound<'aud> {
 }
 
 impl<'aud> Sound<'aud> {
-    pub fn ready(&self) -> bool {
+    pub fn is_sound_ready(&self) -> bool {
         unsafe { ffi::IsSoundReady(self.0) }
     }
 
@@ -354,7 +355,7 @@ impl<'aud> Sound<'aud> {
 }
 
 impl<'aud, 'bind> SoundAlias<'aud, 'bind> {
-    pub fn ready(&self) -> bool {
+    pub fn is_sound_ready(&self) -> bool {
         unsafe { ffi::IsSoundReady(self.0) }
     }
 
@@ -516,7 +517,7 @@ impl<'aud> Music<'aud> {
 }
 
 impl<'aud> AudioStream<'aud> {
-    pub fn ready(&self) -> bool {
+    pub fn is_audio_stream_ready(&self) -> bool {
         unsafe { ffi::IsAudioStreamReady(self.0) }
     }
     pub fn sample_rate(&self) -> u32 {

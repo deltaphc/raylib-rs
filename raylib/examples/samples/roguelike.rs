@@ -673,7 +673,7 @@ fn place_objects(room: Rectangle, map: &Map, objects: &mut Vec<Object>, level: u
 
         let monsters = ["orc", "troll"];
         let monster_weights = [80, troll_chance];
-        let moster_distribution = WeightedIndex::new(&monster_weights).unwrap();
+        let moster_distribution = WeightedIndex::new(monster_weights).unwrap();
         let mut rng = thread_rng();
 
         let mut monster = match monsters[moster_distribution.sample(&mut rng)] {
@@ -775,7 +775,7 @@ fn place_objects(room: Rectangle, map: &Map, objects: &mut Vec<Object>, level: u
 
         // only place it if the tile is not blocked
         if !is_blocked(x, y, map, objects) {
-            let item_distribution = WeightedIndex::new(&item_weights).unwrap();
+            let item_distribution = WeightedIndex::new(item_weights).unwrap();
             let mut item = match items[item_distribution.sample(&mut thread_rng())] {
                 Item::Heal => {
                     // create a healing potion
@@ -945,13 +945,13 @@ fn play_game(
         if objects[PLAYER].alive && player_action != PlayerAction::DidntTakeTurn {
             for id in 0..objects.len() {
                 if objects[id].ai.is_some() {
-                    ai_take_turn(id, &tcod, game, objects);
+                    ai_take_turn(id, tcod, game, objects);
                 }
             }
         }
 
         // drawing
-        let mut d = rl.begin_drawing(&thread);
+        let mut d = rl.begin_drawing(thread);
         d.clear_background(Color::GRAY);
         let player = &objects[PLAYER];
         let fov_recompute = previous_player_positon != (player.x, player.y);
@@ -1030,7 +1030,7 @@ fn handle_keys(
                 };
                 // using items
                 if let Some(inventory_index) = inventory_index {
-                    use_item(rl, &thread, inventory_index, tcod, game, objects);
+                    use_item(rl, thread, inventory_index, tcod, game, objects);
                     break;
                 }
                 if exit {
@@ -1111,7 +1111,7 @@ Defense: {}",
         }
         return TookTurn;
     }
-    return DidntTakeTurn;
+    DidntTakeTurn
 }
 
 /// add to the player's inventory and remove from the map
@@ -1417,7 +1417,7 @@ fn ai_confused(
             objects,
         );
         Ai::Confused {
-            previous_ai: previous_ai,
+            previous_ai,
             num_turns: num_turns - 1,
         }
     } else {
@@ -1571,7 +1571,7 @@ fn main_menu(rl: &mut RaylibHandle, thread: &RaylibThread, tcod: &mut Tcod) {
         Image::load_image("static/menu_background.png").expect("could not load background image");
     let (w, h) = (img.width(), img.height());
     let img = rl
-        .load_texture_from_image(&thread, &img)
+        .load_texture_from_image(thread, &img)
         .expect("could not load texture from image");
     img.set_texture_wrap(thread, raylib::consts::TextureWrap::TEXTURE_WRAP_CLAMP);
 
@@ -1651,7 +1651,7 @@ fn inventory_menu(
     root: &mut RaylibDrawHandle,
 ) -> Option<usize> {
     // how a menu with each item of the inventory as an option
-    let options = if inventory.len() == 0 {
+    let options = if inventory.is_empty() {
         vec!["Inventory is empty.".into()]
     } else {
         inventory
@@ -1671,7 +1671,7 @@ fn inventory_menu(
     let inventory_index = menu(header, &options, INVENTORY_WIDTH, pressed_key, root);
 
     // if an item was chosen, return it
-    if inventory.len() > 0 {
+    if !inventory.is_empty() {
         inventory_index
     } else {
         None

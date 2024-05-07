@@ -41,7 +41,7 @@ pub(crate) mod automation_test {
                     rl.start_automation_event_recording();
                 } else {
                     rl.stop_automation_event_recording();
-                    aelist.export("test_out/automation.rae".into());
+                    aelist.export("test_out/automation.rae");
                     println!("RECORDED FRAMES: {}", aelist.count());
                     events = aelist.events();
                 }

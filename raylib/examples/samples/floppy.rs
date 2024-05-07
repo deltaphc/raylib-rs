@@ -167,11 +167,9 @@ fn update_game(game: &mut Game, rl: &RaylibHandle) {
                 }
             }
         }
-    } else {
-        if rl.is_key_pressed(KEY_ENTER) {
-            init_game(game, rl);
-            game.game_over = false;
-        }
+    } else if rl.is_key_pressed(KEY_ENTER) {
+        init_game(game, rl);
+        game.game_over = false;
     }
 }
 //

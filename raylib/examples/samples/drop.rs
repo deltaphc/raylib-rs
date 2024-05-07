@@ -14,15 +14,15 @@ fn main() {
 }
 
 fn test_rslice(opt: &options::Opt) {
-    let (mut rl, thread) = opt.open_window("Drop Allocs");
+    let (_rl, _thread) = opt.open_window("Drop Allocs");
     let img = Image::gen_image_color(256, 256, Color::RED);
-    let pallet = img.extract_palette(16);
+    let _pallet = img.extract_palette(16);
 }
 
 /// Checks that model files are droppable after window is closed
 fn test_model_dropping(opt: &options::Opt) {
     let ten_millis = time::Duration::from_millis(10);
-    let _m = {
+    {
         let (mut rl, thread) = opt.open_window("Drop Model");
         rl.load_model(&thread, "static/pbr/trooper.obj")
             .expect("couldn't load model");
@@ -33,7 +33,7 @@ fn test_model_dropping(opt: &options::Opt) {
     //     let (_rl, thread) = opt.open_window("Drop Mesh");
     //     Mesh::load_meshes(&thread, "static/pbr/trooper.obj").expect("couldn't load mesh");
     // };
-    let _anim = {
+    {
         let (mut rl, thread) = opt.open_window("Drop Anim");
         rl.load_model_animations(&thread, "static/guy/guy.iqm")
             .expect("couldn't load model");
@@ -77,7 +77,7 @@ fn test_audio_dropping(opt: &options::Opt) {
 
 /// checks that fonts can be dropped after window is closed
 fn test_font_dropping(opt: &options::Opt) {
-    let _f = {
+    {
         let (mut rl, thread) = raylib::init()
             .size(opt.width, opt.height)
             .title("Drop")
