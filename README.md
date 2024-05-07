@@ -43,10 +43,10 @@ Though this binding tries to stay close to the simple C API, it makes some chang
 
 | API    | Windows            | Linux              | macOS              | Web                | Android | 
 | ------ | ------------------ | ------------------ | ------------------ | --------------     | ------- |
-| core   | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |         |
-| rgui   | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | ❔                 |         |
-| physac | :construction:     | :construction:     | :construction:     | ❔                 |         |
-| rlgl   | :heavy_check_mark: | :x:                | :x:                | ❔                 |         |
+| core   | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :x:     |
+| rgui   | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | ❔                 | :x:     |
+| physac | :construction:     | :construction:     | :construction:     | ❔                 | :x:     |
+| rlgl   | :heavy_check_mark: | :x:                | :x:                | ❔                 | :x:     |
 
 ## Build Dependencies
 
