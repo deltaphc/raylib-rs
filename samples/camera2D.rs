@@ -37,19 +37,16 @@ fn main() {
 
     let mut camera = Camera2D {
         target: Vector2::new(player.x + 20.0, player.y + 20.0),
-        // offset: Vector2::new(player.x, player.y),
-        offset: Vector2::new(0.0, 0.0),
+        offset: Vector2::new(player.x, player.y),
         rotation: 0.0,
         zoom: 1.0,
     };
 
     while !rl.window_should_close() {
         if rl.is_key_down(KEY_RIGHT) {
-            player.x += 2.0;
-            camera.offset.x -= 2.0;
+            player.x += 2.0;         
         } else if rl.is_key_down(KEY_LEFT) {
             player.x -= 2.0;
-            camera.offset.x += 2.0;
         }
 
         // Camera follows player
