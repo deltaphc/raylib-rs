@@ -41,12 +41,12 @@ Though this binding tries to stay close to the simple C API, it makes some chang
 
 ## Supported Platforms
 
-| API    | Windows            | Linux              | macOS              | Web            | Android | Raspberry Pi |
-| ------ | ------------------ | ------------------ | ------------------ | -------------- | ------- | ------------ |
-| core   | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :construction: |         |              |
-| rgui   | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |                |         |              |
-| physac | :construction:     | :construction:     | :construction:     |                |         |              |
-| rlgl   | :heavy_check_mark: | :x:                | :x:                |                |         |              |
+| API    | Windows            | Linux              | macOS              | Web                | Android | 
+| ------ | ------------------ | ------------------ | ------------------ | --------------     | ------- |
+| core   | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |         |
+| rgui   | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | ❔                 |         |
+| physac | :construction:     | :construction:     | :construction:     | ❔                 |         |
+| rlgl   | :heavy_check_mark: | :x:                | :x:                | ❔                 |         |
 
 ## Build Dependencies
 
