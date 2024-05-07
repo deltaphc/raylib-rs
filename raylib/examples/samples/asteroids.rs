@@ -609,7 +609,7 @@ fn draw_game(game: &Game, rl: &mut RaylibHandle, thread: &RaylibThread) {
         if game.victory {
             d.draw_text(
                 "VICTORY",
-                half_width - measure_text("VICTORY", 20),
+                half_width - d.measure_text("VICTORY", 20),
                 half_height,
                 20,
                 Color::LIGHTGRAY,
@@ -619,7 +619,7 @@ fn draw_game(game: &Game, rl: &mut RaylibHandle, thread: &RaylibThread) {
         if game.pause {
             d.draw_text(
                 "GAME PAUSED",
-                half_width - measure_text("GAME PAUSED", 40),
+                half_width - d.measure_text("GAME PAUSED", 40),
                 half_height - 40,
                 40,
                 Color::GRAY,
@@ -628,7 +628,7 @@ fn draw_game(game: &Game, rl: &mut RaylibHandle, thread: &RaylibThread) {
     } else {
         d.draw_text(
             "PRESS [ENTER] TO PLAY AGAIN",
-            half_width - measure_text("PRESS [ENTER] TO PLAY AGAIN", 20),
+            half_width - d.measure_text("PRESS [ENTER] TO PLAY AGAIN", 20),
             half_height - 50,
             20,
             Color::GRAY,

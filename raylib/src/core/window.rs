@@ -360,7 +360,7 @@ pub fn get_monitor_info(monitor: i32) -> Result<MonitorInfo, IntoStringError> {
         physical_height: get_monitor_physical_height(monitor),
         physical_width: get_monitor_physical_width(monitor),
         name: get_monitor_name(monitor)?,
-        position: get_monitor_position(monitor)
+        position: get_monitor_position(monitor),
     })
 }
 

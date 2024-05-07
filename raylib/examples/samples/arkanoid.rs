@@ -323,7 +323,7 @@ fn draw_game(game: &Game, rl: &mut RaylibHandle, thread: &RaylibThread) {
         if game.pause {
             d.draw_text(
                 "Game Pause",
-                (w / 2.0) as i32 - measure_text("Game Paused", 40) / 2,
+                (w / 2.0) as i32 - d.measure_text("Game Paused", 40) / 2,
                 (h / 2.0 - 40.0) as i32,
                 40,
                 Color::GRAY,
@@ -332,7 +332,7 @@ fn draw_game(game: &Game, rl: &mut RaylibHandle, thread: &RaylibThread) {
     } else {
         d.draw_text(
             "PRESS [ENTER] TO PLAY AGAIN",
-            (w / 2.0) as i32 - measure_text("PRESS [ENTER] TO PLAY AGAIN", 20) / 2,
+            (w / 2.0) as i32 - d.measure_text("PRESS [ENTER] TO PLAY AGAIN", 20) / 2,
             (h / 2.0) as i32 - 50,
             20,
             Color::GRAY,

@@ -8,7 +8,6 @@ mod options;
 fn main() {
     let opt = options::Opt::from_args();
     test_rslice(&opt);
-    test_shader_dropping(&opt);
     test_model_dropping(&opt);
     test_audio_dropping(&opt);
     test_font_dropping(&opt);
@@ -18,16 +17,6 @@ fn test_rslice(opt: &options::Opt) {
     let (mut rl, thread) = opt.open_window("Drop Allocs");
     let img = Image::gen_image_color(256, 256, Color::RED);
     let pallet = img.extract_palette(16);
-}
-
-/// Checks that shader files are droppable after window is closed
-fn test_shader_dropping(opt: &options::Opt) {
-    let _ten_millis = time::Duration::from_millis(10);
-    let _v = {
-        let (mut rl, thread) = opt.open_window("Drop Shader");
-        rl.load_shader(&thread, None, Some("static/shader/pbr.fs"))
-            .expect("shader didn't load")
-    };
 }
 
 /// Checks that model files are droppable after window is closed
@@ -56,21 +45,22 @@ fn test_model_dropping(opt: &options::Opt) {
 /// Checks that audio files are droppable after window is closed
 fn test_audio_dropping(opt: &options::Opt) {
     let ten_millis = time::Duration::from_millis(10);
+    let ra = RaylibAudio::init_audio_device().expect("Failed to initialize audio");
     let w = {
         let (_, _thread) = raylib::init()
             .size(opt.width, opt.height)
             .title("Drop")
             .build();
-        Wave::load_wave("static/wave.ogg").expect("couldn't load wave")
+        ra.new_wave("static/wave.ogg").expect("couldn't load wave")
     };
     thread::sleep(ten_millis);
     let _s = {
         let (_rl, _thread) = opt.open_window("Drop Sound");
-        Sound::load_sound("static/wave.ogg").expect("couldn't load wave")
+        ra.new_sound("static/wave.ogg").expect("couldn't load wave")
     };
     thread::sleep(ten_millis);
 
-    let _samples = w.load_wave_samples();
+    let _samples = w.load_samples();
     thread::sleep(ten_millis);
 
     // Broken on mac

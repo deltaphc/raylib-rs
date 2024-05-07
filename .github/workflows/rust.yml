@@ -5,9 +5,12 @@ on: [push]
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v1
+      - name: Setup git submodules
+        run: git submodule init; git submodule update
+      - name: Install alsa, udev, glfw3, sdl, and wayland
+        run: sudo apt-get update; sudo apt-get install --no-install-recommends libasound2-dev libudev-dev libglfw3-dev libwayland-dev libsdl2-dev
       - name: Build
         run: cd raylib && cargo build --verbose
     # - name: Run tests [Requires window system]

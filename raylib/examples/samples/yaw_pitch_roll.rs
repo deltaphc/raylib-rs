@@ -292,14 +292,14 @@ fn draw_angle_gauge(
 
     d.draw_text(
         &format!("{:5.1}", angle),
-        x - measure_text(&format!("{:5.1}", angle), text_size) / 2,
+        x - d.measure_text(&format!("{:5.1}", angle), text_size) / 2,
         y + 10,
         text_size,
         Color::DARKGRAY,
     );
     d.draw_text(
         title,
-        x - measure_text(title, text_size) / 2,
+        x - d.measure_text(title, text_size) / 2,
         y + 60,
         text_size,
         Color::DARKGRAY,

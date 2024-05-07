@@ -28,8 +28,8 @@ jobs:
           override: true
       - name: Setup git submodules
         run: git submodule init; git submodule update
-      - name: Install alsa, udev, glfw3, and wayland
-        run: sudo apt-get update; sudo apt-get install --no-install-recommends libasound2-dev libudev-dev libglfw3-dev libwayland-dev
+      - name: Install alsa, udev, glfw3, sdl, and wayland
+        run: sudo apt-get update; sudo apt-get install --no-install-recommends libasound2-dev libudev-dev libglfw3-dev libwayland-dev libsdl2-dev
         if: runner.os == 'linux'
       - name: Build & run tests under Windows
         run: cargo test
@@ -52,8 +52,8 @@ jobs:
           override: true
       - name: Setup git submodules
         run: git submodule init; git submodule update
-      - name: Install alsa, udev, glfw3, and wayland
-        run: sudo apt-get update; sudo apt-get install --no-install-recommends libasound2-dev libudev-dev libglfw3-dev libwayland-dev
+      - name: Install alsa, udev, glfw3, sdl, and wayland
+        run: sudo apt-get update; sudo apt-get install --no-install-recommends libasound2-dev libudev-dev libglfw3-dev libwayland-dev libsdl2-dev
       - name: Run doc tests with all features (this also compiles README examples)
         run: cargo test --doc --all-features
   lint:
@@ -76,8 +76,8 @@ jobs:
           override: true
       - name: Setup git submodules
         run: git submodule init; git submodule update
-      - name: Install alsa, udev, glfw3, and wayland
-        run: sudo apt-get update; sudo apt-get install --no-install-recommends libasound2-dev libudev-dev libglfw3-dev libwayland-dev
+      - name: Install alsa, udev, glfw3, sdl, and wayland
+        run: sudo apt-get update; sudo apt-get install --no-install-recommends libasound2-dev libudev-dev libglfw3-dev libwayland-dev libsdl2-dev
       - name: Run clippy
         run: cargo clippy --workspace --all-targets --all-features
       - name: Check format

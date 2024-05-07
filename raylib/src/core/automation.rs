@@ -1,7 +1,7 @@
 use std::{
     ffi::{CString, OsString},
+    path::{Path, PathBuf},
     ptr::null,
-    path::{Path,PathBuf},
 };
 
 use crate::{ffi, RaylibHandle};
