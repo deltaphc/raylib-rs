@@ -14,18 +14,17 @@
 use raylib::prelude::*;
 
 // Custom logging funtion
-pub extern "C" fn log_custom(msg_type: i32, text: *const i8, args: *mut i8) {
-    let s = unsafe { std::ffi::CStr::from_ptr(text) };
+pub fn log_custom(msg_type: TraceLogLevel, text: &str) {
     match msg_type {
-        0 => println!("[INFO] : {:?} {:?}", s, args),
+        0 => println!("[INFO] : {}", s),
 
-        1 => println!("[ERROR]: {:?} {:?}", s, args),
+        1 => println!("[ERROR]: {}", s),
 
-        2 => println!("[WARN] : {:?} {:?}", s, args),
+        2 => println!("[WARN] : {}", s),
 
-        3 => println!("[DEBUG]: {:?} {:?}", s, args),
+        3 => println!("[DEBUG]: {}", s),
 
-        _ => println!("[{}]: {:?} {:?}", msg_type, s, args),
+        _ => println!("", s),
     }
 }
 
@@ -36,11 +35,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
         let screen_width = 800;
         let screen_height = 450;
 
-        // First thing we do is setting our custom logger to ensure everything raylib logs
-        // will use our own logger instead of its internal one
-        unsafe {
-            ffi::SetTraceLogCallback(Some(log_custom));
-        }
+        rl.set_trace_log_callback(log_custom);
 
         rl.set_window_size(screen_width, screen_height);
         rl.set_window_title(thread, "raylib [core] example - custom logging");

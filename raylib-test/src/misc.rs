@@ -6,8 +6,8 @@ mod core_test {
     fn test_screenshot(t: &RaylibThread) {
         let mut handle = TEST_HANDLE.write().unwrap();
         let rl = handle.as_mut().unwrap();
-        rl.take_screenshot(t, "test_out/screenshot.png");
-        assert!(std::path::Path::new("test_out/screenshot.png").exists());
+        rl.take_screenshot(t, "./screenshot.png");
+        assert!(std::path::Path::new("./screenshot.png").exists());
     }
 
     ray_test!(test_screendata);
@@ -15,6 +15,6 @@ mod core_test {
         let mut handle = TEST_HANDLE.write().unwrap();
         let rl = handle.as_mut().unwrap();
         // make sure it doesn't seg fault
-        let _ = rl.get_screen_data(t);
+        let _ = rl.load_image_from_screen(t);
     }
 }

@@ -1,7 +1,9 @@
 //! Common collision handling code
-use crate::core::math::{BoundingBox, Ray, RayHitInfo, Rectangle, Vector2, Vector3};
-use crate::core::models::Model;
+use crate::core::math::{BoundingBox, Ray, Rectangle, Vector2};
+
 use crate::ffi;
+use crate::math::{Matrix, RayCollision};
+use crate::models::Mesh;
 
 impl Rectangle {
     /// Check collision between two rectangles
@@ -61,6 +63,27 @@ pub fn check_collision_point_circle(
     radius: f32,
 ) -> bool {
     unsafe { ffi::CheckCollisionPointCircle(point.into(), center.into(), radius) }
+}
+
+/// Check if point is within a polygon described by array of vertices
+pub fn check_collision_point_poly(point: Vector2, points: &[Vector2]) -> bool {
+    unsafe {
+        ffi::CheckCollisionPointPoly(
+            point.into(),
+            std::mem::transmute(points.as_ptr()),
+            points.len() as i32,
+        )
+    }
+}
+
+/// Check if point belongs to line created between two points [p1] and [p2] with defined margin in pixels [threshold]
+pub fn check_collision_point_line(
+    point: Vector2,
+    p1: Vector2,
+    p2: Vector2,
+    threshold: i32,
+) -> bool {
+    unsafe { ffi::CheckCollisionPointLine(point.into(), p1.into(), p2.into(), threshold) }
 }
 
 /// Checks if point is inside a triangle.
@@ -130,67 +153,48 @@ impl BoundingBox {
 
     /// Detects collision between ray and box.
     #[inline]
-    pub fn check_collision_ray_box(&self, ray: Ray) -> bool {
-        unsafe { ffi::CheckCollisionRayBox(ray.into(), self.into()) }
+    pub fn get_ray_collision_box(&self, ray: Ray) -> RayCollision {
+        unsafe { ffi::GetRayCollisionBox(ray.into(), self.into()).into() }
     }
 }
 
 /// Detects collision between ray and sphere.
 #[inline]
-pub fn check_collision_ray_sphere(
+pub fn get_ray_collision_sphere(
     ray: Ray,
     sphere_position: impl Into<ffi::Vector3>,
     sphere_radius: f32,
-) -> bool {
-    unsafe { ffi::CheckCollisionRaySphere(ray.into(), sphere_position.into(), sphere_radius) }
-}
-
-/// Detects collision between ray and sphere, and returns the collision point.
-#[inline]
-pub fn check_collision_ray_sphere_ex(
-    ray: Ray,
-    sphere_position: impl Into<ffi::Vector3>,
-    sphere_radius: f32,
-) -> Option<Vector3> {
-    unsafe {
-        let mut col_point = ffi::Vector3 {
-            x: 0.0,
-            y: 0.0,
-            z: 0.0,
-        };
-        let collision = ffi::CheckCollisionRaySphereEx(
-            ray.into(),
-            sphere_position.into(),
-            sphere_radius,
-            &mut col_point,
-        );
-        if collision {
-            Some(col_point.into())
-        } else {
-            None
-        }
-    }
+) -> RayCollision {
+    unsafe { ffi::GetRayCollisionSphere(ray.into(), sphere_position.into(), sphere_radius).into() }
 }
 
 /// Gets collision info between ray and model.
 #[inline]
-pub fn get_collision_ray_model(ray: Ray, model: &Model) -> RayHitInfo {
-    unsafe { ffi::GetCollisionRayModel(ray.into(), model.0).into() }
+pub fn get_ray_collision_model(ray: Ray, model: &Mesh, transform: &Matrix) -> RayCollision {
+    unsafe { ffi::GetRayCollisionMesh(ray.into(), model.0, transform.into()).into() }
 }
 
 /// Gets collision info between ray and triangle.
 #[inline]
-pub fn get_collision_ray_triangle(
+pub fn get_ray_collision_triangle(
     ray: Ray,
     p1: impl Into<ffi::Vector3>,
     p2: impl Into<ffi::Vector3>,
     p3: impl Into<ffi::Vector3>,
-) -> RayHitInfo {
-    unsafe { ffi::GetCollisionRayTriangle(ray.into(), p1.into(), p2.into(), p3.into()).into() }
+) -> RayCollision {
+    unsafe { ffi::GetRayCollisionTriangle(ray.into(), p1.into(), p2.into(), p3.into()).into() }
 }
 
-/// Gets collision info between ray and ground plane (Y-normal plane).
+/// Gets collision info between ray and model.
 #[inline]
-pub fn get_collision_ray_ground(ray: Ray, ground_height: f32) -> RayHitInfo {
-    unsafe { ffi::GetCollisionRayGround(ray.into(), ground_height).into() }
+pub fn get_ray_collision_quad(
+    ray: Ray,
+    p1: impl Into<ffi::Vector3>,
+    p2: impl Into<ffi::Vector3>,
+    p3: impl Into<ffi::Vector3>,
+    p4: impl Into<ffi::Vector3>,
+) -> RayCollision {
+    unsafe {
+        ffi::GetRayCollisionQuad(ray.into(), p1.into(), p2.into(), p3.into(), p4.into()).into()
+    }
 }

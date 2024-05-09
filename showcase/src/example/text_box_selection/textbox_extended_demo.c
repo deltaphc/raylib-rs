@@ -152,7 +152,7 @@ int main(int argc, char **argv)
         if rl.is_file_dropped()
         {
             int count = 0;
-            char **files = rl.get_dropped_files(&count);
+            char **files = rl.load_dropped_files(&count);
 
             if IsFileExtension(files[0], ".ttf" ||
                 IsFileExtension(files[0], ".otf") ||
@@ -173,7 +173,7 @@ int main(int argc, char **argv)
                 }
             }
 
-            ClearDroppedFiles();
+            UnloadDroppedFiles();
         }
 
         // Convert text to hex representation and draw it on screen

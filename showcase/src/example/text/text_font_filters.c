@@ -87,14 +87,14 @@ pub fn run(rl
         if rl.is_file_dropped()
         {
             int count = 0;
-            char **droppedFiles = rl.get_dropped_files(&count);
+            char **droppedFiles = rl.load_dropped_files(&count);
 
             // NOTE: We only support first ttf file dropped
             if IsFileExtension(droppedFiles[0], ".ttf")
             {
                 UnloadFont(font);
                 font = LoadFontEx(droppedFiles[0], fontSize, 0, 0);
-                ClearDroppedFiles();
+                UnloadDroppedFiles();
             }
         }
         //----------------------------------------------------------------------------------
@@ -133,7 +133,7 @@ pub fn run(rl
 
     // De-Initialization
     //--------------------------------------------------------------------------------------
-    ClearDroppedFiles(); // Clear internal buffers
+    UnloadDroppedFiles(); // Clear internal buffers
 
     UnloadFont(font); // Font unloading
 

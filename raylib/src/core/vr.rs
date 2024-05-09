@@ -1,8 +1,6 @@
 //! Vr related functions
-use crate::core::camera::Camera3D;
 use crate::core::{RaylibHandle, RaylibThread};
 use crate::ffi;
-use std::sync::atomic::{AtomicBool, Ordering};
 
 make_thin_wrapper!(
     VrStereoConfig,
@@ -60,6 +58,6 @@ impl RaylibHandle {
         _: &RaylibThread,
         device: impl Into<ffi::VrDeviceInfo>,
     ) -> VrStereoConfig {
-        return VrStereoConfig(unsafe { ffi::LoadVrStereoConfig(device.into()) });
+        VrStereoConfig(unsafe { ffi::LoadVrStereoConfig(device.into()) })
     }
 }
