@@ -69,7 +69,7 @@ int main(int argc, char *argv[0])
         if (IsFileDropped())
         {
             int fileCount = 0;
-            char **droppedFiles = GetDroppedFiles(&fileCount);
+            char **droppedFiles = LoadDroppedFiles(&fileCount);
 
             if (fileCount == 1)
             {
@@ -91,7 +91,7 @@ int main(int argc, char *argv[0])
                 }
             }
 
-            ClearDroppedFiles();
+            UnloadDroppedFiles();
         }
     
         if (btnExport)

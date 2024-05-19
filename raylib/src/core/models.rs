@@ -2,8 +2,9 @@
 use crate::core::math::{BoundingBox, Vector3};
 use crate::core::texture::Image;
 use crate::core::{RaylibHandle, RaylibThread};
-use crate::ffi;
+use crate::{consts, ffi};
 use std::ffi::CString;
+use std::os::raw::c_void;
 
 fn no_drop<T>(_thing: T) {}
 make_thin_wrapper!(Model, ffi::Model, ffi::UnloadModel);
@@ -223,6 +224,18 @@ impl Mesh {
     }
 }
 pub trait RaylibMesh: AsRef<ffi::Mesh> + AsMut<ffi::Mesh> {
+    unsafe fn upload(&mut self, dynamic: bool) {
+        ffi::UploadMesh(self.as_mut(), dynamic);
+    }
+    unsafe fn update_buffer<A>(&mut self, index: i32, data: &[u8], offset: i32) {
+        ffi::UpdateMeshBuffer(
+            *self.as_ref(),
+            index,
+            data.as_ptr() as *const c_void,
+            data.len() as i32,
+            offset,
+        );
+    }
     fn vertices(&self) -> &[Vector3] {
         unsafe {
             std::slice::from_raw_parts(
@@ -374,30 +387,22 @@ pub trait RaylibMesh: AsRef<ffi::Mesh> + AsMut<ffi::Mesh> {
 
     /// Computes mesh bounding box limits.
     #[inline]
-    fn mesh_bounding_box(&self) -> BoundingBox {
-        unsafe { ffi::MeshBoundingBox(*self.as_ref()).into() }
+    fn get_mesh_bounding_box(&self) -> BoundingBox {
+        unsafe { ffi::GetMeshBoundingBox(*self.as_ref()).into() }
     }
 
     /// Computes mesh tangents.
     // NOTE: New VBO for tangents is generated at default location and also binded to mesh VAO
     #[inline]
-    fn mesh_tangents(&mut self, _: &RaylibThread) {
+    fn gen_mesh_tangents(&mut self, _: &RaylibThread) {
         unsafe {
-            ffi::MeshTangents(self.as_mut());
-        }
-    }
-
-    /// Computes mesh binormals.
-    #[inline]
-    fn mesh_binormals(&mut self) {
-        unsafe {
-            ffi::MeshBinormals(self.as_mut());
+            ffi::GenMeshTangents(self.as_mut());
         }
     }
 
     /// Exports mesh as an OBJ file.
     #[inline]
-    fn export_mesh(&self, filename: &str) {
+    fn export(&self, filename: &str) {
         let c_filename = CString::new(filename).unwrap();
         unsafe {
             ffi::ExportMesh(*self.as_ref(), c_filename.as_ptr());
@@ -448,7 +453,7 @@ pub trait RaylibMaterial: AsRef<ffi::Material> + AsMut<ffi::Material> {
         unsafe {
             std::slice::from_raw_parts(
                 self.as_ref().maps as *const MaterialMap,
-                ffi::MAX_MATERIAL_MAPS as usize,
+                consts::MAX_MATERIAL_MAPS as usize,
             )
         }
     }
@@ -457,7 +462,7 @@ pub trait RaylibMaterial: AsRef<ffi::Material> + AsMut<ffi::Material> {
         unsafe {
             std::slice::from_raw_parts_mut(
                 self.as_mut().maps as *mut MaterialMap,
-                ffi::MAX_MATERIAL_MAPS as usize,
+                consts::MAX_MATERIAL_MAPS as usize,
             )
         }
     }

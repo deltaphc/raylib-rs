@@ -56,12 +56,10 @@ fn main() {
             roll += 1.0;
         } else if rl.is_key_down(raylib::consts::KeyboardKey::KEY_RIGHT) {
             roll -= 1.0;
-        } else {
-            if roll > 0.0 {
-                roll -= 0.5;
-            } else if roll < 0.0 {
-                roll += 0.5;
-            }
+        } else if roll > 0.0 {
+            roll -= 0.5;
+        } else if roll < 0.0 {
+            roll += 0.5;
         }
 
         // Plane yaw (y-axis) controls
@@ -69,12 +67,10 @@ fn main() {
             yaw += 1.0;
         } else if rl.is_key_down(raylib::consts::KeyboardKey::KEY_A) {
             yaw -= 1.0;
-        } else {
-            if yaw > 0.0 {
-                yaw -= 0.5;
-            } else if yaw < 0.0 {
-                yaw += 0.5;
-            }
+        } else if yaw > 0.0 {
+            yaw -= 0.5;
+        } else if yaw < 0.0 {
+            yaw += 0.5;
         }
 
         // Plane pitch (z-axis) controls
@@ -82,12 +78,10 @@ fn main() {
             pitch += 0.6;
         } else if rl.is_key_down(raylib::consts::KeyboardKey::KEY_UP) {
             pitch -= 0.6;
-        } else {
-            if pitch > 0.3 {
-                pitch -= 0.3;
-            } else if pitch < -0.3 {
-                pitch += 0.3;
-            }
+        } else if pitch > 0.3 {
+            pitch -= 0.3;
+        } else if pitch < -0.3 {
+            pitch += 0.3;
         }
 
         // Wraps the phase of an angle to fit between -180 and +180 degrees
@@ -149,7 +143,7 @@ fn main() {
                         0.0,
                         0.0,
                         tex_pitch.width() as f32,
-                        tex_pitch.height() as f32 as f32,
+                        tex_pitch.height() as f32,
                     ),
                     Rectangle::new(
                         center_x,
@@ -172,7 +166,7 @@ fn main() {
                         0.0,
                         0.0,
                         tex_plane.width() as f32,
-                        tex_plane.height() as f32 as f32,
+                        tex_plane.height() as f32,
                     ),
                     Rectangle::new(
                         center_x,
@@ -292,14 +286,14 @@ fn draw_angle_gauge(
 
     d.draw_text(
         &format!("{:5.1}", angle),
-        x - measure_text(&format!("{:5.1}", angle), text_size) / 2,
+        x - d.measure_text(&format!("{:5.1}", angle), text_size) / 2,
         y + 10,
         text_size,
         Color::DARKGRAY,
     );
     d.draw_text(
         title,
-        x - measure_text(title, text_size) / 2,
+        x - d.measure_text(title, text_size) / 2,
         y + 60,
         text_size,
         Color::DARKGRAY,

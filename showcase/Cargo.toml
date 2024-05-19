@@ -1,13 +1,13 @@
 [package]
 name = "raylib-showcase"
-version = "3.7.0"
+version = "5.0.0"
 authors = ["David Ayeke"]
 edition = "2018"
 license = "Zlib"
 readme = "../README.md"
-repository = "https://github.com/deltaphc/raylib-rs"
+repository = "https://github.com/raylib-rs/raylib-rs"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-raylib = { version = "3.7", path = "../raylib" }
+raylib = { version = "5.0", path = "../raylib" }

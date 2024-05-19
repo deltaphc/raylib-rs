@@ -2,6 +2,8 @@
 mod macros;
 
 pub mod audio;
+pub mod automation;
+pub mod callbacks;
 pub mod camera;
 pub mod collision;
 pub mod color;
@@ -19,10 +21,11 @@ pub mod texture;
 pub mod vr;
 pub mod window;
 
+use raylib_sys::TraceLogLevel;
+
 use crate::ffi;
 use std::ffi::CString;
 use std::marker::PhantomData;
-use std::sync::atomic::{AtomicBool, Ordering};
 
 // shamelessly stolen from imgui
 #[macro_export]
@@ -40,8 +43,6 @@ macro_rules! rstr {
         }
     })
 }
-
-static IS_INITIALIZED: AtomicBool = AtomicBool::new(false);
 
 /// This token is used to ensure certain functions are only running on the same
 /// thread raylib was initialized from. This is useful for architectures like macos
@@ -61,11 +62,10 @@ pub struct RaylibHandle(()); // inner field is private, preventing manual constr
 
 impl Drop for RaylibHandle {
     fn drop(&mut self) {
-        if IS_INITIALIZED.load(Ordering::Relaxed) {
-            unsafe {
+        unsafe {
+            if ffi::IsWindowReady() {
                 ffi::CloseWindow();
             }
-            IS_INITIALIZED.store(false, Ordering::Relaxed);
         }
     }
 }
@@ -79,6 +79,7 @@ pub struct RaylibBuilder {
     window_transparent: bool,
     msaa_4x_hint: bool,
     vsync_hint: bool,
+    log_level: TraceLogLevel,
     width: i32,
     height: i32,
     title: String,
@@ -101,6 +102,11 @@ impl RaylibBuilder {
         self
     }
 
+    /// Set the builder's log level.
+    pub fn log_level(&mut self, level: TraceLogLevel) -> &mut Self {
+        self.log_level = level;
+        self
+    }
     /// Sets the window to be resizable.
     pub fn resizable(&mut self) -> &mut Self {
         self.window_resizable = true;
@@ -186,6 +192,10 @@ impl RaylibBuilder {
         unsafe {
             ffi::SetConfigFlags(flags as u32);
         }
+
+        unsafe {
+            ffi::SetTraceLogLevel(self.log_level as i32);
+        }
         let rl = init_window(self.width, self.height, &self.title);
         (rl, RaylibThread(PhantomData))
     }
@@ -197,7 +207,7 @@ impl RaylibBuilder {
 ///
 /// Attempting to initialize Raylib more than once will result in a panic.
 fn init_window(width: i32, height: i32, title: &str) -> RaylibHandle {
-    if IS_INITIALIZED.load(Ordering::Relaxed) {
+    if unsafe { ffi::IsWindowReady() } {
         panic!("Attempted to initialize raylib-rs more than once!");
     } else {
         unsafe {
@@ -207,7 +217,6 @@ fn init_window(width: i32, height: i32, title: &str) -> RaylibHandle {
         if !unsafe { ffi::IsWindowReady() } {
             panic!("Attempting to create window failed!");
         }
-        IS_INITIALIZED.store(true, Ordering::Relaxed);
         RaylibHandle(())
     }
 }

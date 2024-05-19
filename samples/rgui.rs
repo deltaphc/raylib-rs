@@ -101,13 +101,11 @@ pub fn main() {
     while !exitWindow
     // Detect window close button or ESC key
     {
-        
         use raylib::consts::GuiControl::*;
         use raylib::consts::GuiControlProperty::*;
-        
-        
+
         use raylib::consts::GuiTextAlignment::*;
-        
+
         // Update
         //----------------------------------------------------------------------------------
 
@@ -123,13 +121,13 @@ pub fn main() {
         // }
 
         // if rl.is_file_dropped() {
-        //     let droppedFiles = rl.get_dropped_files();
+        //     let droppedFiles = rl.load_dropped_files();
 
         //     if (droppedFiles.len() > 0) && droppedFiles[0].ends_with(".rgs") {
         //         rl.gui_load_style(Some(&CString::new(droppedFiles[0].clone()).unwrap()));
         //     }
 
-        //     rl.clear_dropped_files();
+        //     rl.unload_dropped_files();
         // }
 
         //----------------------------------------------------------------------------------
@@ -153,7 +151,7 @@ pub fn main() {
         // //GuiDisable();
 
         // // First GUI column
-        // //GuiSetStyle(CHECKBOX, TEXT_ALIGNMENT, GUI_TEXT_ALIGN_LEFT);
+        // //GuiSetStyle(CHECKBOX, TEXT_ALIGNMENT, TEXT_ALIGN_LEFT);
         // forceSquaredChecked = d.gui_check_box(
         //     rrect(25, 108, 15, 15),
         //     Some(rstr!("FORCE CHECK!")),
@@ -164,7 +162,7 @@ pub fn main() {
             ffi::GuiSetStyle(
                 TEXTBOX as i32,
                 TEXT_ALIGNMENT as i32,
-                GUI_TEXT_ALIGN_CENTER as i32,
+                TEXT_ALIGN_CENTER as i32,
             );
         }
         // dbg!(spinnerEditMode);
@@ -200,7 +198,8 @@ pub fn main() {
                 0,
                 100,
                 spinnerEditMode,
-            ) {
+            ) > 0
+            {
                 spinnerEditMode = dbg!(!spinnerEditMode);
             }
             // if ffi::GuiSpinner(
@@ -234,12 +233,12 @@ pub fn main() {
         // ) {
         //     valueBoxEditMode = !valueBoxEditMode;
         // }
-        // d.gui_set_style(TEXTBOX, TEXT_ALIGNMENT as i32, GUI_TEXT_ALIGN_LEFT as i32);
+        // d.gui_set_style(TEXTBOX, TEXT_ALIGNMENT as i32, TEXT_ALIGN_LEFT as i32);
         // if d.gui_text_box(rrect(25, 215, 125, 30), &mut textBoxText, textBoxEditMode) {
         //     textBoxEditMode = !textBoxEditMode;
         // }
 
-        // d.gui_set_style(BUTTON, TEXT_ALIGNMENT as i32, GUI_TEXT_ALIGN_CENTER as i32);
+        // d.gui_set_style(BUTTON, TEXT_ALIGNMENT as i32, TEXT_ALIGN_CENTER as i32);
 
         // let itext = d.gui_icon_text(RICON_FILE_SAVE, Some(rstr!("Save File")));
         // let itext = CString::new(itext).unwrap();
@@ -250,15 +249,15 @@ pub fn main() {
         // d.gui_group_box(rrect(25, 310, 125, 150), Some(rstr!("STATES")));
 
         // d.gui_lock();
-        // d.gui_set_state(GUI_STATE_NORMAL);
+        // d.gui_set_state(_NORMAL);
         // if d.gui_button(rrect(30, 320, 115, 30), Some(rstr!("NORMAL"))) {}
-        // d.gui_set_state(GUI_STATE_FOCUSED);
+        // d.gui_set_state(_FOCUSED);
         // if d.gui_button(rrect(30, 355, 115, 30), Some(rstr!("FOCUSED"))) {}
-        // d.gui_set_state(GUI_STATE_PRESSED);
+        // d.gui_set_state(_PRESSED);
         // if d.gui_button(rrect(30, 390, 115, 30), Some(rstr!("#15#PRESSED"))) {}
-        // d.gui_set_state(GUI_STATE_DISABLED);
+        // d.gui_set_state(_DISABLED);
         // if d.gui_button(rrect(30, 425, 115, 30), Some(rstr!("DISABLED"))) {}
-        // d.gui_set_state(GUI_STATE_NORMAL);
+        // d.gui_set_state(_NORMAL);
         // d.gui_unlock();
 
         // comboBoxActive = d.gui_combo_box(
@@ -271,7 +270,7 @@ pub fn main() {
         // d.gui_set_style(
         //     DROPDOWNBOX,
         //     TEXT_ALIGNMENT as i32,
-        //     GUI_TEXT_ALIGN_LEFT as i32,
+        //     TEXT_ALIGN_LEFT as i32,
         // );
         // if d.gui_dropdown_box(
         //     rrect(25, 65, 125, 30),
@@ -285,7 +284,7 @@ pub fn main() {
         // d.gui_set_style(
         //     DROPDOWNBOX,
         //     TEXT_ALIGNMENT as i32,
-        //     GUI_TEXT_ALIGN_CENTER as i32,
+        //     TEXT_ALIGN_CENTER as i32,
         // );
         // if d.gui_dropdown_box(
         //     rrect(25, 25, 125, 30),
