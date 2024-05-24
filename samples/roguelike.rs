@@ -1,3 +1,7 @@
+/**
+ * 2024 NOTE: this is currently disabled because tcod is considered a broken crate.
+ */
+
 /// Code almost verbatim from here: http://tomassedovic.github.io/roguelike-tutorial/index.html
 /// This only covers up to Part 9 because I'm a human being who needs sleep. Feel free to submit a
 /// PR to extend it.
@@ -589,10 +593,10 @@ fn make_map(objects: &mut Vec<Object>, level: u32) -> Map {
 
     let mut rooms = vec![];
     for _ in 0..MAX_ROOMS {
-        let w = rand::thread_rng().gen_range(ROOM_MIN_SIZE..ROOM_MAX_SIZE + 1);
-        let h = rand::thread_rng().gen_range(ROOM_MIN_SIZE..ROOM_MAX_SIZE + 1);
-        let x = rand::thread_rng().gen_range(0..MAP_WIDTH - w);
-        let y = rand::thread_rng().gen_range(0..MAP_HEIGHT - h);
+        let w = rand::thread_rng().gen_range::<f32>(ROOM_MIN_SIZE..ROOM_MAX_SIZE + 1);
+        let h = rand::thread_rng().gen_range::<f32>(ROOM_MIN_SIZE..ROOM_MAX_SIZE + 1);
+        let x = rand::thread_rng().gen_range::<f32>(0..MAP_WIDTH - w);
+        let y = rand::thread_rng().gen_range::<f32>(0..MAP_HEIGHT - h);
 
         let new_room = Rectangle::new(x as f32, y as f32, w as f32, h as f32);
         let failed = rooms
@@ -646,11 +650,11 @@ fn place_objects(room: Rectangle, map: &Map, objects: &mut Vec<Object>, level: u
     );
 
     // choose random number of monsters
-    let num_monsters = rand::thread_rng().gen_range(0..max_monsters + 1);
+    let num_monsters = rand::thread_rng().gen_range::<f32>(0..max_monsters + 1);
 
     for _ in 0..num_monsters {
-        let x = rand::thread_rng().gen_range(room.x + 1.0..room.x + room.width) as i32;
-        let y = rand::thread_rng().gen_range(room.y + 1.0..room.y + room.height) as i32;
+        let x = rand::thread_rng().gen_range::<f32>(room.x + 1.0..room.x + room.width) as i32;
+        let y = rand::thread_rng().gen_range::<f32>(room.y + 1.0..room.y + room.height) as i32;
 
         // monster random table
         let troll_chance = from_dungeon_level(
@@ -767,11 +771,13 @@ fn place_objects(room: Rectangle, map: &Map, objects: &mut Vec<Object>, level: u
     ];
 
     // choose random number of items
-    let num_items = rand::thread_rng().gen_range(0..max_items + 1);
+    let num_items = rand::thread_rng().gen_range::<f32>(0..max_items + 1);
     for _ in 0..num_items {
         // choose random spot for this item
-        let x = rand::thread_rng().gen_range(room.x as i32 + 1..(room.x + room.width) as i32);
-        let y = rand::thread_rng().gen_range(room.y as i32 + 1..(room.y + room.height) as i32);
+        let x =
+            rand::thread_rng().gen_range::<f32>(room.x as i32 + 1..(room.x + room.width) as i32);
+        let y =
+            rand::thread_rng().gen_range::<f32>(room.y as i32 + 1..(room.y + room.height) as i32);
 
         // only place it if the tile is not blocked
         if !is_blocked(x, y, map, objects) {
@@ -1411,8 +1417,8 @@ fn ai_confused(
         // move in a random direction, and decrease the number of turns confused
         move_by(
             monster_id,
-            rand::thread_rng().gen_range(-1..2),
-            rand::thread_rng().gen_range(-1..2),
+            rand::thread_rng().gen_range::<f32>(-1..2),
+            rand::thread_rng().gen_range::<f32>(-1..2),
             &game.map,
             objects,
         );
