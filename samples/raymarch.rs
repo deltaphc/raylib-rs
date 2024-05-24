@@ -4,7 +4,7 @@ use structopt::StructOpt;
 
 mod options;
 
-const SHADER: &str = include_str!("../../static/raymarching.fs");
+const SHADER: &str = include_str!("static/raymarching.fs");
 
 pub fn main() {
     let opt = options::Opt::from_args();

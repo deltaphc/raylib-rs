@@ -1,6 +1,6 @@
 [package]
 name = "raylib-showcase"
-version = "5.0.0"
+version = "5.0.1"
 authors = ["David Ayeke"]
 edition = "2018"
 license = "Zlib"
