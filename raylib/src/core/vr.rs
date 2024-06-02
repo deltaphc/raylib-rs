@@ -15,7 +15,6 @@ pub struct VrDeviceInfo {
     pub v_esolution: i32,                 // Vertical resolution in pixels
     pub h_screen_size: f32,               // Horizontal size in meters
     pub v_screen_size: f32,               // Vertical size in meters
-    pub v_screen_center: f32,             // Screen center in meters
     pub eye_to_screen_distance: f32,      // Distance between eye and display in meters
     pub lens_separation_distance: f32,    // Lens separation distance in meters
     pub interpupillary_distance: f32,     // IPD (distance between pupils) in meters
@@ -38,11 +37,10 @@ impl Into<ffi::VrDeviceInfo> for VrDeviceInfo {
 impl Into<ffi::VrDeviceInfo> for &VrDeviceInfo {
     fn into(self) -> ffi::VrDeviceInfo {
         ffi::VrDeviceInfo {
-            hResolution: self.h_resolution,      // Horizontal resolution in pixels
-            vResolution: self.v_esolution,       // Vertical resolution in pixels
-            hScreenSize: self.h_screen_size,     // Horizontal size in meters
-            vScreenSize: self.v_screen_size,     // Vertical size in meters
-            vScreenCenter: self.v_screen_center, // Screen center in meters
+            hResolution: self.h_resolution,  // Horizontal resolution in pixels
+            vResolution: self.v_esolution,   // Vertical resolution in pixels
+            hScreenSize: self.h_screen_size, // Horizontal size in meters
+            vScreenSize: self.v_screen_size, // Vertical size in meters
             eyeToScreenDistance: self.eye_to_screen_distance, // Distance between eye and display in meters
             lensSeparationDistance: self.lens_separation_distance, // Lens separation distance in meters
             interpupillaryDistance: self.interpupillary_distance, // IPD (distance between pupils) in meters

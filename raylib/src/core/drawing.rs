@@ -729,17 +729,10 @@ pub trait RaylibDraw {
         rec: impl Into<ffi::Rectangle>,
         roundness: f32,
         segments: i32,
-        line_thickness: f32,
         color: impl Into<ffi::Color>,
     ) {
         unsafe {
-            ffi::DrawRectangleRoundedLines(
-                rec.into(),
-                roundness,
-                segments,
-                line_thickness,
-                color.into(),
-            );
+            ffi::DrawRectangleRoundedLines(rec.into(), roundness, segments, color.into());
         }
     }
 
