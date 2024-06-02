@@ -9,15 +9,7 @@ repository = "https://github.com/raylib-rs/raylib-rs"
 
 
 [dependencies]
-<<<<<<< HEAD
-raylib = { version = "5.1-dev", path = "../raylib" }
-=======
-<<<<<<< HEAD
 raylib = { version = "5.1.0", path = "../raylib" }
-=======
-raylib = { version = "5.1-dev", path = "../raylib" }
->>>>>>> d50f3ed (well that also works ig)
->>>>>>> raylib-rs-5.1.0
 structopt = "0.2"
 specs-derive = "0.4.1"
 rand = "0.7"

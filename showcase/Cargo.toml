@@ -10,12 +10,4 @@ repository = "https://github.com/raylib-rs/raylib-rs"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-<<<<<<< HEAD
 raylib = { version = "5.1.0", path = "../raylib" }
-=======
-<<<<<<< HEAD
-raylib = { version = "5.1.0", path = "../raylib" }
-=======
-raylib = { version = "5.1.0", path = "../raylib" }
->>>>>>> d50f3ed (well that also works ig)
->>>>>>> raylib-rs-5.1.0

@@ -1,15 +1,7 @@
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
 <p align="center">
-    
-![rust](https://img.shields.io/badge/rust-1.78+-orange.svg?style=flat-square&logo=rust)
-=======
->>>>>>> raylib-rs-5.1.0
-![logo](logo/raylib-rust_256x256.png)
 
-![rust](https://img.shields.io/badge/rust-1.31+-orange.svg?style=flat-square&logo=rust)
->>>>>>> 6a9e404 (remove some documentation)
+![rust](https://img.shields.io/badge/rust-1.78+-orange.svg?style=flat-square&logo=rust)
+![logo](logo/raylib-rust_256x256.png)
 [![crates.io](https://img.shields.io/crates/v/raylib.svg?style=flat-square)](https://crates.io/crates/raylib)
 [![docs](https://docs.rs/raylib/badge.svg)](https://docs.rs/raylib)
 [![discord](https://img.shields.io/discord/426912293134270465)](https://discord.gg/VkzNHUE)

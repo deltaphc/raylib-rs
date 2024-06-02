@@ -9,16 +9,8 @@ use crate::core::vr::VrStereoConfig;
 use crate::core::{RaylibHandle, RaylibThread};
 use crate::ffi;
 use crate::math::Matrix;
-<<<<<<< HEAD
-use crate::models::WeakMaterial;
-=======
-<<<<<<< HEAD
 use crate::models::{Mesh, WeakMaterial};
 use crate::text::Codepoints;
-=======
-use crate::models::WeakMaterial;
->>>>>>> b391151 (Fix: `draw_mesh` receives reference instead of owned value)
->>>>>>> raylib-rs-5.1.0
 use std::convert::AsRef;
 use std::ffi::CString;
 
@@ -1443,45 +1435,19 @@ pub trait RaylibDraw3D {
 
     /// Draw a 3d mesh with material and transform
     #[inline]
-<<<<<<< HEAD
     fn draw_mesh(&mut self, mesh: impl AsRef<ffi::Mesh>, material: WeakMaterial, transform: Matrix) {
         unsafe { ffi::DrawMesh(*mesh.as_ref(), material.0, transform.into()) }
-=======
-<<<<<<< HEAD
-    fn draw_mesh(&mut self, mesh: Mesh, material: WeakMaterial, transform: Matrix) {
-        unsafe { ffi::DrawMesh(mesh.0, material.0, transform.into()) }
-=======
-    fn draw_mesh(&mut self, mesh: impl AsRef<ffi::Mesh>, material: WeakMaterial, transform: Matrix) {
-        unsafe { ffi::DrawMesh(*mesh.as_ref(), material.0, transform.into()) }
->>>>>>> b391151 (Fix: `draw_mesh` receives reference instead of owned value)
->>>>>>> raylib-rs-5.1.0
     }
 
     /// Draw multiple mesh instances with material and different transforms
     #[inline]
-<<<<<<< HEAD
     fn draw_mesh_instanced(&mut self, mesh: impl AsRef<ffi::Mesh>, material: WeakMaterial, transforms: &[Matrix]) {
-=======
-<<<<<<< HEAD
-    fn draw_mesh_instanced(&mut self, mesh: Mesh, material: WeakMaterial, transforms: &[Matrix]) {
-=======
-    fn draw_mesh_instanced(&mut self, mesh: impl AsRef<ffi::Mesh>, material: WeakMaterial, transforms: &[Matrix]) {
->>>>>>> b391151 (Fix: `draw_mesh` receives reference instead of owned value)
->>>>>>> raylib-rs-5.1.0
         let tr = transforms
             .iter()
             .map(|f| f.into())
             .collect::<Vec<ffi::Matrix>>()
             .as_ptr();
-<<<<<<< HEAD
         unsafe { ffi::DrawMeshInstanced(*mesh.as_ref(), material.0, tr, transforms.len() as i32) }
-=======
-<<<<<<< HEAD
-        unsafe { ffi::DrawMeshInstanced(mesh.0, material.0, tr, transforms.len() as i32) }
-=======
-        unsafe { ffi::DrawMeshInstanced(*mesh.as_ref(), material.0, tr, transforms.len() as i32) }
->>>>>>> b391151 (Fix: `draw_mesh` receives reference instead of owned value)
->>>>>>> raylib-rs-5.1.0
     }
 
     /// Draws a sphere.
