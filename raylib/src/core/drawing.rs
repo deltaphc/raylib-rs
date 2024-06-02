@@ -7,6 +7,8 @@ use crate::core::texture::Texture2D;
 use crate::core::vr::VrStereoConfig;
 use crate::core::{RaylibHandle, RaylibThread};
 use crate::ffi;
+use crate::math::Matrix;
+use crate::models::WeakMaterial;
 use std::convert::AsRef;
 use std::ffi::CString;
 
@@ -1120,6 +1122,22 @@ pub trait RaylibDraw3D {
         }
     }
 
+    /// Draw a 3d mesh with material and transform
+    #[inline]
+    fn draw_mesh(&mut self, mesh: impl AsRef<ffi::Mesh>, material: WeakMaterial, transform: Matrix) {
+        unsafe { ffi::DrawMesh(*mesh.as_ref(), material.0, transform.into()) }
+    }
+
+    /// Draw multiple mesh instances with material and different transforms
+    #[inline]
+    fn draw_mesh_instanced(&mut self, mesh: impl AsRef<ffi::Mesh>, material: WeakMaterial, transforms: &[Matrix]) {
+        let tr = transforms
+            .iter()
+            .map(|f| f.into())
+            .collect::<Vec<ffi::Matrix>>()
+            .as_ptr();
+        unsafe { ffi::DrawMeshInstanced(*mesh.as_ref(), material.0, tr, transforms.len() as i32) }
+    }
 
     /// Draws a sphere.
     #[inline]
