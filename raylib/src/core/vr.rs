@@ -58,6 +58,6 @@ impl RaylibHandle {
         _: &RaylibThread,
         device: impl Into<ffi::VrDeviceInfo>,
     ) -> VrStereoConfig {
-        return VrStereoConfig(unsafe { ffi::LoadVrStereoConfig(device.into()) });
+        VrStereoConfig(unsafe { ffi::LoadVrStereoConfig(device.into()) })
     }
 }

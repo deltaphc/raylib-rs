@@ -22,9 +22,9 @@ impl From<&Pos> for Vector2 {
     }
 }
 
-impl Into<(i32, i32)> for Pos {
-    fn into(self) -> (i32, i32) {
-        (self.0, self.1)
+impl From<Pos> for (i32, i32) {
+    fn from(val: Pos) -> Self {
+        (val.0, val.1)
     }
 }
 
@@ -56,7 +56,7 @@ impl<'a> System<'a> for DeathSys {
 
     fn run(&mut self, (mut gs, players, fire): Self::SystemData) {
         // Touch fire then die
-        if let Some(_) = (&players, &fire).join().nth(0) {
+        if (&players, &fire).join().nth(0).is_some() {
             *gs = GameState::LOST;
             println!("Lost");
         }
@@ -199,10 +199,10 @@ fn init_world(rl: &RaylibHandle, world: &mut World) -> EntityMap {
     for x in 0..TILE_COUNT {
         for y in 0..TILE_COUNT {
             let mut eb = world.create_entity().with(Tile).with(Pos(x, y));
-            if !placed_player && rl.get_random_value::<i32>(0, 100) < 10 {
+            if !placed_player && rl.get_random_value::<i32>(0..100) < 10 {
                 placed_player = true;
                 eb = eb.with(Player);
-            } else if rl.get_random_value::<i32>(0, 100) < 10 {
+            } else if rl.get_random_value::<i32>(0..100) < 10 {
                 eb = eb.with(Fire);
             }
 

@@ -2,12 +2,19 @@
 use crate::core::math::{Matrix, Ray, Vector2};
 use crate::core::{RaylibHandle, RaylibThread};
 use crate::ffi;
-#[cfg(feature = "serde")]
-use serde::{Deserialize, Serialize};
 use std::ffi::{CStr, CString, IntoStringError, NulError};
 use std::os::raw::c_char;
 
+#[cfg(not(feature = "with_serde"))]
+#[cfg(feature = "serde")]
+use serde::{Deserialize, Serialize};
+
 #[cfg(feature = "with_serde")]
+#[cfg(not(feature = "serde"))]
+use serde::{Deserialize, Serialize};
+
+#[cfg(feature = "with_serde")]
+#[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
 
 // MonitorInfo grabs the sizes (virtual and physical) of your monitor
@@ -19,6 +26,7 @@ pub struct MonitorInfo {
     pub physical_width: i32,
     pub physical_height: i32,
     pub name: String,
+    pub position: Vector2,
 }
 
 #[derive(Copy, Clone, Debug, Default, PartialEq)]
@@ -191,7 +199,6 @@ impl WindowState {
         self
     }
 
-
     pub fn window_highdpi(&self) -> bool {
         self.0 & (ffi::ConfigFlags::FLAG_WINDOW_HIGHDPI as i32) != 0
     }
@@ -267,7 +274,7 @@ pub fn get_monitor_refresh_rate(monitor: i32) -> i32 {
     unsafe { ffi::GetMonitorRefreshRate(monitor) }
 }
 
-/// Get number of connected monitors
+/// Get width of monitor
 /// Only checks that monitor index is in range in debug mode
 #[inline]
 pub fn get_monitor_width(monitor: i32) -> i32 {
@@ -277,7 +284,7 @@ pub fn get_monitor_width(monitor: i32) -> i32 {
     unsafe { ffi::GetMonitorWidth(monitor) }
 }
 
-/// Get number of connected monitors
+/// Get height of monitor
 /// Only checks that monitor index is in range in debug mode
 #[inline]
 pub fn get_monitor_height(monitor: i32) -> i32 {
@@ -287,7 +294,7 @@ pub fn get_monitor_height(monitor: i32) -> i32 {
     unsafe { ffi::GetMonitorHeight(monitor) }
 }
 
-/// Get number of connected monitors
+/// Get physical width of monitor
 /// Only checks that monitor index is in range in debug mode
 #[inline]
 pub fn get_monitor_physical_width(monitor: i32) -> i32 {
@@ -297,7 +304,7 @@ pub fn get_monitor_physical_width(monitor: i32) -> i32 {
     unsafe { ffi::GetMonitorPhysicalWidth(monitor) }
 }
 
-/// Get number of connected monitors
+/// Get physical height of monitor
 /// Only checks that monitor index is in range in debug mode
 #[inline]
 pub fn get_monitor_physical_height(monitor: i32) -> i32 {
@@ -307,7 +314,7 @@ pub fn get_monitor_physical_height(monitor: i32) -> i32 {
     unsafe { ffi::GetMonitorPhysicalHeight(monitor) }
 }
 
-/// Get number of connected monitors
+/// Get name of monitor
 /// Only checks that monitor index is in range in debug mode
 #[inline]
 pub fn get_monitor_name(monitor: i32) -> Result<String, IntoStringError> {
@@ -319,6 +326,17 @@ pub fn get_monitor_name(monitor: i32) -> Result<String, IntoStringError> {
         c.into_string()?
     })
 }
+
+/// Get position of monitor
+/// Only checks that monitor index is in range in debug mode
+#[inline]
+pub fn get_monitor_position(monitor: i32) -> Vector2 {
+    let len = get_monitor_count();
+    debug_assert!(monitor < len && monitor >= 0, "monitor index out of range");
+
+    unsafe { ffi::GetMonitorPosition(monitor).into() }
+}
+
 /// Gets the attributes of the monitor as well as the name
 /// fails if monitor name is not a utf8 string
 /// ```rust
@@ -342,6 +360,7 @@ pub fn get_monitor_info(monitor: i32) -> Result<MonitorInfo, IntoStringError> {
         physical_height: get_monitor_physical_height(monitor),
         physical_width: get_monitor_physical_width(monitor),
         name: get_monitor_name(monitor)?,
+        position: get_monitor_position(monitor),
     })
 }
 
@@ -560,7 +579,7 @@ impl RaylibHandle {
 
     /// Get the window config state
     pub fn get_window_state(&self) -> WindowState {
-        let mut state = WindowState::default();
+        let state = WindowState::default();
         unsafe {
             if ffi::IsWindowState(ffi::ConfigFlags::FLAG_VSYNC_HINT as u32) {
                 state.set_vsync_hint(true);
@@ -620,9 +639,7 @@ impl RaylibHandle {
     #[inline]
     pub fn set_window_icons(&mut self, images: &mut [raylib_sys::Image]) {
         use std::convert::TryInto;
-        unsafe {
-            ffi::SetWindowIcons(images.as_mut_ptr(), images.len().try_into().unwrap())
-        }
+        unsafe { ffi::SetWindowIcons(images.as_mut_ptr(), images.len().try_into().unwrap()) }
     }
 
     /// Sets title for window (only on desktop platforms).
@@ -660,6 +677,14 @@ impl RaylibHandle {
         }
     }
 
+    /// Sets maximum window dimensions (for `FLAG_WINDOW_RESIZABLE`).
+    #[inline]
+    pub fn set_window_max_size(&mut self, width: i32, height: i32) {
+        unsafe {
+            ffi::SetWindowMaxSize(width, height);
+        }
+    }
+
     /// Sets window dimensions.
     #[inline]
     pub fn set_window_size(&mut self, width: i32, height: i32) {
@@ -671,9 +696,7 @@ impl RaylibHandle {
     /// Set window opacity, value opacity is between 0.0 and 1.0
     #[inline]
     pub fn set_window_opacity(&mut self, opacity: f32) {
-        unsafe {
-            ffi::SetWindowOpacity(opacity)
-        }
+        unsafe { ffi::SetWindowOpacity(opacity) }
     }
 
     /// Get current render width which is equal to screen width * dpi scale
@@ -687,7 +710,7 @@ impl RaylibHandle {
     pub fn get_screen_width(&self) -> i32 {
         unsafe { ffi::GetScreenWidth() }
     }
-    
+
     /// Gets current screen height.
     #[inline]
     pub fn get_screen_height(&self) -> i32 {
@@ -698,6 +721,16 @@ impl RaylibHandle {
     #[inline]
     pub fn get_window_position(&self) -> Vector2 {
         unsafe { ffi::GetWindowPosition().into() }
+    }
+
+    // Toggle window state: borderless windowed (only on desktop platforms).
+    pub fn toggle_borderless_windowed(&self) {
+        unsafe { ffi::ToggleBorderlessWindowed() }
+    }
+
+    // Focus the window (only on desktop platforms)
+    pub fn set_window_focused(&self) {
+        unsafe { ffi::SetWindowFocused() }
     }
 }
 
@@ -745,5 +778,25 @@ impl RaylibHandle {
     #[inline]
     pub unsafe fn get_window_handle(&mut self) -> *mut ::std::os::raw::c_void {
         ffi::GetWindowHandle()
+    }
+}
+
+// Advanced "frame control" functions.
+impl RaylibHandle {
+    #[cfg(feature = "custom_frame_control")]
+    /// Swap back buffer with front buffer (screen drawing)
+    /// This function, by default, is already done when the handle is dropped.
+    pub fn swap_screen_buffer(&self) {
+        unsafe { ffi::SwapScreenBuffer() }
+    }
+
+    #[cfg(feature = "custom_frame_control")]
+    pub fn poll_input_events(&self) {
+        unsafe { ffi::PollInputEvents() }
+    }
+
+    #[cfg(feature = "custom_frame_control")]
+    pub fn wait_time(&self, seconds: f64) {
+        unsafe { ffi::WaitTime(seconds) }
     }
 }

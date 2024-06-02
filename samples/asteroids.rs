@@ -93,13 +93,13 @@ impl Default for Game {
     }
 }
 
-const SHIP_HEIGHT : f32 = 10f32 / 0.363970f32;
-const PLAYER_SPEED : f32 = 6f32;
-const MAX_BIG_METEORS : usize = 4;
-const MAX_MEDIUM_METEORS : usize = 8;
-const MAX_SMALL_METEORS : usize = 16;
-const METEORS_SPEED : f32 = 2f32;
-const MAX_SHOTS : usize = 10;
+const SHIP_HEIGHT: f32 = 10f32 / 0.363970f32;
+const PLAYER_SPEED: f32 = 6f32;
+const MAX_BIG_METEORS: usize = 4;
+const MAX_MEDIUM_METEORS: usize = 8;
+const MAX_SMALL_METEORS: usize = 16;
+const METEORS_SPEED: f32 = 2f32;
+const MAX_SHOTS: usize = 10;
 
 fn main() {
     let opt = options::Opt::from_args();
@@ -126,9 +126,11 @@ fn init_game(game: &mut Game, rl: &RaylibHandle) {
 
     game.player.position = Vector2::new(half_width, half_height - (SHIP_HEIGHT / 2f32));
     game.player.acceleration = 0f32;
-    game.player.collider = Vector3::new(game.player.position.x + game.player.rotation.to_radians().sin() * (SHIP_HEIGHT / 2.5),
-                                        game.player.position.y - game.player.rotation.to_radians().cos() * (SHIP_HEIGHT / 2.5),
-                                        12f32);
+    game.player.collider = Vector3::new(
+        game.player.position.x + game.player.rotation.to_radians().sin() * (SHIP_HEIGHT / 2.5),
+        game.player.position.y - game.player.rotation.to_radians().cos() * (SHIP_HEIGHT / 2.5),
+        12f32,
+    );
     game.player.color = Color::MAROON;
 
     game.destroyed_meteor_count = 0;
@@ -147,41 +149,38 @@ fn init_game(game: &mut Game, rl: &RaylibHandle) {
     let mut correct_range = false;
 
     for meteor in &mut game.big_meteors {
-        let mut x: i32 = rl.get_random_value(0, width as i32);
+        let mut x: i32 = rl.get_random_value(0..width as i32);
 
         while !correct_range {
             if x > half_width as i32 - 150 && x < half_width as i32 + 150 {
-                x = rl.get_random_value(0, width as i32);
-            }
-            else {
+                x = rl.get_random_value(0..width as i32);
+            } else {
                 correct_range = true;
             }
         }
 
         correct_range = false;
 
-        let mut y: i32 = rl.get_random_value(0, height as i32);
+        let mut y: i32 = rl.get_random_value(0..height as i32);
 
         while !correct_range {
             if y > half_height as i32 - 150 && y < half_height as i32 + 150 {
-                y = rl.get_random_value(0, height as i32);
-            }
-            else {
+                y = rl.get_random_value(0..height as i32);
+            } else {
                 correct_range = true;
             }
         }
 
         correct_range = false;
 
-        let mut vel_x: i32 = rl.get_random_value(-METEORS_SPEED as i32, METEORS_SPEED as i32);
-        let mut vel_y: i32 = rl.get_random_value(-METEORS_SPEED as i32, METEORS_SPEED as i32);
+        let mut vel_x: i32 = rl.get_random_value(-METEORS_SPEED as i32..METEORS_SPEED as i32);
+        let mut vel_y: i32 = rl.get_random_value(-METEORS_SPEED as i32..METEORS_SPEED as i32);
 
         while !correct_range {
             if vel_x == 0 && vel_y == 0 {
-                vel_x = rl.get_random_value(-METEORS_SPEED as i32, METEORS_SPEED as i32);
-                vel_y = rl.get_random_value(-METEORS_SPEED as i32, METEORS_SPEED as i32);
-            }
-            else {
+                vel_x = rl.get_random_value(-METEORS_SPEED as i32..METEORS_SPEED as i32);
+                vel_y = rl.get_random_value(-METEORS_SPEED as i32..METEORS_SPEED as i32);
+            } else {
                 correct_range = true;
             }
         }
@@ -232,21 +231,16 @@ fn update_game(game: &mut Game, rl: &RaylibHandle) {
                 if game.player.acceleration < 1f32 {
                     game.player.acceleration += 0.04;
                 }
-            }
-            else {
-                if game.player.acceleration > 0f32 {
-                    game.player.acceleration -= 0.02;
-                }
-                else if game.player.acceleration < 0f32 {
-                    game.player.acceleration = 0f32;
-                }
+            } else if game.player.acceleration > 0f32 {
+                game.player.acceleration -= 0.02;
+            } else if game.player.acceleration < 0f32 {
+                game.player.acceleration = 0f32;
             }
 
             if rl.is_key_down(KEY_DOWN) {
                 if game.player.acceleration > 0f32 {
                     game.player.acceleration -= 0.04;
-                }
-                else if game.player.acceleration < 0f32 {
+                } else if game.player.acceleration < 0f32 {
                     game.player.acceleration = 0f32;
                 }
             }
@@ -258,23 +252,25 @@ fn update_game(game: &mut Game, rl: &RaylibHandle) {
 
             if game.player.position.x > width + SHIP_HEIGHT {
                 game.player.position.x = -SHIP_HEIGHT;
-            }
-            else if game.player.position.x < -SHIP_HEIGHT {
-                 game.player.position.x = width + SHIP_HEIGHT;
+            } else if game.player.position.x < -SHIP_HEIGHT {
+                game.player.position.x = width + SHIP_HEIGHT;
             }
 
             if game.player.position.y > height + SHIP_HEIGHT {
                 game.player.position.y = -SHIP_HEIGHT;
-            }
-            else if game.player.position.y < -SHIP_HEIGHT {
+            } else if game.player.position.y < -SHIP_HEIGHT {
                 game.player.position.y = height + SHIP_HEIGHT;
             }
 
             if rl.is_key_pressed(KEY_SPACE) {
                 for shot in &mut game.shots {
                     if !shot.active {
-                        shot.position = Vector2::new(game.player.position.x + game.player.rotation.to_radians().sin() * SHIP_HEIGHT,
-                                                    game.player.position.y - game.player.rotation.to_radians().cos() * SHIP_HEIGHT);
+                        shot.position = Vector2::new(
+                            game.player.position.x
+                                + game.player.rotation.to_radians().sin() * SHIP_HEIGHT,
+                            game.player.position.y
+                                - game.player.rotation.to_radians().cos() * SHIP_HEIGHT,
+                        );
                         shot.active = true;
                         shot.speed.x = 1.5 * game.player.rotation.to_radians().sin() * PLAYER_SPEED;
                         shot.speed.y = 1.5 * game.player.rotation.to_radians().cos() * PLAYER_SPEED;
@@ -294,8 +290,7 @@ fn update_game(game: &mut Game, rl: &RaylibHandle) {
                     if shot.position.x > width + shot.radius {
                         shot.active = false;
                         shot.life_spawn = 0;
-                    }
-                    else if shot.position.x < -shot.radius {
+                    } else if shot.position.x < -shot.radius {
                         shot.active = false;
                         shot.life_spawn = 0;
                     }
@@ -303,8 +298,7 @@ fn update_game(game: &mut Game, rl: &RaylibHandle) {
                     if shot.position.y > height + shot.radius {
                         shot.active = false;
                         shot.life_spawn = 0;
-                    }
-                    else if shot.position.y < -shot.radius {
+                    } else if shot.position.y < -shot.radius {
                         shot.active = false;
                         shot.life_spawn = 0;
                     }
@@ -317,8 +311,14 @@ fn update_game(game: &mut Game, rl: &RaylibHandle) {
                     }
 
                     for meteor in &mut game.big_meteors {
-                        if meteor.active &&
-                          check_collision_circles(shot.position, shot.radius, meteor.position, meteor.radius) {
+                        if meteor.active
+                            && check_collision_circles(
+                                shot.position,
+                                shot.radius,
+                                meteor.position,
+                                meteor.radius,
+                            )
+                        {
                             shot.active = false;
                             shot.life_spawn = 0;
 
@@ -327,21 +327,27 @@ fn update_game(game: &mut Game, rl: &RaylibHandle) {
 
                             for _ in 0..2 {
                                 if game.medium_meteor_count % 2 == 0 {
-                                    game.medium_meteors[game.medium_meteor_count as usize].position =
+                                    game.medium_meteors[game.medium_meteor_count as usize]
+                                        .position =
                                         Vector2::new(meteor.position.x, meteor.position.y);
                                     game.medium_meteors[game.medium_meteor_count as usize].speed =
-                                        Vector2::new(shot.rotation.to_radians().cos() * METEORS_SPEED * -1.0,
-                                                     shot.rotation.to_radians().sin() * METEORS_SPEED * -1.0);
-                                }
-                                else {
-                                    game.medium_meteors[game.medium_meteor_count as usize].position =
+                                        Vector2::new(
+                                            shot.rotation.to_radians().cos() * METEORS_SPEED * -1.0,
+                                            shot.rotation.to_radians().sin() * METEORS_SPEED * -1.0,
+                                        );
+                                } else {
+                                    game.medium_meteors[game.medium_meteor_count as usize]
+                                        .position =
                                         Vector2::new(meteor.position.x, meteor.position.y);
                                     game.medium_meteors[game.medium_meteor_count as usize].speed =
-                                        Vector2::new(shot.rotation.to_radians().cos() * METEORS_SPEED,
-                                                     shot.rotation.to_radians().sin() * METEORS_SPEED);
+                                        Vector2::new(
+                                            shot.rotation.to_radians().cos() * METEORS_SPEED,
+                                            shot.rotation.to_radians().sin() * METEORS_SPEED,
+                                        );
                                 }
 
-                                game.medium_meteors[game.medium_meteor_count as usize].active = true;
+                                game.medium_meteors[game.medium_meteor_count as usize].active =
+                                    true;
                                 game.medium_meteor_count += 1;
                             }
 
@@ -350,8 +356,14 @@ fn update_game(game: &mut Game, rl: &RaylibHandle) {
                     }
 
                     for meteor in &mut game.medium_meteors {
-                        if meteor.active &&
-                          check_collision_circles(shot.position, shot.radius, meteor.position, meteor.radius) {
+                        if meteor.active
+                            && check_collision_circles(
+                                shot.position,
+                                shot.radius,
+                                meteor.position,
+                                meteor.radius,
+                            )
+                        {
                             shot.active = false;
                             shot.life_spawn = 0;
 
@@ -363,15 +375,18 @@ fn update_game(game: &mut Game, rl: &RaylibHandle) {
                                     game.small_meteors[game.small_meteor_count as usize].position =
                                         Vector2::new(meteor.position.x, meteor.position.y);
                                     game.small_meteors[game.small_meteor_count as usize].speed =
-                                        Vector2::new(shot.rotation.to_radians().cos() * METEORS_SPEED * -1.0,
-                                                     shot.rotation.to_radians().sin() * METEORS_SPEED * -1.0);
-                                }
-                                else {
+                                        Vector2::new(
+                                            shot.rotation.to_radians().cos() * METEORS_SPEED * -1.0,
+                                            shot.rotation.to_radians().sin() * METEORS_SPEED * -1.0,
+                                        );
+                                } else {
                                     game.small_meteors[game.small_meteor_count as usize].position =
                                         Vector2::new(meteor.position.x, meteor.position.y);
                                     game.small_meteors[game.small_meteor_count as usize].speed =
-                                        Vector2::new(shot.rotation.to_radians().cos() * METEORS_SPEED,
-                                                     shot.rotation.to_radians().sin() * METEORS_SPEED);
+                                        Vector2::new(
+                                            shot.rotation.to_radians().cos() * METEORS_SPEED,
+                                            shot.rotation.to_radians().sin() * METEORS_SPEED,
+                                        );
                                 }
 
                                 game.small_meteors[game.small_meteor_count as usize].active = true;
@@ -383,8 +398,14 @@ fn update_game(game: &mut Game, rl: &RaylibHandle) {
                     }
 
                     for meteor in &mut game.small_meteors {
-                        if meteor.active &&
-                          check_collision_circles(shot.position, shot.radius, meteor.position, meteor.radius) {
+                        if meteor.active
+                            && check_collision_circles(
+                                shot.position,
+                                shot.radius,
+                                meteor.position,
+                                meteor.radius,
+                            )
+                        {
                             shot.active = false;
                             shot.life_spawn = 0;
 
@@ -397,29 +418,51 @@ fn update_game(game: &mut Game, rl: &RaylibHandle) {
                 }
             }
 
-            game.player.collider = Vector3::new(game.player.position.x + game.player.rotation.to_radians().sin() * (SHIP_HEIGHT / 2.5),
-                                                game.player.position.y - game.player.rotation.to_radians().cos() * (SHIP_HEIGHT / 2.5),
-                                                12f32);
+            game.player.collider = Vector3::new(
+                game.player.position.x
+                    + game.player.rotation.to_radians().sin() * (SHIP_HEIGHT / 2.5),
+                game.player.position.y
+                    - game.player.rotation.to_radians().cos() * (SHIP_HEIGHT / 2.5),
+                12f32,
+            );
 
             for meteor in &game.big_meteors {
-                if meteor.active && check_collision_circles(Vector2::new(game.player.collider.x, game.player.collider.y), game.player.collider.z,
-                                                   meteor.position, meteor.radius) {
-                                                       game.game_over = true;
-                                                   }
+                if meteor.active
+                    && check_collision_circles(
+                        Vector2::new(game.player.collider.x, game.player.collider.y),
+                        game.player.collider.z,
+                        meteor.position,
+                        meteor.radius,
+                    )
+                {
+                    game.game_over = true;
+                }
             }
 
             for meteor in &game.medium_meteors {
-                if meteor.active && check_collision_circles(Vector2::new(game.player.collider.x, game.player.collider.y), game.player.collider.z,
-                                                   meteor.position, meteor.radius) {
-                                                       game.game_over = true;
-                                                   }
+                if meteor.active
+                    && check_collision_circles(
+                        Vector2::new(game.player.collider.x, game.player.collider.y),
+                        game.player.collider.z,
+                        meteor.position,
+                        meteor.radius,
+                    )
+                {
+                    game.game_over = true;
+                }
             }
 
             for meteor in &game.small_meteors {
-                if meteor.active && check_collision_circles(Vector2::new(game.player.collider.x, game.player.collider.y), game.player.collider.z,
-                                                   meteor.position, meteor.radius) {
-                                                       game.game_over = true;
-                                                   }
+                if meteor.active
+                    && check_collision_circles(
+                        Vector2::new(game.player.collider.x, game.player.collider.y),
+                        game.player.collider.z,
+                        meteor.position,
+                        meteor.radius,
+                    )
+                {
+                    game.game_over = true;
+                }
             }
 
             for meteor in &mut game.big_meteors {
@@ -429,15 +472,13 @@ fn update_game(game: &mut Game, rl: &RaylibHandle) {
 
                     if meteor.position.x > width + meteor.radius {
                         meteor.position.x = -meteor.radius;
-                    }
-                    else if meteor.position.x < 0f32 - meteor.radius {
+                    } else if meteor.position.x < 0f32 - meteor.radius {
                         meteor.position.x = width + meteor.radius;
                     }
 
                     if meteor.position.y > height + meteor.radius {
                         meteor.position.y = -meteor.radius;
-                    }
-                    else if meteor.position.y < 0f32 - meteor.radius {
+                    } else if meteor.position.y < 0f32 - meteor.radius {
                         meteor.position.y = height + meteor.radius;
                     }
                 }
@@ -450,15 +491,13 @@ fn update_game(game: &mut Game, rl: &RaylibHandle) {
 
                     if meteor.position.x > width + meteor.radius {
                         meteor.position.x = -meteor.radius;
-                    }
-                    else if meteor.position.x < 0f32 - meteor.radius {
+                    } else if meteor.position.x < 0f32 - meteor.radius {
                         meteor.position.x = width + meteor.radius;
                     }
 
                     if meteor.position.y > height + meteor.radius {
                         meteor.position.y = -meteor.radius;
-                    }
-                    else if meteor.position.y < 0f32 - meteor.radius {
+                    } else if meteor.position.y < 0f32 - meteor.radius {
                         meteor.position.y = height + meteor.radius;
                     }
                 }
@@ -471,35 +510,32 @@ fn update_game(game: &mut Game, rl: &RaylibHandle) {
 
                     if meteor.position.x > width + meteor.radius {
                         meteor.position.x = -meteor.radius;
-                    }
-                    else if meteor.position.x < 0f32 - meteor.radius {
+                    } else if meteor.position.x < 0f32 - meteor.radius {
                         meteor.position.x = width + meteor.radius;
                     }
 
                     if meteor.position.y > height + meteor.radius {
                         meteor.position.y = -meteor.radius;
-                    }
-                    else if meteor.position.y < 0f32 - meteor.radius {
+                    } else if meteor.position.y < 0f32 - meteor.radius {
                         meteor.position.y = height + meteor.radius;
                     }
                 }
             }
         }
 
-        if game.destroyed_meteor_count == MAX_BIG_METEORS as u32 + MAX_MEDIUM_METEORS as u32 + MAX_SMALL_METEORS as u32 {
+        if game.destroyed_meteor_count
+            == MAX_BIG_METEORS as u32 + MAX_MEDIUM_METEORS as u32 + MAX_SMALL_METEORS as u32
+        {
             game.victory = true;
         }
-    }
-    else {
-        if rl.is_key_pressed(KEY_ENTER) {
-            init_game(game, rl);
-            game.game_over = false;
-        }
+    } else if rl.is_key_pressed(KEY_ENTER) {
+        init_game(game, rl);
+        game.game_over = false;
     }
 }
 
 fn draw_game(game: &Game, rl: &mut RaylibHandle, thread: &RaylibThread) {
-    let (width, height) = (rl.get_screen_width() as i32, rl.get_screen_height() as i32);
+    let (width, height) = (rl.get_screen_width(), rl.get_screen_height());
     let mut d = rl.begin_drawing(thread);
 
     let half_width = width / 2;
@@ -510,35 +546,53 @@ fn draw_game(game: &Game, rl: &mut RaylibHandle, thread: &RaylibThread) {
     if !game.game_over {
         let cosf = f32::cos(game.player.rotation.to_radians());
         let sinf = f32::sin(game.player.rotation.to_radians());
-        let v1 = Vector2::new(game.player.position.x + sinf * SHIP_HEIGHT,game.player.position.y - cosf * SHIP_HEIGHT);
-        let v2 = Vector2::new(game.player.position.x - cosf * 10f32, game.player.position.y - sinf * 10f32);
-        let v3 = Vector2::new(game.player.position.x + cosf * 10f32, game.player.position.y + sinf * 10f32);
+        let v1 = Vector2::new(
+            game.player.position.x + sinf * SHIP_HEIGHT,
+            game.player.position.y - cosf * SHIP_HEIGHT,
+        );
+        let v2 = Vector2::new(
+            game.player.position.x - cosf * 10f32,
+            game.player.position.y - sinf * 10f32,
+        );
+        let v3 = Vector2::new(
+            game.player.position.x + cosf * 10f32,
+            game.player.position.y + sinf * 10f32,
+        );
         d.draw_triangle(v1, v2, v3, game.player.color);
 
         for meteor in &game.big_meteors {
             if meteor.active {
                 d.draw_circle_v(meteor.position, meteor.radius, meteor.color);
-            }
-            else {
-                d.draw_circle_v(meteor.position, meteor.radius, Color::fade(&Color::LIGHTGRAY, 0.3));
+            } else {
+                d.draw_circle_v(
+                    meteor.position,
+                    meteor.radius,
+                    Color::fade(&Color::LIGHTGRAY, 0.3),
+                );
             }
         }
 
         for meteor in &game.medium_meteors {
             if meteor.active {
                 d.draw_circle_v(meteor.position, meteor.radius, meteor.color);
-            }
-            else {
-                d.draw_circle_v(meteor.position, meteor.radius, Color::fade(&Color::LIGHTGRAY, 0.3));
+            } else {
+                d.draw_circle_v(
+                    meteor.position,
+                    meteor.radius,
+                    Color::fade(&Color::LIGHTGRAY, 0.3),
+                );
             }
         }
 
         for meteor in &game.small_meteors {
             if meteor.active {
                 d.draw_circle_v(meteor.position, meteor.radius, meteor.color);
-            }
-            else {
-                d.draw_circle_v(meteor.position, meteor.radius, Color::fade(&Color::LIGHTGRAY, 0.3));
+            } else {
+                d.draw_circle_v(
+                    meteor.position,
+                    meteor.radius,
+                    Color::fade(&Color::LIGHTGRAY, 0.3),
+                );
             }
         }
 
@@ -549,15 +603,31 @@ fn draw_game(game: &Game, rl: &mut RaylibHandle, thread: &RaylibThread) {
         }
 
         if game.victory {
-            d.draw_text("VICTORY", half_width - measure_text("VICTORY", 20), half_height, 20, Color::LIGHTGRAY);
+            d.draw_text(
+                "VICTORY",
+                half_width - d.measure_text("VICTORY", 20),
+                half_height,
+                20,
+                Color::LIGHTGRAY,
+            );
         }
 
         if game.pause {
-            d.draw_text("GAME PAUSED", half_width - measure_text("GAME PAUSED", 40), half_height - 40, 40, Color::GRAY);
+            d.draw_text(
+                "GAME PAUSED",
+                half_width - d.measure_text("GAME PAUSED", 40),
+                half_height - 40,
+                40,
+                Color::GRAY,
+            );
         }
+    } else {
+        d.draw_text(
+            "PRESS [ENTER] TO PLAY AGAIN",
+            half_width - d.measure_text("PRESS [ENTER] TO PLAY AGAIN", 20),
+            half_height - 50,
+            20,
+            Color::GRAY,
+        );
     }
-    else {
-        d.draw_text("PRESS [ENTER] TO PLAY AGAIN", half_width - measure_text("PRESS [ENTER] TO PLAY AGAIN", 20), half_height - 50, 20, Color::GRAY);
-    }
-
 }

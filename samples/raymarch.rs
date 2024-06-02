@@ -18,7 +18,6 @@ pub fn main() {
         65.0,
     );
 
-    rl.set_camera_mode(&camera, CameraMode::CAMERA_FREE);
     let mut shader = rl.load_shader_from_memory(&thread, None, Some(SHADER));
     // let s = std::fs::read_to_string("raymarch-static/raymarching.fs").expect("couldn't read");
     // println!("{}", s);
@@ -38,7 +37,7 @@ pub fn main() {
     while !rl.window_should_close() {
         // Update
         //----------------------------------------------------------------------------------
-        rl.update_camera(&mut camera); // Update camera
+        rl.update_camera(&mut camera, CameraMode::CAMERA_FREE);
 
         let camera_pos = Vector3::new(camera.position.x, camera.position.y, camera.position.z);
         let camera_target = Vector3::new(camera.target.x, camera.target.y, camera.target.z);

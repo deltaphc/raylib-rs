@@ -1,0 +1,5 @@
+# raylib-test
+
+Tests for raylib-rs
+
+**NOTE:** RUNNING THESE REQUIRES NIGHTLY! MAKE SURE YOU HAVE IT INSTALLED BEFORE DOING `cargo test`

@@ -1,6 +1,6 @@
 //! Common collision handling code
 use crate::core::math::{BoundingBox, Ray, Rectangle, Vector2};
-use crate::core::models::Model;
+
 use crate::ffi;
 use crate::math::{Matrix, RayCollision};
 use crate::models::Mesh;
@@ -63,6 +63,27 @@ pub fn check_collision_point_circle(
     radius: f32,
 ) -> bool {
     unsafe { ffi::CheckCollisionPointCircle(point.into(), center.into(), radius) }
+}
+
+/// Check if point is within a polygon described by array of vertices
+pub fn check_collision_point_poly(point: Vector2, points: &[Vector2]) -> bool {
+    unsafe {
+        ffi::CheckCollisionPointPoly(
+            point.into(),
+            std::mem::transmute(points.as_ptr()),
+            points.len() as i32,
+        )
+    }
+}
+
+/// Check if point belongs to line created between two points [p1] and [p2] with defined margin in pixels [threshold]
+pub fn check_collision_point_line(
+    point: Vector2,
+    p1: Vector2,
+    p2: Vector2,
+    threshold: i32,
+) -> bool {
+    unsafe { ffi::CheckCollisionPointLine(point.into(), p1.into(), p2.into(), threshold) }
 }
 
 /// Checks if point is inside a triangle.

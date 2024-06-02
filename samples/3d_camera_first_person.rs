@@ -14,13 +14,13 @@ struct Column {
 impl Column {
     fn create_random() -> Column {
         let mut rng = rand::thread_rng();
-        let height: f32 = rng.gen_range(1.0..12.0);
+        let height: f32 = rng.gen_range(1.0, 12.0);
         let position = Vector3::new(
-            rng.gen_range(-15.0..15.0),
+            rng.gen_range(-15.0, 15.0),
             height / 2.0,
-            rng.gen_range(-15.0..15.0),
+            rng.gen_range(-15.0, 15.0),
         );
-        let color = Color::new(rng.gen_range(20..255), rng.gen_range(10..55), 30, 255);
+        let color = Color::new(rng.gen_range(20, 255), rng.gen_range(10, 55), 30, 255);
 
         Column {
             height,
@@ -44,11 +44,10 @@ fn main() {
     );
     let columns: [Column; 20] = arr![Column::create_random(); 20];
 
-    rl.set_camera_mode(&camera, CameraMode::CAMERA_FIRST_PERSON);
     rl.set_target_fps(60);
 
     while !rl.window_should_close() {
-        rl.update_camera(&mut camera);
+        rl.update_camera(&mut camera, CameraMode::CAMERA_FIRST_PERSON);
 
         let mut d = rl.begin_drawing(&thread);
 

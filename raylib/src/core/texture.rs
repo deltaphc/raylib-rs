@@ -1,8 +1,10 @@
 //! Image and texture related functions
+
 use crate::core::color::Color;
 use crate::core::math::Rectangle;
 use crate::core::{RaylibHandle, RaylibThread};
 use crate::ffi;
+use std::convert::TryInto;
 use std::ffi::CString;
 use std::mem::ManuallyDrop;
 
@@ -103,6 +105,10 @@ impl RenderTexture2D {
         std::mem::forget(self);
         m
     }
+
+    pub fn is_ready(&self) -> bool {
+        unsafe { ffi::IsRenderTextureReady(self.0) }
+    }
 }
 
 pub trait RaylibRenderTexture2D: AsRef<ffi::RenderTexture2D> + AsMut<ffi::RenderTexture2D> {
@@ -137,6 +143,38 @@ impl Image {
     }
     pub unsafe fn data(&self) -> *mut ::std::os::raw::c_void {
         self.0.data
+    }
+
+    /// Apply Gaussian blur using a box blur approximation
+    pub fn blur_gaussian(&mut self, blur_size: i32) {
+        unsafe { ffi::ImageBlurGaussian(&mut self.0, blur_size) }
+    }
+    /// Rotate image by input angle in degrees (-359 to 359)
+    pub fn rotate(&mut self, degrees: i32) {
+        unsafe { ffi::ImageRotate(&mut self.0, degrees) }
+    }
+    /// Get image pixel color at (x, y) position
+    pub fn get_color(&mut self, x: i32, y: i32) -> Color {
+        Color::from(unsafe { ffi::GetImageColor(self.0, x, y) })
+    }
+    /// Draw circle outline within an image
+    pub fn draw_circle_lines(
+        &mut self,
+        center_x: i32,
+        center_y: i32,
+        radius: i32,
+        color: crate::prelude::Color,
+    ) {
+        unsafe { ffi::ImageDrawCircleLines(&mut self.0, center_x, center_y, radius, color.into()) }
+    }
+    /// Draw circle outline within an image (Vector version)
+    pub fn draw_circle_lines_v(
+        &mut self,
+        center: crate::prelude::Vector2,
+        center_y: i32,
+        color: Color,
+    ) {
+        unsafe { ffi::ImageDrawCircleLinesV(&mut self.0, center.into(), center_y, color.into()) }
     }
 
     #[inline]
@@ -575,7 +613,7 @@ impl Image {
         unsafe { Image(ffi::GenImageColor(width, height, color.into())) }
     }
     /// TODO: add the new image gradent functions
-    
+
     /// Generates an Image containing a radial gradient.
     #[inline]
     pub fn gen_image_gradient_radial(
@@ -618,6 +656,51 @@ impl Image {
         }
     }
 
+    /// Generate images an image linear gradient.
+    /// `direction` in expected to be degrees [0..360]. 0 results in a vertical gradient
+    pub fn gen_image_gradient_linear(
+        width: i32,
+        height: i32,
+        direction: i32,
+        start: Color,
+        end: Color,
+    ) -> Image {
+        unsafe {
+            Image(ffi::GenImageGradientLinear(
+                width,
+                height,
+                direction,
+                start.into(),
+                end.into(),
+            ))
+        }
+    }
+    /// Generate images an image with a square gradient
+    /// For best results, `density` should be `0.0..1.0``
+    pub fn gen_image_gradient_square(
+        width: i32,
+        height: i32,
+        density: f32,
+        start: Color,
+        end: Color,
+    ) -> Image {
+        unsafe {
+            Image(ffi::GenImageGradientSquare(
+                width,
+                height,
+                density,
+                start.into(),
+                end.into(),
+            ))
+        }
+    }
+
+    // Generates an image with text
+    pub fn gen_image_text(width: i32, height: i32, text: &str) -> Image {
+        let c_str = CString::new(text).unwrap();
+        unsafe { Image(ffi::GenImageText(width, height, c_str.as_ptr())) }
+    }
+
     /// Generates an Image containing white noise.
     #[inline]
     pub fn gen_image_white_noise(width: i32, height: i32, factor: f32) -> Image {
@@ -641,16 +724,21 @@ impl Image {
         }
         Ok(Image(i))
     }
-    
-    /// Loads image from a given memory buffer as a vector of arrays
-    pub fn load_image_from_mem(filetype: &str, bytes: &Vec<u8>, size: i32) -> Result<Image, String> {
+
+    /// Loads image from a given memory buffer
+    /// The input data is expected to be in a supported file format such as png. Which formats are
+    /// supported depend on the build flags used for the raylib (C) library.
+    pub fn load_image_from_mem(filetype: &str, bytes: &[u8]) -> Result<Image, String> {
         let c_filetype = CString::new(filetype).unwrap();
-        let c_bytes = bytes.as_ptr();
-        let i = unsafe { ffi::LoadImageFromMemory(c_filetype.as_ptr(), c_bytes, size) };
+        let i = unsafe {
+            ffi::LoadImageFromMemory(
+                c_filetype.as_ptr(),
+                bytes.as_ptr(),
+                bytes.len().try_into().unwrap(),
+            )
+        };
         if i.data.is_null() {
-            return Err(format!(
-            "Image data is null. Check provided buffer data"
-            ))
+            return Err(format!("Image data is null. Check provided buffer data"));
         };
         Ok(Image(i))
     }
@@ -700,6 +788,10 @@ impl Image {
                 tint.into(),
             ))
         }
+    }
+
+    pub fn is_ready(&self) -> bool {
+        unsafe { ffi::IsImageReady(self.0) }
     }
 }
 
@@ -791,6 +883,10 @@ pub trait RaylibTexture2D: AsRef<ffi::Texture2D> + AsMut<ffi::Texture2D> {
         unsafe {
             ffi::SetTextureWrap(*self.as_ref(), wrap_mode as i32);
         }
+    }
+
+    fn is_ready(&self) -> bool {
+        unsafe { ffi::IsTextureReady(*self.as_ref()) }
     }
 }
 

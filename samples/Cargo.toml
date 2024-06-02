@@ -5,15 +5,23 @@ authors = ["David Ayeke"]
 edition = "2018"
 license = "Zlib"
 readme = "../README.md"
-repository = "https://github.com/deltaphc/raylib-rs"
+repository = "https://github.com/raylib-rs/raylib-rs"
 
 
 [dependencies]
+<<<<<<< HEAD
 raylib = { version = "5.1-dev", path = "../raylib" }
+=======
+<<<<<<< HEAD
+raylib = { version = "5.1.0", path = "../raylib" }
+=======
+raylib = { version = "5.1-dev", path = "../raylib" }
+>>>>>>> d50f3ed (well that also works ig)
+>>>>>>> raylib-rs-5.1.0
 structopt = "0.2"
 specs-derive = "0.4.1"
-rand = "0.8.5"
-tcod = "0.15"
+rand = "0.7"
+#tcod = "0.14"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 arr_macro = "0.1.3"
@@ -65,10 +73,6 @@ name = "yaw_pitch_roll"
 path = "yaw_pitch_roll.rs"
 
 [[bin]]
-name = "roguelike"
-path = "roguelike.rs"
-
-[[bin]]
 name = "input"
 path = "input.rs"
 
@@ -87,3 +91,7 @@ path = "extensions.rs"
 [[bin]]
 name = "asteroids"
 path = "./asteroids.rs"
+
+[[bin]]
+name = "floppy"
+path = "./floppy.rs"

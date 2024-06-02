@@ -17,20 +17,31 @@ Permission is granted to anyone to use this software for any purpose, including 
 
 extern crate bindgen;
 
+use std::collections::HashSet;
 use std::env;
 use std::path::{Path, PathBuf};
 
 /// latest version on github's release page as of time or writing
-const LATEST_RAYLIB_VERSION: &str = "4.2.0";
-const LATEST_RAYLIB_API_VERSION: &str = "4";
+const LATEST_RAYLIB_VERSION: &str = "5.0.0";
+const LATEST_RAYLIB_API_VERSION: &str = "5";
 
+#[derive(Debug)]
+struct IgnoreMacros(HashSet<String>);
+
+impl bindgen::callbacks::ParseCallbacks for IgnoreMacros {
+    fn will_parse_macro(&self, name: &str) -> bindgen::callbacks::MacroParsingBehavior {
+        if self.0.contains(name) {
+            bindgen::callbacks::MacroParsingBehavior::Ignore
+        } else {
+            bindgen::callbacks::MacroParsingBehavior::Default
+        }
+    }
+}
 #[cfg(feature = "nobuild")]
 fn build_with_cmake(_src_path: &str) {}
 
 #[cfg(not(feature = "nobuild"))]
 fn build_with_cmake(src_path: &str) {
-    use cmake::build;
-
     // CMake uses different lib directories on different systems.
     // I do not know how CMake determines what directory to use,
     // so we will check a few possibilities and use whichever is present.
@@ -46,27 +57,38 @@ fn build_with_cmake(src_path: &str) {
     }
 
     let target = env::var("TARGET").expect("Cargo build scripts always have TARGET");
+
     let (platform, platform_os) = platform_from_target(&target);
 
     let mut conf = cmake::Config::new(src_path);
     let mut builder;
+    let mut profile = "";
     #[cfg(debug_assertions)]
     {
         builder = conf.profile("Debug");
-        builder = builder.define("CMAKE_BUILD_TYPE", "Debug")
+        builder = builder.define("CMAKE_BUILD_TYPE", "Debug");
+        profile = "Debug";
     }
 
     #[cfg(not(debug_assertions))]
     {
         builder = conf.profile("Release");
-        builder = builder.define("CMAKE_BUILD_TYPE", "Release")
+        builder = builder.define("CMAKE_BUILD_TYPE", "Release");
+        profile = "Release";
     }
 
     builder
         .define("BUILD_EXAMPLES", "OFF")
-        .define("CMAKE_BUILD_TYPE", "Release")
+        .define("CMAKE_BUILD_TYPE", profile)
         // turn off until this is fixed
-        .define("SUPPORT_BUSY_WAIT_LOOP", "OFF");
+        .define("SUPPORT_BUSY_WAIT_LOOP", "OFF")
+        .define("SUPPORT_FILEFORMAT_JPG", "ON")
+        .define("RAYMATH_STATIC_INLINE", "ON");
+
+    #[cfg(feature = "custom_frame_control")]
+    {
+        builder.define("SUPPORT_CUSTOM_FRAME_CONTROL", "ON");
+    }
 
     // Enable wayland cmake flag if feature is specified
     #[cfg(feature = "wayland")]
@@ -136,11 +158,9 @@ fn build_with_cmake(src_path: &str) {
             panic!("failed to create windows library");
         }
     } // on web copy libraylib.bc to libraylib.a
-    if platform == Platform::Web {
-        if !Path::new(&dst_lib.join("libraylib.a")).exists() {
-            std::fs::copy(dst_lib.join("libraylib.bc"), dst_lib.join("libraylib.a"))
-                .expect("failed to create wasm library");
-        }
+    if platform == Platform::Web && !Path::new(&dst_lib.join("libraylib.a")).exists() {
+        std::fs::copy(dst_lib.join("libraylib.bc"), dst_lib.join("libraylib.a"))
+            .expect("failed to create wasm library");
     }
     // println!("cmake build {}", c.display());
     println!("cargo:rustc-link-search=native={}", dst_lib.display());
@@ -156,12 +176,25 @@ fn gen_bindings() {
         Platform::Web => "-DPLATFORM_WEB",
     };
 
+    let ignored_macros = IgnoreMacros(
+        vec![
+            "FP_INFINITE".into(),
+            "FP_NAN".into(),
+            "FP_NORMAL".into(),
+            "FP_SUBNORMAL".into(),
+            "FP_ZERO".into(),
+            "IPPORT_RESERVED".into(),
+        ]
+        .into_iter()
+        .collect(),
+    );
+
     let mut builder = bindgen::Builder::default()
         .header("binding/binding.h")
         .rustified_enum(".+")
         .clang_arg("-std=c99")
         .clang_arg(plat)
-        .parse_callbacks(Box::new(bindgen::CargoCallbacks));
+        .parse_callbacks(Box::new(ignored_macros));
 
     if platform == Platform::Desktop && os == PlatformOS::Windows {
         // odd workaround for booleans being broken
@@ -188,7 +221,7 @@ fn gen_rgui() {
     #[cfg(target_os = "windows")]
     {
         cc::Build::new()
-            .file("binding/rgui_wrapper.cpp")
+            .files(vec!["binding/rgui_wrapper.cpp", "binding/utils_log.cpp"])
             .include("binding")
             .warnings(false)
             // .flag("-std=c99")
@@ -198,7 +231,7 @@ fn gen_rgui() {
     #[cfg(not(target_os = "windows"))]
     {
         cc::Build::new()
-            .file("binding/rgui_wrapper.c")
+            .files(vec!["binding/rgui_wrapper.c", "binding/utils_log.c"])
             .include("binding")
             .warnings(false)
             // .flag("-std=c99")
@@ -259,7 +292,25 @@ fn link(platform: Platform, platform_os: PlatformOS) {
 }
 
 fn main() {
+    println!("cargo:rerun-if-changed=build.rs");
+    println!("cargo:rerun-if-changed=./binding/binding.h");
     let target = env::var("TARGET").expect("Cargo build scripts always have TARGET");
+
+    // make sure cmake knows that it should bundle glfw in
+    if target.contains("wasm") {
+        if let Err(e) = env::var("EMCC_CFLAGS") {
+            if e == std::env::VarError::NotPresent {
+                panic!("\nYou must set the following environment variables yourself to compile for WASM. We are sorry for the inconvienence; this will be fixed in 5.1.0.\n{}{}\"\n",{
+                    #[cfg(target_family = "windows")]
+                    {"Paste this before executing the command: set EMCC_CFLAGS="}
+                    #[cfg(not(target_family = "windows"))]
+                    {"Prefix your command with this (you may want to make a build script for obvious reasons...): EMCC_CFLAGS="}
+                },"\"-O3 -sUSE_GLFW=3 -sGL_ENABLE_GET_PROC_ADDRESS -sWASM=1 -sALLOW_MEMORY_GROWTH=1 -sWASM_MEM_MAX=512MB -sTOTAL_MEMORY=512MB -sABORTING_MALLOC=0 -sASYNCIFY -sFORCE_FILESYSTEM=1 -sASSERTIONS=1 -sERROR_ON_UNDEFINED_SYMBOLS=0 -sEXPORTED_RUNTIME_METHODS=ccallcwrap\"");
+            } else {
+                panic!("\nError regarding EMCC_CFLAGS: {:?}\n", e);
+            }
+        }
+    }
     let (platform, platform_os) = platform_from_target(&target);
 
     // Donwload raylib source
@@ -280,10 +331,8 @@ fn cp_raylib() -> String {
 
     let mut options = fs_extra::dir::CopyOptions::new();
     options.skip_exist = true;
-    fs_extra::dir::copy("raylib", &out, &options).expect(&format!(
-        "failed to copy raylib source to {}",
-        &out.to_string_lossy()
-    ));
+    fs_extra::dir::copy("raylib", out, &options)
+        .unwrap_or_else(|_| panic!("failed to copy raylib source to {}", &out.to_string_lossy()));
 
     out.join("raylib").to_string_lossy().to_string()
 }
@@ -305,10 +354,7 @@ fn run_command(cmd: &str, args: &[&str]) {
 }
 
 fn platform_from_target(target: &str) -> (Platform, PlatformOS) {
-    let platform = if target.contains("wasm32") {
-        // make sure cmake knows that it should bundle glfw in
-        // Cargo web takes care of this but better safe than sorry
-        env::set_var("EMMAKEN_CFLAGS", "-s USE_GLFW=3");
+    let platform = if target.contains("wasm") {
         Platform::Web
     } else if target.contains("armv7-unknown-linux") {
         Platform::RPI

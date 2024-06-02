@@ -5,26 +5,22 @@ authors = ["DeltaPHC <phclem@protonmail.com>"]
 license = "Zlib"
 description = "Raw FFI bindings for Raylib"
 documentation = "https://docs.rs/raylib-sys"
-repository = "https://github.com/deltaphc/raylib-rs"
+repository = "https://github.com/raylib-rs/raylib-rs"
 keywords = ["bindings", "raylib", "gamedev", "ffi"]
 categories = ["external-ffi-bindings"]
 edition = "2018"
-exclude = [
-    "raylib/examples/*",
-    "raylib/projects/*",
-    "raylib/templates/*"
-]
+exclude = ["raylib/examples/*", "raylib/projects/*", "raylib/templates/*"]
 
 [build-dependencies]
 fs_extra = "1.2"
 cmake = "0.1.49"
 cc = "1.0"
-bindgen = "0.63.0"
+bindgen = "0.69.0"
 
 [features]
 default = []
 # Build Raylib headless for docs. Up to you to link
-nobuild = []
+#nobuild = []
 
 # Build for wayland on linux. Should fix #119
 wayland = []
@@ -34,3 +30,6 @@ opengl_33 = []
 opengl_21 = []
 # opengl_11 = [] I couldn't get this one working, the others were fine in my limited testing (unsure about wayland compatibility)
 opengl_es_20 = []
+
+# config.h's SUPPORT_CUSTOM_FRAME_CONTROL
+custom_frame_control = []

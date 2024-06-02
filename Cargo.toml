@@ -1,2 +1,3 @@
 [workspace]
 members = ["raylib", "raylib-sys"]
+exclude = ["raylib-test", "samples"]

@@ -123,4 +123,102 @@ mod draw_test {
         d.clear_background(Color::WHITE);
         d.draw_poly(Vector2::new(100.0, 100.0), 12, 20.0, 45.0, Color::RED);
     }
+
+    ray_draw_test!(test_spline);
+    fn test_spline(d: &mut RaylibDrawHandle, _: &TestAssets) {
+        d.draw_spline_linear(
+            &vec![
+                Vector2::new(10.0, 10.0),
+                Vector2::new(20.0, 50.0),
+                Vector2::new(30.0, 30.0),
+            ],
+            2.0,
+            Color::BLACK,
+        );
+        d.draw_spline_basis(
+            &vec![
+                Vector2::new(10.0, 10.0),
+                Vector2::new(20.0, 50.0),
+                Vector2::new(30.0, 30.0),
+            ],
+            2.0,
+            Color::BLACK,
+        );
+        d.draw_spline_catmull_rom(
+            &vec![
+                Vector2::new(10.0, 10.0),
+                Vector2::new(20.0, 50.0),
+                Vector2::new(30.0, 30.0),
+            ],
+            2.0,
+            Color::BLACK,
+        );
+        d.draw_spline_bezier_quadratic(
+            &vec![
+                Vector2::new(10.0, 10.0),
+                Vector2::new(20.0, 50.0),
+                Vector2::new(30.0, 30.0),
+            ],
+            2.0,
+            Color::BLACK,
+        );
+        d.draw_spline_bezier_cubic(
+            &vec![
+                Vector2::new(10.0, 10.0),
+                Vector2::new(20.0, 50.0),
+                Vector2::new(30.0, 30.0),
+            ],
+            2.0,
+            Color::BLACK,
+        );
+        d.draw_spline_segment_linear(
+            Vector2::new(10.0, 10.0),
+            Vector2::new(20.0, 50.0),
+            2.0,
+            Color::BLACK,
+        );
+        d.draw_spline_segment_basis(
+            Vector2::new(10.0, 10.0),
+            Vector2::new(20.0, 50.0),
+            Vector2::new(30.0, 30.0),
+            Vector2::new(30.0, 30.0),
+            2.0,
+            Color::BLACK,
+        );
+        d.draw_spline_segment_catmull_rom(
+            Vector2::new(10.0, 10.0),
+            Vector2::new(20.0, 50.0),
+            Vector2::new(30.0, 30.0),
+            Vector2::new(30.0, 30.0),
+            2.0,
+            Color::BLACK,
+        );
+        d.draw_spline_segment_bezier_quadratic(
+            Vector2::new(10.0, 10.0),
+            Vector2::new(20.0, 50.0),
+            Vector2::new(30.0, 30.0),
+            2.0,
+            Color::BLACK,
+        );
+        d.draw_spline_segment_bezier_cubic(
+            Vector2::new(10.0, 10.0),
+            Vector2::new(20.0, 50.0),
+            Vector2::new(30.0, 30.0),
+            Vector2::new(10.0, 10.0),
+            2.0,
+            Color::BLACK,
+        );
+    }
+
+    ray_3d_draw_test!(test_draw_mesh);
+    fn test_draw_mesh(
+        d: &mut RaylibMode3D<RaylibDrawHandle>,
+        thread: &RaylibThread,
+        _: &TestAssets,
+    ) {
+        let mesh = Mesh::gen_mesh_sphere(&thread, 25.0, 5, 5);
+        let material = d.load_material_default(&thread);
+
+        d.draw_mesh(mesh, material, Matrix::translate(0.0, 0.0, 0.0));
+    }
 }

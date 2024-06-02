@@ -5,9 +5,14 @@ authors = ["David Ayeke"]
 edition = "2018"
 license = "Zlib"
 readme = "../README.md"
-repository = "https://github.com/deltaphc/raylib-rs"
+repository = "https://github.com/raylib-rs/raylib-rs"
 
 
 [dependencies]
 raylib = { version = "5.1.0", path = "../raylib" }
 lazy_static = "1.2.0"
+colored = "2.1.0"
+
+[features]
+custom_frame_control = ["raylib/custom_frame_control"]
+automation_event_test = []

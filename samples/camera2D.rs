@@ -18,38 +18,35 @@ fn main() {
     let mut spacing = 0.0;
 
     for i in 0..MAX_BUILDINGS {
-        let bh: i32 = rl.get_random_value(100, 800);
+        let bh: i32 = rl.get_random_value(100..800);
         buildings.push(Rectangle::new(
             -6000.0 + spacing,
             (h - 130 - bh) as f32,
-            rl.get_random_value::<i32>(50, 200) as f32,
+            rl.get_random_value::<i32>(50..200) as f32,
             bh as f32,
         ));
 
         spacing += buildings[i].width;
         build_colors.push(Color::new(
-            rl.get_random_value::<i32>(200, 240) as u8,
-            rl.get_random_value::<i32>(200, 240) as u8,
-            rl.get_random_value::<i32>(200, 240) as u8,
+            rl.get_random_value::<i32>(200..240) as u8,
+            rl.get_random_value::<i32>(200..240) as u8,
+            rl.get_random_value::<i32>(200..240) as u8,
             255,
         ));
     }
 
     let mut camera = Camera2D {
         target: Vector2::new(player.x + 20.0, player.y + 20.0),
-        // offset: Vector2::new(player.x, player.y),
-        offset: Vector2::new(0.0, 0.0),
+        offset: Vector2::new(player.x, player.y),
         rotation: 0.0,
         zoom: 1.0,
     };
 
     while !rl.window_should_close() {
         if rl.is_key_down(KEY_RIGHT) {
-            player.x += 2.0;
-            camera.offset.x -= 2.0;
+            player.x += 2.0;         
         } else if rl.is_key_down(KEY_LEFT) {
             player.x -= 2.0;
-            camera.offset.x += 2.0;
         }
 
         // Camera follows player
@@ -66,7 +63,7 @@ fn main() {
         camera.rotation = camera.rotation.max(-40.0).min(40.0);
 
         // zoom controls
-        camera.zoom += rl.get_mouse_wheel_move() as f32 * 0.05;
+        camera.zoom += rl.get_mouse_wheel_move() * 0.05;
         camera.zoom = camera.zoom.max(0.1).min(3.0);
 
         if rl.is_key_pressed(KEY_R) {
@@ -81,9 +78,9 @@ fn main() {
             d2.draw_rectangle(-6000, 320, 13000, 8000, Color::DARKGRAY);
 
             for i in 0..MAX_BUILDINGS {
-                d2.draw_rectangle_rec(&buildings[i], build_colors[i]);
+                d2.draw_rectangle_rec(buildings[i], build_colors[i]);
             }
-            d2.draw_rectangle_rec(&player, Color::RED);
+            d2.draw_rectangle_rec(player, Color::RED);
 
             d2.draw_line(
                 camera.target.x as i32,

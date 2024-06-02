@@ -4,6 +4,7 @@ use crate::core::texture::Image;
 use crate::core::{RaylibHandle, RaylibThread};
 use crate::{consts, ffi};
 use std::ffi::CString;
+use std::os::raw::c_void;
 
 fn no_drop<T>(_thing: T) {}
 make_thin_wrapper!(Model, ffi::Model, ffi::UnloadModel);
@@ -223,6 +224,18 @@ impl Mesh {
     }
 }
 pub trait RaylibMesh: AsRef<ffi::Mesh> + AsMut<ffi::Mesh> {
+    unsafe fn upload(&mut self, dynamic: bool) {
+        ffi::UploadMesh(self.as_mut(), dynamic);
+    }
+    unsafe fn update_buffer<A>(&mut self, index: i32, data: &[u8], offset: i32) {
+        ffi::UpdateMeshBuffer(
+            *self.as_ref(),
+            index,
+            data.as_ptr() as *const c_void,
+            data.len() as i32,
+            offset,
+        );
+    }
     fn vertices(&self) -> &[Vector3] {
         unsafe {
             std::slice::from_raw_parts(
@@ -389,7 +402,7 @@ pub trait RaylibMesh: AsRef<ffi::Mesh> + AsMut<ffi::Mesh> {
 
     /// Exports mesh as an OBJ file.
     #[inline]
-    fn export_mesh(&self, filename: &str) {
+    fn export(&self, filename: &str) {
         let c_filename = CString::new(filename).unwrap();
         unsafe {
             ffi::ExportMesh(*self.as_ref(), c_filename.as_ptr());
