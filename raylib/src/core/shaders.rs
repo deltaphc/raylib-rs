@@ -184,6 +184,16 @@ impl Shader {
         m
     }
 
+    /// Check if shader is ready for usage
+    #[inline]
+    pub fn is_shader_ready(&self) {
+        unsafe {
+            ffi::IsShaderReady(
+                self.0,
+                );
+        }
+    }
+
     /// Sets shader uniform value
     #[inline]
     pub fn set_shader_value<S: ShaderV>(&mut self, uniform_loc: i32, value: S) {
@@ -197,7 +207,7 @@ impl Shader {
         }
     }
 
-    /// et shader uniform value vector
+    /// Set shader uniform value vector
     #[inline]
     pub fn set_shader_value_v<S: ShaderV>(&mut self, uniform_loc: i32, value: &[S]) {
         unsafe {
