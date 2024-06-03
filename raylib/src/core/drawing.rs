@@ -494,7 +494,7 @@ pub trait RaylibDraw {
 
     /// Draws circle outline. (Vector Version)
     #[inline]
-    fn draw_circle_lines(
+    fn draw_circle_lines_v(
         &mut self,
         center: impl Into<ffi::Vector2>,
         radius: f32,
