@@ -1439,6 +1439,19 @@ pub trait RaylibDraw3D {
         }
     }
 
+    /// Draws a cube in wireframe. (Vector Version)
+    #[inline]
+    fn draw_cube_wires_v(
+        &mut self,
+        position: impl Into<ffi::Vector3>,
+        size: impl Into<ffi::Vector3>,
+        color: impl Into<ffi::Color>,
+    ) {
+        unsafe {
+            ffi::DrawCubeWiresV(position.into(), size.into(), color.into());
+        }
+    }
+
     /// Draw a 3d mesh with material and transform
     #[inline]
     fn draw_mesh(&mut self, mesh: impl AsRef<ffi::Mesh>, material: WeakMaterial, transform: Matrix) {
