@@ -729,17 +729,10 @@ pub trait RaylibDraw {
         rec: impl Into<ffi::Rectangle>,
         roundness: f32,
         segments: i32,
-        line_thickness: f32,
         color: impl Into<ffi::Color>,
     ) {
         unsafe {
-            ffi::DrawRectangleRoundedLines(
-                rec.into(),
-                roundness,
-                segments,
-                line_thickness,
-                color.into(),
-            );
+            ffi::DrawRectangleRoundedLines(rec.into(), roundness, segments, color.into());
         }
     }
 
@@ -1435,19 +1428,19 @@ pub trait RaylibDraw3D {
 
     /// Draw a 3d mesh with material and transform
     #[inline]
-    fn draw_mesh(&mut self, mesh: Mesh, material: WeakMaterial, transform: Matrix) {
-        unsafe { ffi::DrawMesh(mesh.0, material.0, transform.into()) }
+    fn draw_mesh(&mut self, mesh: impl AsRef<ffi::Mesh>, material: WeakMaterial, transform: Matrix) {
+        unsafe { ffi::DrawMesh(*mesh.as_ref(), material.0, transform.into()) }
     }
 
     /// Draw multiple mesh instances with material and different transforms
     #[inline]
-    fn draw_mesh_instanced(&mut self, mesh: Mesh, material: WeakMaterial, transforms: &[Matrix]) {
+    fn draw_mesh_instanced(&mut self, mesh: impl AsRef<ffi::Mesh>, material: WeakMaterial, transforms: &[Matrix]) {
         let tr = transforms
             .iter()
             .map(|f| f.into())
             .collect::<Vec<ffi::Matrix>>()
             .as_ptr();
-        unsafe { ffi::DrawMeshInstanced(mesh.0, material.0, tr, transforms.len() as i32) }
+        unsafe { ffi::DrawMeshInstanced(*mesh.as_ref(), material.0, tr, transforms.len() as i32) }
     }
 
     /// Draws a sphere.

@@ -1,5 +1,5 @@
 use std::{
-    ffi::{CString, OsString},
+    ffi::CString,
     path::{Path, PathBuf},
     ptr::null,
 };
@@ -8,7 +8,7 @@ use crate::{ffi, RaylibHandle};
 
 fn unload_automation_event_list(mut s: ffi::AutomationEventList) {
     unsafe {
-        (ffi::UnloadAutomationEventList)(&mut s);
+        ffi::UnloadAutomationEventList(s);
     }
 }
 
