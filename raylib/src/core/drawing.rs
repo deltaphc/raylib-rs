@@ -1581,6 +1581,30 @@ pub trait RaylibDraw3D {
         }
     }
 
+    /// Draws a cylinder in wireframe with extended parameters.
+    #[inline]
+    fn draw_cylinder_wires_ex(
+        &mut self,
+        start_position: impl Into<ffi::Vector3>,
+        end_position: impl Into<ffi::Vector3>,
+        radius_start: f32,
+        radius_end: f32,
+        slices: i32,
+        color: impl Into<ffi::Color>,
+    ) {
+        unsafe {
+            ffi::DrawCylinderWiresEx(
+                start_position.into(),
+                end_position.into(),
+                radius_start,
+                radius_end,
+                slices,
+                color.into(),
+            );
+        }
+    }
+
+
     /// Draws an X/Z plane.
     #[inline]
     fn draw_plane(
