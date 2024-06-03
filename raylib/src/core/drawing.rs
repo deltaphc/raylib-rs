@@ -1535,6 +1535,29 @@ pub trait RaylibDraw3D {
         }
     }
 
+    /// Draws a cylinder with extended parameters.
+    #[inline]
+    fn draw_cylinder_ex(
+        &mut self,
+        start_position: impl Into<ffi::Vector3>,
+        end_position: impl Into<ffi::Vector3>,
+        radius_start: f32,
+        radius_end: f32,
+        slices: i32,
+        color: impl Into<ffi::Color>,
+    ) {
+        unsafe {
+            ffi::DrawCylinderEx(
+                start_position.into(),
+                end_position.into(),
+                radius_start,
+                radius_end,
+                slices,
+                color.into(),
+            );
+        }
+    }
+
     /// Draws a cylinder in wireframe.
     #[inline]
     fn draw_cylinder_wires(
