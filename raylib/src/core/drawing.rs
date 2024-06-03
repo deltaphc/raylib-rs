@@ -492,6 +492,19 @@ pub trait RaylibDraw {
         }
     }
 
+    /// Draws circle outline. (Vector Version)
+    #[inline]
+    fn draw_circle_lines(
+        &mut self,
+        center: impl Into<ffi::Vector2>,
+        radius: f32,
+        color: impl Into<ffi::Color>,
+    ) {
+        unsafe {
+            ffi::DrawCircleLinesV(center.into(), radius, color.into());
+        }
+    }
+
     /// Draws ellipse.
     #[inline]
     fn draw_ellipse(
