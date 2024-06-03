@@ -721,7 +721,7 @@ pub trait RaylibDraw {
             ffi::DrawRectangleLinesEx(rec.into(), line_thick, color.into());
         }
     }
-    /// Draws rectangle outline with extended parameters.
+    /// Draws rectangle with rounded edges.
     #[inline]
     fn draw_rectangle_rounded(
         &mut self,
@@ -735,7 +735,7 @@ pub trait RaylibDraw {
         }
     }
 
-    /// Draws rectangle outline with extended parameters.
+    /// Draws rectangle outline with rounded edges included.
     #[inline]
     fn draw_rectangle_rounded_lines(
         &mut self,
