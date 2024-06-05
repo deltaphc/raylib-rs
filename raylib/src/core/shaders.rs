@@ -186,7 +186,7 @@ impl Shader {
 
     /// Check if shader is ready for usage
     #[inline]
-    pub fn is_shader_ready(&self) {
+    pub fn is_ready(&self) {
         unsafe {
             ffi::IsShaderReady(
                 self.0,
@@ -260,11 +260,6 @@ pub trait RaylibShader: AsRef<ffi::Shader> + AsMut<ffi::Shader> {
     #[inline]
     fn get_shader_location(&self, uniform_name: &str) -> i32 {
         let c_uniform_name = CString::new(uniform_name).unwrap();
-        println!(
-            "Getting shader location {:?} {}",
-            c_uniform_name,
-            uniform_name.len()
-        );
         unsafe { ffi::GetShaderLocation(*self.as_ref(), c_uniform_name.as_ptr()) }
     }
 
@@ -272,11 +267,6 @@ pub trait RaylibShader: AsRef<ffi::Shader> + AsMut<ffi::Shader> {
     #[inline]
     fn get_shader_location_attribute(&self, attribute_name: &str) -> i32 {
         let c_attribute_name = CString::new(attribute_name).unwrap();
-        println!(
-            "Getting shader attribute {:?} {}",
-            c_attribute_name,
-            attribute_name.len()
-        );
         unsafe { ffi::GetShaderLocationAttrib(*self.as_ref(), c_attribute_name.as_ptr()) }
     }
 
