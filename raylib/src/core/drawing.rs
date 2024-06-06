@@ -1678,7 +1678,7 @@ pub trait RaylibDraw3D {
         color: impl Into<ffi::Color>,
     ) {
         unsafe {
-            ffi::DrawCapsule(
+            ffi::DrawCapsuleWires(
                 start_pos.into(),
                 end_pos.into(),
                 radius,
