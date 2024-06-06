@@ -428,6 +428,12 @@ impl<'aud, 'bind> SoundAlias<'aud, 'bind> {
     }
 }
 
+impl Drop for SoundAlias<'_, '_> {
+    fn drop(&mut self) {
+        unsafe { ffi::UnloadSoundAlias(self.0) }
+    }
+}
+
 impl<'aud> Music<'aud> {
     /// Starts music playing.
     #[inline]
