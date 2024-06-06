@@ -106,20 +106,12 @@ impl RaylibHandle {
             *camera = fficam.into();
         }
     }
-
-    pub fn update_camera_pro(
-        &self,
-        camera: &mut Camera3D,
-        movement: Vector3,
-        rotation: Vector3,
-        zoom: f32,
-    ) {
-        let mut fficam: ffi::Camera3D = (*camera).into();
-        let ffimov: ffi::Vector3 = (movement).into();
-        let ffirot: ffi::Vector3 = (rotation).into();
-
+    
+    pub fn update_camera_pro(&self, camera: &mut Camera3D, movement: Vector3, rotation: Vector3, zoom: f32) {
         unsafe {
-            ffi::UpdateCameraPro(&mut fficam, ffimov, ffirot, zoom);
+            let mut fficam: ffi::Camera3D = (*camera).into();
+            ffi::UpdateCameraPro(&mut fficam, movement.into(), rotation.into(), zoom);
+            *camera = fficam.into();
         }
     }
 }
