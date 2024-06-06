@@ -612,7 +612,17 @@ impl Image {
     pub fn gen_image_color(width: i32, height: i32, color: impl Into<ffi::Color>) -> Image {
         unsafe { Image(ffi::GenImageColor(width, height, color.into())) }
     }
-    /// TODO: add the new image gradent functions
+    /// Generate image: perlin noise
+    pub fn gen_image_perlin_noise(
+        &self,
+        width: i32,
+        height: i32,
+        offset_x: i32,
+        offset_y: i32,
+        scale: f32,
+    ) -> Image {
+        Image(unsafe { ffi::GenImagePerlinNoise(width, height, offset_x, offset_y, scale) })
+    }
 
     /// Generates an Image containing a radial gradient.
     #[inline]

@@ -1,5 +1,7 @@
 //! Contains code related to drawing. Types that can be set as a surface to draw will implement the [`RaylibDraw`] trait
 
+use raylib_sys::Rectangle;
+
 use crate::core::camera::Camera3D;
 use crate::core::math::Ray;
 use crate::core::math::{Vector2, Vector3};
@@ -291,6 +293,16 @@ pub trait RaylibDraw {
         unsafe {
             ffi::ClearBackground(color.into());
         }
+    }
+
+    /// Get texture that is used for shapes drawing
+    fn get_shapes_texture(&self) -> Texture2D {
+        Texture2D(unsafe { ffi::GetShapesTexture() })
+    }
+
+    /// Get texture source rectangle that is used for shapes drawing
+    fn get_shapes_texture_rectangle(&self) -> Rectangle {
+        unsafe { ffi::GetShapesTextureRectangle() }
     }
 
     /// Define default texture used to draw shapes
@@ -749,6 +761,25 @@ pub trait RaylibDraw {
         }
     }
 
+    /// Draw rectangle with rounded edges outline
+    fn draw_rectangle_rounded_lines_ex(
+        &mut self,
+        rec: impl Into<ffi::Rectangle>,
+        roundness: f32,
+        segments: i32,
+        line_thickness: f32,
+        color: impl Into<ffi::Color>,
+    ) {
+        unsafe {
+            ffi::DrawRectangleRoundedLinesEx(
+                rec.into(),
+                roundness,
+                segments,
+                line_thickness,
+                color.into(),
+            )
+        };
+    }
     /// Draws a triangle.
     #[inline]
     fn draw_triangle(
@@ -1454,13 +1485,23 @@ pub trait RaylibDraw3D {
 
     /// Draw a 3d mesh with material and transform
     #[inline]
-    fn draw_mesh(&mut self, mesh: impl AsRef<ffi::Mesh>, material: WeakMaterial, transform: Matrix) {
+    fn draw_mesh(
+        &mut self,
+        mesh: impl AsRef<ffi::Mesh>,
+        material: WeakMaterial,
+        transform: Matrix,
+    ) {
         unsafe { ffi::DrawMesh(*mesh.as_ref(), material.0, transform.into()) }
     }
 
     /// Draw multiple mesh instances with material and different transforms
     #[inline]
-    fn draw_mesh_instanced(&mut self, mesh: impl AsRef<ffi::Mesh>, material: WeakMaterial, transforms: &[Matrix]) {
+    fn draw_mesh_instanced(
+        &mut self,
+        mesh: impl AsRef<ffi::Mesh>,
+        material: WeakMaterial,
+        transforms: &[Matrix],
+    ) {
         let tr = transforms
             .iter()
             .map(|f| f.into())
@@ -1604,6 +1645,49 @@ pub trait RaylibDraw3D {
         }
     }
 
+    /// Draw capsule with the center of its sphere caps at startPos and endPos
+    fn draw_capsule(
+        &mut self,
+        start_pos: impl Into<ffi::Vector3>,
+        end_pos: impl Into<ffi::Vector3>,
+        radius: f32,
+        slices: i32,
+        rings: i32,
+        color: impl Into<ffi::Color>,
+    ) {
+        unsafe {
+            ffi::DrawCapsule(
+                start_pos.into(),
+                end_pos.into(),
+                radius,
+                slices,
+                rings,
+                color.into(),
+            )
+        }
+    }
+
+    ///Draw capsule wireframe with the center of its sphere caps at startPos and endPos
+    fn draw_capsule_wires(
+        &mut self,
+        start_pos: impl Into<ffi::Vector3>,
+        end_pos: impl Into<ffi::Vector3>,
+        radius: f32,
+        slices: i32,
+        rings: i32,
+        color: impl Into<ffi::Color>,
+    ) {
+        unsafe {
+            ffi::DrawCapsule(
+                start_pos.into(),
+                end_pos.into(),
+                radius,
+                slices,
+                rings,
+                color.into(),
+            )
+        }
+    }
 
     /// Draws an X/Z plane.
     #[inline]

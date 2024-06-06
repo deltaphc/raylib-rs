@@ -15,6 +15,12 @@ impl RaylibHandle {
         unsafe { ffi::IsKeyPressed((key as u32) as i32) }
     }
 
+    /// Check if a key has been pressed again
+    #[inline]
+    pub fn is_key_pressed_repeat(&self, key: crate::consts::KeyboardKey) -> bool {
+        unsafe { ffi::IsKeyPressedRepeat((key as u32) as i32) }
+    }
+
     /// Detect if a key is being pressed.
     #[inline]
     pub fn is_key_down(&self, key: crate::consts::KeyboardKey) -> bool {
@@ -274,6 +280,11 @@ impl RaylibHandle {
     /// Set internal gamepad mappings (SDL_GameControllerDB)
     pub fn set_gamepad_mappings(&self, bind: &[i8]) -> i32 {
         unsafe { ffi::SetGamepadMappings(bind.as_ptr()) }
+    }
+
+    /// Set gamepad vibration for both motors
+    pub fn set_gamepad_vibration(&self, gamepad: i32, left_motor: f32, right_motor: f32) {
+        unsafe { ffi::SetGamepadVibration(gamepad, left_motor, right_motor) }
     }
 
     /// Checks if a gesture have been detected.
