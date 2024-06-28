@@ -100,7 +100,7 @@ fn main() {
 ### If building for Wayland on Linux
 
 3. Install these packages:  
-`libglfw3-dev wayland-devel libxkbcommon-devel wayland-protocols wayland-protocols-devel libecm-dev`
+`libglfw3-dev wayland-devel libxkbcommon-devel wayland-protocols wayland-protocols-devel libecm-dev libclang-dev`
 ###### Note that this may not be a comprehensive list, please add details for your distribution or expand on these packages if you believe this to be incomplete.
 
 4. Enable wayland by adding `features=["wayland"]` to your dependency definition
@@ -129,7 +129,7 @@ Firstly, a custom build container must be defined. The following `Dockerfile` is
 FROM rustembedded/cross:x86_64-unknown-linux-gnu-0.2.1
 
 RUN apt-get update -y
-RUN apt-get install libasound2-dev mesa-common-dev libx11-dev libxrandr-dev libxi-dev xorg-dev libgl1-mesa-dev libglu1-mesa-dev -y
+RUN apt-get install libasound2-dev mesa-common-dev libx11-dev libxrandr-dev libxi-dev xorg-dev libgl1-mesa-dev libglu1-mesa-dev libclang-dev -y
 ```
 
 With the image defined, build it locally with:
