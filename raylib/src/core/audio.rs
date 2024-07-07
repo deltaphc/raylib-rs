@@ -1,5 +1,6 @@
 //! Contains code related to audio. [`RaylibAudio`] plays sounds and music.
 
+use crate::error::{error, Error};
 use crate::ffi;
 use std::ffi::CString;
 use std::marker::PhantomData;
@@ -80,31 +81,31 @@ impl RaylibAudio {
     }
 
     /// Loads a new sound from file.
-    pub fn new_sound<'aud>(&'aud self, filename: &str) -> Result<Sound<'aud>, String> {
+    pub fn new_sound<'aud>(&'aud self, filename: &str) -> Result<Sound<'aud>, Error> {
         let c_filename = CString::new(filename).unwrap();
         let s = unsafe { ffi::LoadSound(c_filename.as_ptr()) };
         if s.stream.buffer.is_null() {
-            return Err(format!("failed to load sound {}", filename));
+            return Err(error!("failed to load sound", filename));
         }
 
         Ok(Sound(s, self))
     }
 
     /// Loads sound from wave data.
-    pub fn new_sound_from_wave<'aud>(&'aud self, wave: &Wave) -> Result<Sound<'aud>, String> {
+    pub fn new_sound_from_wave<'aud>(&'aud self, wave: &Wave) -> Result<Sound<'aud>, Error> {
         let s = unsafe { ffi::LoadSoundFromWave(wave.0) };
         if s.stream.buffer.is_null() {
-            return Err(format!("failed to load sound from wave"));
+            return Err(error!("failed to load sound from wave"));
         }
         Ok(Sound(s, self))
     }
     /// Loads wave data from file into RAM.
     #[inline]
-    pub fn new_wave<'aud>(&'aud self, filename: &str) -> Result<Wave<'aud>, String> {
+    pub fn new_wave<'aud>(&'aud self, filename: &str) -> Result<Wave<'aud>, Error> {
         let c_filename = CString::new(filename).unwrap();
         let w = unsafe { ffi::LoadWave(c_filename.as_ptr()) };
         if w.data.is_null() {
-            return Err(format!("Cannot load wave {}", filename));
+            return Err(error!("Cannot load wave {}", filename));
         }
         Ok(Wave(w, self))
     }
@@ -114,24 +115,24 @@ impl RaylibAudio {
         &'aud self,
         filetype: &str,
         bytes: &[u8],
-    ) -> Result<Wave<'aud>, String> {
+    ) -> Result<Wave<'aud>, Error> {
         let c_filetype = CString::new(filetype).unwrap();
         let c_bytes = bytes.as_ptr();
         let w =
             unsafe { ffi::LoadWaveFromMemory(c_filetype.as_ptr(), c_bytes, bytes.len() as i32) };
         if w.data.is_null() {
-            return Err(format!("Wave data is null. Check provided buffer data"));
+            return Err(error!("Wave data is null. Check provided buffer data"));
         };
         Ok(Wave(w, self))
     }
 
     /// Loads music stream from file.
     // #[inline]
-    pub fn new_music<'aud>(&'aud self, filename: &str) -> Result<Music<'aud>, String> {
+    pub fn new_music<'aud>(&'aud self, filename: &str) -> Result<Music<'aud>, Error> {
         let c_filename = CString::new(filename).unwrap();
         let m = unsafe { ffi::LoadMusicStream(c_filename.as_ptr()) };
         if m.stream.buffer.is_null() {
-            return Err(format!("music could not be loaded from file {}", filename));
+            return Err(error!("music could not be loaded from file", filename));
         }
         Ok(Music(m, self))
     }
@@ -141,14 +142,14 @@ impl RaylibAudio {
         &'aud self,
         filetype: &str,
         bytes: &Vec<u8>,
-    ) -> Result<Music<'aud>, String> {
+    ) -> Result<Music<'aud>, Error> {
         let c_filetype = CString::new(filetype).unwrap();
         let c_bytes = bytes.as_ptr();
         let w = unsafe {
             ffi::LoadMusicStreamFromMemory(c_filetype.as_ptr(), c_bytes, bytes.len() as i32)
         };
         if w.stream.buffer.is_null() {
-            return Err(format!(
+            return Err(error!(
                 "Music's buffer data data is null. Check provided buffer data"
             ));
         };
@@ -622,10 +623,10 @@ impl<'aud> AudioStream<'aud> {
 }
 
 impl<'bind> Sound<'_> {
-    pub fn alias<'snd>(&'snd self) -> Result<SoundAlias<'bind, 'snd>, String> {
+    pub fn alias<'snd>(&'snd self) -> Result<SoundAlias<'bind, 'snd>, Error> {
         let s = unsafe { ffi::LoadSoundAlias(self.0) };
         if s.stream.buffer.is_null() {
-            return Err("failed to load sound from wave".to_string());
+            return Err(error!("failed to load sound from wave"));
         }
         Ok(SoundAlias(s, PhantomData))
     }

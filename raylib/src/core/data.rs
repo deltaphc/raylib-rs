@@ -1,7 +1,10 @@
 //! Data manipulation functions. Compress and Decompress with DEFLATE
 use std::{ffi::CString, path::Path};
 
-use crate::ffi;
+use crate::{
+    error::{error, Error},
+    ffi,
+};
 
 /// Compress data (DEFLATE algorythm)
 /// ```rust
@@ -10,14 +13,14 @@ use crate::ffi;
 /// let expected: &[u8] = &[1, 5, 0, 250, 255, 49, 49, 49, 49, 49];
 /// assert_eq!(data, Ok(expected));
 /// ```
-pub fn compress_data(data: &[u8]) -> Result<&'static [u8], String> {
+pub fn compress_data(data: &[u8]) -> Result<&'static [u8], Error> {
     let mut out_length: i32 = 0;
     // CompressData doesn't actually modify the data, but the header is wrong
     let buffer = {
         unsafe { ffi::CompressData(data.as_ptr() as *mut _, data.len() as i32, &mut out_length) }
     };
     if buffer.is_null() {
-        return Err("could not compress data".to_string());
+        return Err(error!("could not compress data"));
     }
     let buffer = unsafe { std::slice::from_raw_parts(buffer, out_length as usize) };
     return Ok(buffer);
@@ -31,7 +34,7 @@ pub fn compress_data(data: &[u8]) -> Result<&'static [u8], String> {
 /// let data = decompress_data(input);
 /// assert_eq!(data, Ok(expected));
 /// ```
-pub fn decompress_data(data: &[u8]) -> Result<&'static [u8], String> {
+pub fn decompress_data(data: &[u8]) -> Result<&'static [u8], Error> {
     println!("{:?}", data.len());
 
     let mut out_length: i32 = 0;
@@ -40,7 +43,7 @@ pub fn decompress_data(data: &[u8]) -> Result<&'static [u8], String> {
         unsafe { ffi::DecompressData(data.as_ptr() as *mut _, data.len() as i32, &mut out_length) }
     };
     if buffer.is_null() {
-        return Err("could not compress data".to_string());
+        return Err(error!("could not compress data"));
     }
     let buffer = unsafe { std::slice::from_raw_parts(buffer, out_length as usize) };
     return Ok(buffer);

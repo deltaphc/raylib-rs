@@ -21,6 +21,7 @@ serde = { version = "1.0.125", features = ["derive"], optional = true }
 serde_json = { version = "1.0.64", optional = true }
 nalgebra = { version = "0.26", optional = true }
 specs-derive = "0.4.1"
+thiserror = "1.0.61"
 
 [dev-dependencies]
 structopt = "0.3"

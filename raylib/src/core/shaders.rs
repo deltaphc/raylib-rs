@@ -1,4 +1,6 @@
 //! Code for the safe manipulation of shaders
+use thiserror::Error;
+
 use crate::consts::ShaderUniformDataType;
 use crate::core::math::Matrix;
 use crate::core::math::{Vector2, Vector3, Vector4};
@@ -23,7 +25,7 @@ impl RaylibHandle {
         _: &RaylibThread,
         vs_filename: Option<&str>,
         fs_filename: Option<&str>,
-    ) -> Result<Shader, String> {
+    ) -> Shader {
         let c_vs_filename = vs_filename.map(|f| CString::new(f).unwrap());
         let c_fs_filename = fs_filename.map(|f| CString::new(f).unwrap());
 
@@ -36,7 +38,7 @@ impl RaylibHandle {
             (None, None) => unsafe { Shader(ffi::LoadShader(std::ptr::null(), std::ptr::null())) },
         };
 
-        return Ok(shader);
+        return shader;
     }
 
     /// Loads shader from code strings and binds default locations.
@@ -188,9 +190,7 @@ impl Shader {
     #[inline]
     pub fn is_ready(&self) {
         unsafe {
-            ffi::IsShaderReady(
-                self.0,
-                );
+            ffi::IsShaderReady(self.0);
         }
     }
 

@@ -2,6 +2,7 @@
 use crate::core::math::{BoundingBox, Vector3};
 use crate::core::texture::Image;
 use crate::core::{RaylibHandle, RaylibThread};
+use crate::error::{error, Error};
 use crate::{consts, ffi};
 use std::ffi::CString;
 use std::os::raw::c_void;
@@ -53,12 +54,12 @@ impl Clone for WeakModelAnimation {
 impl RaylibHandle {
     /// Loads model from files (mesh and material).
     // #[inline]
-    pub fn load_model(&mut self, _: &RaylibThread, filename: &str) -> Result<Model, String> {
+    pub fn load_model(&mut self, _: &RaylibThread, filename: &str) -> Result<Model, Error> {
         let c_filename = CString::new(filename).unwrap();
         let m = unsafe { ffi::LoadModel(c_filename.as_ptr()) };
         if m.meshes.is_null() && m.materials.is_null() && m.bones.is_null() && m.bindPose.is_null()
         {
-            return Err(format!("could not load model {}", filename));
+            return Err(error!("could not load model", filename));
         }
         // TODO check if null pointer checks are necessary.
         Ok(Model(m))
@@ -69,11 +70,11 @@ impl RaylibHandle {
         &mut self,
         _: &RaylibThread,
         mesh: WeakMesh,
-    ) -> Result<Model, String> {
+    ) -> Result<Model, Error> {
         let m = unsafe { ffi::LoadModelFromMesh(mesh.0) };
 
         if m.meshes.is_null() || m.materials.is_null() {
-            return Err("Could not load model from mesh".to_owned());
+            return Err(error!("Could not load model from mesh"));
         }
 
         Ok(Model(m))
@@ -83,12 +84,12 @@ impl RaylibHandle {
         &mut self,
         _: &RaylibThread,
         filename: &str,
-    ) -> Result<Vec<ModelAnimation>, String> {
+    ) -> Result<Vec<ModelAnimation>, Error> {
         let c_filename = CString::new(filename).unwrap();
         let mut m_size = 0;
         let m_ptr = unsafe { ffi::LoadModelAnimations(c_filename.as_ptr(), &mut m_size) };
         if m_size <= 0 {
-            return Err(format!("No model animations loaded from {}", filename));
+            return Err(error!("No model animations loaded", filename));
         }
         let mut m_vec = Vec::with_capacity(m_size as usize);
         for i in 0..m_size {
@@ -417,12 +418,12 @@ impl Material {
         m
     }
 
-    pub fn load_materials(filename: &str) -> Result<Vec<Material>, String> {
+    pub fn load_materials(filename: &str) -> Result<Vec<Material>, Error> {
         let c_filename = CString::new(filename).unwrap();
         let mut m_size = 0;
         let m_ptr = unsafe { ffi::LoadMaterials(c_filename.as_ptr(), &mut m_size) };
         if m_size <= 0 {
-            return Err(format!("No materials loaded from {}", filename));
+            return Err(error!("No materials loaded", filename));
         }
         let mut m_vec = Vec::with_capacity(m_size as usize);
         for i in 0..m_size {
