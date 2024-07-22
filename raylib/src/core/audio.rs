@@ -67,7 +67,7 @@ impl RaylibAudio {
     }
 
     /// Get master volume (listener)
-    pub fn get_master_volume(&mut self) -> f32 {
+    pub fn get_master_volume(&self) -> f32 {
         unsafe { ffi::GetMasterVolume() }
     }
 
@@ -291,7 +291,7 @@ impl<'aud> Sound<'aud> {
 
     /// Pauses a sound.
     #[inline]
-    pub fn pause(&mut self) {
+    pub fn pause(&self) {
         unsafe {
             ffi::PauseSound(self.0);
         }
@@ -299,7 +299,7 @@ impl<'aud> Sound<'aud> {
 
     /// Resumes a paused sound.
     #[inline]
-    pub fn resume(&mut self) {
+    pub fn resume(&self) {
         unsafe {
             ffi::ResumeSound(self.0);
         }
@@ -307,7 +307,7 @@ impl<'aud> Sound<'aud> {
 
     /// Stops playing a sound.
     #[inline]
-    pub fn stop(&mut self) {
+    pub fn stop(&self) {
         unsafe {
             ffi::StopSound(self.0);
         }
@@ -321,7 +321,7 @@ impl<'aud> Sound<'aud> {
 
     /// Sets volume for a sound (`1.0` is max level).
     #[inline]
-    pub fn set_volume(&mut self, volume: f32) {
+    pub fn set_volume(&self, volume: f32) {
         unsafe {
             ffi::SetSoundVolume(self.0, volume);
         }
@@ -329,12 +329,12 @@ impl<'aud> Sound<'aud> {
 
     /// Sets pitch for a sound (`1.0` is base level).
     #[inline]
-    pub fn set_pitch(&mut self, pitch: f32) {
+    pub fn set_pitch(&self, pitch: f32) {
         unsafe {
             ffi::SetSoundPitch(self.0, pitch);
         }
     }
-    pub fn set_pan(&mut self, pan: f32) {
+    pub fn set_pan(&self, pan: f32) {
         unsafe {
             ffi::SetSoundPan(self.0, pan);
         }
@@ -378,7 +378,7 @@ impl<'aud, 'bind> SoundAlias<'aud, 'bind> {
 
     /// Pauses a sound.
     #[inline]
-    pub fn pause(&mut self) {
+    pub fn pause(&self) {
         unsafe {
             ffi::PauseSound(self.0);
         }
@@ -386,7 +386,7 @@ impl<'aud, 'bind> SoundAlias<'aud, 'bind> {
 
     /// Resumes a paused sound.
     #[inline]
-    pub fn resume(&mut self) {
+    pub fn resume(&self) {
         unsafe {
             ffi::ResumeSound(self.0);
         }
@@ -394,7 +394,7 @@ impl<'aud, 'bind> SoundAlias<'aud, 'bind> {
 
     /// Stops playing a sound.
     #[inline]
-    pub fn stop(&mut self) {
+    pub fn stop(&self) {
         unsafe {
             ffi::StopSound(self.0);
         }
@@ -408,7 +408,7 @@ impl<'aud, 'bind> SoundAlias<'aud, 'bind> {
 
     /// Sets volume for a sound (`1.0` is max level).
     #[inline]
-    pub fn set_volume(&mut self, volume: f32) {
+    pub fn set_volume(&self, volume: f32) {
         unsafe {
             ffi::SetSoundVolume(self.0, volume);
         }
@@ -416,12 +416,12 @@ impl<'aud, 'bind> SoundAlias<'aud, 'bind> {
 
     /// Sets pitch for a sound (`1.0` is base level).
     #[inline]
-    pub fn set_pitch(&mut self, pitch: f32) {
+    pub fn set_pitch(&self, pitch: f32) {
         unsafe {
             ffi::SetSoundPitch(self.0, pitch);
         }
     }
-    pub fn set_pan(&mut self, pan: f32) {
+    pub fn set_pan(&self, pan: f32) {
         unsafe {
             ffi::SetSoundPan(self.0, pan);
         }
@@ -437,7 +437,7 @@ impl Drop for SoundAlias<'_, '_> {
 impl<'aud> Music<'aud> {
     /// Starts music playing.
     #[inline]
-    pub fn play_stream(&mut self) {
+    pub fn play_stream(&self) {
         unsafe {
             ffi::PlayMusicStream(self.0);
         }
@@ -445,7 +445,7 @@ impl<'aud> Music<'aud> {
 
     /// Updates buffers for music streaming.
     #[inline]
-    pub fn update_stream(&mut self) {
+    pub fn update_stream(&self) {
         unsafe {
             ffi::UpdateMusicStream(self.0);
         }
@@ -453,7 +453,7 @@ impl<'aud> Music<'aud> {
 
     /// Stops music playing.
     #[inline]
-    pub fn stop_stream(&mut self) {
+    pub fn stop_stream(&self) {
         unsafe {
             ffi::StopMusicStream(self.0);
         }
@@ -461,7 +461,7 @@ impl<'aud> Music<'aud> {
 
     /// Pauses music playing.
     #[inline]
-    pub fn pause_stream(&mut self) {
+    pub fn pause_stream(&self) {
         unsafe {
             ffi::PauseMusicStream(self.0);
         }
@@ -469,7 +469,7 @@ impl<'aud> Music<'aud> {
 
     /// Resumes playing paused music.
     #[inline]
-    pub fn resume_stream(&mut self) {
+    pub fn resume_stream(&self) {
         unsafe {
             ffi::ResumeMusicStream(self.0);
         }
@@ -483,7 +483,7 @@ impl<'aud> Music<'aud> {
 
     /// Sets volume for music (`1.0` is max level).
     #[inline]
-    pub fn set_volume(&mut self, volume: f32) {
+    pub fn set_volume(&self, volume: f32) {
         unsafe {
             ffi::SetMusicVolume(self.0, volume);
         }
@@ -491,7 +491,7 @@ impl<'aud> Music<'aud> {
 
     /// Sets pitch for music (`1.0` is base level).
     #[inline]
-    pub fn set_pitch(&mut self, pitch: f32) {
+    pub fn set_pitch(&self, pitch: f32) {
         unsafe {
             ffi::SetMusicPitch(self.0, pitch);
         }
@@ -509,13 +509,13 @@ impl<'aud> Music<'aud> {
         unsafe { ffi::GetMusicTimePlayed(self.0) }
     }
 
-    pub fn seek_stream(&mut self, position: f32) {
+    pub fn seek_stream(&self, position: f32) {
         unsafe {
             ffi::SeekMusicStream(self.0, position);
         }
     }
 
-    pub fn set_pan(&mut self, pan: f32) {
+    pub fn set_pan(&self, pan: f32) {
         unsafe {
             ffi::SetMusicPan(self.0, pan);
         }
@@ -556,7 +556,7 @@ impl<'aud> AudioStream<'aud> {
 
     /// Plays audio stream.
     #[inline]
-    pub fn play(&mut self) {
+    pub fn play(&self) {
         unsafe {
             ffi::PlayAudioStream(self.0);
         }
@@ -564,7 +564,7 @@ impl<'aud> AudioStream<'aud> {
 
     /// Pauses audio stream.
     #[inline]
-    pub fn pause(&mut self) {
+    pub fn pause(&self) {
         unsafe {
             ffi::PauseAudioStream(self.0);
         }
@@ -572,7 +572,7 @@ impl<'aud> AudioStream<'aud> {
 
     /// Resumes audio stream.
     #[inline]
-    pub fn resume(&mut self) {
+    pub fn resume(&self) {
         unsafe {
             ffi::ResumeAudioStream(self.0);
         }
@@ -586,7 +586,7 @@ impl<'aud> AudioStream<'aud> {
 
     /// Stops audio stream.
     #[inline]
-    pub fn stop(&mut self) {
+    pub fn stop(&self) {
         unsafe {
             ffi::StopAudioStream(self.0);
         }
@@ -594,7 +594,7 @@ impl<'aud> AudioStream<'aud> {
 
     /// Sets volume for audio stream (`1.0` is max level).
     #[inline]
-    pub fn set_volume(&mut self, volume: f32) {
+    pub fn set_volume(&self, volume: f32) {
         unsafe {
             ffi::SetAudioStreamVolume(self.0, volume);
         }
@@ -602,7 +602,7 @@ impl<'aud> AudioStream<'aud> {
 
     /// Sets pitch for audio stream (`1.0` is base level).
     #[inline]
-    pub fn set_pitch(&mut self, pitch: f32) {
+    pub fn set_pitch(&self, pitch: f32) {
         unsafe {
             ffi::SetAudioStreamPitch(self.0, pitch);
         }
@@ -610,11 +610,11 @@ impl<'aud> AudioStream<'aud> {
 
     /// Sets pitch for audio stream (`1.0` is base level).
     #[inline]
-    pub fn is_processed(&mut self) -> bool {
+    pub fn is_processed(&self) -> bool {
         unsafe { ffi::IsAudioStreamProcessed(self.0) }
     }
 
-    pub fn set_pan(&mut self, pan: f32) {
+    pub fn set_pan(&self, pan: f32) {
         unsafe {
             ffi::SetAudioStreamPan(self.0, pan);
         }
