@@ -19,7 +19,7 @@ lazy_static = "1.2.0"
 cfg-if = "1.0.0"
 serde = { version = "1.0.125", features = ["derive"], optional = true }
 serde_json = { version = "1.0.64", optional = true }
-nalgebra = { version = "0.26", optional = true }
+mint = { version = "0.5.9", optional = true }
 parking_lot = "0.12.1"
 specs-derive = "0.4.1"
 
@@ -35,8 +35,8 @@ default-features = false
 [features]
 nightly = []
 with_serde = ["serde", "serde_json"]
-nalgebra_interop = ["nalgebra"]
 wayland = ["raylib-sys/wayland"]
+convert_mint = ["mint"]
 custom_frame_control = ["raylib-sys/custom_frame_control"]
 opengl_33 = ["raylib-sys/opengl_33"]
 opengl_21 = ["raylib-sys/opengl_21"]
