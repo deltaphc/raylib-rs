@@ -1456,8 +1456,8 @@ impl Matrix {
         let sinres = angle.sin();
 
         result.m5 = cosres;
-        result.m6 = -sinres;
-        result.m9 = sinres;
+        result.m6 = sinres;
+        result.m9 = -sinres;
         result.m10 = cosres;
         result
     }
@@ -1470,8 +1470,8 @@ impl Matrix {
         let sinres = angle.sin();
 
         result.m0 = cosres;
-        result.m2 = sinres;
-        result.m8 = -sinres;
+        result.m2 = -sinres;
+        result.m8 = sinres;
         result.m10 = cosres;
         result
     }
@@ -1484,8 +1484,8 @@ impl Matrix {
         let sinres = angle.sin();
 
         result.m0 = cosres;
-        result.m1 = -sinres;
-        result.m4 = sinres;
+        result.m1 = sinres;
+        result.m4 = -sinres;
         result.m5 = cosres;
         result
     }
