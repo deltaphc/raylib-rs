@@ -87,7 +87,3 @@ path = "./asteroids.rs"
 [[bin]]
 name = "floppy"
 path = "./floppy.rs"
-
-[[bin]]
-name = "pixel_perfect_camera"
-path = "./pixel_perfect_camera.rs"

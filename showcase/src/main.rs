@@ -92,6 +92,10 @@ fn main() {
             rstr!("raylib [core] example - basic window"),
             example::core::core_basic_window::run,
         ),
+        (
+            rsrt!("raylib [core] example - Smooth Pixel-perfect camera"),
+            example::core::core_smooth_pixel_perfect_camera::run,
+        )
         #[cfg(target_os = "windows")]
         (
             rstr!("raylib [core] example - custom logging"),

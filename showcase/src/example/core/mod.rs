@@ -16,6 +16,7 @@ pub mod core_input_mouse_wheel;
 pub mod core_input_multitouch;
 pub mod core_random_values;
 pub mod core_scissor_test;
+pub mod core_smooth_pixel_perfect_camera;
 pub mod core_vr_simulator;
 pub mod core_window_letterbox;
 pub mod core_world_screen;
