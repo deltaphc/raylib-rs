@@ -19,8 +19,6 @@ use crate::misc::AsF32;
 use std::f32::consts::PI;
 use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Range, Sub, SubAssign};
 
-#[cfg(feature = "nalgebra_interop")]
-use nalgebra as na;
 #[cfg(feature = "with_serde")]
 use serde::{Deserialize, Serialize};
 
@@ -49,24 +47,24 @@ optional_serde_struct! {
     }
 }
 
-#[cfg(feature = "nalgebra_interop")]
-impl From<na::Vector2<f32>> for Vector2 {
-    fn from(v: na::Vector2<f32>) -> Vector2 {
+#[cfg(feature = "convert_mint")]
+impl From<mint::Vector2<f32>> for Vector2 {
+    fn from(v: mint::Vector2<f32>) -> Vector2 {
         Vector2 { x: v.x, y: v.y }
     }
 }
 
-#[cfg(feature = "nalgebra_interop")]
-impl From<na::base::coordinates::XY<f32>> for Vector2 {
-    fn from(v: na::base::coordinates::XY<f32>) -> Vector2 {
+#[cfg(feature = "convert_mint")]
+impl From<mint::Point2<f32>> for Vector2 {
+    fn from(v: mint::Point2<f32>) -> Vector2 {
         Vector2 { x: v.x, y: v.y }
     }
 }
 
-#[cfg(feature = "nalgebra_interop")]
-impl Into<na::Vector2<f32>> for Vector2 {
-    fn into(self) -> na::Vector2<f32> {
-        na::Vector2::new(self.x, self.y)
+#[cfg(feature = "convert_mint")]
+impl From<Vector2> for mint::Vector2<f32> {
+    fn from(v: Vector2) -> Self {
+        Self { x: v.x, y: v.y }
     }
 }
 
@@ -76,17 +74,17 @@ impl From<ffi::Vector2> for Vector2 {
     }
 }
 
-impl Into<ffi::Vector2> for Vector2 {
-    fn into(self) -> ffi::Vector2 {
-        unsafe { std::mem::transmute(self) }
+impl From<Vector2> for ffi::Vector2 {
+    fn from(v: Vector2) -> Self {
+        unsafe { std::mem::transmute(v) }
     }
 }
 
-impl Into<ffi::Vector2> for &Vector2 {
-    fn into(self) -> ffi::Vector2 {
+impl From<&Vector2> for ffi::Vector2 {
+    fn from(v: &Vector2) -> ffi::Vector2 {
         ffi::Vector2 {
-            x: self.x,
-            y: self.y,
+            x: v.x,
+            y: v.y,
         }
     }
 }
@@ -94,7 +92,7 @@ impl Into<ffi::Vector2> for &Vector2 {
 /// A convenience function for linearly interpolating an `f32`.
 #[inline]
 pub fn lerp(v0: f32, v1: f32, amount: f32) -> f32 {
-    return v0 + amount * (v1 - v0);
+    v0 + amount * (v1 - v0)
 }
 
 /// A convenience function for making a new `Vector2`.
@@ -398,9 +396,9 @@ optional_serde_struct! {
     }
 }
 
-#[cfg(feature = "nalgebra_interop")]
-impl From<na::Vector3<f32>> for Vector3 {
-    fn from(v: na::Vector3<f32>) -> Vector3 {
+#[cfg(feature = "convert_mint")]
+impl From<mint::Vector3<f32>> for Vector3 {
+    fn from(v: mint::Vector3<f32>) -> Vector3 {
         Vector3 {
             x: v.x,
             y: v.y,
@@ -409,9 +407,9 @@ impl From<na::Vector3<f32>> for Vector3 {
     }
 }
 
-#[cfg(feature = "nalgebra_interop")]
-impl From<na::base::coordinates::XYZ<f32>> for Vector3 {
-    fn from(v: na::base::coordinates::XYZ<f32>) -> Vector3 {
+#[cfg(feature = "convert_mint")]
+impl From<mint::Point3<f32>> for Vector3 {
+    fn from(v: mint::Point3<f32>) -> Vector3 {
         Vector3 {
             x: v.x,
             y: v.y,
@@ -420,10 +418,14 @@ impl From<na::base::coordinates::XYZ<f32>> for Vector3 {
     }
 }
 
-#[cfg(feature = "nalgebra_interop")]
-impl Into<na::Vector3<f32>> for Vector3 {
-    fn into(self) -> na::Vector3<f32> {
-        na::Vector3::new(self.x, self.y, self.z)
+#[cfg(feature = "convert_mint")]
+impl From<Vector3> for mint::Vector3<f32> {
+    fn from(v: Vector3) -> Self {
+        Self {
+            x: v.x,
+            y: v.y,
+            z: v.z
+        }
     }
 }
 
@@ -433,18 +435,18 @@ impl From<ffi::Vector3> for Vector3 {
     }
 }
 
-impl Into<ffi::Vector3> for Vector3 {
-    fn into(self) -> ffi::Vector3 {
-        unsafe { std::mem::transmute(self) }
+impl From<Vector3> for ffi::Vector3 {
+    fn from(v: Vector3) -> Self {
+        unsafe { std::mem::transmute(v) }
     }
 }
 
-impl Into<ffi::Vector3> for &Vector3 {
-    fn into(self) -> ffi::Vector3 {
+impl From<&Vector3> for ffi::Vector3 {
+    fn from(v: &Vector3) -> ffi::Vector3 {
         ffi::Vector3 {
-            x: self.x,
-            y: self.y,
-            z: self.z,
+            x: v.x,
+            y: v.y,
+            z: v.z,
         }
     }
 }
@@ -859,9 +861,9 @@ optional_serde_struct! {
 
 pub type Quaternion = Vector4;
 
-#[cfg(feature = "nalgebra_interop")]
-impl From<na::Vector4<f32>> for Vector4 {
-    fn from(v: na::Vector4<f32>) -> Vector4 {
+#[cfg(feature = "convert_mint")]
+impl From<mint::Vector4<f32>> for Vector4 {
+    fn from(v: mint::Vector4<f32>) -> Vector4 {
         Vector4 {
             x: v.x,
             y: v.y,
@@ -871,22 +873,15 @@ impl From<na::Vector4<f32>> for Vector4 {
     }
 }
 
-#[cfg(feature = "nalgebra_interop")]
-impl From<na::base::coordinates::XYZW<f32>> for Vector4 {
-    fn from(v: na::base::coordinates::XYZW<f32>) -> Vector4 {
-        Vector4 {
+#[cfg(feature = "convert_mint")]
+impl From<Vector4> for mint::Vector4<f32> {
+    fn from(v: Vector4) -> Self {
+        mint::Vector4 {
             x: v.x,
             y: v.y,
             z: v.z,
             w: v.w,
         }
-    }
-}
-
-#[cfg(feature = "nalgebra_interop")]
-impl Into<na::Vector4<f32>> for Vector4 {
-    fn into(self) -> na::Vector4<f32> {
-        na::Vector4::new(self.x, self.y, self.z, self.w)
     }
 }
 
@@ -896,19 +891,19 @@ impl From<ffi::Vector4> for Vector4 {
     }
 }
 
-impl Into<ffi::Vector4> for Vector4 {
-    fn into(self) -> ffi::Vector4 {
-        unsafe { std::mem::transmute(self) }
+impl From<Vector4> for ffi::Vector4 {
+    fn from(v: Vector4) -> ffi::Vector4 {
+        unsafe { std::mem::transmute(v) }
     }
 }
 
-impl Into<ffi::Vector4> for &Vector4 {
-    fn into(self) -> ffi::Vector4 {
+impl From<&Vector4> for ffi::Vector4 {
+    fn from(v: &Vector4) -> ffi::Vector4 {
         ffi::Vector4 {
-            x: self.x,
-            y: self.y,
-            z: self.z,
-            w: self.w,
+            x: v.x,
+            y: v.y,
+            z: v.z,
+            w: v.w,
         }
     }
 }
@@ -1231,22 +1226,25 @@ impl Quaternion {
     }
 }
 
-#[cfg(feature = "nalgebra_interop")]
-impl From<na::geometry::Quaternion<f32>> for Quaternion {
-    fn from(q: na::geometry::Quaternion<f32>) -> Quaternion {
+#[cfg(feature = "convert_mint")]
+impl From<mint::Quaternion<f32>> for Quaternion {
+    fn from(q: mint::Quaternion<f32>) -> Quaternion {
         Quaternion {
-            x: q.coords.x,
-            y: q.coords.y,
-            z: q.coords.z,
-            w: q.coords.w,
+            x: q.v.x,
+            y: q.v.y,
+            z: q.v.z,
+            w: q.s,
         }
     }
 }
 
-#[cfg(feature = "nalgebra_interop")]
-impl Into<na::geometry::Quaternion<f32>> for Quaternion {
-    fn into(self) -> na::geometry::Quaternion<f32> {
-        na::geometry::Quaternion::new(self.x, self.y, self.z, self.w)
+#[cfg(feature = "convert_mint")]
+impl From<Quaternion> for mint::Quaternion<f32> {
+    fn from(q: Quaternion) -> Self {
+        Self {
+            v: mint::Vector3 { x: q.x, y: q.y, z: q.z },
+            s: q.w,
+        }
     }
 }
 
@@ -1311,31 +1309,31 @@ impl From<ffi::Matrix> for Matrix {
     }
 }
 
-impl Into<ffi::Matrix> for Matrix {
-    fn into(self) -> ffi::Matrix {
-        unsafe { std::mem::transmute(self) }
+impl From<Matrix> for ffi::Matrix {
+    fn from(v: Matrix) -> Self {
+        unsafe { std::mem::transmute(v) }
     }
 }
 
-impl Into<ffi::Matrix> for &Matrix {
-    fn into(self) -> ffi::Matrix {
+impl From<&Matrix> for ffi::Matrix {
+    fn from(v: &Matrix) -> Self {
         ffi::Matrix {
-            m0: self.m0,
-            m4: self.m4,
-            m8: self.m8,
-            m12: self.m12,
-            m1: self.m1,
-            m5: self.m5,
-            m9: self.m9,
-            m13: self.m13,
-            m2: self.m2,
-            m6: self.m6,
-            m10: self.m10,
-            m14: self.m14,
-            m3: self.m3,
-            m7: self.m7,
-            m11: self.m11,
-            m15: self.m15,
+            m0: v.m0,
+            m4: v.m4,
+            m8: v.m8,
+            m12: v.m12,
+            m1: v.m1,
+            m5: v.m5,
+            m9: v.m9,
+            m13: v.m13,
+            m2: v.m2,
+            m6: v.m6,
+            m10: v.m10,
+            m14: v.m14,
+            m3: v.m3,
+            m7: v.m7,
+            m11: v.m11,
+            m15: v.m15,
         }
     }
 }
@@ -1456,8 +1454,8 @@ impl Matrix {
         let sinres = angle.sin();
 
         result.m5 = cosres;
-        result.m6 = -sinres;
-        result.m9 = sinres;
+        result.m6 = sinres;
+        result.m9 = -sinres;
         result.m10 = cosres;
         result
     }
@@ -1470,8 +1468,8 @@ impl Matrix {
         let sinres = angle.sin();
 
         result.m0 = cosres;
-        result.m2 = sinres;
-        result.m8 = -sinres;
+        result.m2 = -sinres;
+        result.m8 = sinres;
         result.m10 = cosres;
         result
     }
@@ -1484,8 +1482,8 @@ impl Matrix {
         let sinres = angle.sin();
 
         result.m0 = cosres;
-        result.m1 = -sinres;
-        result.m4 = sinres;
+        result.m1 = sinres;
+        result.m4 = -sinres;
         result.m5 = cosres;
         result
     }
@@ -1887,17 +1885,17 @@ impl From<ffi::Ray> for Ray {
     }
 }
 
-impl Into<ffi::Ray> for Ray {
-    fn into(self) -> ffi::Ray {
-        unsafe { std::mem::transmute(self) }
+impl From<Ray> for ffi::Ray {
+    fn from(v: Ray) -> ffi::Ray {
+        unsafe { std::mem::transmute(v) }
     }
 }
 
-impl Into<ffi::Ray> for &Ray {
-    fn into(self) -> ffi::Ray {
+impl From<&Ray> for ffi::Ray {
+    fn from(v: &Ray) -> ffi::Ray {
         ffi::Ray {
-            position: self.position.into(),
-            direction: self.direction.into(),
+            position: v.position.into(),
+            direction: v.direction.into(),
         }
     }
 }
@@ -1917,19 +1915,19 @@ impl From<ffi::Rectangle> for Rectangle {
     }
 }
 
-impl Into<ffi::Rectangle> for Rectangle {
-    fn into(self) -> ffi::Rectangle {
-        unsafe { std::mem::transmute(self) }
+impl From<Rectangle> for ffi::Rectangle {
+    fn from(v: Rectangle) -> ffi::Rectangle {
+        unsafe { std::mem::transmute(v) }
     }
 }
 
-impl Into<ffi::Rectangle> for &Rectangle {
-    fn into(self) -> ffi::Rectangle {
+impl From<&Rectangle> for ffi::Rectangle {
+    fn from(v: &Rectangle) -> ffi::Rectangle {
         ffi::Rectangle {
-            x: self.x,
-            y: self.y,
-            width: self.width,
-            height: self.height,
+            x: v.x,
+            y: v.y,
+            width: v.width,
+            height: v.height,
         }
     }
 }
@@ -1965,17 +1963,17 @@ impl From<ffi::BoundingBox> for BoundingBox {
     }
 }
 
-impl Into<ffi::BoundingBox> for BoundingBox {
-    fn into(self) -> ffi::BoundingBox {
-        unsafe { std::mem::transmute(self) }
+impl From<BoundingBox> for ffi::BoundingBox {
+    fn from(v: BoundingBox) -> ffi::BoundingBox {
+        unsafe { std::mem::transmute(v) }
     }
 }
 
-impl Into<ffi::BoundingBox> for &BoundingBox {
-    fn into(self) -> ffi::BoundingBox {
+impl From<&BoundingBox> for ffi::BoundingBox {
+    fn from(v: &BoundingBox) -> ffi::BoundingBox {
         ffi::BoundingBox {
-            min: self.min.into(),
-            max: self.max.into(),
+            min: v.min.into(),
+            max: v.max.into(),
         }
     }
 }
@@ -1995,19 +1993,19 @@ impl From<ffi::RayCollision> for RayCollision {
     }
 }
 
-impl Into<ffi::RayCollision> for RayCollision {
-    fn into(self) -> ffi::RayCollision {
-        unsafe { std::mem::transmute(self) }
+impl From<RayCollision> for ffi::RayCollision {
+    fn from(v: RayCollision) -> ffi::RayCollision {
+        unsafe { std::mem::transmute(v) }
     }
 }
 
-impl Into<ffi::RayCollision> for &RayCollision {
-    fn into(self) -> ffi::RayCollision {
+impl From<&RayCollision> for ffi::RayCollision {
+    fn from(v: &RayCollision) -> ffi::RayCollision {
         ffi::RayCollision {
-            hit: self.hit.into(),
-            distance: self.distance.into(),
-            point: self.point.into(),
-            normal: self.normal.into(),
+            hit: v.hit,
+            distance: v.distance,
+            point: v.point.into(),
+            normal: v.normal.into(),
         }
     }
 }
@@ -2026,18 +2024,18 @@ impl From<ffi::Transform> for Transform {
     }
 }
 
-impl Into<ffi::Transform> for Transform {
-    fn into(self) -> ffi::Transform {
-        unsafe { std::mem::transmute(self) }
+impl From<Transform> for ffi::Transform {
+    fn from(v: Transform) -> ffi::Transform {
+        unsafe { std::mem::transmute(v) }
     }
 }
 
-impl Into<ffi::Transform> for &Transform {
-    fn into(self) -> ffi::Transform {
+impl From<&Transform> for ffi::Transform {
+    fn from(v: &Transform) -> ffi::Transform {
         ffi::Transform {
-            translation: self.translation.into(),
-            rotation: self.rotation.into(),
-            scale: self.scale.into(),
+            translation: v.translation.into(),
+            rotation: v.rotation.into(),
+            scale: v.scale.into(),
         }
     }
 }
