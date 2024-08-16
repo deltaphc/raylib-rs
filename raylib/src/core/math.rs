@@ -17,13 +17,57 @@ Permission is granted to anyone to use this software for any purpose, including 
 use crate::ffi;
 use crate::misc::AsF32;
 use std::f32::consts::PI;
-use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssign};
+use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Range, Sub, SubAssign};
 
-#[repr(C)]
-#[derive(Default, Debug, Copy, Clone, PartialEq)]
-pub struct Vector2 {
-    pub x: f32,
-    pub y: f32,
+#[cfg(feature = "nalgebra_interop")]
+use nalgebra as na;
+#[cfg(feature = "with_serde")]
+use serde::{Deserialize, Serialize};
+
+make_rslice!(RSliceVec4, Vector4, ffi::MemFree);
+
+macro_rules! optional_serde_struct {
+    ($def:item) => {
+        cfg_if::cfg_if! {
+            if #[cfg(feature = "with_serde")] {
+                #[repr(C)]
+                #[derive(Default, Debug, Copy, Clone, PartialEq, Serialize, Deserialize)]
+                $def
+            } else {
+                #[repr(C)]
+                #[derive(Default, Debug, Copy, Clone, PartialEq)]
+                $def
+            }
+        }
+    };
+}
+
+optional_serde_struct! {
+    pub struct Vector2 {
+        pub x: f32,
+        pub y: f32,
+    }
+}
+
+#[cfg(feature = "nalgebra_interop")]
+impl From<na::Vector2<f32>> for Vector2 {
+    fn from(v: na::Vector2<f32>) -> Vector2 {
+        Vector2 { x: v.x, y: v.y }
+    }
+}
+
+#[cfg(feature = "nalgebra_interop")]
+impl From<na::base::coordinates::XY<f32>> for Vector2 {
+    fn from(v: na::base::coordinates::XY<f32>) -> Vector2 {
+        Vector2 { x: v.x, y: v.y }
+    }
+}
+
+#[cfg(feature = "nalgebra_interop")]
+impl Into<na::Vector2<f32>> for Vector2 {
+    fn into(self) -> na::Vector2<f32> {
+        na::Vector2::new(self.x, self.y)
+    }
 }
 
 impl From<ffi::Vector2> for Vector2 {
@@ -45,6 +89,12 @@ impl Into<ffi::Vector2> for &Vector2 {
             y: self.y,
         }
     }
+}
+
+/// A convenience function for linearly interpolating an `f32`.
+#[inline]
+pub fn lerp(v0: f32, v1: f32, amount: f32) -> f32 {
+    return v0 + amount * (v1 - v0);
 }
 
 /// A convenience function for making a new `Vector2`.
@@ -77,24 +127,37 @@ pub fn rrect<T1: AsF32, T2: AsF32, T3: AsF32, T4: AsF32>(
 }
 
 impl Vector2 {
+    /// Constant `Vector2` with both components set to zero.
+    const ZERO: Vector2 = Vector2 { x: 0.0, y: 0.0 };
+
+    /// Constant `Vector2` with both components set to one.
+    const ONE: Vector2 = Vector2 { x: 1.0, y: 1.0 };
+
     /// Returns a new `Vector2` with specified components.
     pub const fn new(x: f32, y: f32) -> Vector2 {
         Vector2 { x, y }
     }
 
     /// Returns a new `Vector2` with both components set to zero.
-    pub fn zero() -> Vector2 {
+    #[inline]
+    pub const fn zero() -> Vector2 {
         Vector2 { x: 0.0, y: 0.0 }
     }
 
     /// Returns a new `Vector2` with both components set to one.
-    pub fn one() -> Vector2 {
+    #[inline]
+    pub const fn one() -> Vector2 {
         Vector2 { x: 1.0, y: 1.0 }
     }
 
     /// Calculates the vector length.
     pub fn length(&self) -> f32 {
         ((self.x * self.x) + (self.y * self.y)).sqrt()
+    }
+
+    /// Calculates the vector length square (**2);
+    pub fn length_sqr(&self) -> f32 {
+        (self.x * self.x) + (self.y * self.y)
     }
 
     /// Calculates the dot product with vector `v`.
@@ -128,12 +191,57 @@ impl Vector2 {
 
     /// Normalizes the vector.
     pub fn normalize(&mut self) {
-        *self /= self.length();
+        *self = self.normalized();
     }
 
     /// Returns a new `Vector2` with normalized components from the current vector.
     pub fn normalized(&self) -> Vector2 {
-        *self / self.length()
+        let length_sqr = self.length_sqr();
+        if length_sqr == 0.0 {
+            return *self;
+        }
+        *self / length_sqr.sqrt()
+    }
+
+    /// Rotates the vector by `angle` radians.
+    pub fn rotate(&mut self, angle: f32) {
+        let cos_res = angle.cos();
+        let sin_res = angle.sin();
+
+        let result = Vector2::new(
+            self.x * cos_res - self.y * sin_res,
+            self.x * sin_res + self.y * cos_res,
+        );
+
+        self.x = result.x;
+        self.y = result.y;
+    }
+
+    /// Returns a new `Vector2` rotated by `angle` radians.
+    pub fn rotated(&self, angle: f32) -> Vector2 {
+        let cos_res = angle.cos();
+        let sin_res = angle.sin();
+
+        Vector2::new(
+            self.x * cos_res - self.y * sin_res,
+            self.x * sin_res + self.y * cos_res,
+        )
+    }
+
+    /// Returns a new `Vector2` with componenets linearly interpolated by `amount` towards vector `v`.
+    pub fn lerp(&self, v: Vector2, amount: f32) -> Vector2 {
+        Vector2 {
+            x: self.x + amount * (v.x - self.x),
+            y: self.y + amount * (v.y - self.y),
+        }
+    }
+
+    /// Returns a new `Vector2` with componenets clamp to a certain interval.
+    pub fn clamp(&self, num: Range<f32>) -> Vector2 {
+        Vector2 {
+            x: self.x.clamp(num.start, num.end),
+            y: self.y.clamp(num.start, num.end),
+        }
     }
 }
 
@@ -282,12 +390,41 @@ impl Neg for Vector2 {
     }
 }
 
-#[repr(C)]
-#[derive(Default, Debug, Copy, Clone, PartialEq)]
-pub struct Vector3 {
-    pub x: f32,
-    pub y: f32,
-    pub z: f32,
+optional_serde_struct! {
+    pub struct Vector3 {
+        pub x: f32,
+        pub y: f32,
+        pub z: f32,
+    }
+}
+
+#[cfg(feature = "nalgebra_interop")]
+impl From<na::Vector3<f32>> for Vector3 {
+    fn from(v: na::Vector3<f32>) -> Vector3 {
+        Vector3 {
+            x: v.x,
+            y: v.y,
+            z: v.z,
+        }
+    }
+}
+
+#[cfg(feature = "nalgebra_interop")]
+impl From<na::base::coordinates::XYZ<f32>> for Vector3 {
+    fn from(v: na::base::coordinates::XYZ<f32>) -> Vector3 {
+        Vector3 {
+            x: v.x,
+            y: v.y,
+            z: v.z,
+        }
+    }
+}
+
+#[cfg(feature = "nalgebra_interop")]
+impl Into<na::Vector3<f32>> for Vector3 {
+    fn into(self) -> na::Vector3<f32> {
+        na::Vector3::new(self.x, self.y, self.z)
+    }
 }
 
 impl From<ffi::Vector3> for Vector3 {
@@ -546,6 +683,15 @@ impl Vector3 {
     pub fn to_array(&self) -> [f32; 3] {
         [self.x, self.y, self.z]
     }
+
+    /// Returns a new `Vector3` with componenets clamp to a certain interval.
+    pub fn clamp(&self, num: Range<f32>) -> Vector3 {
+        Vector3 {
+            x: self.x.clamp(num.start, num.end),
+            y: self.y.clamp(num.start, num.end),
+            z: self.z.clamp(num.start, num.end),
+        }
+    }
 }
 
 impl From<(f32, f32, f32)> for Vector3 {
@@ -702,15 +848,47 @@ impl Neg for Vector3 {
     }
 }
 
-#[repr(C)]
-#[derive(Default, Debug, Copy, Clone, PartialEq)]
-pub struct Vector4 {
-    pub x: f32,
-    pub y: f32,
-    pub z: f32,
-    pub w: f32,
+optional_serde_struct! {
+    pub struct Vector4 {
+        pub x: f32,
+        pub y: f32,
+        pub z: f32,
+        pub w: f32,
+    }
 }
+
 pub type Quaternion = Vector4;
+
+#[cfg(feature = "nalgebra_interop")]
+impl From<na::Vector4<f32>> for Vector4 {
+    fn from(v: na::Vector4<f32>) -> Vector4 {
+        Vector4 {
+            x: v.x,
+            y: v.y,
+            z: v.z,
+            w: v.w,
+        }
+    }
+}
+
+#[cfg(feature = "nalgebra_interop")]
+impl From<na::base::coordinates::XYZW<f32>> for Vector4 {
+    fn from(v: na::base::coordinates::XYZW<f32>) -> Vector4 {
+        Vector4 {
+            x: v.x,
+            y: v.y,
+            z: v.z,
+            w: v.w,
+        }
+    }
+}
+
+#[cfg(feature = "nalgebra_interop")]
+impl Into<na::Vector4<f32>> for Vector4 {
+    fn into(self) -> na::Vector4<f32> {
+        na::Vector4::new(self.x, self.y, self.z, self.w)
+    }
+}
 
 impl From<ffi::Vector4> for Vector4 {
     fn from(v: ffi::Vector4) -> Vector4 {
@@ -757,7 +935,7 @@ impl Quaternion {
         Quaternion {
             x: cross.x,
             y: cross.y,
-            z: cross.y,
+            z: cross.z,
             w: 1.0 + from.dot(to),
         }
         .normalized()
@@ -863,13 +1041,13 @@ impl Quaternion {
     }
 
     /// Returns a quaternion equivalent to Euler angles.
-    pub fn from_euler(roll: f32, pitch: f32, yaw: f32) -> Quaternion {
-        let x0 = (roll * 0.5).cos();
-        let x1 = (roll * 0.5).sin();
-        let y0 = (pitch * 0.5).cos();
-        let y1 = (pitch * 0.5).sin();
-        let z0 = (yaw * 0.5).cos();
-        let z1 = (yaw * 0.5).sin();
+    pub fn from_euler(pitch: f32, yaw: f32, roll: f32) -> Quaternion {
+        let x0 = (pitch * 0.5).cos();
+        let x1 = (pitch * 0.5).sin();
+        let y0 = (yaw * 0.5).cos();
+        let y1 = (yaw * 0.5).sin();
+        let z0 = (roll * 0.5).cos();
+        let z1 = (roll * 0.5).sin();
 
         Quaternion {
             x: (x1 * y0 * z0) - (x0 * y1 * z1),
@@ -1041,6 +1219,35 @@ impl Quaternion {
             w: mat.m3 * self.x + mat.m7 * self.y + mat.m11 * self.z + mat.m15 * self.w,
         }
     }
+
+    /// Returns a new `Quaternion` with componenets clamp to a certain interval.
+    pub fn clamp(&self, num: Range<f32>) -> Quaternion {
+        Quaternion {
+            x: self.x.clamp(num.start, num.end),
+            y: self.y.clamp(num.start, num.end),
+            z: self.z.clamp(num.start, num.end),
+            w: self.w.clamp(num.start, num.end),
+        }
+    }
+}
+
+#[cfg(feature = "nalgebra_interop")]
+impl From<na::geometry::Quaternion<f32>> for Quaternion {
+    fn from(q: na::geometry::Quaternion<f32>) -> Quaternion {
+        Quaternion {
+            x: q.coords.x,
+            y: q.coords.y,
+            z: q.coords.z,
+            w: q.coords.w,
+        }
+    }
+}
+
+#[cfg(feature = "nalgebra_interop")]
+impl Into<na::geometry::Quaternion<f32>> for Quaternion {
+    fn into(self) -> na::geometry::Quaternion<f32> {
+        na::geometry::Quaternion::new(self.x, self.y, self.z, self.w)
+    }
 }
 
 impl From<(f32, f32, f32, f32)> for Quaternion {
@@ -1077,25 +1284,25 @@ impl MulAssign for Quaternion {
     }
 }
 
-#[repr(C)]
-#[derive(Default, Debug, Copy, Clone, PartialEq)]
-pub struct Matrix {
-    pub m0: f32,
-    pub m4: f32,
-    pub m8: f32,
-    pub m12: f32,
-    pub m1: f32,
-    pub m5: f32,
-    pub m9: f32,
-    pub m13: f32,
-    pub m2: f32,
-    pub m6: f32,
-    pub m10: f32,
-    pub m14: f32,
-    pub m3: f32,
-    pub m7: f32,
-    pub m11: f32,
-    pub m15: f32,
+optional_serde_struct! {
+    pub struct Matrix {
+        pub m0: f32,
+        pub m4: f32,
+        pub m8: f32,
+        pub m12: f32,
+        pub m1: f32,
+        pub m5: f32,
+        pub m9: f32,
+        pub m13: f32,
+        pub m2: f32,
+        pub m6: f32,
+        pub m10: f32,
+        pub m14: f32,
+        pub m3: f32,
+        pub m7: f32,
+        pub m11: f32,
+        pub m15: f32,
+    }
 }
 
 impl From<ffi::Matrix> for Matrix {
@@ -1667,11 +1874,11 @@ impl MulAssign for Matrix {
     }
 }
 
-#[repr(C)]
-#[derive(Default, Debug, Copy, Clone, PartialEq)]
-pub struct Ray {
-    pub position: Vector3,
-    pub direction: Vector3,
+optional_serde_struct! {
+    pub struct Ray {
+        pub position: Vector3,
+        pub direction: Vector3,
+    }
 }
 
 impl From<ffi::Ray> for Ray {
@@ -1695,13 +1902,13 @@ impl Into<ffi::Ray> for &Ray {
     }
 }
 
-#[repr(C)]
-#[derive(Default, Debug, Copy, Clone, PartialEq)]
-pub struct Rectangle {
-    pub x: f32,
-    pub y: f32,
-    pub width: f32,
-    pub height: f32,
+optional_serde_struct! {
+    pub struct Rectangle {
+        pub x: f32,
+        pub y: f32,
+        pub width: f32,
+        pub height: f32,
+    }
 }
 
 impl From<ffi::Rectangle> for Rectangle {
@@ -1739,11 +1946,11 @@ impl Rectangle {
     }
 }
 
-#[repr(C)]
-#[derive(Default, Debug, Copy, Clone, PartialEq)]
-pub struct BoundingBox {
-    pub min: Vector3,
-    pub max: Vector3,
+optional_serde_struct! {
+    pub struct BoundingBox {
+        pub min: Vector3,
+        pub max: Vector3,
+    }
 }
 
 impl BoundingBox {
@@ -1773,44 +1980,44 @@ impl Into<ffi::BoundingBox> for &BoundingBox {
     }
 }
 
-#[repr(C)]
-#[derive(Default, Debug, Copy, Clone)]
-pub struct RayHitInfo {
-    pub hit: bool,
-    pub distance: f32,
-    pub position: Vector3,
-    pub normal: Vector3,
+optional_serde_struct! {
+    pub struct RayCollision {
+        pub hit: bool,
+        pub distance: f32,
+        pub point: Vector3,
+        pub normal: Vector3,
+    }
 }
 
-impl From<ffi::RayHitInfo> for RayHitInfo {
-    fn from(r: ffi::RayHitInfo) -> RayHitInfo {
+impl From<ffi::RayCollision> for RayCollision {
+    fn from(r: ffi::RayCollision) -> RayCollision {
         unsafe { std::mem::transmute(r) }
     }
 }
 
-impl Into<ffi::RayHitInfo> for RayHitInfo {
-    fn into(self) -> ffi::RayHitInfo {
+impl Into<ffi::RayCollision> for RayCollision {
+    fn into(self) -> ffi::RayCollision {
         unsafe { std::mem::transmute(self) }
     }
 }
 
-impl Into<ffi::RayHitInfo> for &RayHitInfo {
-    fn into(self) -> ffi::RayHitInfo {
-        ffi::RayHitInfo {
-            hit: self.hit,
-            distance: self.distance,
-            position: self.position.into(),
+impl Into<ffi::RayCollision> for &RayCollision {
+    fn into(self) -> ffi::RayCollision {
+        ffi::RayCollision {
+            hit: self.hit.into(),
+            distance: self.distance.into(),
+            point: self.point.into(),
             normal: self.normal.into(),
         }
     }
 }
 
-#[repr(C)]
-#[derive(Default, Debug, Copy, Clone)]
-pub struct Transform {
-    pub translation: Vector3,
-    pub rotation: Quaternion,
-    pub scale: Vector3,
+optional_serde_struct! {
+    pub struct Transform {
+        pub translation: Vector3,
+        pub rotation: Quaternion,
+        pub scale: Vector3,
+    }
 }
 
 impl From<ffi::Transform> for Transform {

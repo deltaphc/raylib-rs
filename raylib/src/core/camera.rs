@@ -1,4 +1,6 @@
 //! Utility code for using Raylib [`Camera3D`] and [`Camera2D`]
+use raylib_sys::CameraMode;
+
 use crate::core::math::{Vector2, Vector3};
 use crate::core::RaylibHandle;
 use crate::ffi;
@@ -10,7 +12,7 @@ pub struct Camera3D {
     pub target: Vector3,
     pub up: Vector3,
     pub fovy: f32,
-    type_: ffi::CameraType,
+    projection_: ffi::CameraProjection,
 }
 pub type Camera = Camera3D;
 
@@ -33,7 +35,7 @@ impl Into<ffi::Camera3D> for &Camera3D {
             target: self.target.into(),
             up: self.up.into(),
             fovy: self.fovy,
-            type_: (self.type_ as u32) as i32,
+            projection: (self.projection_ as u32) as i32,
         }
     }
 }
@@ -71,8 +73,8 @@ impl Into<ffi::Camera2D> for &Camera2D {
 }
 
 impl Camera3D {
-    pub fn camera_type(&self) -> crate::consts::CameraType {
-        unsafe { std::mem::transmute(self.type_.clone()) }
+    pub fn camera_type(&self) -> crate::consts::CameraProjection {
+        unsafe { std::mem::transmute(self.projection_.clone()) }
     }
     /// Create a perspective camera.
     /// fovy is in degrees
@@ -82,85 +84,42 @@ impl Camera3D {
             target,
             up,
             fovy,
-            type_: ffi::CameraType::CAMERA_PERSPECTIVE,
+            projection_: ffi::CameraProjection::CAMERA_PERSPECTIVE,
         }
     }
     /// Create a orthographic camera.
     /// fovy is in degrees
     pub fn orthographic(position: Vector3, target: Vector3, up: Vector3, fovy: f32) -> Camera3D {
         let mut c = Self::perspective(position, target, up, fovy);
-        c.type_ = ffi::CameraType::CAMERA_ORTHOGRAPHIC;
+        c.projection_ = ffi::CameraProjection::CAMERA_ORTHOGRAPHIC;
         c
     }
 }
 
 impl RaylibHandle {
-    /// Sets camera mode.
-    #[inline]
-    pub fn set_camera_mode(
-        &mut self,
-        camera: impl Into<ffi::Camera3D>,
-        mode: crate::consts::CameraMode,
-    ) {
-        unsafe {
-            ffi::SetCameraMode(camera.into(), mode as i32);
-        }
-    }
-
     /// Updates camera position for selected mode.
     #[inline]
-    pub fn update_camera(&self, camera: &mut Camera3D) {
+    pub fn update_camera(&self, camera: &mut Camera3D, mode: CameraMode) {
         unsafe {
             let mut fficam: ffi::Camera3D = (*camera).into();
-            ffi::UpdateCamera(&mut fficam);
+            ffi::UpdateCamera(&mut fficam, mode as i32);
             *camera = fficam.into();
         }
     }
 
-    /// Sets camera pan key to combine with mouse movement (free camera).
-    #[inline]
-    pub fn set_camera_pan_control(&mut self, pan_key: crate::consts::KeyboardKey) {
-        unsafe {
-            ffi::SetCameraPanControl(pan_key as i32);
-        }
-    }
-
-    /// Sets camera alt key to combine with mouse movement (free camera).
-    #[inline]
-    pub fn set_camera_alt_control(&mut self, alt_key: crate::consts::KeyboardKey) {
-        unsafe {
-            ffi::SetCameraAltControl(alt_key as i32);
-        }
-    }
-
-    /// Sets camera smooth zoom key to combine with mouse (free camera).
-    #[inline]
-    pub fn set_camera_smooth_zoom_control(&mut self, sz_key: crate::consts::KeyboardKey) {
-        unsafe {
-            ffi::SetCameraSmoothZoomControl(sz_key as i32);
-        }
-    }
-
-    /// Sets camera move controls (1st person and 3rd person cameras).
-    #[inline]
-    pub fn set_camera_move_controls(
-        &mut self,
-        front_key: crate::consts::KeyboardKey,
-        back_key: crate::consts::KeyboardKey,
-        right_key: crate::consts::KeyboardKey,
-        left_key: crate::consts::KeyboardKey,
-        up_key: crate::consts::KeyboardKey,
-        down_key: crate::consts::KeyboardKey,
+    pub fn update_camera_pro(
+        &self,
+        camera: &mut Camera3D,
+        movement: Vector3,
+        rotation: Vector3,
+        zoom: f32,
     ) {
+        let mut fficam: ffi::Camera3D = (*camera).into();
+        let ffimov: ffi::Vector3 = (movement).into();
+        let ffirot: ffi::Vector3 = (rotation).into();
+
         unsafe {
-            ffi::SetCameraMoveControls(
-                front_key as i32,
-                back_key as i32,
-                right_key as i32,
-                left_key as i32,
-                up_key as i32,
-                down_key as i32,
-            );
+            ffi::UpdateCameraPro(&mut fficam, ffimov, ffirot, zoom);
         }
     }
 }

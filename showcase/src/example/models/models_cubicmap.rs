@@ -47,7 +47,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
             .unwrap().make_weak() // Load map texture
             
         }; 
-        model.materials_mut()[0].maps_mut()[raylib::consts::MaterialMapType::MAP_ALBEDO as usize]
+        model.materials_mut()[0].maps_mut()[raylib::consts::MaterialMapIndex::MATERIAL_MAP_ALBEDO as usize]
         .texture = *texture.as_ref(); // Set map diffuse texture
     let mapPosition = rvec3(-16.0, 0.0, -8.0); // Set model position
 

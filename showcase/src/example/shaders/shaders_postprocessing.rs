@@ -89,7 +89,8 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
                    // Raylib-rs assumes that textures aren't shared or used by models can be unloaded on drop.
                    // You convert the Texture2D to WeakTexture2D to stop raylib-rs from unloading a shared texture.
     let texture = unsafe { texture.make_weak() };
-    model.materials_mut()[0].maps_mut()[raylib::consts::MaterialMapType::MAP_ALBEDO as usize]
+    model.materials_mut()[0].maps_mut()
+        [raylib::consts::MaterialMapIndex::MATERIAL_MAP_ALBEDO as usize]
         .texture = *texture.as_ref(); // Set model diffuse texture
 
     let position = rvec3(0.0, 0.0, 0.0); // Set model position

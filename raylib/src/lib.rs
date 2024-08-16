@@ -1,7 +1,7 @@
 /* raylib-rs
    lib.rs - Main library code (the safe layer)
 
-Copyright (c) 2018-2019 Paul Clement (@deltaphc)
+Copyright (c) 2018-2024 raylib-rs team
 
 This software is provided "as-is", without any express or implied warranty. In no event will the authors be held liable for any damages arising from the use of this software.
 
@@ -37,7 +37,7 @@ Permission is granted to anyone to use this software for any purpose, including 
 //!
 //! The classic "Hello, world":
 //!
-//! ```
+//! ```no_run
 //! use raylib::prelude::*;
 //!
 //! fn main() {
@@ -54,14 +54,14 @@ Permission is granted to anyone to use this software for any purpose, including 
 //!     }
 //! }
 //! ```
-#![cfg_attr(feature = "nightly", feature(optin_builtin_traits))]
+//#![cfg_attr(feature = "nightly", feature(auto_traits))]
+
 #![allow(dead_code)]
 pub mod consts;
 pub mod core;
 pub mod ease;
 pub mod prelude;
 pub mod rgui;
-pub mod rlights;
 
 /// The raw, unsafe FFI binding, in case you need that escape hatch or the safe layer doesn't provide something you need.
 pub mod ffi {
@@ -71,5 +71,11 @@ pub mod ffi {
 pub use crate::core::collision::*;
 pub use crate::core::file::*;
 pub use crate::core::logging::*;
-pub use crate::core::misc::{get_random_value, open_url};
+pub use crate::core::misc::open_url;
 pub use crate::core::*;
+
+// Re-exports
+#[cfg(feature = "nalgebra_interop")]
+pub use nalgebra as na;
+#[cfg(feature = "with_serde")]
+pub use serde;

@@ -26,7 +26,6 @@
 ********************************************************************************************/
 
 use raylib::prelude::*;
-use raylib::rlights;
 
 #[cfg(not(target_arch = "wasm32"))]
 const GLSL_VERSION: i32 = 330;
@@ -81,12 +80,18 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
         .unwrap();
 
     // Assign texture to default model material
-    modelA.materials_mut()[0]
-        .set_material_texture(raylib::consts::MaterialMapType::MAP_ALBEDO, &texture);
-    modelB.materials_mut()[0]
-        .set_material_texture(raylib::consts::MaterialMapType::MAP_ALBEDO, &texture);
-    modelC.materials_mut()[0]
-        .set_material_texture(raylib::consts::MaterialMapType::MAP_ALBEDO, &texture);
+    modelA.materials_mut()[0].set_material_texture(
+        raylib::consts::MaterialMapIndex::MATERIAL_MAP_ALBEDO,
+        &texture,
+    );
+    modelB.materials_mut()[0].set_material_texture(
+        raylib::consts::MaterialMapIndex::MATERIAL_MAP_ALBEDO,
+        &texture,
+    );
+    modelC.materials_mut()[0].set_material_texture(
+        raylib::consts::MaterialMapIndex::MATERIAL_MAP_ALBEDO,
+        &texture,
+    );
 
     let mut shader = unsafe {
         rl.load_shader(
@@ -105,9 +110,9 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
     };
 
     // Get some shader loactions
-    shader.locs_mut()[raylib::consts::ShaderLocationIndex::LOC_MATRIX_MODEL as usize] =
+    shader.locs_mut()[raylib::consts::ShaderLocationIndex::SHADER_LOC_MATRIX_MODEL as usize] =
         shader.get_shader_location("matModel");
-    shader.locs_mut()[raylib::consts::ShaderLocationIndex::LOC_VECTOR_VIEW as usize] =
+    shader.locs_mut()[raylib::consts::ShaderLocationIndex::SHADER_LOC_VECTOR_VIEW as usize] =
         shader.get_shader_location("viewPos");
 
     // ambient light level
@@ -123,33 +128,33 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
 
     // Using 4 point lights, white,Color::RED, green and blue
     let mut lights = [
-        rlights::create_light(
-            rlights::LightType::LIGHT_POINT,
+        create_light(
+            LightType::LIGHT_POINT,
             rvec3(4, 2, 4),
             Vector3::zero(),
             Color::WHITE,
-            &shader,
+            &mut shader,
         ),
-        rlights::create_light(
-            rlights::LightType::LIGHT_POINT,
+        create_light(
+            LightType::LIGHT_POINT,
             rvec3(4, 2, 4),
             Vector3::zero(),
             Color::RED,
-            &shader,
+            &mut shader,
         ),
-        rlights::create_light(
-            rlights::LightType::LIGHT_POINT,
+        create_light(
+            LightType::LIGHT_POINT,
             rvec3(0, 4, 2),
             Vector3::zero(),
             Color::GREEN,
-            &shader,
+            &mut shader,
         ),
-        rlights::create_light(
-            rlights::LightType::LIGHT_POINT,
+        create_light(
+            LightType::LIGHT_POINT,
             rvec3(0, 4, 2),
             Vector3::zero(),
             Color::BLUE,
-            &shader,
+            &mut shader,
         ),
     ];
 
@@ -196,10 +201,10 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
         lights[3].position.y = (-angle * 0.35).cos() * 4.0;
         lights[3].position.z = (-angle * 0.35).sin() * 4.0;
 
-        rlights::update_light_values(&shader, lights[0].clone());
-        rlights::update_light_values(&shader, lights[1].clone());
-        rlights::update_light_values(&shader, lights[2].clone());
-        rlights::update_light_values(&shader, lights[3].clone());
+        update_light_values(&mut shader, lights[0].clone());
+        update_light_values(&mut shader, lights[1].clone());
+        update_light_values(&mut shader, lights[2].clone());
+        update_light_values(&mut shader, lights[3].clone());
 
         // Rotate the torus
         modelA.set_transform(&(*modelA.transform() * Matrix::rotate_x(-0.025)));
@@ -207,7 +212,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
 
         // Update the light shader with the camera view position
         let mut cameraPos = Vector3::new(camera.position.x, camera.position.y, camera.position.z);
-        let loc = shader.locs_mut()[raylib::consts::ShaderLocationIndex::LOC_VECTOR_VIEW as usize];
+        let loc = shader.locs_mut()[raylib::consts::ShaderLocationIndex::SHADER_LOC_VECTOR_VIEW as usize];
         shader.set_shader_value( loc, cameraPos);
         //----------------------------------------------------------------------------------
 
@@ -266,4 +271,97 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
     // //--------------------------------------------------------------------------------------
 
     // return 0;
+}
+
+const MAX_LIGHTS: u32 = 4;
+
+#[repr(i32)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+pub enum LightType {
+    LIGHT_DIRECTIONAL = 0,
+    LIGHT_POINT = 1,
+}
+
+impl Default for LightType {
+    fn default() -> Self {
+        Self::LIGHT_DIRECTIONAL
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct Light {
+    pub enabled: bool,
+    pub light_type: LightType,
+    pub position: Vector3,
+    pub target: Vector3,
+    pub color: Color,
+    pub enabled_loc: i32,
+    pub type_loc: i32,
+    pub pos_loc: i32,
+    pub target_loc: i32,
+    pub color_loc: i32,
+}
+
+static mut LIGHTS_COUNT: i32 = 0;
+
+// Defines a light and get locations from PBR shader
+pub fn create_light(
+    light_type: LightType,
+    pos: Vector3,
+    targ: Vector3,
+    color: Color,
+    shader: &mut WeakShader,
+) -> Light {
+    let mut light = Light::default();
+
+    if (unsafe { LIGHTS_COUNT as u32 } < MAX_LIGHTS) {
+        light.enabled = true;
+        light.light_type = light_type;
+        light.position = pos.clone();
+        light.target = targ.clone();
+        light.color = color.clone();
+
+        // TODO: Below code doesn't look good to me,
+        // it assumes a specific shader naming and structure
+        // Probably this implementation could be improved
+
+        let lights_count = unsafe { LIGHTS_COUNT };
+        let enabledName = format!("lights[{}].enabled", lights_count);
+        let typeName = format!("lights[{}].type", lights_count);
+        let posName = format!("lights[{}].position", lights_count);
+        let targetName = format!("lights[{}].target", lights_count);
+        let colorName = format!("lights[{}].color", lights_count);
+
+        // Set location name [x] depending on lights count
+
+        light.enabled_loc = shader.get_shader_location(&enabledName);
+        light.type_loc = shader.get_shader_location(&typeName);
+        light.pos_loc = shader.get_shader_location(&posName);
+        light.target_loc = shader.get_shader_location(&targetName);
+        light.color_loc = shader.get_shader_location(&colorName);
+
+        update_light_values(shader, light.clone());
+        unsafe {
+            LIGHTS_COUNT += 1;
+        }
+    }
+
+    return light;
+}
+
+pub fn update_light_values(shader: &mut WeakShader, light: Light) {
+    // Send to shader light enabled state and type
+    shader.set_shader_value(light.enabled_loc, light.enabled as i32);
+    shader.set_shader_value(light.type_loc, light.light_type as i32);
+
+    // Send to shader light position values
+    shader.set_shader_value(light.pos_loc, light.position);
+
+    // Send to shader light target position values
+    shader.set_shader_value(light.target_loc, light.target);
+
+    // Send to shader light color values
+
+    let color: Vector4 = light.color.into();
+    shader.set_shader_value(light.color_loc, color);
 }

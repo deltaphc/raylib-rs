@@ -1,19 +1,19 @@
 [package]
 name = "raylib-examples"
-version = "3.0.0"
+version = "5.0.1"
 authors = ["David Ayeke"]
 edition = "2018"
 license = "Zlib"
 readme = "../README.md"
-repository = "https://github.com/deltaphc/raylib-rs"
+repository = "https://github.com/raylib-rs/raylib-rs"
 
 
 [dependencies]
-raylib = { version = "3.0", path = "../raylib" }
+raylib = { version = "5.0", path = "../raylib" }
 structopt = "0.2"
 specs-derive = "0.4.1"
 rand = "0.7"
-tcod = "0.15"
+#tcod = "0.14"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 arr_macro = "0.1.3"
@@ -65,10 +65,6 @@ name = "yaw_pitch_roll"
 path = "yaw_pitch_roll.rs"
 
 [[bin]]
-name = "roguelike"
-path = "roguelike.rs"
-
-[[bin]]
 name = "input"
 path = "input.rs"
 
@@ -79,3 +75,15 @@ path = "3d_camera_first_person.rs"
 [[bin]]
 name = "model_shader"
 path = "model_shader.rs"
+
+[[bin]]
+name = "extensions"
+path = "extensions.rs"
+
+[[bin]]
+name = "asteroids"
+path = "./asteroids.rs"
+
+[[bin]]
+name = "floppy"
+path = "./floppy.rs"

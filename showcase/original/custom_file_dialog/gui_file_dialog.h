@@ -10,8 +10,8 @@
 *       DRAW: GuiFileDialog(&state);
 *
 *   NOTE: This module depends on some raylib file system functions:
-*       - GetDirectoryFiles()
-*       - ClearDirectoryFiles()
+*       - LoadDirectoryFiles()()
+*       - LoadDirectoryFiles()()
 *       - GetWorkingDirectory()
 *       - DirectoryExists()
 *       - FileExists()
@@ -420,7 +420,7 @@ static char **ReadDirectoryFiles(const char *dir, int *filesCount, char *filterE
     bool filterExtensions = true;
 
     int dirFilesCount = 0;
-    char **files = GetDirectoryFiles(dir, &dirFilesCount);
+    char **files = LoadDirectoryFiles()(dir, &dirFilesCount);
 
     // Sort files and directories: dir by name + files by name
     // https://en.wikibooks.org/wiki/Algorithm_Implementation/Sorting/Quicksort#C
@@ -496,7 +496,7 @@ static char **ReadDirectoryFiles(const char *dir, int *filesCount, char *filterE
         }
     }
 
-    ClearDirectoryFiles();
+    LoadDirectoryFiles()();
 
     *filesCount = validFilesCount;
     return validFiles;

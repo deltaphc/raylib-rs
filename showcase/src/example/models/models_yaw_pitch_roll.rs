@@ -44,7 +44,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
             // Because we are unwraping we are required to manually unload the texture and can't rely on Drop.
             // We don't do that here since we don't need to unload until the end of main anyway.
         };
-        mats[raylib::consts::MaterialMapType::MAP_ALBEDO as usize].texture = texture;
+        mats[raylib::consts::MaterialMapIndex::MATERIAL_MAP_ALBEDO as usize].texture = texture;
     }
 
     let mut camera = Camera3D::perspective(
@@ -160,7 +160,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
                         0.0,
                         0.0,
                         tex_pitch.width() as f32,
-                        tex_pitch.height() as f32 as f32,
+                        tex_pitch.height() as f32,
                     ),
                     Rectangle::new(
                         center_x,
@@ -183,7 +183,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
                         0.0,
                         0.0,
                         tex_plane.width() as f32,
-                        tex_plane.height() as f32 as f32,
+                        tex_plane.height() as f32,
                     ),
                     Rectangle::new(
                         center_x,

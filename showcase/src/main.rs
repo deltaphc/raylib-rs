@@ -14,13 +14,6 @@ thread_local! (static APP: RefCell<Option<Box<dyn FnMut() -> bool>>> = RefCell::
 pub const EXIT_KEY: raylib::consts::KeyboardKey = raylib::consts::KeyboardKey::KEY_ESCAPE;
 
 fn main() {
-    // Set the emscripten main loop before setting up raylib so that raylib has something
-    // to configure
-    // #[cfg(target_arch = "wasm32")]
-    // unsafe {
-    //     wasm::emscripten_set_main_loop(wasm::_nothing_wasm, 0, 1);
-    // }
-
     let title = "Showcase";
     let screen_width = 800;
     let screen_height = 640;
@@ -100,6 +93,11 @@ fn main() {
             example::core::core_basic_window::run,
         ),
         (
+            rsrt!("raylib [core] example - Smooth Pixel-perfect camera"),
+            example::core::core_smooth_pixel_perfect_camera::run,
+        )
+        #[cfg(target_os = "windows")]
+        (
             rstr!("raylib [core] example - custom logging"),
             example::core::core_custom_logging::run,
         ),
@@ -156,10 +154,10 @@ fn main() {
             rstr!("raylib [models] example - cubesmap loading and drawing"),
             example::models::models_cubicmap::run,
         ),
-        (
-            rstr!("raylib [models] example - pbr material"),
-            example::models::models_material_pbr::run,
-        ),
+        // (
+        //     rstr!("raylib [models] example - pbr material"),
+        //     example::models::models_material_pbr::run,
+        // ),
         (
             rstr!("raylib [models] example - drawing billboards"),
             example::models::models_billboard::run,
@@ -210,10 +208,10 @@ fn main() {
             ),
             example::models::models_rlgl_solar_system::run,
         ),
-        (
-            rstr!("raylib [models] example - skybox loading and drawing"),
-            example::models::models_skybox::run,
-        ),
+        // (
+        //     rstr!("raylib [models] example - skybox loading and drawing"),
+        //     example::models::models_skybox::run,
+        // ),
         (
             rstr!("raylib [models] example - waving cubes"),
             example::models::models_waving_cubes::run,
@@ -282,7 +280,7 @@ fn main() {
                     let list: Vec<_> = samples.iter().map(|(s, _)| *s).collect();
 
                     list_view_active = d.gui_list_view_ex(
-                        rrect(100.0, y_margin, 600, box_length),
+                        rrect(100.0, y_margin as f32, 600 as f32, box_length as f32),
                         list.as_slice(),
                         &mut list_view_focus,
                         &mut list_view_scroll_index,
@@ -310,7 +308,10 @@ fn main() {
                 }
             }
         };
+        #[cfg(not(target_arch = "wasm32"))]
         return rl.window_should_close();
+        #[cfg(target_arch = "wasm32")]
+        return false;
     });
 
     APP.with(|app| {
@@ -360,6 +361,4 @@ mod wasm {
     pub extern "C" fn _update_wasm() {
         super::update();
     }
-
-    pub extern "C" fn _nothing_wasm() {}
 }

@@ -57,7 +57,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
     //--------------------------------------------------------------------------------------
 
     let mut image = Image::gen_image_color(256, 256, Color::BLACK);
-    image.draw_text(Vector2::zero(), "drop image into window", 16, Color::WHITE);
+    image.draw_text( "drop image into window", 0, 0, 16, Color::WHITE);
     let mut  texture = rl.load_texture_from_image(thread, &image).unwrap();
 
     let mut imageLoaded = true;
@@ -77,7 +77,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
         //----------------------------------------------------------------------------------
         if rl.is_file_dropped()
         {
-            let droppedFiles = rl.get_dropped_files();
+            let droppedFiles = rl.load_dropped_files();
 
             if droppedFiles.len() == 1
             {
@@ -104,7 +104,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
                 }
             }
 
-            rl.clear_dropped_files();
+            rl.unload_dropped_files();
         }
 
         if btnExport
@@ -179,8 +179,8 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
         {
             d.draw_texture_ex(&texture, rvec2(screen_width / 2 - (texture.width() as f32 * imageScale / 2.0) as i32,  screen_height / 2 - (texture.height() as f32 * imageScale / 2.0) as i32), 0.0, imageScale, Color::WHITE);
 
-            d.draw_rectangle_lines_ex(imageRec, 1, if imageRec.check_collision_point_rec(d.get_mouse_position()) {Color::RED } else { Color::DARKGRAY});
-            d.draw_text(&format!("SCALE: {:.2}", imageScale * 100.0), 20, screen_height - 40, 20, Color::get_color(d.gui_get_style(raylib::consts::GuiControl::DEFAULT, raylib::consts::GuiDefaultProperty::LINE_COLOR as i32)));
+            d.draw_rectangle_lines_ex(imageRec, 1.0, if imageRec.check_collision_point_rec(d.get_mouse_position()) {Color::RED } else { Color::DARKGRAY});
+            d.draw_text(&format!("SCALE: {:.2}", imageScale * 100.0), 20, screen_height - 40, 20, Color::get_color(d.gui_get_style(raylib::consts::GuiControl::DEFAULT, raylib::consts::GuiDefaultProperty::LINE_COLOR as i32) as u32));
         }
         else
         {
@@ -199,7 +199,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
         //-----------------------------------------------------------------------------
         if windowBoxActive
         {
-            d.draw_rectangle(0, 0, screen_width, screen_height, Color::get_color(d.gui_get_style(raylib::consts::GuiControl::DEFAULT, raylib::consts::GuiDefaultProperty::BACKGROUND_COLOR as i32)).fade( 0.7));
+            d.draw_rectangle(0, 0, screen_width, screen_height, Color::get_color(d.gui_get_style(raylib::consts::GuiControl::DEFAULT, raylib::consts::GuiDefaultProperty::BACKGROUND_COLOR as i32) as u32).fade( 0.7));
             windowBoxActive = !d.gui_window_box(rrect(windowBoxRec.x, windowBoxRec.y, 220, 190), Some(rstr!("Image Export Options")));
 
             d.gui_label(rrect(windowBoxRec.x + 10.0, windowBoxRec.y + 35.0, 60, 25), Some(rstr!("File format:")));

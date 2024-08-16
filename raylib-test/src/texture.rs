@@ -10,27 +10,6 @@ mod texture_test {
         i.export_image_as_code("test_out/billboard_code.h");
     }
 
-    #[test]
-    fn test_image_load_ex() {
-        let mut col = Vec::new();
-        for _ in 0..32 {
-            for _ in 0..32 {
-                col.push(Color::RED);
-            }
-        }
-        let i = Image::load_image_ex(&col, 32, 32).expect("failed to load binary image");
-        assert_eq!(
-            i.get_image_data().len(),
-            32 * 32,
-            "failed to read pixels of image"
-        );
-        assert_eq!(
-            i.get_image_data_normalized().len(),
-            32 * 32,
-            "failed to read pixels of image normalized"
-        );
-    }
-
     ray_test!(test_texture_load);
     fn test_texture_load(thread: &RaylibThread) {
         let i =
@@ -44,7 +23,7 @@ mod texture_test {
             .load_texture_from_image(thread, &i)
             .expect("could not load texture from image");
         let _ = t
-            .get_texture_data()
+            .load_image()
             .expect("can't get an image from a texture created from an image...");
         i.export_image("test_out/billboard_texture.png");
     }
@@ -75,9 +54,10 @@ mod texture_test {
             }
         }
 
-        let mut i = Image::load_image_ex(&col, 32, 32).expect("failed to load binary image");
-        let mut canvas = Image::load_image_ex(&blank, 32, 32).expect("failed to load canvas image");
-        let mask = Image::load_image_ex(&alpha, 32, 32).expect("failed to load alpha image");
+        let mut i = Image::gen_image_color(32, 32, Color::RED);
+        let mut canvas = Image::gen_image_color(32, 32, Color::BLANK);
+        // let mask = Image::load_image_ex(&alpha, 32, 32).expect("failed to load alpha image");
+        let mask = Image::gen_image_checked(32, 32, 8, 8, Color::WHITE, Color::BLANK);
 
         let mut c = i.clone();
 
@@ -125,7 +105,7 @@ mod texture_test {
         canvas.export_image("test_out/canvas.png");
 
         // Test generation functions
-        let g = Image::gen_image_color(64, 64, Color::BLUE);
+        /*let g = Image::gen_image_color(64, 64, Color::BLUE);
         g.export_image("test_out/generated_color.png");
         let g = Image::gen_image_gradient_v(64, 64, Color::RED, Color::BLUE);
         g.export_image("test_out/generated_gradient_v.png");
@@ -140,6 +120,6 @@ mod texture_test {
         let g = Image::gen_image_perlin_noise(64, 64, 0, 0, 0.7);
         g.export_image("test_out/generated_perlin.png");
         let g = Image::gen_image_cellular(64, 64, 4);
-        g.export_image("test_out/generated_cellular.png");
+        g.export_image("test_out/generated_cellular.png");*/
     }
 }

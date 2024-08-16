@@ -2,8 +2,9 @@
 use crate::core::math::{BoundingBox, Vector3};
 use crate::core::texture::Image;
 use crate::core::{RaylibHandle, RaylibThread};
-use crate::ffi;
+use crate::{consts, ffi};
 use std::ffi::CString;
+use std::os::raw::c_void;
 
 fn no_drop<T>(_thing: T) {}
 make_thin_wrapper!(Model, ffi::Model, ffi::UnloadModel);
@@ -96,7 +97,7 @@ impl RaylibHandle {
             }
         }
         unsafe {
-            libc::free(m_ptr as *mut libc::c_void);
+            ffi::MemFree(m_ptr as *mut libc::c_void);
         }
         Ok(m_vec)
     }
@@ -212,28 +213,6 @@ pub trait RaylibModel: AsRef<ffi::Model> + AsMut<ffi::Model> {
     }
 }
 
-impl RaylibHandle {
-    /// Load meshes from model file
-    pub fn load_meshes(&mut self, _: &RaylibThread, filename: &str) -> Result<Vec<Mesh>, String> {
-        let c_filename = CString::new(filename).unwrap();
-        let mut m_size = 0;
-        let m_ptr = unsafe { ffi::LoadMeshes(c_filename.as_ptr(), &mut m_size) };
-        if m_size <= 0 {
-            return Err(format!("No meshes loaded from {}", filename));
-        }
-        let mut m_vec = Vec::with_capacity(m_size as usize);
-        for i in 0..m_size {
-            unsafe {
-                m_vec.push(Mesh(*m_ptr.offset(i as isize)));
-            }
-        }
-        unsafe {
-            libc::free(m_ptr as *mut libc::c_void);
-        }
-        Ok(m_vec)
-    }
-}
-
 impl RaylibMesh for WeakMesh {}
 impl RaylibMesh for Mesh {}
 
@@ -245,6 +224,18 @@ impl Mesh {
     }
 }
 pub trait RaylibMesh: AsRef<ffi::Mesh> + AsMut<ffi::Mesh> {
+    unsafe fn upload(&mut self, dynamic: bool) {
+        ffi::UploadMesh(self.as_mut(), dynamic);
+    }
+    unsafe fn update_buffer<A>(&mut self, index: i32, data: &[u8], offset: i32) {
+        ffi::UpdateMeshBuffer(
+            *self.as_ref(),
+            index,
+            data.as_ptr() as *const c_void,
+            data.len() as i32,
+            offset,
+        );
+    }
     fn vertices(&self) -> &[Vector3] {
         unsafe {
             std::slice::from_raw_parts(
@@ -396,30 +387,22 @@ pub trait RaylibMesh: AsRef<ffi::Mesh> + AsMut<ffi::Mesh> {
 
     /// Computes mesh bounding box limits.
     #[inline]
-    fn mesh_bounding_box(&self) -> BoundingBox {
-        unsafe { ffi::MeshBoundingBox(*self.as_ref()).into() }
+    fn get_mesh_bounding_box(&self) -> BoundingBox {
+        unsafe { ffi::GetMeshBoundingBox(*self.as_ref()).into() }
     }
 
     /// Computes mesh tangents.
     // NOTE: New VBO for tangents is generated at default location and also binded to mesh VAO
     #[inline]
-    fn mesh_tangents(&mut self, _: &RaylibThread) {
+    fn gen_mesh_tangents(&mut self, _: &RaylibThread) {
         unsafe {
-            ffi::MeshTangents(self.as_mut());
-        }
-    }
-
-    /// Computes mesh binormals.
-    #[inline]
-    fn mesh_binormals(&mut self) {
-        unsafe {
-            ffi::MeshBinormals(self.as_mut());
+            ffi::GenMeshTangents(self.as_mut());
         }
     }
 
     /// Exports mesh as an OBJ file.
     #[inline]
-    fn export_mesh(&self, filename: &str) {
+    fn export(&self, filename: &str) {
         let c_filename = CString::new(filename).unwrap();
         unsafe {
             ffi::ExportMesh(*self.as_ref(), c_filename.as_ptr());
@@ -448,7 +431,7 @@ impl Material {
             }
         }
         unsafe {
-            libc::free(m_ptr as *mut libc::c_void);
+            ffi::MemFree(m_ptr as *mut libc::c_void);
         }
         Ok(m_vec)
     }
@@ -470,7 +453,7 @@ pub trait RaylibMaterial: AsRef<ffi::Material> + AsMut<ffi::Material> {
         unsafe {
             std::slice::from_raw_parts(
                 self.as_ref().maps as *const MaterialMap,
-                ffi::MAX_MATERIAL_MAPS as usize,
+                consts::MAX_MATERIAL_MAPS as usize,
             )
         }
     }
@@ -479,14 +462,14 @@ pub trait RaylibMaterial: AsRef<ffi::Material> + AsMut<ffi::Material> {
         unsafe {
             std::slice::from_raw_parts_mut(
                 self.as_mut().maps as *mut MaterialMap,
-                ffi::MAX_MATERIAL_MAPS as usize,
+                consts::MAX_MATERIAL_MAPS as usize,
             )
         }
     }
 
     fn set_material_texture(
         &mut self,
-        map_type: crate::consts::MaterialMapType,
+        map_type: crate::consts::MaterialMapIndex,
         texture: impl AsRef<ffi::Texture2D>,
     ) {
         unsafe {

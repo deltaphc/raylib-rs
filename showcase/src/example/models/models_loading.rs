@@ -41,11 +41,11 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut
     
     let mut model = rl.load_model(&thread, "original/models/resources/models/castle.obj").unwrap();                 // Load model
     let mut texture =  rl.load_texture(thread, "original/models/resources/models/castle_diffuse.png").unwrap(); // Load model texture
-    model.materials_mut()[0].maps_mut()[raylib::consts::MaterialMapType::MAP_ALBEDO as usize].texture = *texture.as_ref();                 // Set map diffuse texture
+    model.materials_mut()[0].maps_mut()[raylib::consts::MaterialMapIndex::MATERIAL_MAP_ALBEDO as usize].texture = *texture.as_ref();                 // Set map diffuse texture
 
     let position = rvec3( 0.0, 0.0, 0.0 );                // Set model position
  
-    let mut bounds = model.meshes()[0].mesh_bounding_box();  // Set model bounds
+    let mut bounds = model.meshes()[0].get_mesh_bounding_box();  // Set model bounds
 
     // NOTE: bounds are calculated from the original size of the model,
     // if model is scaled on drawing, bounds must be also scaled
@@ -67,7 +67,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut
         // Load new models/textures on drag&drop
         if (rl.is_file_dropped())
         {
-            let droppedFiles = rl.get_dropped_files();
+            let droppedFiles = rl.load_dropped_files();
 
             if (droppedFiles.len() == 1) // Only support one file dropped
             {
@@ -79,9 +79,9 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut
                 }) 
                 {
                     model = rl.load_model(thread, &droppedFiles[0]).unwrap();     // Load new model
-                    model.materials_mut()[0].maps_mut()[raylib::consts::MaterialMapType::MAP_ALBEDO as usize].texture = *texture.as_ref(); // Set current map diffuse texture
+                    model.materials_mut()[0].maps_mut()[raylib::consts::MaterialMapIndex::MATERIAL_MAP_ALBEDO as usize].texture = *texture.as_ref(); // Set current map diffuse texture
 
-                    bounds = model.meshes()[0].mesh_bounding_box();
+                    bounds = model.meshes()[0].get_mesh_bounding_box();
                     
                     // TODO: Move camera position from target enough distance to visualize model properly
                 }
@@ -89,18 +89,18 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut
                 {
                     // Unload current model texture and load new one
                     texture = rl.load_texture(thread, &droppedFiles[0]).unwrap();
-                    model.materials_mut()[0].maps_mut()[raylib::consts::MaterialMapType::MAP_ALBEDO as usize].texture = *texture.as_ref();
+                    model.materials_mut()[0].maps_mut()[raylib::consts::MaterialMapIndex::MATERIAL_MAP_ALBEDO as usize].texture = *texture.as_ref();
                 }
             }
 
-            rl.clear_dropped_files();    // Clear internal buffers
+            rl.unload_dropped_files();    // Clear internal buffers
         }
 
         // Select model on mouse click
-        if (rl.is_mouse_button_pressed(raylib::consts::MouseButton::MOUSE_LEFT_BUTTON))
+        if (rl.is_mouse_button_pressed(raylib::consts::MouseButton::MOUSE_BUTTON_LEFT))
         {
             // Check collision between ray and box
-            if bounds.check_collision_ray_box(rl.get_mouse_ray(rl.get_mouse_position(), &camera)){ selected = !selected;}
+            if bounds.get_ray_collision_box(rl.get_mouse_ray(rl.get_mouse_position(), &camera)).hit { selected = !selected;}
             else {selected = false;}
         }
         //----------------------------------------------------------------------------------

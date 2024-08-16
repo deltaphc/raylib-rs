@@ -49,7 +49,8 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
             "original/shaders/resources/models/barracks_diffuse.png",
         )
         .unwrap(); // Load model texture (diffuse map)
-    model.materials_mut()[0].maps_mut()[raylib::consts::MaterialMapType::MAP_ALBEDO as usize]
+    model.materials_mut()[0].maps_mut()
+        [raylib::consts::MaterialMapIndex::MATERIAL_MAP_ALBEDO as usize]
         .texture = *texture.as_ref(); // Set model diffuse texture
 
     let position = Vector3::zero(); // Set model position

@@ -43,12 +43,12 @@ pub fn run(rl
 
     // Render texture initialization, used to hold the rendering result so we can easily resize it
     let mut  target = rl.load_render_texture(&thread, game_screen_width as u32, game_screen_height as u32).unwrap();
-    target.texture().set_texture_filter(thread, raylib::consts::TextureFilterMode::FILTER_BILINEAR);
+    target.texture().set_texture_filter(thread, raylib::consts::TextureFilter::TEXTURE_FILTER_BILINEAR);
 
     let mut  colors = [Color::default(); 10];
     for i in 0..10 
     {
-        colors[i] = Color::new(raylib::get_random_value::<i32>(100, 250) as u8, raylib::get_random_value::<i32>(50, 150) as u8, raylib::get_random_value::<i32>(10, 100) as u8, 255);
+        colors[i] = Color::new(rl.get_random_value::<i32>(100, 250) as u8, rl.get_random_value::<i32>(50, 150) as u8, rl.get_random_value::<i32>(10, 100) as u8, 255);
 
     }
 
@@ -69,7 +69,7 @@ pub fn run(rl
             for i in 0..10
                 {
 
-                    colors[i] = Color::new(raylib::get_random_value::<i32>(100, 250) as u8, raylib::get_random_value::<i32>(50, 150) as u8, raylib::get_random_value::<i32>(10, 100) as u8, 255);
+                    colors[i] = Color::new(rl.get_random_value::<i32>(100, 250) as u8, rl.get_random_value::<i32>(50, 150) as u8, rl.get_random_value::<i32>(10, 100) as u8, 255);
                 }
         }
 

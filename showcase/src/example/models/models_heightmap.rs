@@ -30,7 +30,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut
     let mesh = unsafe { Mesh::gen_mesh_heightmap(thread, &image, rvec3( 16, 8,16 )).make_weak() };    // Generate heightmap mesh (RAM and VRAM)
     let mut model = rl.load_model_from_mesh(thread, mesh).unwrap();                          // Load model from generated mesh
 
-    model.materials_mut()[0].maps_mut()[raylib::consts::MaterialMapType::MAP_ALBEDO as usize].texture = *texture.as_ref();         // Set map diffuse texture
+    model.materials_mut()[0].maps_mut()[raylib::consts::MaterialMapIndex::MATERIAL_MAP_ALBEDO as usize].texture = *texture.as_ref();         // Set map diffuse texture
     let mapPosition = rvec3( -8.0, 0.0, -8.0 );                   // Define model position
 
 

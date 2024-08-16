@@ -5,6 +5,7 @@ pub mod core_3d_camera_free;
 pub mod core_3d_camera_mode;
 pub mod core_3d_picking;
 pub mod core_basic_window;
+#[cfg(target_os = "windows")]
 pub mod core_custom_logging;
 pub mod core_drop_files;
 pub mod core_input_gamepad;
@@ -15,6 +16,7 @@ pub mod core_input_mouse_wheel;
 pub mod core_input_multitouch;
 pub mod core_random_values;
 pub mod core_scissor_test;
+pub mod core_smooth_pixel_perfect_camera;
 pub mod core_vr_simulator;
 pub mod core_window_letterbox;
 pub mod core_world_screen;

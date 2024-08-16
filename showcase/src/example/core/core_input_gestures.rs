@@ -14,7 +14,7 @@ use raylib::prelude::*;
 const MAX_GESTURE_STRINGS: usize = 20;
 
 pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
-    use raylib::consts::GestureType::*;
+    use raylib::consts::Gesture::*;
     // Initialization
     //--------------------------------------------------------------------------------------
     let screen_width = 800;
@@ -27,7 +27,7 @@ pub fn run(rl: &mut RaylibHandle, thread: &RaylibThread) -> crate::SampleOut {
     let touch_area = rrect(220, 10, screen_width - 230, screen_height - 20);
 
     let mut gestures_count = 0;
-    let mut gesture_strings = [raylib::consts::GestureType::GESTURE_NONE; MAX_GESTURE_STRINGS];
+    let mut gesture_strings = [raylib::consts::Gesture::GESTURE_NONE; MAX_GESTURE_STRINGS];
 
     let mut current_gesture = GESTURE_NONE;
     let mut last_gesture = GESTURE_NONE;
