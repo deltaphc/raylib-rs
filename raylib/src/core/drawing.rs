@@ -133,6 +133,11 @@ impl<'a, T> std::ops::Deref for RaylibMode2D<'a, T> {
         &self.0
     }
 }
+impl<'a, T> std::ops::DerefMut for RaylibMode2D<'a, T> {
+    fn deref_mut(&mut self) -> &mut T {
+        self.0
+    }
+}
 
 pub trait RaylibMode2DExt
 where
@@ -164,6 +169,11 @@ impl<'a, T> std::ops::Deref for RaylibMode3D<'a, T> {
 
     fn deref(&self) -> &Self::Target {
         &self.0
+    }
+}
+impl<'a, T> std::ops::DerefMut for RaylibMode3D<'a, T> {
+    fn deref_mut(&mut self) -> &mut T {
+        self.0
     }
 }
 
@@ -200,6 +210,11 @@ impl<'a, T> std::ops::Deref for RaylibShaderMode<'a, T> {
         &self.0
     }
 }
+impl<'a, T> std::ops::DerefMut for RaylibShaderMode<'a, T> {
+    fn deref_mut(&mut self) -> &mut T {
+        self.0
+    }
+}
 
 pub trait RaylibShaderModeExt
 where
@@ -231,6 +246,11 @@ impl<'a, T> std::ops::Deref for RaylibBlendMode<'a, T> {
         &self.0
     }
 }
+impl<'a, T> std::ops::DerefMut for RaylibBlendMode<'a, T> {
+    fn deref_mut(&mut self) -> &mut T {
+        self.0
+    }
+}
 
 pub trait RaylibBlendModeExt
 where
@@ -260,6 +280,11 @@ impl<'a, T> std::ops::Deref for RaylibScissorMode<'a, T> {
 
     fn deref(&self) -> &Self::Target {
         &self.0
+    }
+}
+impl<'a, T> std::ops::DerefMut for RaylibScissorMode<'a, T> {
+    fn deref_mut(&mut self) -> &mut T {
+        self.0
     }
 }
 
