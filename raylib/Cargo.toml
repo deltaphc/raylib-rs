@@ -1,6 +1,6 @@
 [package]
 name = "raylib"
-version = "5.0.1"
+version = "5.1.0"
 authors = ["DeltaPHC <phclem@protonmail.com>"]
 license = "Zlib"
 readme = "../README.md"
@@ -13,15 +13,18 @@ edition = "2018"
 autoexamples = false
 
 [dependencies]
-raylib-sys = { version = "5.0.0", path = "../raylib-sys" }
+raylib-sys = { version = "5.1.0", path = "../raylib-sys" }
 libc = "0.2.45"
 lazy_static = "1.2.0"
 cfg-if = "1.0.0"
 serde = { version = "1.0.125", features = ["derive"], optional = true }
 serde_json = { version = "1.0.64", optional = true }
+
 mint = { version = "0.5.9", optional = true }
 parking_lot = "0.12.1"
+
 specs-derive = "0.4.1"
+thiserror = "1.0.61"
 
 [dev-dependencies]
 structopt = "0.3"

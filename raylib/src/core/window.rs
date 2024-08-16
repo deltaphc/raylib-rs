@@ -422,12 +422,35 @@ impl RaylibHandle {
 // Screen-space-related functions
 impl RaylibHandle {
     /// Returns a ray trace from mouse position
+    #[deprecated = "Renamed to RaylibHandle::get_screen_to_world_ray"]
     pub fn get_mouse_ray(
         &self,
         mouse_position: impl Into<ffi::Vector2>,
         camera: impl Into<ffi::Camera>,
     ) -> Ray {
-        unsafe { ffi::GetMouseRay(mouse_position.into(), camera.into()).into() }
+        unsafe { ffi::GetScreenToWorldRay(mouse_position.into(), camera.into()).into() }
+    }
+
+    /// Get a ray trace from screen position (i.e mouse)
+    pub fn get_screen_to_world_ray(
+        &self,
+        mouse_position: impl Into<ffi::Vector2>,
+        camera: impl Into<ffi::Camera>,
+    ) -> Ray {
+        unsafe { ffi::GetScreenToWorldRay(mouse_position.into(), camera.into()).into() }
+    }
+
+    /// Get a ray trace from screen position (i.e mouse) in a viewport
+    pub fn get_screen_to_world_ray_ex(
+        &self,
+        mouse_position: impl Into<ffi::Vector2>,
+        camera: impl Into<ffi::Camera>,
+        width: i32,
+        height: i32,
+    ) -> Ray {
+        unsafe {
+            ffi::GetScreenToWorldRayEx(mouse_position.into(), camera.into(), width, height).into()
+        }
     }
 
     /// Returns the screen space position for a 3d world space position
@@ -509,6 +532,30 @@ impl RaylibHandle {
     #[inline]
     pub fn is_window_ready(&self) -> bool {
         unsafe { ffi::IsWindowReady() }
+    }
+
+    /// Set window state: maximized, if resizable
+    #[inline]
+    pub fn maximize_window(&self) {
+        unsafe { ffi::MaximizeWindow() }
+    }
+
+    /// Set window state: minimized, if resizable
+    #[inline]
+    pub fn minimize_window(&self) {
+        unsafe { ffi::MinimizeWindow() }
+    }
+
+    /// Set window state: not minimized/maximized
+    #[inline]
+    pub fn restore_window(&self) {
+        unsafe { ffi::RestoreWindow() }
+    }
+
+    /// Check if window is currently maximized
+    #[inline]
+    pub fn is_window_maximized(&self) -> bool {
+        unsafe { ffi::IsWindowMaximized() }
     }
 
     /// Checks if window has been minimized (or lost focus).
@@ -703,6 +750,12 @@ impl RaylibHandle {
     #[inline]
     pub fn get_render_width(&self) -> i32 {
         unsafe { ffi::GetRenderWidth() }
+    }
+
+    /// Get current render width which is equal to screen height * dpi scale
+    #[inline]
+    pub fn get_render_height(&self) -> i32 {
+        unsafe { ffi::GetRenderHeight() }
     }
 
     /// Get current screen height which is equal to screen height * dpi scale

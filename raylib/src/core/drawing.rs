@@ -1,5 +1,7 @@
 //! Contains code related to drawing. Types that can be set as a surface to draw will implement the [`RaylibDraw`] trait
 
+use raylib_sys::Rectangle;
+
 use crate::core::camera::Camera3D;
 use crate::core::math::Ray;
 use crate::core::math::{Vector2, Vector3};
@@ -293,6 +295,16 @@ pub trait RaylibDraw {
         }
     }
 
+    /// Get texture that is used for shapes drawing
+    fn get_shapes_texture(&self) -> Texture2D {
+        Texture2D(unsafe { ffi::GetShapesTexture() })
+    }
+
+    /// Get texture source rectangle that is used for shapes drawing
+    fn get_shapes_texture_rectangle(&self) -> Rectangle {
+        unsafe { ffi::GetShapesTextureRectangle() }
+    }
+
     /// Define default texture used to draw shapes
     fn set_shapes_texture(
         &mut self,
@@ -489,6 +501,19 @@ pub trait RaylibDraw {
     ) {
         unsafe {
             ffi::DrawCircleLines(center_x, center_y, radius, color.into());
+        }
+    }
+
+    /// Draws circle outline. (Vector Version)
+    #[inline]
+    fn draw_circle_lines_v(
+        &mut self,
+        center: impl Into<ffi::Vector2>,
+        radius: f32,
+        color: impl Into<ffi::Color>,
+    ) {
+        unsafe {
+            ffi::DrawCircleLinesV(center.into(), radius, color.into());
         }
     }
 
@@ -708,7 +733,7 @@ pub trait RaylibDraw {
             ffi::DrawRectangleLinesEx(rec.into(), line_thick, color.into());
         }
     }
-    /// Draws rectangle outline with extended parameters.
+    /// Draws rectangle with rounded edges.
     #[inline]
     fn draw_rectangle_rounded(
         &mut self,
@@ -722,9 +747,22 @@ pub trait RaylibDraw {
         }
     }
 
-    /// Draws rectangle outline with extended parameters.
+    /// Draws rectangle outline with rounded edges included.
     #[inline]
     fn draw_rectangle_rounded_lines(
+        &mut self,
+        rec: impl Into<ffi::Rectangle>,
+        roundness: f32,
+        segments: i32,
+        color: impl Into<ffi::Color>,
+    ) {
+        unsafe {
+            ffi::DrawRectangleRoundedLines(rec.into(), roundness, segments, color.into());
+        }
+    }
+
+    /// Draw rectangle with rounded edges outline
+    fn draw_rectangle_rounded_lines_ex(
         &mut self,
         rec: impl Into<ffi::Rectangle>,
         roundness: f32,
@@ -733,16 +771,15 @@ pub trait RaylibDraw {
         color: impl Into<ffi::Color>,
     ) {
         unsafe {
-            ffi::DrawRectangleRoundedLines(
+            ffi::DrawRectangleRoundedLinesEx(
                 rec.into(),
                 roundness,
                 segments,
                 line_thickness,
                 color.into(),
-            );
-        }
+            )
+        };
     }
-
     /// Draws a triangle.
     #[inline]
     fn draw_triangle(
@@ -1433,21 +1470,44 @@ pub trait RaylibDraw3D {
         }
     }
 
+    /// Draws a cube in wireframe. (Vector Version)
+    #[inline]
+    fn draw_cube_wires_v(
+        &mut self,
+        position: impl Into<ffi::Vector3>,
+        size: impl Into<ffi::Vector3>,
+        color: impl Into<ffi::Color>,
+    ) {
+        unsafe {
+            ffi::DrawCubeWiresV(position.into(), size.into(), color.into());
+        }
+    }
+
     /// Draw a 3d mesh with material and transform
     #[inline]
-    fn draw_mesh(&mut self, mesh: Mesh, material: WeakMaterial, transform: Matrix) {
-        unsafe { ffi::DrawMesh(mesh.0, material.0, transform.into()) }
+    fn draw_mesh(
+        &mut self,
+        mesh: impl AsRef<ffi::Mesh>,
+        material: WeakMaterial,
+        transform: Matrix,
+    ) {
+        unsafe { ffi::DrawMesh(*mesh.as_ref(), material.0, transform.into()) }
     }
 
     /// Draw multiple mesh instances with material and different transforms
     #[inline]
-    fn draw_mesh_instanced(&mut self, mesh: Mesh, material: WeakMaterial, transforms: &[Matrix]) {
+    fn draw_mesh_instanced(
+        &mut self,
+        mesh: impl AsRef<ffi::Mesh>,
+        material: WeakMaterial,
+        transforms: &[Matrix],
+    ) {
         let tr = transforms
             .iter()
             .map(|f| f.into())
             .collect::<Vec<ffi::Matrix>>()
             .as_ptr();
-        unsafe { ffi::DrawMeshInstanced(mesh.0, material.0, tr, transforms.len() as i32) }
+        unsafe { ffi::DrawMeshInstanced(*mesh.as_ref(), material.0, tr, transforms.len() as i32) }
     }
 
     /// Draws a sphere.
@@ -1516,6 +1576,29 @@ pub trait RaylibDraw3D {
         }
     }
 
+    /// Draws a cylinder with extended parameters.
+    #[inline]
+    fn draw_cylinder_ex(
+        &mut self,
+        start_position: impl Into<ffi::Vector3>,
+        end_position: impl Into<ffi::Vector3>,
+        radius_start: f32,
+        radius_end: f32,
+        slices: i32,
+        color: impl Into<ffi::Color>,
+    ) {
+        unsafe {
+            ffi::DrawCylinderEx(
+                start_position.into(),
+                end_position.into(),
+                radius_start,
+                radius_end,
+                slices,
+                color.into(),
+            );
+        }
+    }
+
     /// Draws a cylinder in wireframe.
     #[inline]
     fn draw_cylinder_wires(
@@ -1536,6 +1619,73 @@ pub trait RaylibDraw3D {
                 slices,
                 color.into(),
             );
+        }
+    }
+
+    /// Draws a cylinder in wireframe with extended parameters.
+    #[inline]
+    fn draw_cylinder_wires_ex(
+        &mut self,
+        start_position: impl Into<ffi::Vector3>,
+        end_position: impl Into<ffi::Vector3>,
+        radius_start: f32,
+        radius_end: f32,
+        slices: i32,
+        color: impl Into<ffi::Color>,
+    ) {
+        unsafe {
+            ffi::DrawCylinderWiresEx(
+                start_position.into(),
+                end_position.into(),
+                radius_start,
+                radius_end,
+                slices,
+                color.into(),
+            );
+        }
+    }
+
+    /// Draw capsule with the center of its sphere caps at startPos and endPos
+    fn draw_capsule(
+        &mut self,
+        start_pos: impl Into<ffi::Vector3>,
+        end_pos: impl Into<ffi::Vector3>,
+        radius: f32,
+        slices: i32,
+        rings: i32,
+        color: impl Into<ffi::Color>,
+    ) {
+        unsafe {
+            ffi::DrawCapsule(
+                start_pos.into(),
+                end_pos.into(),
+                radius,
+                slices,
+                rings,
+                color.into(),
+            )
+        }
+    }
+
+    ///Draw capsule wireframe with the center of its sphere caps at startPos and endPos
+    fn draw_capsule_wires(
+        &mut self,
+        start_pos: impl Into<ffi::Vector3>,
+        end_pos: impl Into<ffi::Vector3>,
+        radius: f32,
+        slices: i32,
+        rings: i32,
+        color: impl Into<ffi::Color>,
+    ) {
+        unsafe {
+            ffi::DrawCapsuleWires(
+                start_pos.into(),
+                end_pos.into(),
+                radius,
+                slices,
+                rings,
+                color.into(),
+            )
         }
     }
 

@@ -1,12 +1,15 @@
 #![allow(non_camel_case_types)]
 
 use crate::{audio::AudioStream, ffi, RaylibHandle};
-use libc::c_void;
-use parking_lot::Mutex;
-use raylib_sys::TraceLogLevel;
+pub use raylib_sys::TraceLogLevel;
 use std::{
-    ffi::{CStr, CString},
-    ptr,
+    borrow::Cow,
+    convert::TryInto,
+    ffi::{c_char, c_int, c_void, CStr, CString},
+    mem::{size_of, transmute},
+    ptr::null_mut,
+    slice::from_raw_parts_mut,
+    sync::atomic::{AtomicUsize, Ordering},
 };
 
 type TraceLogCallback = unsafe extern "C" fn(*mut i8, *const i8, ...);
@@ -14,106 +17,94 @@ extern "C" {
     fn SetTraceLogCallback(cb: Option<TraceLogCallback>);
 }
 
-type RustTraceLogCallback = Option<fn(TraceLogLevel, &str)>;
-type RustSaveFileDataCallback = Option<fn(&str, &[u8]) -> bool>;
-type RustLoadFileDataCallback = Option<fn(&str) -> Vec<u8>>;
-type RustSaveFileTextCallback = Option<fn(&str, &str) -> bool>;
-type RustLoadFileTextCallback = Option<fn(&str) -> String>;
-type RustAudioStreamCallback = Option<fn(&[u8])>;
+type RustTraceLogCallback = fn(TraceLogLevel, &str);
+type RustSaveFileDataCallback = fn(&str, &[u8]) -> bool;
+type RustLoadFileDataCallback = fn(&str) -> Vec<u8>;
+type RustSaveFileTextCallback = fn(&str, &str) -> bool;
+type RustLoadFileTextCallback = fn(&str) -> String;
+type RustAudioStreamCallback = fn(&[u8]);
 
-static __TRACE_LOG_CALLBACK: Mutex<RustTraceLogCallback> = Mutex::new(None);
-static __SAVE_FILE_DATA_CALLBACK: Mutex<RustSaveFileDataCallback> = Mutex::new(None);
-static __LOAD_FILE_DATA_CALLBACK: Mutex<RustLoadFileDataCallback> = Mutex::new(None);
-static __SAVE_FILE_TEXT_CALLBACK: Mutex<RustSaveFileTextCallback> = Mutex::new(None);
-static __LOAD_FILE_TEXT_CALLBACK: Mutex<RustLoadFileTextCallback> = Mutex::new(None);
-static __AUDIO_STREAM_CALLBACK: Mutex<RustAudioStreamCallback> = Mutex::new(None);
+static TRACE_LOG_CALLBACK: AtomicUsize = AtomicUsize::new(0);
+static SAVE_FILE_DATA_CALLBACK: AtomicUsize = AtomicUsize::new(0);
+static LOAD_FILE_DATA_CALLBACK: AtomicUsize = AtomicUsize::new(0);
+static SAVE_FILE_TEXT_CALLBACK: AtomicUsize = AtomicUsize::new(0);
+static LOAD_FILE_TEXT_CALLBACK: AtomicUsize = AtomicUsize::new(0);
+static AUDIO_STREAM_CALLBACK: AtomicUsize = AtomicUsize::new(0);
 
-fn trace_log_callback() -> RustTraceLogCallback {
-    *__TRACE_LOG_CALLBACK.lock()
-}
-fn set_trace_log_callback(f: RustTraceLogCallback) {
-    *__TRACE_LOG_CALLBACK.lock() = f
-}
-fn save_file_data_callback() -> RustSaveFileDataCallback {
-    *__SAVE_FILE_DATA_CALLBACK.lock()
-}
-fn set_save_file_data_callback(f: RustSaveFileDataCallback) {
-    *__SAVE_FILE_DATA_CALLBACK.lock() = f
-}
-fn load_file_data_callback() -> RustLoadFileDataCallback {
-    *__LOAD_FILE_DATA_CALLBACK.lock()
-}
-fn set_load_file_data_callback(f: RustLoadFileDataCallback) {
-    *__LOAD_FILE_DATA_CALLBACK.lock() = f
+fn trace_log_callback() -> Option<RustTraceLogCallback> {
+    const { assert!(size_of::<RustTraceLogCallback>() == size_of::<usize>()) };
+    unsafe { transmute(TRACE_LOG_CALLBACK.load(Ordering::Relaxed)) }
 }
 
-fn save_file_text_callback() -> RustSaveFileTextCallback {
-    *__SAVE_FILE_TEXT_CALLBACK.lock()
-}
-fn set_save_file_text_callback(f: RustSaveFileTextCallback) {
-    *__SAVE_FILE_TEXT_CALLBACK.lock() = f
-}
-fn load_file_text_callback() -> RustLoadFileTextCallback {
-    *__LOAD_FILE_TEXT_CALLBACK.lock()
-}
-fn set_load_file_text_callback(f: RustLoadFileTextCallback) {
-    *__LOAD_FILE_TEXT_CALLBACK.lock() = f
+fn save_file_data_callback() -> Option<RustSaveFileDataCallback> {
+    const { assert!(size_of::<RustSaveFileDataCallback>() == size_of::<usize>()) };
+    unsafe { transmute(SAVE_FILE_DATA_CALLBACK.load(Ordering::Relaxed)) }
 }
 
-fn audio_stream_callback() -> RustAudioStreamCallback {
-    *__AUDIO_STREAM_CALLBACK.lock()
+fn load_file_data_callback() -> Option<RustLoadFileDataCallback> {
+    const { assert!(size_of::<RustLoadFileDataCallback>() == size_of::<usize>()) };
+    unsafe { transmute(LOAD_FILE_DATA_CALLBACK.load(Ordering::Relaxed)) }
 }
-fn set_audio_stream_callback(f: RustAudioStreamCallback) {
-    *__AUDIO_STREAM_CALLBACK.lock() = f
+
+fn save_file_text_callback() -> Option<RustSaveFileTextCallback> {
+    const { assert!(size_of::<RustSaveFileTextCallback>() == size_of::<usize>()) };
+    unsafe { transmute(SAVE_FILE_TEXT_CALLBACK.load(Ordering::Relaxed)) }
+}
+
+fn load_file_text_callback() -> Option<RustLoadFileTextCallback> {
+    const { assert!(size_of::<RustLoadFileTextCallback>() == size_of::<usize>()) };
+    unsafe { transmute(LOAD_FILE_TEXT_CALLBACK.load(Ordering::Relaxed)) }
+}
+
+fn audio_stream_callback() -> Option<RustAudioStreamCallback> {
+    const { assert!(size_of::<RustAudioStreamCallback>() == size_of::<usize>()) };
+    unsafe { transmute(AUDIO_STREAM_CALLBACK.load(Ordering::Relaxed)) }
 }
 
 #[no_mangle]
-#[link_name = "custom_trace_log_callback"]
-pub extern "C" fn custom_trace_log_callback(
-    log_level: ::std::os::raw::c_int,
-    text: *const ::std::os::raw::c_char,
-) {
+pub extern "C" fn custom_trace_log_callback(level: TraceLogLevel, text: *const c_char) {
     if let Some(trace_log) = trace_log_callback() {
-        let a = match log_level {
-            0 => TraceLogLevel::LOG_ALL,
-            1 => TraceLogLevel::LOG_TRACE,
-            2 => TraceLogLevel::LOG_DEBUG,
-            3 => TraceLogLevel::LOG_INFO,
-            4 => TraceLogLevel::LOG_WARNING,
-            5 => TraceLogLevel::LOG_ERROR,
-            6 => TraceLogLevel::LOG_FATAL,
-            7 => TraceLogLevel::LOG_NONE,
-            _ => unreachable!("raylib gave invalid log level {}", log_level),
-        };
-        let b = if text.is_null() {
-            CStr::from_bytes_until_nul("(MESSAGE WAS NULL)\0".as_bytes()).unwrap()
+        let text = if text.is_null() {
+            Cow::Borrowed("(MESSAGE WAS NULL)")
         } else {
-            unsafe { CStr::from_ptr(text) }
+            unsafe { CStr::from_ptr(text).to_string_lossy() }
         };
 
-        trace_log(a, b.to_string_lossy().as_ref())
+        trace_log(level, &text)
     }
 }
 
-extern "C" fn custom_save_file_data_callback(a: *const i8, b: *mut c_void, c: i32) -> bool {
-    let save_file_data = save_file_data_callback().unwrap();
-    let a = unsafe { CStr::from_ptr(a) };
-    let b = unsafe { std::slice::from_raw_parts_mut(b as *mut u8, c as usize) };
-    return save_file_data(a.to_str().unwrap(), b);
+extern "C" fn custom_save_file_data_callback(
+    path: *const c_char,
+    buffer: *mut c_void,
+    size: c_int,
+) -> bool {
+    let save_file_data = save_file_data_callback().expect("no callback");
+    let path = unsafe { CStr::from_ptr(path) };
+    let buffer = unsafe { from_raw_parts_mut(buffer as *mut u8, size as usize) };
+
+    save_file_data(path.to_str().expect("path is non utf-8"), buffer)
 }
 
-extern "C" fn custom_load_file_data_callback(a: *const i8, b: *mut i32) -> *mut u8 {
-    let load_file_data = load_file_data_callback().unwrap();
-    let a = unsafe { CStr::from_ptr(a) };
-    let b = unsafe { b.as_mut().unwrap() };
-    let d = load_file_data(a.to_str().unwrap());
-    *b = d.len() as i32;
-    if *b == 0 {
-        return ptr::null_mut();
+extern "C" fn custom_load_file_data_callback(path: *const c_char, size: *mut c_int) -> *mut u8 {
+    let load_file_data = load_file_data_callback().expect("no callback");
+
+    if let Some(size) = unsafe { size.as_mut() } {
+        let path = unsafe { CStr::from_ptr(path) };
+        let buffer = load_file_data(path.to_str().expect("path is non utf-8"));
+        *size = buffer.len().try_into().expect("out of range buffer size");
+
+        // Copy everything to the raylib world
+        unsafe {
+            let buffer_ffi =
+                ffi::MemAlloc((*size).try_into().expect("non representable buffer size"))
+                    as *mut u8;
+            buffer_ffi.copy_from_nonoverlapping(buffer.as_ptr(), buffer.len());
+
+            buffer_ffi
+        }
     } else {
-        // Leak the data that we just created. It's in Raylib's hands now.
-        let uh = Box::leak(Box::new(d)).as_mut_ptr();
-        return uh;
+        null_mut()
     }
 }
 
@@ -148,15 +139,13 @@ impl<'a> std::fmt::Display for SetLogError<'a> {
 impl<'a> std::error::Error for SetLogError<'a> {}
 
 macro_rules! safe_callback_set_func {
-    ($cb:expr, $getter:expr, $setter:expr, $rawsetter:expr, $ogfunc:expr, $ty:literal) => {
-        if let None = $getter() {
-            $setter(Some($cb));
-            unsafe {
-                $rawsetter(Some($ogfunc));
-            }
-            return Ok(());
+    ($cb:expr, $target_cb:expr, $rawsetter:expr, $ogfunc:expr, $ty:literal) => {
+        if $target_cb.load(Ordering::Acquire) == 0 {
+            $target_cb.store($cb as usize, Ordering::Release);
+            unsafe { $rawsetter(Some($ogfunc)) };
+            Ok(())
         } else {
-            return Err(SetLogError($ty));
+            Err(SetLogError($ty))
         }
     };
 }
@@ -167,9 +156,9 @@ impl RaylibHandle {
         &mut self,
         cb: fn(TraceLogLevel, &str),
     ) -> Result<(), SetLogError> {
-        set_trace_log_callback(Some(cb));
+        TRACE_LOG_CALLBACK.store(cb as usize, Ordering::Relaxed);
         unsafe { ffi::setLogCallbackWrapper() };
-        return Ok(());
+        Ok(())
     }
     /// Set custom file binary data saver
     pub fn set_save_file_data_callback(
@@ -178,12 +167,11 @@ impl RaylibHandle {
     ) -> Result<(), SetLogError> {
         safe_callback_set_func!(
             cb,
-            save_file_data_callback,
-            set_save_file_data_callback,
+            SAVE_FILE_DATA_CALLBACK,
             ffi::SetSaveFileDataCallback,
             custom_save_file_data_callback,
             "save file data"
-        );
+        )
     }
     /// Set custom file binary data loader
     ///
@@ -194,12 +182,11 @@ impl RaylibHandle {
     ) -> Result<(), SetLogError> {
         safe_callback_set_func!(
             cb,
-            load_file_data_callback,
-            set_load_file_data_callback,
+            LOAD_FILE_DATA_CALLBACK,
             ffi::SetLoadFileDataCallback,
             custom_load_file_data_callback,
             "load file data"
-        );
+        )
     }
     /// Set custom file text data saver
     pub fn set_save_file_text_callback(
@@ -208,8 +195,7 @@ impl RaylibHandle {
     ) -> Result<(), SetLogError> {
         safe_callback_set_func!(
             cb,
-            save_file_text_callback,
-            set_save_file_text_callback,
+            SAVE_FILE_TEXT_CALLBACK,
             ffi::SetSaveFileTextCallback,
             custom_save_file_text_callback,
             "load file data"
@@ -224,8 +210,7 @@ impl RaylibHandle {
     ) -> Result<(), SetLogError> {
         safe_callback_set_func!(
             cb,
-            load_file_text_callback,
-            set_load_file_text_callback,
+            LOAD_FILE_TEXT_CALLBACK,
             ffi::SetLoadFileTextCallback,
             custom_load_file_text_callback,
             "load file text"
@@ -238,14 +223,12 @@ impl RaylibHandle {
         stream: AudioStream,
         cb: fn(&[u8]),
     ) -> Result<(), SetLogError> {
-        if let None = audio_stream_callback() {
-            set_audio_stream_callback(Some(cb));
-            unsafe {
-                ffi::SetAudioStreamCallback(stream.0, Some(custom_audio_stream_callback));
-            }
-            return Ok(());
+        if AUDIO_STREAM_CALLBACK.load(Ordering::Acquire) == 0 {
+            AUDIO_STREAM_CALLBACK.store(cb as _, Ordering::Release);
+            unsafe { ffi::SetAudioStreamCallback(stream.0, Some(custom_audio_stream_callback)) }
+            Ok(())
         } else {
-            return Err(SetLogError("audio stream"));
+            Err(SetLogError("audio stream"))
         }
     }
 }

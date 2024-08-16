@@ -1,6 +1,7 @@
 <p align="center">
-    
-![rust](https://img.shields.io/badge/rust-1.77+-orange.svg?style=flat-square&logo=rust)
+
+![rust](https://img.shields.io/badge/rust-1.78+-orange.svg?style=flat-square&logo=rust)
+![logo](logo/raylib-rust_256x256.png)
 [![crates.io](https://img.shields.io/crates/v/raylib.svg?style=flat-square)](https://crates.io/crates/raylib)
 [![docs](https://docs.rs/raylib/badge.svg)](https://docs.rs/raylib)
 [![discord](https://img.shields.io/discord/426912293134270465)](https://discord.gg/VkzNHUE)
