@@ -19,6 +19,8 @@ Though this binding tries to stay close to the simple C API, it makes some chang
 </tr>
 </table>
 
+Most development happens over at: https://github.com/raylib-rs/raylib-rs
+
 
 - Resources are automatically cleaned up when they go out of scope (or when `std::mem::drop` is called). This is essentially RAII. This means that "Unload" functions are not exposed (and not necessary unless you obtain a `Weak` resource using make_weak()).
 - Most of the Raylib API is exposed through `RaylibHandle`, which is for enforcing that Raylib is only initialized once, and for making sure the window is closed properly. RaylibHandle has no size and goes away at compile time. Because of mutability rules, Raylib-rs is thread safe!
