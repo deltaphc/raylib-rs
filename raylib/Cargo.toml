@@ -1,6 +1,6 @@
 [package]
 name = "raylib"
-version = "5.1.0"
+version = "5.5.0"
 authors = ["DeltaPHC <phclem@protonmail.com>"]
 license = "Zlib"
 readme = "../README.md"
@@ -13,7 +13,7 @@ edition = "2018"
 autoexamples = false
 
 [dependencies]
-raylib-sys = { version = "5.1.0", path = "../raylib-sys" }
+raylib-sys = { version = "5.5.0", path = "../raylib-sys" }
 libc = "0.2.45"
 lazy_static = "1.2.0"
 cfg-if = "1.0.0"
@@ -44,6 +44,8 @@ custom_frame_control = ["raylib-sys/custom_frame_control"]
 opengl_33 = ["raylib-sys/opengl_33"]
 opengl_21 = ["raylib-sys/opengl_21"]
 opengl_es_20 = ["raylib-sys/opengl_es_20"]
+noscreenshot = ["raylib-sys/noscreenshot"]
+nogif = ["raylib-sys/nogif"]
 
 [[example]]
 name = "specs"

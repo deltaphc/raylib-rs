@@ -1,6 +1,6 @@
 [package]
 name = "raylib-sys"
-version = "5.1.0"
+version = "5.5.0"
 authors = ["DeltaPHC <phclem@protonmail.com>"]
 license = "Zlib"
 description = "Raw FFI bindings for Raylib"
@@ -30,6 +30,10 @@ opengl_33 = []
 opengl_21 = []
 # opengl_11 = [] I couldn't get this one working, the others were fine in my limited testing (unsure about wayland compatibility)
 opengl_es_20 = []
+
+# Allow disabling screenshots and gifs on f12
+noscreenshot = []
+nogif = []
 
 # config.h's SUPPORT_CUSTOM_FRAME_CONTROL
 custom_frame_control = []

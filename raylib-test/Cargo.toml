@@ -1,6 +1,6 @@
 [package]
 name = "raylib-test"
-version = "5.1.0"
+version = "5.5.0"
 authors = ["David Ayeke"]
 edition = "2018"
 license = "Zlib"
@@ -9,7 +9,7 @@ repository = "https://github.com/raylib-rs/raylib-rs"
 
 
 [dependencies]
-raylib = { version = "5.1.0", path = "../raylib" }
+raylib = { version = "5.5.0", path = "../raylib" }
 lazy_static = "1.2.0"
 colored = "2.1.0"
 
