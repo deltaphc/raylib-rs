@@ -69,7 +69,6 @@ pub mod ffi {
 }
 
 pub use crate::core::collision::*;
-pub use crate::core::file::*;
 pub use crate::core::logging::*;
 pub use crate::core::misc::open_url;
 pub use crate::core::*;

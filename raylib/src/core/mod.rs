@@ -10,7 +10,6 @@ pub mod color;
 pub mod data;
 pub mod drawing;
 pub mod error;
-pub mod file;
 pub mod input;
 pub mod logging;
 pub mod math;

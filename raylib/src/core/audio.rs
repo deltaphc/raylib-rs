@@ -521,6 +521,11 @@ impl<'aud> Music<'aud> {
             ffi::SetMusicPan(self.0, pan);
         }
     }
+
+    /// Checks if a music stream is ready
+    pub fn is_ready(&self) -> bool {
+        unsafe { ffi::IsMusicReady(self.0) }
+    }
 }
 
 impl<'aud> AudioStream<'aud> {

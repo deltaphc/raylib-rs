@@ -1866,4 +1866,32 @@ pub trait RaylibDraw3D {
             );
         }
     }
+
+    /// Draw a billboard texture defined by source and rotation
+    fn draw_billboard_pro(
+        &mut self,
+        camera: impl Into<ffi::Camera>,
+        texture: impl Into<ffi::Texture2D>,
+        source: impl Into<ffi::Rectangle>,
+        position: impl Into<ffi::Vector3>,
+        up: impl Into<ffi::Vector3>,
+        size: impl Into<ffi::Vector2>,
+        origin: impl Into<ffi::Vector2>,
+        rotation: f32,
+        tint: impl Into<ffi::Color>,
+    ) {
+        unsafe {
+            ffi::DrawBillboardPro(
+                camera.into(),
+                texture.into(),
+                source.into(),
+                position.into(),
+                up.into(),
+                size.into(),
+                origin.into(),
+                rotation,
+                tint.into(),
+            )
+        }
+    }
 }

@@ -283,7 +283,7 @@ impl RaylibHandle {
     }
 
     /// Set gamepad vibration for both motors
-    pub fn set_gamepad_vibration(&self, gamepad: i32, left_motor: f32, right_motor: f32) {
+    pub fn set_gamepad_vibration(&mut self, gamepad: i32, left_motor: f32, right_motor: f32) {
         unsafe { ffi::SetGamepadVibration(gamepad, left_motor, right_motor) }
     }
 

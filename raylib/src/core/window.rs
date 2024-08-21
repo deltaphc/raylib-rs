@@ -536,19 +536,19 @@ impl RaylibHandle {
 
     /// Set window state: maximized, if resizable
     #[inline]
-    pub fn maximize_window(&self) {
+    pub fn maximize_window(&mut self) {
         unsafe { ffi::MaximizeWindow() }
     }
 
     /// Set window state: minimized, if resizable
     #[inline]
-    pub fn minimize_window(&self) {
+    pub fn minimize_window(&mut self) {
         unsafe { ffi::MinimizeWindow() }
     }
 
     /// Set window state: not minimized/maximized
     #[inline]
-    pub fn restore_window(&self) {
+    pub fn restore_window(&mut self) {
         unsafe { ffi::RestoreWindow() }
     }
 

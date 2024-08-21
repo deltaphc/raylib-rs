@@ -1,4 +1,6 @@
 //! 3D Model, Mesh, and Animation
+use raylib_sys::GetModelBoundingBox;
+
 use crate::core::math::{BoundingBox, Vector3};
 use crate::core::texture::Image;
 use crate::core::{RaylibHandle, RaylibThread};
@@ -59,7 +61,10 @@ impl RaylibHandle {
         let m = unsafe { ffi::LoadModel(c_filename.as_ptr()) };
         if m.meshes.is_null() && m.materials.is_null() && m.bones.is_null() && m.bindPose.is_null()
         {
-            return Err(error!("could not load model", filename));
+            return Err(error!(
+                "could not load model",
+                filename
+            ));
         }
         // TODO check if null pointer checks are necessary.
         Ok(Model(m))
@@ -74,7 +79,9 @@ impl RaylibHandle {
         let m = unsafe { ffi::LoadModelFromMesh(mesh.0) };
 
         if m.meshes.is_null() || m.materials.is_null() {
-            return Err(error!("Could not load model from mesh"));
+            return Err(error!(
+                "Could not load model from mesh"
+            ));
         }
 
         Ok(Model(m))
@@ -89,7 +96,10 @@ impl RaylibHandle {
         let mut m_size = 0;
         let m_ptr = unsafe { ffi::LoadModelAnimations(c_filename.as_ptr(), &mut m_size) };
         if m_size <= 0 {
-            return Err(error!("No model animations loaded", filename));
+            return Err(error!(
+                "No model animations loaded",
+                filename
+            ));
         }
         let mut m_vec = Vec::with_capacity(m_size as usize);
         for i in 0..m_size {
@@ -211,6 +221,32 @@ pub trait RaylibModel: AsRef<ffi::Model> + AsMut<ffi::Model> {
     #[inline]
     fn is_model_animation_valid(&self, anim: &ModelAnimation) -> bool {
         unsafe { ffi::IsModelAnimationValid(*self.as_ref(), anim.0) }
+    }
+
+    /// Check if a model is ready
+    fn is_ready(&self) -> bool {
+        unsafe { ffi::IsModelReady(*self.as_ref()) }
+    }
+
+    /// Compute model bounding box limits (considers all meshes)
+    fn get_model_bounding_box(&self) -> BoundingBox {
+        unsafe { BoundingBox::from(GetModelBoundingBox(*self.as_ref())) }
+    }
+
+    /// Set material for a mesh
+    fn set_model_mesh_material(&mut self, mesh_id: i32, material_id: i32) -> Result<(), Error> {
+        if mesh_id >= self.as_ref().meshCount {
+            return Err(error!(
+                "mesh_id greater than mesh count"
+            ));
+        } else if material_id >= self.as_ref().materialCount {
+            return Err(error!(
+                "material_id greater than material count"
+            ));
+        } else {
+            unsafe { ffi::SetModelMeshMaterial(self.as_mut(), mesh_id, material_id) };
+            return Ok(());
+        };
     }
 }
 
@@ -386,6 +422,11 @@ pub trait RaylibMesh: AsRef<ffi::Mesh> + AsMut<ffi::Mesh> {
         unsafe { Mesh(ffi::GenMeshCubicmap(cubicmap.0, cube_size.into())) }
     }
 
+    /// Generate cone/pyramid mesh
+    fn gen_mesh_cone(_: &RaylibThread, radius: f32, height: f32, slices: i32) -> Mesh {
+        unsafe { Mesh(ffi::GenMeshCone(radius, height, slices)) }
+    }
+
     /// Computes mesh bounding box limits.
     #[inline]
     fn get_mesh_bounding_box(&self) -> BoundingBox {
@@ -409,6 +450,15 @@ pub trait RaylibMesh: AsRef<ffi::Mesh> + AsMut<ffi::Mesh> {
             ffi::ExportMesh(*self.as_ref(), c_filename.as_ptr());
         }
     }
+
+    /// Export mesh as code file (.h) defining multiple arrays of vertex attributes
+    #[inline]
+    fn export_as_code(&self, filename: &str) {
+        let c_filename = CString::new(filename).unwrap();
+        unsafe {
+            ffi::ExportMeshAsCode(*self.as_ref(), c_filename.as_ptr());
+        }
+    }
 }
 
 impl Material {
@@ -423,7 +473,10 @@ impl Material {
         let mut m_size = 0;
         let m_ptr = unsafe { ffi::LoadMaterials(c_filename.as_ptr(), &mut m_size) };
         if m_size <= 0 {
-            return Err(error!("No materials loaded", filename));
+            return Err(error!(
+                "No materials loaded",
+                filename
+            ));
         }
         let mut m_vec = Vec::with_capacity(m_size as usize);
         for i in 0..m_size {
@@ -476,6 +529,10 @@ pub trait RaylibMaterial: AsRef<ffi::Material> + AsMut<ffi::Material> {
         unsafe {
             ffi::SetMaterialTexture(self.as_mut(), (map_type as u32) as i32, *texture.as_ref())
         }
+    }
+
+    fn is_ready(&mut self) -> bool {
+        unsafe { ffi::IsMaterialReady(*self.as_ref()) }
     }
 }
 

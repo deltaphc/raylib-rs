@@ -9,9 +9,9 @@ use crate::{
 /// Compress data (DEFLATE algorythm)
 /// ```rust
 /// use raylib::prelude::*;
-/// let data = compress_data(b"11111");
+/// let data = compress_data(b"11111").unwrap();
 /// let expected: &[u8] = &[1, 5, 0, 250, 255, 49, 49, 49, 49, 49];
-/// assert_eq!(data, Ok(expected));
+/// assert_eq!(data, expected);
 /// ```
 pub fn compress_data(data: &[u8]) -> Result<&'static [u8], Error> {
     let mut out_length: i32 = 0;
@@ -31,8 +31,8 @@ pub fn compress_data(data: &[u8]) -> Result<&'static [u8], Error> {
 /// use raylib::prelude::*;
 /// let input: &[u8] = &[1, 5, 0, 250, 255, 49, 49, 49, 49, 49];
 /// let expected: &[u8] = b"11111";
-/// let data = decompress_data(input);
-/// assert_eq!(data, Ok(expected));
+/// let data = decompress_data(input).unwrap();
+/// assert_eq!(data, expected);
 /// ```
 pub fn decompress_data(data: &[u8]) -> Result<&'static [u8], Error> {
     println!("{:?}", data.len());

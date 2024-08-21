@@ -92,7 +92,7 @@ mod draw_test {
             5,
             Color::BLUE,
         );
-        d.draw_rectangle_rounded_lines(
+        d.draw_rectangle_rounded_lines_ex(
             Rectangle::new(220.0, 30.0, 100.0, 100.0),
             0.10,
             5,

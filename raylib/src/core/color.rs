@@ -1,7 +1,10 @@
 //! [`Color`] manipulation helpers
+use std::os::raw::c_void;
+
 use crate::core::math::{Vector3, Vector4};
 use crate::ffi;
 
+use raylib_sys::{ColorIsEqual, GetPixelColor, PixelFormat};
 #[cfg(not(feature = "with_serde"))]
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
@@ -14,8 +17,10 @@ use serde::{Deserialize, Serialize};
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
 
+use super::RaylibHandle;
+
 #[repr(C)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Default)]
+#[derive(Debug, Copy, Clone, Default)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct Color {
     pub r: u8,
@@ -145,7 +150,7 @@ impl Color {
 
     /// Color fade-in or fade-out, alpha goes from 0.0f to 1.0f
     #[inline]
-    #[deprecated = "Has been superseded by .fade()"]
+    #[deprecated = "Has been superseded by Color::alpha()"]
     pub fn fade(&self, alpha: f32) -> Color {
         unsafe { ffi::Fade(self.into(), alpha).into() }
     }
@@ -171,7 +176,20 @@ impl Color {
     pub fn color_alpha_blend(dst: &Color, src: &Color, tint: &Color) -> Color {
         unsafe { ffi::ColorAlphaBlend(dst.into(), src.into(), tint.into()).into() }
     }
+    /// Check if color is equal to another.
+    pub fn is_equal(&self, rhs: impl Into<ffi::Color>) -> bool {
+        unsafe { ffi::ColorIsEqual(self.into(), rhs.into()) }
+    }
 }
+
+/// NOTE(IOI_XD): We manually implement PartialEq as of 5.5 to use Raylib's function. It's very unlikely it will ever
+/// change or do anything different, but in the ultra rare case that it does, we want to mimick Raylib's behavior.
+impl PartialEq for Color {
+    fn eq(&self, other: &Self) -> bool {
+        return self.is_equal(other);
+    }
+}
+impl Eq for Color {}
 
 /// Color constants
 impl Color {
