@@ -536,98 +536,86 @@ fn update_game(game: &mut Game, rl: &RaylibHandle) {
 
 fn draw_game(game: &Game, rl: &mut RaylibHandle, thread: &RaylibThread) {
     let (width, height) = (rl.get_screen_width(), rl.get_screen_height());
-    let mut d = rl.begin_drawing(thread);
+    rl.start_drawing(thread, |mut d| {
+        let half_width = width / 2;
+        let half_height = height / 2;
 
-    let half_width = width / 2;
-    let half_height = height / 2;
+        d.clear_background(Color::RAYWHITE);
 
-    d.clear_background(Color::RAYWHITE);
-
-    if !game.game_over {
-        let cosf = f32::cos(game.player.rotation.to_radians());
-        let sinf = f32::sin(game.player.rotation.to_radians());
-        let v1 = Vector2::new(
-            game.player.position.x + sinf * SHIP_HEIGHT,
-            game.player.position.y - cosf * SHIP_HEIGHT,
-        );
-        let v2 = Vector2::new(
-            game.player.position.x - cosf * 10f32,
-            game.player.position.y - sinf * 10f32,
-        );
-        let v3 = Vector2::new(
-            game.player.position.x + cosf * 10f32,
-            game.player.position.y + sinf * 10f32,
-        );
-        d.draw_triangle(v1, v2, v3, game.player.color);
-
-        for meteor in &game.big_meteors {
-            if meteor.active {
-                d.draw_circle_v(meteor.position, meteor.radius, meteor.color);
-            } else {
-                d.draw_circle_v(
-                    meteor.position,
-                    meteor.radius,
-                    Color::fade(&Color::LIGHTGRAY, 0.3),
-                );
-            }
-        }
-
-        for meteor in &game.medium_meteors {
-            if meteor.active {
-                d.draw_circle_v(meteor.position, meteor.radius, meteor.color);
-            } else {
-                d.draw_circle_v(
-                    meteor.position,
-                    meteor.radius,
-                    Color::fade(&Color::LIGHTGRAY, 0.3),
-                );
-            }
-        }
-
-        for meteor in &game.small_meteors {
-            if meteor.active {
-                d.draw_circle_v(meteor.position, meteor.radius, meteor.color);
-            } else {
-                d.draw_circle_v(
-                    meteor.position,
-                    meteor.radius,
-                    Color::fade(&Color::LIGHTGRAY, 0.3),
-                );
-            }
-        }
-
-        for shot in &game.shots {
-            if shot.active {
-                d.draw_circle_v(shot.position, shot.radius, shot.color);
-            }
-        }
-
-        if game.victory {
-            d.draw_text(
-                "VICTORY",
-                half_width - d.measure_text("VICTORY", 20),
-                half_height,
-                20,
-                Color::LIGHTGRAY,
+        if !game.game_over {
+            let cosf = f32::cos(game.player.rotation.to_radians());
+            let sinf = f32::sin(game.player.rotation.to_radians());
+            let v1 = Vector2::new(
+                game.player.position.x + sinf * SHIP_HEIGHT,
+                game.player.position.y - cosf * SHIP_HEIGHT,
             );
-        }
+            let v2 = Vector2::new(
+                game.player.position.x - cosf * 10f32,
+                game.player.position.y - sinf * 10f32,
+            );
+            let v3 = Vector2::new(
+                game.player.position.x + cosf * 10f32,
+                game.player.position.y + sinf * 10f32,
+            );
+            d.draw_triangle(v1, v2, v3, game.player.color);
 
-        if game.pause {
+            for meteor in &game.big_meteors {
+                if meteor.active {
+                    d.draw_circle_v(meteor.position, meteor.radius, meteor.color);
+                } else {
+                    d.draw_circle_v(meteor.position, meteor.radius, Color::LIGHTGRAY.alpha(0.3));
+                }
+            }
+
+            for meteor in &game.medium_meteors {
+                if meteor.active {
+                    d.draw_circle_v(meteor.position, meteor.radius, meteor.color);
+                } else {
+                    d.draw_circle_v(meteor.position, meteor.radius, Color::LIGHTGRAY.alpha(0.3));
+                }
+            }
+
+            for meteor in &game.small_meteors {
+                if meteor.active {
+                    d.draw_circle_v(meteor.position, meteor.radius, meteor.color);
+                } else {
+                    d.draw_circle_v(meteor.position, meteor.radius, Color::LIGHTGRAY.alpha(0.3));
+                }
+            }
+
+            for shot in &game.shots {
+                if shot.active {
+                    d.draw_circle_v(shot.position, shot.radius, shot.color);
+                }
+            }
+
+            if game.victory {
+                d.draw_text(
+                    "VICTORY",
+                    half_width - d.measure_text("VICTORY", 20),
+                    half_height,
+                    20,
+                    Color::LIGHTGRAY,
+                );
+            }
+
+            if game.pause {
+                d.draw_text(
+                    "GAME PAUSED",
+                    half_width - d.measure_text("GAME PAUSED", 40),
+                    half_height - 40,
+                    40,
+                    Color::GRAY,
+                );
+            }
+        } else {
             d.draw_text(
-                "GAME PAUSED",
-                half_width - d.measure_text("GAME PAUSED", 40),
-                half_height - 40,
-                40,
+                "PRESS [ENTER] TO PLAY AGAIN",
+                half_width - d.measure_text("PRESS [ENTER] TO PLAY AGAIN", 20),
+                half_height - 50,
+                20,
                 Color::GRAY,
             );
         }
-    } else {
-        d.draw_text(
-            "PRESS [ENTER] TO PLAY AGAIN",
-            half_width - d.measure_text("PRESS [ENTER] TO PLAY AGAIN", 20),
-            half_height - 50,
-            20,
-            Color::GRAY,
-        );
-    }
+    });
 }

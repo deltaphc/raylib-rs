@@ -16,10 +16,14 @@ use crate::text::Codepoints;
 use std::convert::AsRef;
 use std::ffi::CString;
 
+use super::camera::Camera2D;
+use super::shaders::{Shader, ShaderV};
+
 /// Seems like all draw commands must be issued from the main thread
 impl RaylibHandle {
-    /// Setup canvas (framebuffer) to start drawing
     #[must_use]
+    /// Setup canvas (framebuffer) to start drawing.
+    /// Prefer using the closure version, [RaylibHandle::begin_drawing]. This version returns a handle that calls [raylib_sys::EndDrawing] at the end of the scope and is provided as a fallback incase you run into issues with closures(such as lifetime or performance reasons)
     pub fn begin_drawing(&mut self, _: &RaylibThread) -> RaylibDrawHandle {
         unsafe {
             ffi::BeginDrawing();
@@ -27,9 +31,29 @@ impl RaylibHandle {
         let d = RaylibDrawHandle(self);
         d
     }
+    pub fn start_drawing(&mut self, _: &RaylibThread, mut func: impl FnMut(RaylibDrawHandle)) {
+        unsafe {
+            ffi::BeginDrawing();
+        };
+        func(RaylibDrawHandle(self));
+        unsafe {
+            ffi::EndDrawing();
+        };
+    }
 }
 
 pub struct RaylibDrawHandle<'a>(&'a mut RaylibHandle);
+
+impl<'a> RaylibDrawHandle<'a> {
+    #[deprecated = "Calling begin_drawing within itself will result in a runtime error."]
+    pub fn begin_drawing(&mut self, _: &RaylibThread) -> RaylibDrawHandle {
+        panic!("Nested begin_drawing call")
+    }
+    #[deprecated = "Calling start_drawing within itself will result in a runtime error."]
+    pub fn start_drawing(&mut self, _: &RaylibThread, mut _func: impl FnMut(RaylibDrawHandle)) {
+        panic!("Nested start_drawing call")
+    }
+}
 
 impl<'a> Drop for RaylibDrawHandle<'a> {
     fn drop(&mut self) {
@@ -47,11 +71,17 @@ impl<'a> std::ops::Deref for RaylibDrawHandle<'a> {
     }
 }
 
+impl<'a> std::ops::DerefMut for RaylibDrawHandle<'a> {
+    fn deref_mut(&mut self) -> &mut RaylibHandle {
+        self.0
+    }
+}
 impl<'a> RaylibDraw for RaylibDrawHandle<'a> {}
 
 // Texture2D Stuff
 
-pub struct RaylibTextureMode<'a, T>(&'a T, &'a mut ffi::RenderTexture2D);
+pub struct RaylibTextureMode<'a, T>(&'a mut T, Option<&'a mut ffi::RenderTexture2D>);
+
 impl<'a, T> Drop for RaylibTextureMode<'a, T> {
     fn drop(&mut self) {
         unsafe { ffi::EndTextureMode() }
@@ -64,11 +94,19 @@ impl<'a, T> std::ops::Deref for RaylibTextureMode<'a, T> {
         &self.0
     }
 }
+impl<'a, T> std::ops::DerefMut for RaylibTextureMode<'a, T> {
+    fn deref_mut(&mut self) -> &mut T {
+        self.0
+    }
+}
+// framebuffer: &'a mut ffi::RenderTexture2D,
 
 pub trait RaylibTextureModeExt
 where
     Self: Sized,
 {
+    /// Begin drawing to render texture.
+    /// Prefer using the closure version, [RaylibTextureModeExt::start_texture_mode] . This version returns a handle that calls [raylib_sys::EndTextureMode] at the end of the scope and is provided as a fallback incase you run into issues with closures(such as lifetime or performance reasons)
     #[must_use]
     fn begin_texture_mode<'a>(
         &'a mut self,
@@ -76,7 +114,17 @@ where
         framebuffer: &'a mut ffi::RenderTexture2D,
     ) -> RaylibTextureMode<Self> {
         unsafe { ffi::BeginTextureMode(*framebuffer) }
-        RaylibTextureMode(self, framebuffer)
+        RaylibTextureMode(self, Some(framebuffer))
+    }
+
+    fn start_texture_mode<'a>(
+        &'a mut self,
+        _: &RaylibThread,
+        framebuffer: &'a mut ffi::RenderTexture2D,
+        mut func: impl FnMut(RaylibTextureMode<Self>, &'a mut ffi::RenderTexture2D),
+    ) {
+        unsafe { ffi::BeginTextureMode(*framebuffer) }
+        func(RaylibTextureMode(self, None), framebuffer);
     }
 }
 
@@ -87,7 +135,7 @@ impl<'a, T> RaylibDraw for RaylibTextureMode<'a, T> {}
 
 // VR Stuff
 
-pub struct RaylibVRMode<'a, T>(&'a T, &'a mut VrStereoConfig);
+pub struct RaylibVRMode<'a, T>(&'a T, Option<&'a mut VrStereoConfig>);
 impl<'a, T> Drop for RaylibVRMode<'a, T> {
     fn drop(&mut self) {
         unsafe { ffi::EndVrStereoMode() }
@@ -105,13 +153,25 @@ pub trait RaylibVRModeExt
 where
     Self: Sized,
 {
+    /// Begin stereo rendering (requires VR simulator).
+    /// Prefer using the closure version, [RaylibVRModeExt::start_vr_stereo_mode] . This version returns a handle that calls [raylib_sys::EndVrStereoMode] at the end of the scope and is provided as a fallback incase you run into issues with closures(such as lifetime or performance reasons)
     #[must_use]
     fn begin_vr_stereo_mode<'a>(
         &'a mut self,
+        _: &RaylibThread,
         vr_config: &'a mut VrStereoConfig,
     ) -> RaylibVRMode<Self> {
         unsafe { ffi::BeginVrStereoMode(*vr_config.as_ref()) }
-        RaylibVRMode(self, vr_config)
+        RaylibVRMode(self, Some(vr_config))
+    }
+
+    fn start_vr_stereo_mode<'a>(
+        &'a mut self,
+        vr_config: &'a mut VrStereoConfig,
+        mut func: impl FnMut(RaylibVRMode<Self>, &'a mut VrStereoConfig),
+    ) {
+        unsafe { ffi::BeginVrStereoMode(*vr_config.as_ref()) }
+        func(RaylibVRMode(&self, None), vr_config);
     }
 }
 
@@ -143,6 +203,8 @@ pub trait RaylibMode2DExt
 where
     Self: Sized,
 {
+    /// Begin 2D mode with custom camera (2D).
+    /// Prefer using the closure version, [RaylibMode2DExt::begin_mode2D]. This version returns a handle that calls [raylib_sys::EndMode2D] at the end of the scope and is provided as a fallback incase you run into issues with closures(such as lifetime or performance reasons)
     #[allow(non_snake_case)]
     #[must_use]
     fn begin_mode2D(&mut self, camera: impl Into<ffi::Camera2D>) -> RaylibMode2D<Self> {
@@ -150,6 +212,21 @@ where
             ffi::BeginMode2D(camera.into());
         }
         RaylibMode2D(self)
+    }
+
+    #[allow(non_snake_case)]
+    fn start_mode2D(
+        &mut self,
+        camera: Camera2D,
+        mut func: impl FnMut(RaylibMode2D<Self>, Camera2D),
+    ) {
+        unsafe {
+            ffi::BeginMode2D(camera.into());
+        }
+        func(RaylibMode2D(self), camera);
+        unsafe {
+            ffi::EndMode2D();
+        }
     }
 }
 
@@ -181,6 +258,8 @@ pub trait RaylibMode3DExt
 where
     Self: Sized,
 {
+    /// Begin 3D mode with custom camera (3D).
+    /// Prefer using the closure version, [RaylibMode3DExt::begin_mode3D]. This version returns a handle that calls [raylib_sys::EndMode3D] at the end of the scope and is provided as a fallback incase you run into issues with closures(such as lifetime or performance reasons)
     #[allow(non_snake_case)]
     #[must_use]
     fn begin_mode3D(&mut self, camera: impl Into<ffi::Camera3D>) -> RaylibMode3D<Self> {
@@ -188,6 +267,21 @@ where
             ffi::BeginMode3D(camera.into());
         }
         RaylibMode3D(self)
+    }
+
+    #[allow(non_snake_case)]
+    fn start_mode3D(
+        &mut self,
+        camera: Camera3D,
+        mut func: impl FnMut(RaylibMode3D<Self>, Camera3D),
+    ) {
+        unsafe {
+            ffi::BeginMode3D(camera.into());
+        }
+        func(RaylibMode3D(self), camera);
+        unsafe {
+            ffi::EndMode3D();
+        }
     }
 }
 
@@ -197,7 +291,8 @@ impl<'a, T> RaylibDraw3D for RaylibMode3D<'a, T> {}
 
 // shader Mode
 
-pub struct RaylibShaderMode<'a, T>(&'a mut T, &'a ffi::Shader);
+pub struct RaylibShaderMode<'a, T>(&'a mut T, Option<&'a mut Shader>);
+
 impl<'a, T> Drop for RaylibShaderMode<'a, T> {
     fn drop(&mut self) {
         unsafe { ffi::EndShaderMode() }
@@ -220,10 +315,21 @@ pub trait RaylibShaderModeExt
 where
     Self: Sized,
 {
+    /// Begin custom shader drawing.
+    /// Prefer using the closure version, [RaylibShaderModeExt::begin_shader_mode]. This version returns a handle that calls [raylib_sys::EndShaderMode] at the end of the scope and is provided as a fallback incase you run into issues with closures(such as lifetime or performance reasons)
     #[must_use]
-    fn begin_shader_mode<'a>(&'a mut self, shader: &'a ffi::Shader) -> RaylibShaderMode<Self> {
-        unsafe { ffi::BeginShaderMode(*shader) }
-        RaylibShaderMode(self, shader)
+    fn begin_shader_mode<'a>(&'a mut self, shader: &'a mut Shader) -> RaylibShaderMode<Self> {
+        unsafe { ffi::BeginShaderMode(*shader.as_ref()) }
+        RaylibShaderMode(self, Some(shader))
+    }
+
+    fn start_shader_mode<'a>(
+        &'a mut self,
+        shader: &'a mut Shader,
+        mut func: impl FnMut(RaylibShaderMode<Self>, &'a mut Shader),
+    ) {
+        unsafe { ffi::BeginShaderMode(*shader.as_ref()) }
+        func(RaylibShaderMode(self, None), shader);
     }
 }
 
@@ -256,10 +362,21 @@ pub trait RaylibBlendModeExt
 where
     Self: Sized,
 {
+    /// Begin blending mode (alpha, additive, multiplied, subtract, custom).
+    /// Prefer using the closure version, [RaylibBlendModeExt::begin_blend_mode]. This version returns a handle that calls [raylib_sys::EndBlendMode] at the end of the scope and is provided as a fallback incase you run into issues with closures(such as lifetime or performance reasons)
     #[must_use]
     fn begin_blend_mode(&mut self, blend_mode: crate::consts::BlendMode) -> RaylibBlendMode<Self> {
         unsafe { ffi::BeginBlendMode((blend_mode as u32) as i32) }
         RaylibBlendMode(self)
+    }
+
+    fn start_blend_mode(
+        &mut self,
+        blend_mode: crate::consts::BlendMode,
+        mut func: impl FnMut(RaylibBlendMode<Self>),
+    ) {
+        unsafe { ffi::BeginBlendMode((blend_mode as u32) as i32) }
+        func(RaylibBlendMode(self));
     }
 }
 
@@ -292,6 +409,8 @@ pub trait RaylibScissorModeExt
 where
     Self: Sized,
 {
+    /// Begin scissor mode (define screen area for following drawing).
+    /// Prefer using the closure version, [RaylibScissorModeExt::begin_scissor_mode]. This version returns a handle that calls [raylib_sys::EndScissorMode] at the end of the scope and is provided as a fallback incase you run into issues with closures(such as lifetime or performance reasons)
     #[must_use]
     fn begin_scissor_mode(
         &mut self,
@@ -302,6 +421,18 @@ where
     ) -> RaylibScissorMode<Self> {
         unsafe { ffi::BeginScissorMode(x, y, width, height) }
         RaylibScissorMode(self)
+    }
+
+    fn start_scissor_mode(
+        &mut self,
+        x: i32,
+        y: i32,
+        width: i32,
+        height: i32,
+        mut func: impl FnMut(RaylibScissorMode<Self>),
+    ) {
+        unsafe { ffi::BeginScissorMode(x, y, width, height) }
+        func(RaylibScissorMode(self));
     }
 }
 

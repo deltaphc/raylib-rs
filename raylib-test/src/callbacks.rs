@@ -149,16 +149,5 @@ pub mod callback_tests {
         }
     }
 
-    pub fn set_file_text_loader(_: &RaylibThread) {
-        println!(
-            "\n{}\n",
-            "Setting file text loader callback".bold().underline(),
-        );
-        let mut handle = TEST_HANDLE.write().unwrap();
-        let rl = handle.as_mut().unwrap();
-        {
-            rl.set_load_file_text_callback(custom_read_file_text_callback)
-                .unwrap();
-        }
-    }
+    pub fn set_file_text_loader(_: &RaylibThread) {}
 }

@@ -125,23 +125,24 @@ impl<'a> System<'a> for DrawSys {
         let size = Vector2::new(tw as f32, tw as f32) + margin;
         let tile_size = Vector2::new(tw as f32, tw as f32);
 
-        let mut d = rl.begin_drawing(&self.thread);
-        d.clear_background(Color::BLACK);
-        // draw the tiles
-        for (pos, _) in (&pos, &tiles).join() {
-            let p: Vector2 = pos.into();
-            d.draw_rectangle_v(p * size + margin, tile_size, Color::RAYWHITE);
-        }
-        // draw the fire tiles
-        for (pos, _, _) in (&pos, &tiles, &fire).join() {
-            let p: Vector2 = pos.into();
-            d.draw_rectangle_v(p * size + margin, tile_size, Color::RED);
-        }
-        // draw the player tiles
-        for (pos, _, _) in (&pos, &tiles, &player).join() {
-            let p: Vector2 = pos.into();
-            d.draw_rectangle_v(p * size + margin, tile_size, Color::GREEN);
-        }
+        rl.start_drawing(&mut self.thread, |mut d| {
+            d.clear_background(Color::BLACK);
+            // draw the tiles
+            for (pos, _) in (&pos, &tiles).join() {
+                let p: Vector2 = pos.into();
+                d.draw_rectangle_v(p * size + margin, tile_size, Color::RAYWHITE);
+            }
+            // draw the fire tiles
+            for (pos, _, _) in (&pos, &tiles, &fire).join() {
+                let p: Vector2 = pos.into();
+                d.draw_rectangle_v(p * size + margin, tile_size, Color::RED);
+            }
+            // draw the player tiles
+            for (pos, _, _) in (&pos, &tiles, &player).join() {
+                let p: Vector2 = pos.into();
+                d.draw_rectangle_v(p * size + margin, tile_size, Color::GREEN);
+            }
+        });
     }
 }
 

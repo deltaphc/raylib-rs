@@ -49,36 +49,34 @@ fn main() {
     while !rl.window_should_close() {
         rl.update_camera(&mut camera, CameraMode::CAMERA_FIRST_PERSON);
 
-        let mut d = rl.begin_drawing(&thread);
+        rl.start_drawing(&thread, |mut d| {
+            d.clear_background(Color::DARKGREEN);
+            d.start_mode3D(camera, |mut d2, _camera| {
+                d2.draw_plane(
+                    Vector3::new(0.0, 0.0, 0.0),
+                    Vector2::new(32.0, 32.0),
+                    Color::LIGHTGRAY,
+                );
+                d2.draw_cube(Vector3::new(-16.0, 2.5, 0.0), 1.0, 5.0, 32.0, Color::BLUE);
+                d2.draw_cube(Vector3::new(16.0, 2.5, 0.0), 1.0, 5.0, 32.0, Color::LIME);
+                d2.draw_cube(Vector3::new(0.0, 2.5, 16.0), 32.0, 5.0, 1.0, Color::GOLD);
 
-        d.clear_background(Color::DARKGREEN);
-        {
-            let mut d2 = d.begin_mode3D(camera);
-
-            d2.draw_plane(
-                Vector3::new(0.0, 0.0, 0.0),
-                Vector2::new(32.0, 32.0),
-                Color::LIGHTGRAY,
+                for column in columns.iter() {
+                    d2.draw_cube(column.position, 2.0, column.height, 2.0, column.color);
+                    d2.draw_cube_wires(column.position, 2.0, column.height, 2.0, Color::MAROON);
+                }
+            });
+            d.draw_rectangle(10, 10, 220, 70, Color::SKYBLUE);
+            d.draw_rectangle_lines(10, 10, 220, 70, Color::BLUE);
+            d.draw_text(
+                "First person camera default controls:",
+                20,
+                20,
+                10,
+                Color::BLACK,
             );
-            d2.draw_cube(Vector3::new(-16.0, 2.5, 0.0), 1.0, 5.0, 32.0, Color::BLUE);
-            d2.draw_cube(Vector3::new(16.0, 2.5, 0.0), 1.0, 5.0, 32.0, Color::LIME);
-            d2.draw_cube(Vector3::new(0.0, 2.5, 16.0), 32.0, 5.0, 1.0, Color::GOLD);
-
-            for column in columns.iter() {
-                d2.draw_cube(column.position, 2.0, column.height, 2.0, column.color);
-                d2.draw_cube_wires(column.position, 2.0, column.height, 2.0, Color::MAROON);
-            }
-        }
-        d.draw_rectangle(10, 10, 220, 70, Color::SKYBLUE);
-        d.draw_rectangle_lines(10, 10, 220, 70, Color::BLUE);
-        d.draw_text(
-            "First person camera default controls:",
-            20,
-            20,
-            10,
-            Color::BLACK,
-        );
-        d.draw_text("- Move with keys: W, A, S, D", 40, 40, 10, Color::DARKGRAY);
-        d.draw_text("- Mouse move to look around", 40, 60, 10, Color::DARKGRAY);
+            d.draw_text("- Move with keys: W, A, S, D", 40, 40, 10, Color::DARKGRAY);
+            d.draw_text("- Mouse move to look around", 40, 60, 10, Color::DARKGRAY);
+        });
     }
 }

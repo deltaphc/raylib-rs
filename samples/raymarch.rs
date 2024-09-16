@@ -56,24 +56,25 @@ pub fn main() {
 
         // Draw
         //----------------------------------------------------------------------------------
-        let mut d = rl.begin_drawing(&thread);
+        rl.start_drawing(&thread, |mut d| {
+            d.clear_background(Color::RAYWHITE);
 
-        d.clear_background(Color::RAYWHITE);
+            // We only draw a white full-screen rectangle,
+            // frame is generated in shader using raymarching
+            {
+                d.start_shader_mode(&mut shader, |mut d, _shader| {
+                    d.draw_rectangle(0, 0, w, h, Color::WHITE);
+                });
+            }
 
-        // We only draw a white full-screen rectangle,
-        // frame is generated in shader using raymarching
-        {
-            let mut d = d.begin_shader_mode(&shader);
-            d.draw_rectangle(0, 0, w, h, Color::WHITE);
-        }
-
-        d.draw_text(
-            "(c) Raymarching shader by Iñigo Quilez. MIT License.",
-            w - 280,
-            h - 20,
-            10,
-            Color::GRAY,
-        );
+            d.draw_text(
+                "(c) Raymarching shader by Iñigo Quilez. MIT License.",
+                w - 280,
+                h - 20,
+                10,
+                Color::GRAY,
+            );
+        });
 
         //----------------------------------------------------------------------------------
     }

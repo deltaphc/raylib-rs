@@ -73,6 +73,8 @@ fn main() {
     let _game_over = false;
     let _pause = false;
 
+    rl.set_target_fps(60);
+
     let mut game = Game::default();
 
     init_game(&mut game, &rl);
@@ -120,7 +122,7 @@ fn update_game(game: &mut Game, rl: &RaylibHandle) {
     let (w, h) = (rl.get_screen_width() as f32, rl.get_screen_height() as f32);
 
     if !game.game_over {
-        if rl.is_key_pressed(KEY_P) {
+        if rl.is_key_released(KEY_P) {
             game.pause = !game.pause;
         }
 
@@ -140,7 +142,7 @@ fn update_game(game: &mut Game, rl: &RaylibHandle) {
             }
 
             // Ball launching logic
-            if !game.ball.active && rl.is_key_pressed(KEY_SPACE) {
+            if !game.ball.active && rl.is_key_released(KEY_SPACE) {
                 game.ball.active = true;
                 game.ball.speed = Vector2::new(0.0, -5.0);
             }
@@ -174,7 +176,9 @@ fn update_game(game: &mut Game, rl: &RaylibHandle) {
                 game.player.size.x,
                 game.player.size.y,
             );
-            if r.check_collision_circle_rec(game.ball.position, game.ball.radius as f32) && game.ball.speed.y > 0.0 {
+            if r.check_collision_circle_rec(game.ball.position, game.ball.radius as f32)
+                && game.ball.speed.y > 0.0
+            {
                 game.ball.speed.y *= -1.0;
                 game.ball.speed.x = (game.ball.position.x - game.player.position.x)
                     / (game.player.size.x / 2.0)
@@ -261,7 +265,7 @@ fn update_game(game: &mut Game, rl: &RaylibHandle) {
                 }
             }
         }
-    } else if rl.is_key_pressed(KEY_ENTER) {
+    } else if rl.is_key_released(KEY_ENTER) {
         init_game(game, rl);
         game.game_over = false;
     }
@@ -269,67 +273,68 @@ fn update_game(game: &mut Game, rl: &RaylibHandle) {
 
 fn draw_game(game: &Game, rl: &mut RaylibHandle, thread: &RaylibThread) {
     let (w, h) = (rl.get_screen_width() as f32, rl.get_screen_height() as f32);
-    let mut d = rl.begin_drawing(thread);
-    d.clear_background(Color::RAYWHITE);
-    if !game.game_over {
-        // Draw player bar
-        d.draw_rectangle(
-            (game.player.position.x - game.player.size.x / 2.0) as i32,
-            (game.player.position.y - game.player.size.y / 2.0) as i32,
-            game.player.size.x as i32,
-            game.player.size.y as i32,
-            Color::BLACK,
-        );
+    rl.start_drawing(thread, |mut d| {
+        d.clear_background(Color::RAYWHITE);
+        if !game.game_over {
+            // Draw player bar
+            d.draw_rectangle(
+                (game.player.position.x - game.player.size.x / 2.0) as i32,
+                (game.player.position.y - game.player.size.y / 2.0) as i32,
+                game.player.size.x as i32,
+                game.player.size.y as i32,
+                Color::BLACK,
+            );
 
-        // Draw player lives
-        for i in 0..game.player.life {
-            d.draw_rectangle(20 + 30 * i, h as i32 - 30, 35, 10, Color::LIGHTGRAY);
-        }
+            // Draw player lives
+            for i in 0..game.player.life {
+                d.draw_rectangle(20 + 30 * i, h as i32 - 30, 35, 10, Color::LIGHTGRAY);
+            }
 
-        // Draw ball
-        d.draw_circle_v(game.ball.position, game.ball.radius as f32, Color::MAROON);
+            // Draw ball
+            d.draw_circle_v(game.ball.position, game.ball.radius as f32, Color::MAROON);
 
-        // Draw bricks
-        for i in 0..LINES_OF_BRICKS {
-            for j in 0..BRICKS_PER_LINE {
-                if game.bricks[i][j].active {
-                    if (i + j) % 2 == 0 {
-                        d.draw_rectangle(
-                            (game.bricks[i][j].position.x - game.brick_size.x / 2.0) as i32,
-                            (game.bricks[i][j].position.y - game.brick_size.y / 2.0) as i32,
-                            game.brick_size.x as i32,
-                            game.brick_size.y as i32,
-                            Color::GRAY,
-                        );
-                    } else {
-                        d.draw_rectangle(
-                            (game.bricks[i][j].position.x - game.brick_size.x / 2.0) as i32,
-                            (game.bricks[i][j].position.y - game.brick_size.y / 2.0) as i32,
-                            game.brick_size.x as i32,
-                            game.brick_size.y as i32,
-                            Color::DARKGRAY,
-                        );
+            // Draw bricks
+            for i in 0..LINES_OF_BRICKS {
+                for j in 0..BRICKS_PER_LINE {
+                    if game.bricks[i][j].active {
+                        if (i + j) % 2 == 0 {
+                            d.draw_rectangle(
+                                (game.bricks[i][j].position.x - game.brick_size.x / 2.0) as i32,
+                                (game.bricks[i][j].position.y - game.brick_size.y / 2.0) as i32,
+                                game.brick_size.x as i32,
+                                game.brick_size.y as i32,
+                                Color::GRAY,
+                            );
+                        } else {
+                            d.draw_rectangle(
+                                (game.bricks[i][j].position.x - game.brick_size.x / 2.0) as i32,
+                                (game.bricks[i][j].position.y - game.brick_size.y / 2.0) as i32,
+                                game.brick_size.x as i32,
+                                game.brick_size.y as i32,
+                                Color::DARKGRAY,
+                            );
+                        }
                     }
                 }
             }
-        }
 
-        if game.pause {
+            if game.pause {
+                d.draw_text(
+                    "Game Pause",
+                    (w / 2.0) as i32 - d.measure_text("Game Paused", 40) / 2,
+                    (h / 2.0 - 40.0) as i32,
+                    40,
+                    Color::GRAY,
+                );
+            }
+        } else {
             d.draw_text(
-                "Game Pause",
-                (w / 2.0) as i32 - d.measure_text("Game Paused", 40) / 2,
-                (h / 2.0 - 40.0) as i32,
-                40,
+                "PRESS [ENTER] TO PLAY AGAIN",
+                (w / 2.0) as i32 - d.measure_text("PRESS [ENTER] TO PLAY AGAIN", 20) / 2,
+                (h / 2.0) as i32 - 50,
+                20,
                 Color::GRAY,
             );
         }
-    } else {
-        d.draw_text(
-            "PRESS [ENTER] TO PLAY AGAIN",
-            (w / 2.0) as i32 - d.measure_text("PRESS [ENTER] TO PLAY AGAIN", 20) / 2,
-            (h / 2.0) as i32 - 50,
-            20,
-            Color::GRAY,
-        );
-    }
+    })
 }

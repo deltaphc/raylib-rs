@@ -31,6 +31,7 @@ impl RaylibHandle {
 
         // Trust me, I have tried ALL the RUST option ergonamics. This is the only way
         // to get this to work without raylib breaking for whatever reason
+        // UPDATE FOR 2024 FROM ANOTHER PERSON: Yes this is still true, doing although "for some reason" is likely due to the pointer getting freed too early if you don't do it this way.
         let shader = match (c_vs_filename, c_fs_filename) {
             (Some(vs), Some(fs)) => unsafe { Shader(ffi::LoadShader(vs.as_ptr(), fs.as_ptr())) },
             (None, Some(fs)) => unsafe { Shader(ffi::LoadShader(std::ptr::null(), fs.as_ptr())) },

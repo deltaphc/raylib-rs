@@ -87,3 +87,7 @@ path = "./asteroids.rs"
 [[bin]]
 name = "floppy"
 path = "./floppy.rs"
+
+[[bin]]
+name = "shader_multisample"
+path = "./shader_multisample.rs"

@@ -175,69 +175,69 @@ fn update_game(game: &mut Game, rl: &RaylibHandle) {
 //
 // // Draw game (one frame)
 fn draw_game(game: &mut Game, rl: &mut RaylibHandle, thread: &RaylibThread) {
-    let mut d = rl.begin_drawing(thread);
+    rl.start_drawing(thread, |mut d| {
+        d.clear_background(Color::RAYWHITE);
 
-    d.clear_background(Color::RAYWHITE);
-
-    if !game.game_over {
-        d.draw_circle(
-            game.floppy.position.x as i32,
-            game.floppy.position.y as i32,
-            game.floppy.radius,
-            game.floppy.color,
-        );
-
-        // Draw tubes
-        for i in 0..MAX_TUBES {
-            d.draw_rectangle(
-                game.tubes[i * 2].rec.x as i32,
-                game.tubes[i * 2].rec.y as i32,
-                game.tubes[i * 2].rec.width as i32,
-                game.tubes[i * 2].rec.height as i32,
-                game.tubes[i * 2].color,
+        if !game.game_over {
+            d.draw_circle(
+                game.floppy.position.x as i32,
+                game.floppy.position.y as i32,
+                game.floppy.radius,
+                game.floppy.color,
             );
-            d.draw_rectangle(
-                game.tubes[i * 2 + 1].rec.x as i32,
-                game.tubes[i * 2 + 1].rec.y as i32,
-                game.tubes[i * 2 + 1].rec.width as i32,
-                game.tubes[i * 2 + 1].rec.height as i32,
-                game.tubes[i * 2 + 1].color,
-            );
-        }
 
-        // Draw flashing fx (one frame only)
-        if game.superfx {
-            d.draw_rectangle(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, Color::WHITE);
-            game.superfx = false;
-        }
+            // Draw tubes
+            for i in 0..MAX_TUBES {
+                d.draw_rectangle(
+                    game.tubes[i * 2].rec.x as i32,
+                    game.tubes[i * 2].rec.y as i32,
+                    game.tubes[i * 2].rec.width as i32,
+                    game.tubes[i * 2].rec.height as i32,
+                    game.tubes[i * 2].color,
+                );
+                d.draw_rectangle(
+                    game.tubes[i * 2 + 1].rec.x as i32,
+                    game.tubes[i * 2 + 1].rec.y as i32,
+                    game.tubes[i * 2 + 1].rec.width as i32,
+                    game.tubes[i * 2 + 1].rec.height as i32,
+                    game.tubes[i * 2 + 1].color,
+                );
+            }
 
-        d.draw_text(&format!("{:04}", game.score), 20, 20, 40, Color::GRAY);
-        d.draw_text(
-            &format!("HI-SCORE: {:04}", game.hi_score),
-            20,
-            70,
-            20,
-            Color::LIGHTGRAY,
-        );
+            // Draw flashing fx (one frame only)
+            if game.superfx {
+                d.draw_rectangle(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, Color::WHITE);
+                game.superfx = false;
+            }
 
-        if game.pause {
+            d.draw_text(&format!("{:04}", game.score), 20, 20, 40, Color::GRAY);
             d.draw_text(
-                "GAME PAUSED",
-                SCREEN_WIDTH / 2 - d.measure_text("GAME PAUSED", 40) / 2,
-                SCREEN_HEIGHT / 2 - 40,
-                40,
+                &format!("HI-SCORE: {:04}", game.hi_score),
+                20,
+                70,
+                20,
+                Color::LIGHTGRAY,
+            );
+
+            if game.pause {
+                d.draw_text(
+                    "GAME PAUSED",
+                    SCREEN_WIDTH / 2 - d.measure_text("GAME PAUSED", 40) / 2,
+                    SCREEN_HEIGHT / 2 - 40,
+                    40,
+                    Color::GRAY,
+                );
+            }
+        } else {
+            d.draw_text(
+                "PRESS [ENTER] TO PLAY AGAIN",
+                d.get_screen_width() / 2 - d.measure_text("PRESS [ENTER] TO PLAY AGAIN", 20) / 2,
+                d.get_screen_height() / 2 - 50,
+                20,
                 Color::GRAY,
             );
         }
-    } else {
-        d.draw_text(
-            "PRESS [ENTER] TO PLAY AGAIN",
-            d.get_screen_width() / 2 - d.measure_text("PRESS [ENTER] TO PLAY AGAIN", 20) / 2,
-            d.get_screen_height() / 2 - 50,
-            20,
-            Color::GRAY,
-        );
-    }
+    });
 }
 
 // Update and Draw (one frame)
