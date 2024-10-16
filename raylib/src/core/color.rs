@@ -145,7 +145,7 @@ impl Color {
 
     /// Color fade-in or fade-out, alpha goes from 0.0f to 1.0f
     #[inline]
-    #[deprecated = "Has been superseded by .fade()"]
+    #[deprecated = "Has been superseded by .alpha()"]
     pub fn fade(&self, alpha: f32) -> Color {
         unsafe { ffi::Fade(self.into(), alpha).into() }
     }
