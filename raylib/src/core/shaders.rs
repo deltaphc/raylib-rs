@@ -187,12 +187,10 @@ impl Shader {
         m
     }
 
-    /// Check if shader is ready for usage
+    /// Check if shader is valid
     #[inline]
-    pub fn is_ready(&self) {
-        unsafe {
-            ffi::IsShaderReady(self.0);
-        }
+    pub fn is_shader_valid(&self) -> bool {
+        unsafe { ffi::IsShaderValid(self.0) }
     }
 
     /// Sets shader uniform value

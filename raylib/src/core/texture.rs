@@ -116,8 +116,8 @@ impl RenderTexture2D {
         m
     }
 
-    pub fn is_ready(&self) -> bool {
-        unsafe { ffi::IsRenderTextureReady(self.0) }
+    pub fn is_render_texture_valid(&self) -> bool {
+        unsafe { ffi::IsRenderTextureValid(self.0) }
     }
 }
 
@@ -738,19 +738,13 @@ impl Image {
     /// Export image to memory buffer.
     pub fn export_image_to_memory(&self, file_type: &str) -> Result<&[u8], Error> {
         if self.width == 0 {
-            return Err(error!(
-                "Invalid image; width == 0"
-            ));
+            return Err(error!("Invalid image; width == 0"));
         }
         if self.height == 0 {
-            return Err(error!(
-                "Invalid image; height == 0"
-            ));
+            return Err(error!("Invalid image; height == 0"));
         }
         if self.data == null_mut() {
-            return Err(error!(
-                "Invalid image; data == null"
-            ));
+            return Err(error!("Invalid image; data == null"));
         }
 
         let c_filetype = CString::new(file_type).unwrap();
@@ -769,27 +763,19 @@ impl Image {
     /// NOTE: The convolution kernel matrix is expected to be square
     pub fn kernel_convolution(&mut self, kernel: &[f32]) -> Result<(), Error> {
         if self.width == 0 {
-            return Err(error!(
-                "Invalid image; width == 0"
-            ));
+            return Err(error!("Invalid image; width == 0"));
         }
         if self.height == 0 {
-            return Err(error!(
-                "Invalid image; height == 0"
-            ));
+            return Err(error!("Invalid image; height == 0"));
         }
         if self.data == null_mut() {
-            return Err(error!(
-                "Invalid image; data == null"
-            ));
+            return Err(error!("Invalid image; data == null"));
         }
 
         let kernel_width = (kernel.len() as f32).sqrt() as i32;
 
         if (kernel_width * kernel_width) as usize != kernel.len() {
-            return Err(error!(
-                "Convolution kernel must be square to be applied"
-            ));
+            return Err(error!("Convolution kernel must be square to be applied"));
         }
 
         unsafe { ImageKernelConvolution(&mut self.0, kernel.as_ptr(), kernel.len() as i32) }
@@ -938,9 +924,7 @@ impl Image {
             )
         };
         if i.data.is_null() {
-            return Err(error!(
-                "Image data is null. Check provided buffer data"
-            ));
+            return Err(error!("Image data is null. Check provided buffer data"));
         };
         Ok(Image(i))
     }
@@ -1017,8 +1001,8 @@ impl Image {
         }
     }
 
-    pub fn is_ready(&self) -> bool {
-        unsafe { ffi::IsImageReady(self.0) }
+    pub fn is_image_valid(&self) -> bool {
+        unsafe { ffi::IsImageValid(self.0) }
     }
 }
 
@@ -1116,9 +1100,7 @@ pub trait RaylibTexture2D: AsRef<ffi::Texture2D> + AsMut<ffi::Texture2D> {
     fn load_image(&self) -> Result<Image, Error> {
         let i = unsafe { ffi::LoadImageFromTexture(*self.as_ref()) };
         if i.data.is_null() {
-            return Err(error!(
-                "Texture cannot be rendered to an image"
-            ));
+            return Err(error!("Texture cannot be rendered to an image"));
         }
         Ok(Image(i))
     }
@@ -1147,8 +1129,8 @@ pub trait RaylibTexture2D: AsRef<ffi::Texture2D> + AsMut<ffi::Texture2D> {
         }
     }
 
-    fn is_ready(&self) -> bool {
-        unsafe { ffi::IsTextureReady(*self.as_ref()) }
+    fn is_texture_valid(&self) -> bool {
+        unsafe { ffi::IsTextureValid(*self.as_ref()) }
     }
 }
 
@@ -1164,10 +1146,7 @@ impl RaylibHandle {
         let c_filename = CString::new(filename).unwrap();
         let t = unsafe { ffi::LoadTexture(c_filename.as_ptr()) };
         if t.id == 0 {
-            return Err(error!(
-                "failed to load the texture.",
-                filename
-            ));
+            return Err(error!("failed to load the texture.", filename));
         }
         Ok(Texture2D(t))
     }
@@ -1181,9 +1160,7 @@ impl RaylibHandle {
     ) -> Result<Texture2D, Error> {
         let t = unsafe { ffi::LoadTextureCubemap(image.0, layout as i32) };
         if t.id == 0 {
-            return Err(error!(
-                "failed to load image as a texture cubemap."
-            ));
+            return Err(error!("failed to load image as a texture cubemap."));
         }
         Ok(Texture2D(t))
     }
@@ -1197,9 +1174,7 @@ impl RaylibHandle {
     ) -> Result<Texture2D, Error> {
         let t = unsafe { ffi::LoadTextureFromImage(image.0) };
         if t.id == 0 {
-            return Err(error!(
-                "failed to load image as a texture."
-            ));
+            return Err(error!("failed to load image as a texture."));
         }
         Ok(Texture2D(t))
     }
@@ -1213,9 +1188,7 @@ impl RaylibHandle {
     ) -> Result<RenderTexture2D, Error> {
         let t = unsafe { ffi::LoadRenderTexture(width as i32, height as i32) };
         if t.id == 0 {
-            return Err(error!(
-                "failed to create render texture."
-            ));
+            return Err(error!("failed to create render texture."));
         }
         Ok(RenderTexture2D(t))
     }

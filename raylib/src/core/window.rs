@@ -421,16 +421,6 @@ impl RaylibHandle {
 
 // Screen-space-related functions
 impl RaylibHandle {
-    /// Returns a ray trace from mouse position
-    #[deprecated = "Renamed to RaylibHandle::get_screen_to_world_ray"]
-    pub fn get_mouse_ray(
-        &self,
-        mouse_position: impl Into<ffi::Vector2>,
-        camera: impl Into<ffi::Camera>,
-    ) -> Ray {
-        unsafe { ffi::GetScreenToWorldRay(mouse_position.into(), camera.into()).into() }
-    }
-
     /// Get a ray trace from screen position (i.e mouse)
     pub fn get_screen_to_world_ray(
         &self,

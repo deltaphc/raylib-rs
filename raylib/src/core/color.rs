@@ -148,13 +148,6 @@ impl Color {
         unsafe { ffi::GetColor(hex_value).into() }
     }
 
-    /// Color fade-in or fade-out, alpha goes from 0.0f to 1.0f
-    #[inline]
-    #[deprecated = "Has been superseded by Color::alpha()"]
-    pub fn fade(&self, alpha: f32) -> Color {
-        unsafe { ffi::Fade(self.into(), alpha).into() }
-    }
-
     /// Get color multiplied with another color
     pub fn tint(&self, color: Self) -> Self {
         unsafe { ffi::ColorTint(self.into(), color.into()).into() }

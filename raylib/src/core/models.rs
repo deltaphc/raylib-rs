@@ -61,10 +61,7 @@ impl RaylibHandle {
         let m = unsafe { ffi::LoadModel(c_filename.as_ptr()) };
         if m.meshes.is_null() && m.materials.is_null() && m.bones.is_null() && m.bindPose.is_null()
         {
-            return Err(error!(
-                "could not load model",
-                filename
-            ));
+            return Err(error!("could not load model", filename));
         }
         // TODO check if null pointer checks are necessary.
         Ok(Model(m))
@@ -79,9 +76,7 @@ impl RaylibHandle {
         let m = unsafe { ffi::LoadModelFromMesh(mesh.0) };
 
         if m.meshes.is_null() || m.materials.is_null() {
-            return Err(error!(
-                "Could not load model from mesh"
-            ));
+            return Err(error!("Could not load model from mesh"));
         }
 
         Ok(Model(m))
@@ -96,10 +91,7 @@ impl RaylibHandle {
         let mut m_size = 0;
         let m_ptr = unsafe { ffi::LoadModelAnimations(c_filename.as_ptr(), &mut m_size) };
         if m_size <= 0 {
-            return Err(error!(
-                "No model animations loaded",
-                filename
-            ));
+            return Err(error!("No model animations loaded", filename));
         }
         let mut m_vec = Vec::with_capacity(m_size as usize);
         for i in 0..m_size {
@@ -224,8 +216,8 @@ pub trait RaylibModel: AsRef<ffi::Model> + AsMut<ffi::Model> {
     }
 
     /// Check if a model is ready
-    fn is_ready(&self) -> bool {
-        unsafe { ffi::IsModelReady(*self.as_ref()) }
+    fn is_model_valid(&self) -> bool {
+        unsafe { ffi::IsModelValid(*self.as_ref()) }
     }
 
     /// Compute model bounding box limits (considers all meshes)
@@ -236,13 +228,9 @@ pub trait RaylibModel: AsRef<ffi::Model> + AsMut<ffi::Model> {
     /// Set material for a mesh
     fn set_model_mesh_material(&mut self, mesh_id: i32, material_id: i32) -> Result<(), Error> {
         if mesh_id >= self.as_ref().meshCount {
-            return Err(error!(
-                "mesh_id greater than mesh count"
-            ));
+            return Err(error!("mesh_id greater than mesh count"));
         } else if material_id >= self.as_ref().materialCount {
-            return Err(error!(
-                "material_id greater than material count"
-            ));
+            return Err(error!("material_id greater than material count"));
         } else {
             unsafe { ffi::SetModelMeshMaterial(self.as_mut(), mesh_id, material_id) };
             return Ok(());
@@ -473,10 +461,7 @@ impl Material {
         let mut m_size = 0;
         let m_ptr = unsafe { ffi::LoadMaterials(c_filename.as_ptr(), &mut m_size) };
         if m_size <= 0 {
-            return Err(error!(
-                "No materials loaded",
-                filename
-            ));
+            return Err(error!("No materials loaded", filename));
         }
         let mut m_vec = Vec::with_capacity(m_size as usize);
         for i in 0..m_size {
@@ -531,8 +516,8 @@ pub trait RaylibMaterial: AsRef<ffi::Material> + AsMut<ffi::Material> {
         }
     }
 
-    fn is_ready(&mut self) -> bool {
-        unsafe { ffi::IsMaterialReady(*self.as_ref()) }
+    fn is_material_valid(&mut self) -> bool {
+        unsafe { ffi::IsMaterialValid(*self.as_ref()) }
     }
 }
 
