@@ -1,5 +1,8 @@
 //! Data manipulation functions. Compress and Decompress with DEFLATE
-use std::{ffi::CString, path::Path};
+use std::{
+    ffi::{c_char, CString},
+    path::Path,
+};
 
 use crate::{
     error::{error, Error},
@@ -68,7 +71,7 @@ pub fn export_data_as_code(data: &[u8], file_name: impl AsRef<Path>) -> bool {
 }
 
 /// Encode data to Base64 string
-pub fn encode_data_base64(data: &[u8]) -> Vec<i8> {
+pub fn encode_data_base64(data: &[u8]) -> Vec<c_char> {
     let mut output_size = 0;
     let bytes =
         unsafe { ffi::EncodeDataBase64(data.as_ptr(), data.len() as i32, &mut output_size) };
@@ -77,7 +80,7 @@ pub fn encode_data_base64(data: &[u8]) -> Vec<i8> {
     if s.contains(&0) {
         // Work around a bug in Rust's from_raw_parts function
         let mut keep = true;
-        let b: Vec<i8> = s
+        let b: Vec<c_char> = s
             .iter()
             .filter(|f| {
                 if **f == 0 {

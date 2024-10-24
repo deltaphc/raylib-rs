@@ -6,6 +6,7 @@ use crate::core::math::Vector2;
 use crate::core::RaylibHandle;
 use crate::ffi;
 
+use std::ffi::c_char;
 use std::ffi::CStr;
 
 impl RaylibHandle {
@@ -278,7 +279,7 @@ impl RaylibHandle {
     }
 
     /// Set internal gamepad mappings (SDL_GameControllerDB)
-    pub fn set_gamepad_mappings(&self, bind: &[i8]) -> i32 {
+    pub fn set_gamepad_mappings(&self, bind: &[c_char]) -> i32 {
         unsafe { ffi::SetGamepadMappings(bind.as_ptr()) }
     }
 
