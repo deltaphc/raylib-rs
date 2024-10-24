@@ -44,5 +44,6 @@ pub use crate::core::texture::*;
 pub use crate::core::vr::*;
 pub use crate::core::window::*;
 pub use crate::core::*;
+pub use crate::core::file::*;
 pub use crate::rgui::*;
 pub use crate::*;
