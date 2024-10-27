@@ -9,7 +9,7 @@ use crate::error::{error, Error};
 use crate::ffi;
 use crate::math::Rectangle;
 
-use std::convert::{AsMut, AsRef};
+use std::convert::{AsMut, AsRef, TryInto};
 use std::ffi::{CString, OsString};
 use std::mem::ManuallyDrop;
 use std::ops::Deref;
@@ -371,7 +371,7 @@ impl Font {
         unsafe {
             self.glyphCount = chars.len() as i32;
             let data_size = self.glyphCount as usize * std::mem::size_of::<ffi::GlyphInfo>();
-            let ci_arr_ptr = libc::malloc(data_size); // raylib frees this data in UnloadFont
+            let ci_arr_ptr = ffi::MemAlloc(data_size.try_into().unwrap()); // raylib frees this data in UnloadFont
             std::ptr::copy(
                 chars.as_ptr(),
                 ci_arr_ptr as *mut ffi::GlyphInfo,
@@ -415,7 +415,7 @@ pub fn gen_image_font_atlas(
         #[allow(clippy::uninit_vec)]
         recs.set_len(chars.len());
         std::ptr::copy(ptr, recs.as_mut_ptr(), chars.len());
-        ffi::MemFree(ptr as *mut libc::c_void);
+        ffi::MemFree(ptr as *mut ::std::os::raw::c_void);
         return (img, recs);
     }
 }

@@ -32,37 +32,37 @@ static LOAD_FILE_TEXT_CALLBACK: AtomicUsize = AtomicUsize::new(0);
 static AUDIO_STREAM_CALLBACK: AtomicUsize = AtomicUsize::new(0);
 
 fn trace_log_callback() -> Option<RustTraceLogCallback> {
-    const { assert!(size_of::<RustTraceLogCallback>() == size_of::<usize>()) };
+    debug_assert!(size_of::<RustTraceLogCallback>() == size_of::<usize>());
     unsafe { transmute(TRACE_LOG_CALLBACK.load(Ordering::Relaxed)) }
 }
 
 fn save_file_data_callback() -> Option<RustSaveFileDataCallback> {
-    const { assert!(size_of::<RustSaveFileDataCallback>() == size_of::<usize>()) };
+    debug_assert!(size_of::<RustSaveFileDataCallback>() == size_of::<usize>());
     unsafe { transmute(SAVE_FILE_DATA_CALLBACK.load(Ordering::Relaxed)) }
 }
 
 fn load_file_data_callback() -> Option<RustLoadFileDataCallback> {
-    const { assert!(size_of::<RustLoadFileDataCallback>() == size_of::<usize>()) };
+    debug_assert!(size_of::<RustLoadFileDataCallback>() == size_of::<usize>());
     unsafe { transmute(LOAD_FILE_DATA_CALLBACK.load(Ordering::Relaxed)) }
 }
 
 fn save_file_text_callback() -> Option<RustSaveFileTextCallback> {
-    const { assert!(size_of::<RustSaveFileTextCallback>() == size_of::<usize>()) };
+    debug_assert!(size_of::<RustSaveFileTextCallback>() == size_of::<usize>());
     unsafe { transmute(SAVE_FILE_TEXT_CALLBACK.load(Ordering::Relaxed)) }
 }
 
 fn load_file_text_callback() -> Option<RustLoadFileTextCallback> {
-    const { assert!(size_of::<RustLoadFileTextCallback>() == size_of::<usize>()) };
+    debug_assert!(size_of::<RustLoadFileTextCallback>() == size_of::<usize>());
     unsafe { transmute(LOAD_FILE_TEXT_CALLBACK.load(Ordering::Relaxed)) }
 }
 
 fn audio_stream_callback() -> Option<RustAudioStreamCallback> {
-    const { assert!(size_of::<RustAudioStreamCallback>() == size_of::<usize>()) };
+    debug_assert!(size_of::<RustAudioStreamCallback>() == size_of::<usize>());
     unsafe { transmute(AUDIO_STREAM_CALLBACK.load(Ordering::Relaxed)) }
 }
 
 #[no_mangle]
-pub extern "C" fn custom_trace_log_callback(level: TraceLogLevel, text: *const c_char) {
+pub unsafe extern "C" fn custom_trace_log_callback(level: TraceLogLevel, text: *const c_char) {
     if let Some(trace_log) = trace_log_callback() {
         let text = if text.is_null() {
             Cow::Borrowed("(MESSAGE WAS NULL)")

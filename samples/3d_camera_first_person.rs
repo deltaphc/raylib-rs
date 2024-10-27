@@ -1,10 +1,10 @@
-use arr_macro::arr;
 use rand::prelude::*;
 use raylib::prelude::*;
 
 const WINDOW_WIDTH: i32 = 1280;
 const WINDOW_HEIGHT: i32 = 720;
 
+#[derive(Copy, Clone, Default)]
 struct Column {
     height: f32,
     position: Vector3,
@@ -14,13 +14,13 @@ struct Column {
 impl Column {
     fn create_random() -> Column {
         let mut rng = rand::thread_rng();
-        let height: f32 = rng.gen_range(1.0, 12.0);
+        let height: f32 = rng.gen_range(1.0..12.0);
         let position = Vector3::new(
-            rng.gen_range(-15.0, 15.0),
+            rng.gen_range(-15.0..15.0),
             height / 2.0,
-            rng.gen_range(-15.0, 15.0),
+            rng.gen_range(-15.0..15.0),
         );
-        let color = Color::new(rng.gen_range(20, 255), rng.gen_range(10, 55), 30, 255);
+        let color = Color::new(rng.gen_range(20..255), rng.gen_range(10..55), 30, 255);
 
         Column {
             height,
@@ -42,7 +42,10 @@ fn main() {
         Vector3::new(0.0, 1.0, 0.0),
         60.0,
     );
-    let columns: [Column; 20] = arr![Column::create_random(); 20];
+    let mut columns = [Column::default(); 20];
+    for col in columns.iter_mut() {
+        *col = Column::create_random();
+    }
 
     rl.set_target_fps(60);
 

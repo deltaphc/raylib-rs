@@ -128,10 +128,7 @@ fn build_with_cmake(src_path: &str) {
 
     // Allows disabling the default maping of screenshot and gif recording in raylib
     {
-        #[cfg(any(
-                    feature = "noscreenshot",
-                    feature = "nogif"
-        ))]
+        #[cfg(any(feature = "noscreenshot", feature = "nogif"))]
         builder.define("CUSTOMIZE_BUILD", "ON");
 
         #[cfg(feature = "noscreenshot")]
@@ -333,9 +330,11 @@ fn main() {
     }
     let (platform, platform_os) = platform_from_target(&target);
 
-    // Donwload raylib source
-    let src = cp_raylib();
-    build_with_cmake(&src);
+    let raylib_src = "./raylib";
+    if is_directory_empty(raylib_src) {
+        panic!("raylib source does not exist in: `raylib-sys/raylib`. Please copy it in");
+    }
+    build_with_cmake(raylib_src);
 
     gen_bindings();
 
@@ -344,17 +343,13 @@ fn main() {
     gen_rgui();
 }
 
-// cp_raylib copy raylib to an out dir
-fn cp_raylib() -> String {
-    let out = env::var("OUT_DIR").unwrap();
-    let out = Path::new(&out); //.join("raylib_source");
-
-    let mut options = fs_extra::dir::CopyOptions::new();
-    options.skip_exist = true;
-    fs_extra::dir::copy("raylib", out, &options)
-        .unwrap_or_else(|_| panic!("failed to copy raylib source to {}", &out.to_string_lossy()));
-
-    out.join("raylib").to_string_lossy().to_string()
+#[must_use]
+/// returns false if the directory does not exist
+fn is_directory_empty(path: &str) -> bool {
+    match std::fs::read_dir(path) {
+        Ok(mut dir) => dir.next().is_none(),
+        Err(_) => true,
+    }
 }
 
 // run_command runs a command to completion or panics. Used for running curl and powershell.

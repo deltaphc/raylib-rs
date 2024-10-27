@@ -12,10 +12,9 @@ edition = "2018"
 exclude = ["raylib/examples/*", "raylib/projects/*", "raylib/templates/*"]
 
 [build-dependencies]
-fs_extra = "1.2"
-cmake = "0.1.49"
+cmake = "0.1.51"
 cc = "1.0"
-bindgen = "0.69.0"
+bindgen = "0.70"
 
 [features]
 default = []
