@@ -2,3 +2,4 @@
 	path = raylib-sys/raylib
 	url = https://github.com/raysan5/raylib
 	commit = "039df36f"
+	shallow = true
