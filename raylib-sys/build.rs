@@ -113,14 +113,26 @@ fn build_with_cmake(src_path: &str) {
         // builder.define("OPENGL_VERSION", "1.1");
 
         #[cfg(feature = "opengl_es_20")]
-        builder.define("OPENGL_VERSION", "ES 2.0");
+        {
+            builder.define("OPENGL_VERSION", "ES 2.0");
+            println!("cargo:rustc-link-lib=GLESv2");
+            println!("cargo:rustc-link-lib=GLdispatch");
+        }
+
+        #[cfg(feature = "opengl_es_30")]
+        {
+            builder.define("OPENGL_VERSION", "ES 3.0");
+            println!("cargo:rustc-link-lib=GLESv2");
+            println!("cargo:rustc-link-lib=GLdispatch");
+        }
 
         // Once again felt this was necessary incase a default was changed :)
         #[cfg(not(any(
             feature = "opengl_33",
             feature = "opengl_21",
             // feature = "opengl_11",
-            feature = "opengl_es_20"
+            feature = "opengl_es_20",
+            feature = "opengl_es_30"
         )))]
         builder.define("OPENGL_VERSION", "OFF");
     }

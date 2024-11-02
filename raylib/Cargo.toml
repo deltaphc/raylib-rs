@@ -37,6 +37,7 @@ custom_frame_control = ["raylib-sys/custom_frame_control"]
 opengl_33 = ["raylib-sys/opengl_33"]
 opengl_21 = ["raylib-sys/opengl_21"]
 opengl_es_20 = ["raylib-sys/opengl_es_20"]
+opengl_es_30 = ["raylib-sys/opengl_es_30"]
 noscreenshot = ["raylib-sys/noscreenshot"]
 nogif = ["raylib-sys/nogif"]
 
