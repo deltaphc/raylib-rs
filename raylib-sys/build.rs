@@ -155,7 +155,17 @@ fn build_with_cmake(src_path: &str) {
     }
 
     match platform {
-        Platform::Desktop => conf.define("PLATFORM", "Desktop"),
+        Platform::Desktop => {
+            #[cfg(feature = "sdl")]
+            {
+                println!("cargo:rustc-link-lib=SDL2");
+                conf.define("PLATFORM", "SDL")
+            }
+            #[cfg(not(feature = "sdl"))]
+            {
+                conf.define("PLATFORM", "Desktop")
+            }
+        }
         Platform::Web => conf
             .define("PLATFORM", "Web")
             .define("CMAKE_C_FLAGS", "-s ASYNCIFY"),

@@ -30,6 +30,7 @@ opengl_21 = []
 # opengl_11 = [] I couldn't get this one working, the others were fine in my limited testing (unsure about wayland compatibility)
 opengl_es_20 = []
 opengl_es_30 = []
+sdl = []
 
 # Allow disabling screenshots and gifs on f12
 noscreenshot = []
