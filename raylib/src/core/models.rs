@@ -1,5 +1,4 @@
 //! 3D Model, Mesh, and Animation
-use raylib_sys::GetModelBoundingBox;
 
 use crate::core::math::{BoundingBox, Vector3};
 use crate::core::texture::Image;
@@ -100,7 +99,7 @@ impl RaylibHandle {
             }
         }
         unsafe {
-            ffi::MemFree(m_ptr as *mut ::std::os::raw::c_void);
+            ffi::UnloadModelAnimations(m_ptr, m_size);
         }
         Ok(m_vec)
     }
@@ -114,6 +113,18 @@ impl RaylibHandle {
     ) {
         unsafe {
             ffi::UpdateModelAnimation(*model.as_mut(), *anim.as_ref(), frame);
+        }
+    }
+
+    pub fn update_model_animation_bones(
+        &mut self,
+        _: &RaylibThread,
+        mut model: impl AsMut<ffi::Model>,
+        anim: impl AsRef<ffi::ModelAnimation>,
+        frame: i32,
+    ) {
+        unsafe {
+            ffi::UpdateModelAnimationBones(*model.as_mut(), *anim.as_ref(), frame);
         }
     }
 }
@@ -222,7 +233,7 @@ pub trait RaylibModel: AsRef<ffi::Model> + AsMut<ffi::Model> {
 
     /// Compute model bounding box limits (considers all meshes)
     fn get_model_bounding_box(&self) -> BoundingBox {
-        unsafe { BoundingBox::from(GetModelBoundingBox(*self.as_ref())) }
+        unsafe { BoundingBox::from(ffi::GetModelBoundingBox(*self.as_ref())) }
     }
 
     /// Set material for a mesh
