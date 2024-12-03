@@ -5,32 +5,7 @@ use crate::core::text::WeakFont;
 use crate::core::RaylibHandle;
 use crate::ffi;
 
-use std::ffi::CStr;
-
-pub trait IntoCStr {
-    fn as_cstr_ptr(&self) -> *const std::os::raw::c_char;
-}
-
-impl IntoCStr for dyn AsRef<str> {
-    fn as_cstr_ptr(&self) -> *const std::os::raw::c_char {
-        std::ffi::CString::new(self.as_ref())
-            .unwrap()
-            .as_c_str()
-            .as_ptr()
-    }
-}
-
-impl IntoCStr for dyn AsRef<CStr> {
-    fn as_cstr_ptr(&self) -> *const std::os::raw::c_char {
-        self.as_ref().as_ptr()
-    }
-}
-
-impl IntoCStr for Option<&CStr> {
-    fn as_cstr_ptr(&self) -> *const std::os::raw::c_char {
-        self.map(CStr::as_ptr).unwrap_or(std::ptr::null())
-    }
-}
+use std::ffi::{CStr, CString};
 
 /// Global gui modification functions
 impl RaylibHandle {
@@ -94,13 +69,35 @@ impl RaylibHandle {
     }
     /// Load style file (.rgs)
     #[inline]
-    pub fn gui_load_style(&mut self, filename: impl IntoCStr) {
-        unsafe { ffi::GuiLoadStyle(filename.as_cstr_ptr()) }
+    pub fn gui_load_style(&mut self, filename: impl Into<String>) {
+        let c_filename = CString::new(filename.into()).unwrap();
+        unsafe { ffi::GuiLoadStyle(c_filename.as_ptr()) }
     }
     /// Load style default over global style
     #[inline]
     pub fn gui_load_style_default(&mut self) {
         unsafe { ffi::GuiLoadStyleDefault() }
+    }
+
+    /// Enable gui tooltips (global state)
+    #[inline]
+    pub fn gui_enable_tooltip(&mut self) {
+        unsafe { ffi::GuiEnableTooltip() };
+    }
+
+    /// Disable gui tooltips (global state)
+    #[inline]
+    pub fn gui_disable_tooltip(&mut self) {
+        unsafe { ffi::GuiDisableTooltip() };
+    }
+
+    /// Set tooltip string
+    #[inline]
+    pub fn gui_set_tooltip(&mut self, tooltip: impl Into<String>) {
+        let c_text = CString::new(tooltip.into()).unwrap();
+        unsafe {
+            ffi::GuiSetTooltip(c_text.as_ptr());
+        }
     }
 }
 
@@ -127,6 +124,13 @@ pub trait RaylibDrawGui {
     fn gui_unlock(&mut self) {
         unsafe { ffi::GuiUnlock() }
     }
+
+    /// Check if gui is locked (global state)
+    #[inline]
+    fn gui_is_locked(&mut self) -> bool {
+        unsafe { ffi::GuiIsLocked() }
+    }
+
     // Set gui controls alpha (global state), alpha goes from 0.0f to 1.0f
     #[inline]
     fn gui_fade(&mut self, color: Color, alpha: f32) -> Color {
@@ -159,6 +163,13 @@ pub trait RaylibDrawGui {
         unsafe { ffi::GuiSetStyle(control as i32, property as i32, value) }
     }
 
+    /// Set gui controls alpha (global state), alpha goes from 0.0f to 1.0f
+    fn gui_set_alpha(&mut self, alpha: f32) {
+        unsafe {
+            ffi::GuiSetAlpha(alpha);
+        }
+    }
+
     /// Get one style property
     /// SHOULD use one of the Gui*Property enums
     #[inline]
@@ -167,8 +178,9 @@ pub trait RaylibDrawGui {
     }
     /// Load style file (.rgs)
     #[inline]
-    fn gui_load_style(&mut self, filename: impl IntoCStr) {
-        unsafe { ffi::GuiLoadStyle(filename.as_cstr_ptr()) }
+    fn gui_load_style(&mut self, filename: impl Into<String>) {
+        let c_filename = CString::new(filename.into()).unwrap();
+        unsafe { ffi::GuiLoadStyle(c_filename.as_ptr()) }
     }
     /// Load style default over global style
     #[inline]
@@ -177,40 +189,53 @@ pub trait RaylibDrawGui {
     }
     /// Window Box control, shows a window that can be closed
     #[inline]
-    fn gui_window_box(&mut self, bounds: impl Into<ffi::Rectangle>, title: impl IntoCStr) -> bool {
-        unsafe { ffi::GuiWindowBox(bounds.into(), title.as_cstr_ptr()) > 0 }
+    fn gui_window_box(
+        &mut self,
+        bounds: impl Into<ffi::Rectangle>,
+        title: impl Into<String>,
+    ) -> bool {
+        let c_filename = CString::new(title.into()).unwrap();
+        unsafe { ffi::GuiWindowBox(bounds.into(), c_filename.as_ptr()) > 0 }
     }
     /// Group Box control with text name
     #[inline]
-    fn gui_group_box(&mut self, bounds: impl Into<ffi::Rectangle>, text: impl IntoCStr) -> bool {
-        unsafe { ffi::GuiGroupBox(bounds.into(), text.as_cstr_ptr()) > 0 }
+    fn gui_group_box(
+        &mut self,
+        bounds: impl Into<ffi::Rectangle>,
+        text: impl Into<String>,
+    ) -> bool {
+        let c_filename = CString::new(text.into()).unwrap();
+        unsafe { ffi::GuiGroupBox(bounds.into(), c_filename.as_ptr()) > 0 }
     }
     /// Line separator control, could contain text
     #[inline]
-    fn gui_line(&mut self, bounds: impl Into<ffi::Rectangle>, text: impl IntoCStr) -> bool {
-        unsafe { ffi::GuiLine(bounds.into(), text.as_cstr_ptr()) > 0 }
+    fn gui_line(&mut self, bounds: impl Into<ffi::Rectangle>, text: impl Into<String>) -> bool {
+        let c_filename = CString::new(text.into()).unwrap();
+        unsafe { ffi::GuiLine(bounds.into(), c_filename.as_ptr()) > 0 }
     }
     /// Panel control, useful to group controls
     #[inline]
-    fn gui_panel(&mut self, bounds: impl Into<ffi::Rectangle>, text: impl IntoCStr) -> bool {
-        unsafe { ffi::GuiPanel(bounds.into(), text.as_cstr_ptr()) > 0 }
+    fn gui_panel(&mut self, bounds: impl Into<ffi::Rectangle>, text: impl Into<String>) -> bool {
+        let c_filename = CString::new(text.into()).unwrap();
+        unsafe { ffi::GuiPanel(bounds.into(), c_filename.as_ptr()) > 0 }
     }
     /// Scroll Panel control
     #[inline]
     fn gui_scroll_panel(
         &mut self,
         bounds: impl Into<ffi::Rectangle>,
-        text: impl IntoCStr,
+        text: impl Into<String>,
         content: impl Into<ffi::Rectangle>,
         scroll: impl Into<ffi::Vector2>,
         view: impl Into<ffi::Rectangle>,
     ) -> (bool, Rectangle, Vector2) {
         let mut scroll = scroll.into();
         let mut view = view.into();
+        let c_filename = CString::new(text.into()).unwrap();
         let result = unsafe {
             ffi::GuiScrollPanel(
                 bounds.into(),
-                text.as_cstr_ptr(),
+                c_filename.as_ptr(),
                 content.into(),
                 &mut scroll,
                 &mut view,
@@ -220,86 +245,99 @@ pub trait RaylibDrawGui {
     }
     /// Label control, shows text
     #[inline]
-    fn gui_label(&mut self, bounds: impl Into<ffi::Rectangle>, text: impl IntoCStr) -> bool {
-        unsafe { ffi::GuiLabel(bounds.into(), text.as_cstr_ptr()) > 0 }
+    fn gui_label(&mut self, bounds: impl Into<ffi::Rectangle>, text: impl Into<String>) -> bool {
+        let c_text = CString::new(text.into()).unwrap();
+        unsafe { ffi::GuiLabel(bounds.into(), c_text.as_ptr()) > 0 }
     }
     /// Button control, returns true when clicked
     #[inline]
-    fn gui_button(&mut self, bounds: impl Into<ffi::Rectangle>, text: impl IntoCStr) -> bool {
-        unsafe { ffi::GuiButton(bounds.into(), text.as_cstr_ptr()) > 0 }
+    fn gui_button(&mut self, bounds: impl Into<ffi::Rectangle>, text: impl Into<String>) -> bool {
+        let c_text = CString::new(text.into()).unwrap();
+        unsafe { ffi::GuiButton(bounds.into(), c_text.as_ptr()) > 0 }
     }
     /// Label button control, show true when clicked
     #[inline]
-    fn gui_label_button(&mut self, bounds: impl Into<ffi::Rectangle>, text: impl IntoCStr) -> bool {
-        unsafe { ffi::GuiLabelButton(bounds.into(), text.as_cstr_ptr()) > 0 }
+    fn gui_label_button(
+        &mut self,
+        bounds: impl Into<ffi::Rectangle>,
+        text: impl Into<String>,
+    ) -> bool {
+        let c_text = CString::new(text.into()).unwrap();
+        unsafe { ffi::GuiLabelButton(bounds.into(), c_text.as_ptr()) > 0 }
     }
     /// Toggle Button control, returns true when active
     #[inline]
     fn gui_toggle(
         &mut self,
         bounds: impl Into<ffi::Rectangle>,
-        text: impl IntoCStr,
+        text: impl Into<String>,
         active: &mut bool,
     ) -> bool {
-        unsafe { ffi::GuiToggle(bounds.into(), text.as_cstr_ptr(), active) > 0 }
+        let c_text = CString::new(text.into()).unwrap();
+        unsafe { ffi::GuiToggle(bounds.into(), c_text.as_ptr(), active) > 0 }
     }
     /// Toggle Group control, returns active toggle index
     #[inline]
     fn gui_toggle_group(
         &mut self,
         bounds: impl Into<ffi::Rectangle>,
-        text: impl IntoCStr,
+        text: impl Into<String>,
         active: &mut i32,
     ) -> i32 {
-        unsafe { ffi::GuiToggleGroup(bounds.into(), text.as_cstr_ptr(), active) }
+        let c_text = CString::new(text.into()).unwrap();
+        unsafe { ffi::GuiToggleGroup(bounds.into(), c_text.as_ptr(), active) }
     }
     /// Check Box control, returns true when active
     #[inline]
     fn gui_check_box(
         &mut self,
         bounds: impl Into<ffi::Rectangle>,
-        text: impl IntoCStr,
+        text: impl Into<String>,
         checked: &mut bool,
     ) -> bool {
-        unsafe { ffi::GuiCheckBox(bounds.into(), text.as_cstr_ptr(), checked) > 0 }
+        let c_text = CString::new(text.into()).unwrap();
+        unsafe { ffi::GuiCheckBox(bounds.into(), c_text.as_ptr(), checked) > 0 }
     }
     /// Combo Box control, returns selected item index
     #[inline]
     fn gui_combo_box(
         &mut self,
         bounds: impl Into<ffi::Rectangle>,
-        text: impl IntoCStr,
+        text: impl Into<String>,
         active: &mut i32,
     ) -> i32 {
-        unsafe { ffi::GuiComboBox(bounds.into(), text.as_cstr_ptr(), active) }
+        let c_text = CString::new(text.into()).unwrap();
+        unsafe { ffi::GuiComboBox(bounds.into(), c_text.as_ptr(), active) }
     }
     /// Dropdown Box control, returns selected item
     #[inline]
     fn gui_dropdown_box(
         &mut self,
         bounds: impl Into<ffi::Rectangle>,
-        text: impl IntoCStr,
+        text: impl Into<String>,
         active: &mut i32,
         edit_mode: bool,
     ) -> bool {
-        unsafe { ffi::GuiDropdownBox(bounds.into(), text.as_cstr_ptr(), active, edit_mode) > 0 }
+        let c_text = CString::new(text.into()).unwrap();
+        unsafe { ffi::GuiDropdownBox(bounds.into(), c_text.as_ptr(), active, edit_mode) > 0 }
     }
     /// Spinner control, returns selected value
     #[inline]
     fn gui_spinner(
         &mut self,
         bounds: impl Into<ffi::Rectangle>,
-        text: impl IntoCStr,
+        text: impl Into<String>,
         value: &mut i32,
         min_value: i32,
         max_value: i32,
         edit_mode: bool,
     ) -> bool {
+        let c_text = CString::new(text.into()).unwrap();
         unsafe {
             ffi::GuiSpinner(
                 bounds.into(),
                 // text.map(CStr::as_ptr).unwrap_or(crate::rstr!("").as_ptr()),
-                text.as_cstr_ptr(),
+                c_text.as_ptr(),
                 value,
                 min_value,
                 max_value,
@@ -312,16 +350,17 @@ pub trait RaylibDrawGui {
     fn gui_value_box(
         &mut self,
         bounds: impl Into<ffi::Rectangle>,
-        text: impl IntoCStr,
+        text: impl Into<String>,
         value: &mut i32,
         min_value: i32,
         max_value: i32,
         edit_mode: bool,
     ) -> bool {
+        let c_text = CString::new(text.into()).unwrap();
         unsafe {
             ffi::GuiValueBox(
                 bounds.into(),
-                text.as_cstr_ptr(),
+                c_text.as_ptr(),
                 value,
                 min_value,
                 max_value,
@@ -355,17 +394,19 @@ pub trait RaylibDrawGui {
     fn gui_slider(
         &mut self,
         bounds: impl Into<ffi::Rectangle>,
-        text_left: impl IntoCStr,
-        text_right: impl IntoCStr,
+        text_left: impl Into<String>,
+        text_right: impl Into<String>,
         value: &mut f32,
         min_value: f32,
         max_value: f32,
     ) -> bool {
+        let c_text_left = CString::new(text_left.into()).unwrap();
+        let c_text_right = CString::new(text_right.into()).unwrap();
         unsafe {
             ffi::GuiSlider(
                 bounds.into(),
-                text_left.as_cstr_ptr(),
-                text_right.as_cstr_ptr(),
+                c_text_left.as_ptr(),
+                c_text_right.as_ptr(),
                 value,
                 min_value,
                 max_value,
@@ -377,17 +418,19 @@ pub trait RaylibDrawGui {
     fn gui_slider_bar(
         &mut self,
         bounds: impl Into<ffi::Rectangle>,
-        text_left: impl IntoCStr,
-        text_right: impl IntoCStr,
+        text_left: impl Into<String>,
+        text_right: impl Into<String>,
         value: &mut f32,
         min_value: f32,
         max_value: f32,
     ) -> bool {
+        let c_text_left = CString::new(text_left.into()).unwrap();
+        let c_text_right = CString::new(text_right.into()).unwrap();
         unsafe {
             ffi::GuiSliderBar(
                 bounds.into(),
-                text_left.as_cstr_ptr(),
-                text_right.as_cstr_ptr(),
+                c_text_left.as_ptr(),
+                c_text_right.as_ptr(),
                 value,
                 min_value,
                 max_value,
@@ -399,17 +442,19 @@ pub trait RaylibDrawGui {
     fn gui_progress_bar(
         &mut self,
         bounds: impl Into<ffi::Rectangle>,
-        text_left: impl IntoCStr,
-        text_right: impl IntoCStr,
+        text_left: impl Into<String>,
+        text_right: impl Into<String>,
         value: &mut f32,
         min_value: f32,
         max_value: f32,
     ) -> bool {
+        let c_text_left = CString::new(text_left.into()).unwrap();
+        let c_text_right = CString::new(text_right.into()).unwrap();
         unsafe {
             ffi::GuiProgressBar(
                 bounds.into(),
-                text_left.as_cstr_ptr(),
-                text_right.as_cstr_ptr(),
+                c_text_left.as_ptr(),
+                c_text_right.as_ptr(),
                 value,
                 min_value,
                 max_value,
@@ -418,29 +463,31 @@ pub trait RaylibDrawGui {
     }
     /// Status Bar control, shows info text
     #[inline]
-    fn gui_status_bar(&mut self, bounds: impl Into<ffi::Rectangle>, text: impl IntoCStr) -> bool {
-        unsafe { ffi::GuiStatusBar(bounds.into(), text.as_cstr_ptr()) > 0 }
+    fn gui_status_bar(
+        &mut self,
+        bounds: impl Into<ffi::Rectangle>,
+        text: impl Into<String>,
+    ) -> bool {
+        let c_text = CString::new(text.into()).unwrap();
+        unsafe { ffi::GuiStatusBar(bounds.into(), c_text.as_ptr()) > 0 }
     }
-    /// Dummy control for placeholders
-    #[inline]
-    fn gui_dummy_rec(&mut self, bounds: impl Into<ffi::Rectangle>, text: impl IntoCStr) -> bool {
-        unsafe { ffi::GuiStatusBar(bounds.into(), text.as_cstr_ptr()) > 0 }
-    }
+
     /// Grid control
     #[inline]
     fn gui_grid(
         &mut self,
         bounds: impl Into<ffi::Rectangle>,
-        text: impl IntoCStr,
+        text: impl Into<String>,
         spacing: f32,
         subdivs: i32,
     ) -> (bool, Vector2) {
+        let c_text = CString::new(text.into()).unwrap();
         let mut mouseCell = ffi::Vector2 { x: 0.0, y: 0.0 };
         (
             unsafe {
                 ffi::GuiGrid(
                     bounds.into(),
-                    text.as_cstr_ptr(),
+                    c_text.as_ptr(),
                     spacing,
                     subdivs,
                     &mut mouseCell,
@@ -454,11 +501,12 @@ pub trait RaylibDrawGui {
     fn gui_list_view(
         &mut self,
         bounds: impl Into<ffi::Rectangle>,
-        text: impl IntoCStr,
+        text: impl Into<String>,
         scroll_index: &mut i32,
         active: &mut i32,
     ) -> i32 {
-        unsafe { ffi::GuiListView(bounds.into(), text.as_cstr_ptr(), scroll_index, active) }
+        let c_text = CString::new(text.into()).unwrap();
+        unsafe { ffi::GuiListView(bounds.into(), c_text.as_ptr(), scroll_index, active) }
     }
     /// List View with extended parameters
     #[inline]
@@ -490,16 +538,19 @@ pub trait RaylibDrawGui {
     fn gui_message_box(
         &mut self,
         bounds: impl Into<ffi::Rectangle>,
-        text: impl IntoCStr,
-        message: impl IntoCStr,
-        buttons: impl IntoCStr,
+        text: impl Into<String>,
+        message: impl Into<String>,
+        buttons: impl Into<String>,
     ) -> i32 {
+        let c_text = CString::new(text.into()).unwrap();
+        let c_message = CString::new(message.into()).unwrap();
+        let c_buttons = CString::new(buttons.into()).unwrap();
         unsafe {
             ffi::GuiMessageBox(
                 bounds.into(),
-                text.as_cstr_ptr(),
-                message.as_cstr_ptr(),
-                buttons.as_cstr_ptr(),
+                c_text.as_ptr(),
+                c_message.as_ptr(),
+                c_buttons.as_ptr(),
             )
         }
     }
@@ -508,21 +559,24 @@ pub trait RaylibDrawGui {
     fn gui_text_input_box(
         &mut self,
         bounds: impl Into<ffi::Rectangle>,
-        title: impl IntoCStr,
-        message: impl IntoCStr,
-        buttons: impl IntoCStr,
+        title: impl Into<String>,
+        message: impl Into<String>,
+        buttons: impl Into<String>,
         text: &mut Vec<u8>,
         text_max_size: i32,
         secret_view_active: &mut bool,
     ) -> i32 {
         // rgui.h: line 3699 MAX_FILENAME_LEN
         text.reserve((256 - text.len()).max(0) as usize);
+        let c_title = CString::new(title.into()).unwrap();
+        let c_message = CString::new(message.into()).unwrap();
+        let c_buttons = CString::new(buttons.into()).unwrap();
         let btn_index = unsafe {
             ffi::GuiTextInputBox(
                 bounds.into(),
-                title.as_cstr_ptr(),
-                message.as_cstr_ptr(),
-                buttons.as_cstr_ptr(),
+                c_title.as_ptr(),
+                c_message.as_ptr(),
+                c_buttons.as_ptr(),
                 text.as_mut_ptr() as *mut _,
                 text_max_size,
                 secret_view_active,
@@ -537,11 +591,13 @@ pub trait RaylibDrawGui {
     fn gui_color_picker(
         &mut self,
         bounds: impl Into<ffi::Rectangle>,
-        text: impl IntoCStr,
+        text: impl Into<String>,
         color: impl Into<ffi::Color>,
     ) -> Color {
         let mut out = color.into();
-        let result = unsafe { ffi::GuiColorPicker(bounds.into(), text.as_cstr_ptr(), &mut out) };
+        let c_text = CString::new(text.into()).unwrap();
+
+        let result = unsafe { ffi::GuiColorPicker(bounds.into(), c_text.as_ptr(), &mut out) };
         return out.into();
     }
     // Get text with icon id prepended
@@ -551,11 +607,12 @@ pub trait RaylibDrawGui {
     fn gui_icon_text(
         &mut self,
         icon_id: crate::consts::GuiIconName,
-        text: impl IntoCStr,
+        text: impl Into<String>,
     ) -> String {
-        let buffer = unsafe { ffi::GuiIconText(icon_id as i32, text.as_cstr_ptr()) };
+        let c_text = CString::new(text.into()).unwrap();
+        let buffer = unsafe { ffi::GuiIconText(icon_id as i32, c_text.as_ptr()) };
         if buffer.is_null() {
-            let ptr = text.as_cstr_ptr();
+            let ptr = c_text.as_ptr();
             if ptr.is_null() {
                 return String::default();
             }
@@ -574,9 +631,36 @@ pub trait RaylibDrawGui {
     fn gui_color_bar_alpha(
         &mut self,
         bounds: impl Into<ffi::Rectangle>,
-        text: impl IntoCStr,
+        text: impl Into<String>,
         alpha: &mut f32,
     ) -> bool {
-        unsafe { ffi::GuiColorBarAlpha(bounds.into(), text.as_cstr_ptr(), alpha) > 0 }
+        let c_text = CString::new(text.into()).unwrap();
+
+        unsafe { ffi::GuiColorBarAlpha(bounds.into(), c_text.as_ptr(), alpha) > 0 }
+    }
+
+    /// Toggle Slider control
+    #[inline]
+    fn gui_toggle_slider(
+        &mut self,
+        bounds: impl Into<ffi::Rectangle>,
+        text: impl Into<String>,
+        active: &mut i32,
+    ) -> bool {
+        let c_text = CString::new(text.into()).unwrap();
+
+        unsafe { ffi::GuiToggleSlider(bounds.into(), c_text.as_ptr(), active) > 0 }
+    }
+
+    /// Dummy control for placeholders
+    #[inline]
+    fn gui_dummy_rec(
+        &mut self,
+        bounds: impl Into<ffi::Rectangle>,
+        text: impl Into<String>,
+    ) -> bool {
+        let c_text = CString::new(text.into()).unwrap();
+
+        unsafe { ffi::GuiDummyRec(bounds.into(), c_text.as_ptr()) > 0 }
     }
 }
