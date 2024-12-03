@@ -663,4 +663,17 @@ pub trait RaylibDrawGui {
 
         unsafe { ffi::GuiDummyRec(bounds.into(), c_text.as_ptr()) > 0 }
     }
+
+    /// Color Bar Hue control
+    #[inline]
+    fn gui_color_bar_hue(
+        &mut self,
+        bounds: impl Into<ffi::Rectangle>,
+        text: impl Into<String>,
+        value: &mut f32,
+    ) -> bool {
+        let c_text = CString::new(text.into()).unwrap();
+
+        unsafe { ffi::GuiColorBarHue(bounds.into(), c_text.as_ptr(), value) > 0 }
+    }
 }
