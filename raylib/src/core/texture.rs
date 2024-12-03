@@ -1,10 +1,5 @@
 //! Image and texture related functions
 
-use raylib_sys::{
-    ExportImageToMemory, GetPixelColor, ImageKernelConvolution, LoadImageAnim,
-    LoadImageAnimFromMemory, PixelFormat,
-};
-
 use crate::core::color::Color;
 use crate::core::math::Rectangle;
 use crate::core::{RaylibHandle, RaylibThread};
@@ -435,10 +430,18 @@ impl Image {
         &mut self,
         start_pos: impl Into<ffi::Vector2>,
         end_pos: impl Into<ffi::Vector2>,
-        thick: f32,
+        thick: i32,
         color: impl Into<ffi::Color>,
     ) {
-        unsafe { ffi::DrawLineEx(start_pos.into(), end_pos.into(), thick, color.into()) }
+        unsafe {
+            ffi::ImageDrawLineEx(
+                &mut self.0,
+                start_pos.into(),
+                end_pos.into(),
+                thick,
+                color.into(),
+            )
+        }
     }
 
     /// Draw line within an image (Vector version)
@@ -579,7 +582,7 @@ impl Image {
         color: impl Into<ffi::Color>,
     ) {
         unsafe {
-            ffi::DrawRectangleV(position.into(), size.into(), color.into());
+            ffi::ImageDrawRectangleV(&mut self.0, position.into(), size.into(), color.into());
         }
     }
 
@@ -590,7 +593,7 @@ impl Image {
         color: impl Into<ffi::Color>,
     ) {
         unsafe {
-            ffi::DrawRectangleRec(rectangle.into(), color.into());
+            ffi::ImageDrawRectangleRec(&mut self.0, rectangle.into(), color.into());
         }
     }
 
@@ -749,7 +752,7 @@ impl Image {
 
         let c_filetype = CString::new(file_type).unwrap();
         let data_size: &mut i32 = &mut 0;
-        let data = unsafe { ExportImageToMemory(self.0, c_filetype.as_ptr(), data_size) };
+        let data = unsafe { ffi::ExportImageToMemory(self.0, c_filetype.as_ptr(), data_size) };
 
         // The actual function returns null if the code for converting to a file type never goes off.
         if data == null_mut() {
@@ -778,7 +781,7 @@ impl Image {
             return Err(error!("Convolution kernel must be square to be applied"));
         }
 
-        unsafe { ImageKernelConvolution(&mut self.0, kernel.as_ptr(), kernel.len() as i32) }
+        unsafe { ffi::ImageKernelConvolution(&mut self.0, kernel.as_ptr(), kernel.len() as i32) }
 
         Ok(())
     }
@@ -899,6 +902,18 @@ impl Image {
         unsafe { Image(ffi::GenImageCellular(width, height, tile_size)) }
     }
 
+    /// Get clipboard image.
+    ///
+    /// NOTE: Only avaliable on Windows. Do not use if you plan to compile to other platforms.
+    #[cfg(target_os = "windows")]
+    pub fn get_clipboard_image(&mut self) -> Result<Image, Error> {
+        let i = unsafe { ffi::GetClipboardImage() };
+        if i.data.is_null() {
+            return Err(error!("Image data is null."));
+        }
+        Ok(Image(i))
+    }
+
     /// Loads image from file into CPU memory (RAM).
     pub fn load_image(filename: &str) -> Result<Image, Error> {
         let c_filename = CString::new(filename).unwrap();
@@ -936,7 +951,7 @@ impl Image {
     pub fn load_image_anim(filename: &str, frame_num: &mut i32) -> Self {
         let c_filename = CString::new(filename).unwrap();
 
-        unsafe { Image(LoadImageAnim(c_filename.as_ptr(), frame_num)) }
+        unsafe { Image(ffi::LoadImageAnim(c_filename.as_ptr(), frame_num)) }
     }
 
     /// Load image from memory buffer, with the number of frames loaded saved to frame_num.
@@ -945,7 +960,7 @@ impl Image {
         let c_filetype = CString::new(filetype).unwrap();
 
         unsafe {
-            Image(LoadImageAnimFromMemory(
+            Image(ffi::LoadImageAnimFromMemory(
                 c_filetype.as_ptr(),
                 data.as_ptr(),
                 data.len() as i32,

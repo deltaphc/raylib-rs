@@ -9,7 +9,7 @@
 
 # raylib-rs
 
-raylib-rs is a Rust binding for [raylib](http://www.raylib.com/) 5.1. It currently targets Rust toolchain version 1.78 or higher.
+raylib-rs is a Rust binding for [raylib](http://www.raylib.com/) 5.5. It currently targets Rust toolchain version 1.78 or higher.
 
 Please checkout the showcase directory to find usage examples!
 
@@ -50,7 +50,7 @@ Follow instructions for building raylib for your platform [here](https://github.
 
 ```toml
 [dependencies]
-raylib = { version = "5.0" }
+raylib = { version = "5.5" }
 ```
 
 2. Start coding!
@@ -98,53 +98,7 @@ fn main() {
 
 ## Cross-compiling using `cross`
 
-The [@rust-embedded](https://github.com/rust-embedded) project provides a handy tool called [`cross`](https://github.com/rust-embedded/cross) that uses docker to cross-compile any cargo project to one of their many [supported platforms](https://github.com/rust-embedded/cross#supported-targets). This tool makes it easy to cross-compile `raylib-rs` for binary distribution (in cases where you are producing a pre-compiled game for example).
-
-### Anything to Windows
-
-Cross-compiling from other platforms to Windows is the simplest. Just build your project with this command instead of the usual `cargo build`:
-
-```sh
-cross build --target x86_64-pc-windows-gnu --release
-```
-
-It should be noted that the resulting exe will likely not run under `wine` due to an issue with Raylib's audio handling.
-
-### Anything to Linux
-
-Cross-compiling from any platform to Linux, or from Linux to Linux requires a little extra work since `raylib-sys` has some system dependencies not provided by `cross`. This following example assumes you are compiling for `x86_64-unknown-linux-gnu`, but it can be any Linux-y triple.
-
-Firstly, a custom build container must be defined. The following `Dockerfile` is the minimum setup for compiling `raylib-sys`:
-
-```Dockerfile
-FROM rustembedded/cross:x86_64-unknown-linux-gnu-0.2.1
-
-RUN apt-get update -y
-RUN apt-get install libasound2-dev mesa-common-dev libx11-dev libxrandr-dev libxi-dev xorg-dev libgl1-mesa-dev libglu1-mesa-dev -y
-```
-
-With the image defined, build it locally with:
-
-```sh
-docker build -t raylib_rs_env .
-```
-
-This will produce a local docker image called `raylib_rs_env` which `cross` will use instead of the default Linux image(s). To tell `cross` to use this image, create a `Cross.toml` file beside your `Cargo.toml`, and add the following (remembering to change things to suit your setup):
-
-```toml
-[target.x86_64-unknown-linux-gnu]
-image = "raylib_rs_env"
-```
-
-The Linux build can now be produced with:
-
-```sh
-cross build --target x86_64-unknown-linux-gnu --release
-```
-
-# MacOS / Darwin / IOS
-
-`cross` does not support cross-compilation to any of Apple's operating systems as of now. Keep an eye on their repository in case this ever changes.
+Cross compiling with raylib-rs can be made easier with cross. [See more on the wiki](https://github.com/raylib-rs/raylib-rs/wiki/Cross%E2%80%90compiling-using-cross)
 
 # Extras
 
@@ -154,14 +108,6 @@ cross build --target x86_64-unknown-linux-gnu --release
 # Testing
 
 The raylib-test crate tests the bindings by opening a window, and checking the results of various functions. It requires nightly to use.
-
-# Future Goals
-
-- Port raylib examples over to Rust.
-- More tests.
-- More platform testing.
-- Even more testing.
-- Physac port?
 
 # Contribution & Support
 

@@ -164,6 +164,13 @@ impl Color {
     pub fn alpha(&self, alpha: f32) -> Self {
         unsafe { ffi::ColorAlpha(self.into(), alpha).into() }
     }
+
+    /// Get color with alpha applied, alpha goes from 0.0f to 1.0f
+    #[deprecated = "Use Color::alpha instead"]
+    pub fn fade(&self, alpha: f32) -> Self {
+        unsafe { ffi::Fade(self.into(), alpha).into() }
+    }
+
     /// Color fade-in or fade-out, alpha goes from 0.0f to 1.0f
     #[inline]
     pub fn color_alpha_blend(dst: &Color, src: &Color, tint: &Color) -> Color {
@@ -172,6 +179,11 @@ impl Color {
     /// Check if color is equal to another.
     pub fn is_equal(&self, rhs: impl Into<ffi::Color>) -> bool {
         unsafe { ffi::ColorIsEqual(self.into(), rhs.into()) }
+    }
+
+    /// Get color lerp interpolation between two colors, factor [0.0f..1.0f]
+    pub fn lerp(&self, rhs: Color, factor: f32) -> Color {
+        unsafe { ffi::ColorLerp(self.into(), rhs.into(), factor).into() }
     }
 }
 
