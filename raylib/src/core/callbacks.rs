@@ -150,74 +150,116 @@ macro_rules! safe_callback_set_func {
     };
 }
 
+/// Set custom trace log
+pub fn set_trace_log_callback<'a>(cb: fn(TraceLogLevel, &str)) -> Result<(), SetLogError<'a>> {
+    TRACE_LOG_CALLBACK.store(cb as usize, Ordering::Relaxed);
+    unsafe { ffi::setLogCallbackWrapper() };
+    Ok(())
+}
+/// Set custom file binary data saver
+pub fn set_save_file_data_callback<'a>(cb: fn(&str, &[u8]) -> bool) -> Result<(), SetLogError<'a>> {
+    safe_callback_set_func!(
+        cb,
+        SAVE_FILE_DATA_CALLBACK,
+        ffi::SetSaveFileDataCallback,
+        custom_save_file_data_callback,
+        "save file data"
+    )
+}
+/// Set custom file binary data loader
+///
+/// Whatever you return from your callback will be intentionally leaked as Raylib is relied on to free it.
+pub fn set_load_file_data_callback<'b>(cb: fn(&str) -> Vec<u8>) -> Result<(), SetLogError<'b>> {
+    safe_callback_set_func!(
+        cb,
+        LOAD_FILE_DATA_CALLBACK,
+        ffi::SetLoadFileDataCallback,
+        custom_load_file_data_callback,
+        "load file data"
+    )
+}
+/// Set custom file text data saver
+pub fn set_save_file_text_callback<'a>(cb: fn(&str, &str) -> bool) -> Result<(), SetLogError<'a>> {
+    safe_callback_set_func!(
+        cb,
+        SAVE_FILE_TEXT_CALLBACK,
+        ffi::SetSaveFileTextCallback,
+        custom_save_file_text_callback,
+        "load file data"
+    )
+}
+/// Set custom file text data loader
+///
+/// Whatever you return from your callback will be intentionally leaked as Raylib is relied on to free it.
+pub fn set_load_file_text_callback<'a>(cb: fn(&str) -> String) -> Result<(), SetLogError<'a>> {
+    safe_callback_set_func!(
+        cb,
+        LOAD_FILE_TEXT_CALLBACK,
+        ffi::SetLoadFileTextCallback,
+        custom_load_file_text_callback,
+        "load file text"
+    )
+}
+
+/// Audio thread callback to request new data
+pub fn set_audio_stream_callback(stream: AudioStream, cb: fn(&[u8])) -> Result<(), SetLogError> {
+    if AUDIO_STREAM_CALLBACK.load(Ordering::Acquire) == 0 {
+        AUDIO_STREAM_CALLBACK.store(cb as _, Ordering::Release);
+        unsafe { ffi::SetAudioStreamCallback(stream.0, Some(custom_audio_stream_callback)) }
+        Ok(())
+    } else {
+        Err(SetLogError("audio stream"))
+    }
+}
+
 impl RaylibHandle {
     /// Set custom trace log
+    #[deprecated = "Decoupled from RaylibHandle. Use [set_trace_log_callback](core::callbacks::set_trace_log_callback) instead."]
     pub fn set_trace_log_callback(
         &mut self,
         cb: fn(TraceLogLevel, &str),
     ) -> Result<(), SetLogError> {
-        TRACE_LOG_CALLBACK.store(cb as usize, Ordering::Relaxed);
-        unsafe { ffi::setLogCallbackWrapper() };
-        Ok(())
+        set_trace_log_callback(cb)
     }
     /// Set custom file binary data saver
+    #[deprecated = "Decoupled from RaylibHandle. Use [set_save_file_data_callback](core::callbacks::set_save_file_data_callback) instead."]
     pub fn set_save_file_data_callback(
         &mut self,
         cb: fn(&str, &[u8]) -> bool,
     ) -> Result<(), SetLogError> {
-        safe_callback_set_func!(
-            cb,
-            SAVE_FILE_DATA_CALLBACK,
-            ffi::SetSaveFileDataCallback,
-            custom_save_file_data_callback,
-            "save file data"
-        )
+        set_save_file_data_callback(cb)
     }
     /// Set custom file binary data loader
     ///
     /// Whatever you return from your callback will be intentionally leaked as Raylib is relied on to free it.
+    #[deprecated = "Decoupled from RaylibHandle. Use [set_load_file_data_callback](core::callbacks::set_load_file_data_callback) instead."]
     pub fn set_load_file_data_callback<'b>(
         &mut self,
         cb: fn(&str) -> Vec<u8>,
     ) -> Result<(), SetLogError> {
-        safe_callback_set_func!(
-            cb,
-            LOAD_FILE_DATA_CALLBACK,
-            ffi::SetLoadFileDataCallback,
-            custom_load_file_data_callback,
-            "load file data"
-        )
+        set_load_file_data_callback(cb)
     }
     /// Set custom file text data saver
+    #[deprecated = "Decoupled from RaylibHandle. Use [set_save_file_text_callback](core::callbacks::set_save_file_text_callback) instead."]
     pub fn set_save_file_text_callback(
         &mut self,
         cb: fn(&str, &str) -> bool,
     ) -> Result<(), SetLogError> {
-        safe_callback_set_func!(
-            cb,
-            SAVE_FILE_TEXT_CALLBACK,
-            ffi::SetSaveFileTextCallback,
-            custom_save_file_text_callback,
-            "load file data"
-        )
+        set_save_file_text_callback(cb)
     }
     /// Set custom file text data loader
     ///
     /// Whatever you return from your callback will be intentionally leaked as Raylib is relied on to free it.
+    #[deprecated = "Decoupled from RaylibHandle. Use [set_load_file_text_callback](core::callbacks::set_load_file_text_callback) instead."]
     pub fn set_load_file_text_callback(
         &mut self,
         cb: fn(&str) -> String,
     ) -> Result<(), SetLogError> {
-        safe_callback_set_func!(
-            cb,
-            LOAD_FILE_TEXT_CALLBACK,
-            ffi::SetLoadFileTextCallback,
-            custom_load_file_text_callback,
-            "load file text"
-        )
+        set_load_file_text_callback(cb)
     }
 
     /// Audio thread callback to request new data
+    #[deprecated = "Decoupled from RaylibHandle. Use [set_audio_stream_callback](core::callbacks::set_audio_stream_callback) instead."]
     pub fn set_audio_stream_callback(
         &mut self,
         stream: AudioStream,
