@@ -33,6 +33,7 @@ pub use crate::core::collision::*;
 pub use crate::core::color::*;
 pub use crate::core::data::*;
 pub use crate::core::drawing::*;
+pub use crate::core::file::*;
 pub use crate::core::input::*;
 pub use crate::core::logging::*;
 pub use crate::core::math::*;
@@ -44,6 +45,7 @@ pub use crate::core::texture::*;
 pub use crate::core::vr::*;
 pub use crate::core::window::*;
 pub use crate::core::*;
-pub use crate::core::file::*;
+#[cfg(feature = "imgui")]
+pub use crate::imgui::*;
 pub use crate::rgui::*;
 pub use crate::*;

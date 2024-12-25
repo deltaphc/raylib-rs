@@ -2,6 +2,7 @@
 #include "../raylib/src/rlgl.h"
 #include "utils_log.h"
 
+
 typedef enum
 {
     RAYGUI_ICON_NONE = 0,
