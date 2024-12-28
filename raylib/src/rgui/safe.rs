@@ -55,17 +55,24 @@ impl RaylibHandle {
         unsafe { WeakFont(ffi::GuiGetFont()) }
     }
     /// Set one style property
-    /// SHOULD use one of the Gui*Property enums
     #[inline]
-    pub fn gui_set_style(&mut self, control: crate::consts::GuiControl, property: i32, value: i32) {
-        unsafe { ffi::GuiSetStyle(control as i32, property as i32, value) }
+    pub fn gui_set_style(
+        &mut self,
+        control: crate::consts::GuiControl,
+        property: impl GuiProperty,
+        value: i32,
+    ) {
+        unsafe { ffi::GuiSetStyle(control as i32, property.as_i32(), value) }
     }
 
     /// Get one style property
-    /// SHOULD use one of the Gui*Property enums
     #[inline]
-    pub fn gui_get_style(&mut self, control: crate::consts::GuiControl, property: i32) -> i32 {
-        unsafe { ffi::GuiGetStyle(control as i32, property as i32) }
+    pub fn gui_get_style(
+        &mut self,
+        control: crate::consts::GuiControl,
+        property: impl GuiProperty,
+    ) -> i32 {
+        unsafe { ffi::GuiGetStyle(control as i32, property.as_i32()) }
     }
     /// Load style file (.rgs)
     #[inline]
@@ -157,10 +164,14 @@ pub trait RaylibDrawGui {
         unsafe { WeakFont(ffi::GuiGetFont()) }
     }
     /// Set one style property
-    /// SHOULD use one of the Gui*Property enums
     #[inline]
-    fn gui_set_style(&mut self, control: crate::consts::GuiControl, property: i32, value: i32) {
-        unsafe { ffi::GuiSetStyle(control as i32, property as i32, value) }
+    fn gui_set_style(
+        &mut self,
+        control: crate::consts::GuiControl,
+        property: impl GuiProperty,
+        value: i32,
+    ) {
+        unsafe { ffi::GuiSetStyle(control as i32, property.as_i32(), value) }
     }
 
     /// Set gui controls alpha (global state), alpha goes from 0.0f to 1.0f
@@ -171,10 +182,9 @@ pub trait RaylibDrawGui {
     }
 
     /// Get one style property
-    /// SHOULD use one of the Gui*Property enums
     #[inline]
-    fn gui_get_style(&self, control: crate::consts::GuiControl, property: i32) -> i32 {
-        unsafe { ffi::GuiGetStyle(control as i32, property as i32) }
+    fn gui_get_style(&self, control: crate::consts::GuiControl, property: impl GuiProperty) -> i32 {
+        unsafe { ffi::GuiGetStyle(control as i32, property.as_i32()) }
     }
     /// Load style file (.rgs)
     #[inline]
@@ -374,15 +384,14 @@ pub trait RaylibDrawGui {
     fn gui_text_box(
         &mut self,
         bounds: impl Into<ffi::Rectangle>,
-        buffer: &mut [u8],
+        buffer: &mut String,
         edit_mode: bool,
     ) -> bool {
         let len = buffer.len();
-        let c_text = unsafe { CStr::from_bytes_with_nul_unchecked(buffer) };
         unsafe {
             ffi::GuiTextBox(
                 bounds.into(),
-                c_text.as_ptr() as *mut _,
+                buffer.as_mut_ptr() as *mut _,
                 len as i32,
                 edit_mode,
             ) > 0
@@ -562,7 +571,7 @@ pub trait RaylibDrawGui {
         title: impl Into<String>,
         message: impl Into<String>,
         buttons: impl Into<String>,
-        text: &mut Vec<u8>,
+        text: &mut String,
         text_max_size: i32,
         secret_view_active: &mut bool,
     ) -> i32 {
@@ -675,5 +684,76 @@ pub trait RaylibDrawGui {
         let c_text = CString::new(text.into()).unwrap();
 
         unsafe { ffi::GuiColorBarHue(bounds.into(), c_text.as_ptr(), value) > 0 }
+    }
+}
+
+pub trait GuiProperty {
+    fn as_i32(self) -> i32;
+}
+
+impl GuiProperty for crate::consts::GuiControlProperty {
+    fn as_i32(self) -> i32 {
+        self as i32
+    }
+}
+impl GuiProperty for crate::consts::GuiDefaultProperty {
+    fn as_i32(self) -> i32 {
+        self as i32
+    }
+}
+impl GuiProperty for crate::consts::GuiCheckBoxProperty {
+    fn as_i32(self) -> i32 {
+        self as i32
+    }
+}
+impl GuiProperty for crate::consts::GuiColorPickerProperty {
+    fn as_i32(self) -> i32 {
+        self as i32
+    }
+}
+impl GuiProperty for crate::consts::GuiComboBoxProperty {
+    fn as_i32(self) -> i32 {
+        self as i32
+    }
+}
+impl GuiProperty for crate::consts::GuiDropdownBoxProperty {
+    fn as_i32(self) -> i32 {
+        self as i32
+    }
+}
+impl GuiProperty for crate::consts::GuiListViewProperty {
+    fn as_i32(self) -> i32 {
+        self as i32
+    }
+}
+impl GuiProperty for crate::consts::GuiProgressBarProperty {
+    fn as_i32(self) -> i32 {
+        self as i32
+    }
+}
+impl GuiProperty for crate::consts::GuiScrollBarProperty {
+    fn as_i32(self) -> i32 {
+        self as i32
+    }
+}
+impl GuiProperty for crate::consts::GuiSliderProperty {
+    fn as_i32(self) -> i32 {
+        self as i32
+    }
+}
+impl GuiProperty for crate::consts::GuiSpinnerProperty {
+    fn as_i32(self) -> i32 {
+        self as i32
+    }
+}
+impl GuiProperty for crate::consts::GuiToggleProperty {
+    fn as_i32(self) -> i32 {
+        self as i32
+    }
+}
+
+impl GuiProperty for i32 {
+    fn as_i32(self) -> i32 {
+        self
     }
 }
