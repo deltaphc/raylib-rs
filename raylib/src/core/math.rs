@@ -82,10 +82,7 @@ impl From<Vector2> for ffi::Vector2 {
 
 impl From<&Vector2> for ffi::Vector2 {
     fn from(v: &Vector2) -> ffi::Vector2 {
-        ffi::Vector2 {
-            x: v.x,
-            y: v.y,
-        }
+        ffi::Vector2 { x: v.x, y: v.y }
     }
 }
 
@@ -424,7 +421,7 @@ impl From<Vector3> for mint::Vector3<f32> {
         Self {
             x: v.x,
             y: v.y,
-            z: v.z
+            z: v.z,
         }
     }
 }
@@ -1242,7 +1239,11 @@ impl From<mint::Quaternion<f32>> for Quaternion {
 impl From<Quaternion> for mint::Quaternion<f32> {
     fn from(q: Quaternion) -> Self {
         Self {
-            v: mint::Vector3 { x: q.x, y: q.y, z: q.z },
+            v: mint::Vector3 {
+                x: q.x,
+                y: q.y,
+                z: q.z,
+            },
             s: q.w,
         }
     }
@@ -1896,6 +1897,15 @@ impl From<&Ray> for ffi::Ray {
         ffi::Ray {
             position: v.position.into(),
             direction: v.direction.into(),
+        }
+    }
+}
+
+impl Ray {
+    pub const fn new(position: Vector3, direction: Vector3) -> Self {
+        Self {
+            position,
+            direction,
         }
     }
 }

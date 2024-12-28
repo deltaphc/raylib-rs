@@ -28,6 +28,7 @@ impl RaylibHandle {
         unsafe {
             ffi::BeginDrawing();
         };
+
         let d = RaylibDrawHandle(self);
         d
     }
