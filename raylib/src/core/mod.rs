@@ -26,7 +26,6 @@ pub mod window;
 use raylib_sys::TraceLogLevel;
 
 use crate::ffi;
-use crate::imgui::init_imgui_context;
 use std::ffi::CString;
 use std::marker::PhantomData;
 
@@ -215,7 +214,7 @@ impl RaylibBuilder {
 
         #[cfg(feature = "imgui")]
         unsafe {
-            init_imgui_context(self.imgui_theme == crate::imgui::ImGuiTheme::Dark);
+            crate::imgui::init_imgui_context(self.imgui_theme == crate::imgui::ImGuiTheme::Dark);
         }
 
         (rl, RaylibThread(PhantomData))
