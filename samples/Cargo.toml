@@ -12,7 +12,7 @@ repository = "https://github.com/raylib-rs/raylib-rs"
 raylib = { version = "5.5.0", path = "../raylib" }
 structopt = "0.2"
 specs-derive = "0.4.1"
-rand = "0.7"
+rand = "0.8"
 #tcod = "0.14"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"

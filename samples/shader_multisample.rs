@@ -26,9 +26,9 @@ pub fn main() {
             divider_value -= 0.01;
         }
 
-        if (divider_value < 0.0) {
+        if divider_value < 0.0 {
             divider_value = 0.0;
-        } else if (divider_value > 1.0) {
+        } else if divider_value > 1.0 {
             divider_value = 1.0;
         };
         rl.start_drawing(&thread, |mut d| {
