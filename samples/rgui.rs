@@ -54,14 +54,14 @@ pub fn main() {
     let mut listViewExActive = 2;
     let mut listViewExFocus = -1;
     let mut listViewExList = [
-        c"This",
-        c"is",
-        c"a",
-        c"list view",
-        c"with",
-        c"disable",
-        c"elements",
-        c"amazing!",
+        "This",
+        "is",
+        "a",
+        "list view",
+        "with",
+        "disable",
+        "elements",
+        "amazing!",
     ];
 
     let colorPickerValue = Color::RED;
@@ -296,7 +296,7 @@ pub fn main() {
         );
         d.gui_list_view_ex(
             Rectangle::new(165.0, 162.0, 140.0, 184.0),
-            &listViewExList,
+            listViewExList.iter(),
             &mut listViewExScrollIndex,
             &mut listViewExActive,
             &mut listViewExFocus,

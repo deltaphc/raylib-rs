@@ -5,7 +5,7 @@ use crate::core::text::WeakFont;
 use crate::core::RaylibHandle;
 use crate::ffi;
 
-use std::ffi::{CStr, CString};
+use std::ffi::{c_char, CStr, CString};
 
 /// Global gui modification functions
 impl RaylibHandle {
@@ -506,20 +506,24 @@ pub trait RaylibDrawGui {
     fn gui_list_view_ex(
         &mut self,
         bounds: impl Into<ffi::Rectangle>,
-        text: &[&CStr],
+        text: impl Iterator<Item = impl AsRef<str>>,
         focus: &mut i32,
         scroll_index: &mut i32,
         active: &mut i32,
     ) -> i32 {
-        let mut buffer = Vec::with_capacity(text.len());
-        for t in text {
-            buffer.push(t.as_ptr());
-        }
+        // We need to keep track of all CStr buffers.
+        let buffer: Box<[Box<CStr>]> = text
+            .map(|s| CString::new(s.as_ref()).unwrap().into_boxed_c_str())
+            .collect();
+
+        let mut text_params: Box<[*const c_char]> =
+            buffer.iter().map(|cstr| cstr.as_ptr()).collect();
+
         unsafe {
             ffi::GuiListViewEx(
                 bounds.into(),
-                buffer.as_mut_ptr(),
-                text.len() as i32,
+                text_params.as_mut_ptr(),
+                text_params.len() as i32,
                 focus,
                 scroll_index,
                 active,
