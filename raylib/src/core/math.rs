@@ -390,6 +390,70 @@ impl Neg for Vector2 {
     }
 }
 
+impl Add<(f32, f32)> for Vector2 {
+    type Output = Vector2;
+    fn add(self, v: (f32, f32)) -> Self {
+        Vector2 {
+            x: self.x + v.0,
+            y: self.y + v.1,
+        }
+    }
+}
+
+impl AddAssign<(f32, f32)> for Vector2 {
+    fn add_assign(&mut self, v: (f32, f32)) {
+        *self = *self + v;
+    }
+}
+
+impl Sub<(f32, f32)> for Vector2 {
+    type Output = Vector2;
+    fn sub(self, v: (f32, f32)) -> Self {
+        Vector2 {
+            x: self.x - v.0,
+            y: self.y - v.1,
+        }
+    }
+}
+
+impl SubAssign<(f32, f32)> for Vector2 {
+    fn sub_assign(&mut self, v: (f32, f32)) {
+        *self = *self - v;
+    }
+}
+
+impl Mul<(f32, f32)> for Vector2 {
+    type Output = Vector2;
+    fn mul(self, v: (f32, f32)) -> Self {
+        Vector2 {
+            x: self.x * v.0,
+            y: self.y * v.1,
+        }
+    }
+}
+
+impl MulAssign<(f32, f32)> for Vector2 {
+    fn mul_assign(&mut self, v: (f32, f32)) {
+        *self = *self * v;
+    }
+}
+
+impl Div<(f32, f32)> for Vector2 {
+    type Output = Vector2;
+    fn div(self, v: (f32, f32)) -> Self {
+        Vector2 {
+            x: self.x / v.0,
+            y: self.y / v.1,
+        }
+    }
+}
+
+impl DivAssign<(f32, f32)> for Vector2 {
+    fn div_assign(&mut self, v: (f32, f32)) {
+        *self = *self / v;
+    }
+}
+
 optional_serde_struct! {
     pub struct Vector3 {
         pub x: f32,
@@ -848,6 +912,74 @@ impl Neg for Vector3 {
     }
 }
 
+impl Add<(f32, f32, f32)> for Vector3 {
+    type Output = Vector3;
+    fn add(self, v: (f32, f32, f32)) -> Self {
+        Vector3 {
+            x: self.x + v.0,
+            y: self.y + v.1,
+            z: self.z + v.2,
+        }
+    }
+}
+
+impl AddAssign<(f32, f32, f32)> for Vector3 {
+    fn add_assign(&mut self, v: (f32, f32, f32)) {
+        *self = *self + v;
+    }
+}
+
+impl Sub<(f32, f32, f32)> for Vector3 {
+    type Output = Vector3;
+    fn sub(self, v: (f32, f32, f32)) -> Self {
+        Vector3 {
+            x: self.x - v.0,
+            y: self.y - v.1,
+            z: self.z - v.2,
+        }
+    }
+}
+
+impl SubAssign<(f32, f32, f32)> for Vector3 {
+    fn sub_assign(&mut self, v: (f32, f32, f32)) {
+        *self = *self - v;
+    }
+}
+
+impl Mul<(f32, f32, f32)> for Vector3 {
+    type Output = Vector3;
+    fn mul(self, v: (f32, f32, f32)) -> Self {
+        Vector3 {
+            x: self.x * v.0,
+            y: self.y * v.1,
+            z: self.z * v.2,
+        }
+    }
+}
+
+impl MulAssign<(f32, f32, f32)> for Vector3 {
+    fn mul_assign(&mut self, v: (f32, f32, f32)) {
+        *self = *self * v;
+    }
+}
+
+impl Div<(f32, f32, f32)> for Vector3 {
+    type Output = Vector3;
+    fn div(self, v: (f32, f32, f32)) -> Self {
+        Vector3 {
+            x: self.x / v.0,
+            y: self.y / v.1,
+            z: self.z / v.2,
+        }
+    }
+}
+
+impl DivAssign<(f32, f32, f32)> for Vector3 {
+    fn div_assign(&mut self, v: (f32, f32, f32)) {
+        *self = *self / v;
+    }
+}
+
 optional_serde_struct! {
     pub struct Vector4 {
         pub x: f32,
@@ -1280,6 +1412,33 @@ impl Mul for Quaternion {
 
 impl MulAssign for Quaternion {
     fn mul_assign(&mut self, q: Quaternion) {
+        *self = *self * q;
+    }
+}
+
+impl Mul<(f32, f32, f32, f32)> for Quaternion {
+    type Output = Quaternion;
+    fn mul(self, q: (f32, f32, f32, f32)) -> Quaternion {
+        let qax = self.x;
+        let qay = self.y;
+        let qaz = self.z;
+        let qaw = self.w;
+        let qbx = q.0;
+        let qby = q.1;
+        let qbz = q.2;
+        let qbw = q.3;
+
+        Quaternion {
+            x: (qax * qbw) + (qaw * qbx) + (qay * qbz) - (qaz * qby),
+            y: (qay * qbw) + (qaw * qby) + (qaz * qbx) - (qax * qbz),
+            z: (qaz * qbw) + (qaw * qbz) + (qax * qby) - (qay * qbx),
+            w: (qaw * qbw) - (qax * qbx) - (qay * qby) - (qaz * qbz),
+        }
+    }
+}
+
+impl MulAssign<(f32, f32, f32, f32)> for Quaternion {
+    fn mul_assign(&mut self, q: (f32, f32, f32, f32)) {
         *self = *self * q;
     }
 }
@@ -2093,5 +2252,212 @@ mod math_test {
                 && r.direction.z == 1.0,
             "bad memory transmutation"
         )
+    }
+
+    #[test]
+    fn vector2_tuple_add() {
+        let vector = Vector2::new(1.0, 2.0);
+        let tuple = (3.0, 4.0);
+        let check = Vector2::new(3.0, 4.0);
+        assert_eq!(
+            vector + tuple,
+            vector + check,
+            "inconsistent math implementation"
+        );
+    }
+
+    #[test]
+    fn vector2_tuple_add_assign() {
+        let mut vector_1 = Vector2::new(1.0, 2.0);
+        let mut vector_2 = Vector2::new(1.0, 2.0);
+        let tuple = (3.0, 4.0);
+        let check = Vector2::new(3.0, 4.0);
+        vector_1 += tuple;
+        vector_2 += check;
+        assert_eq!(vector_1, vector_2, "inconsistent math implementation");
+    }
+
+    #[test]
+    fn vector2_tuple_sub() {
+        let vector = Vector2::new(1.0, 2.0);
+        let tuple = (3.0, 4.0);
+        let check = Vector2::new(3.0, 4.0);
+        assert_eq!(
+            vector - tuple,
+            vector - check,
+            "inconsistent math implementation"
+        );
+    }
+
+    #[test]
+    fn vector2_tuple_sub_assign() {
+        let mut vector_1 = Vector2::new(1.0, 2.0);
+        let mut vector_2 = Vector2::new(1.0, 2.0);
+        let tuple = (3.0, 4.0);
+        let check = Vector2::new(3.0, 4.0);
+        vector_1 -= tuple;
+        vector_2 -= check;
+        assert_eq!(vector_1, vector_2, "inconsistent math implementation");
+    }
+
+    #[test]
+    fn vector2_tuple_mul() {
+        let vector = Vector2::new(1.0, 2.0);
+        let tuple = (3.0, 4.0);
+        let check = Vector2::new(3.0, 4.0);
+        assert_eq!(
+            vector * tuple,
+            vector * check,
+            "inconsistent math implementation"
+        );
+    }
+
+    #[test]
+    fn vector2_tuple_mul_assign() {
+        let mut vector_1 = Vector2::new(1.0, 2.0);
+        let mut vector_2 = Vector2::new(1.0, 2.0);
+        let tuple = (3.0, 4.0);
+        let check = Vector2::new(3.0, 4.0);
+        vector_1 *= tuple;
+        vector_2 *= check;
+        assert_eq!(vector_1, vector_2, "inconsistent math implementation");
+    }
+
+    #[test]
+    fn vector2_tuple_div() {
+        let vector = Vector2::new(1.0, 2.0);
+        let tuple = (3.0, 4.0);
+        let check = Vector2::new(3.0, 4.0);
+        assert_eq!(
+            vector / tuple,
+            vector / check,
+            "inconsistent math implementation"
+        );
+    }
+
+    #[test]
+    fn vector2_tuple_div_assign() {
+        let mut vector_1 = Vector2::new(1.0, 2.0);
+        let mut vector_2 = Vector2::new(1.0, 2.0);
+        let tuple = (3.0, 4.0);
+        let check = Vector2::new(3.0, 4.0);
+        vector_1 /= tuple;
+        vector_2 /= check;
+        assert_eq!(vector_1, vector_2, "inconsistent math implementation");
+    }
+
+    #[test]
+    fn vector3_tuple_add() {
+        let vector = Vector3::new(1.0, 2.0, 3.0);
+        let tuple = (4.0, 5.0, 6.0);
+        let check = Vector3::new(4.0, 5.0, 6.0);
+        assert_eq!(
+            vector + tuple,
+            vector + check,
+            "inconsistent math implementation"
+        );
+    }
+
+    #[test]
+    fn vector3_tuple_add_assign() {
+        let mut vector_1 = Vector3::new(1.0, 2.0, 3.0);
+        let mut vector_2 = Vector3::new(1.0, 2.0, 3.0);
+        let tuple = (4.0, 5.0, 6.0);
+        let check = Vector3::new(4.0, 5.0, 6.0);
+        vector_1 += tuple;
+        vector_2 += check;
+        assert_eq!(vector_1, vector_2, "inconsistent math implementation");
+    }
+
+    #[test]
+    fn vector3_tuple_sub() {
+        let vector = Vector3::new(1.0, 2.0, 3.0);
+        let tuple = (4.0, 5.0, 6.0);
+        let check = Vector3::new(4.0, 5.0, 6.0);
+        assert_eq!(
+            vector - tuple,
+            vector - check,
+            "inconsistent math implementation"
+        );
+    }
+
+    #[test]
+    fn vector3_tuple_sub_assign() {
+        let mut vector_1 = Vector3::new(1.0, 2.0, 3.0);
+        let mut vector_2 = Vector3::new(1.0, 2.0, 3.0);
+        let tuple = (4.0, 5.0, 6.0);
+        let check = Vector3::new(4.0, 5.0, 6.0);
+        vector_1 -= tuple;
+        vector_2 -= check;
+        assert_eq!(vector_1, vector_2, "inconsistent math implementation");
+    }
+
+    #[test]
+    fn vector3_tuple_mul() {
+        let vector = Vector3::new(1.0, 2.0, 3.0);
+        let tuple = (4.0, 5.0, 6.0);
+        let check = Vector3::new(4.0, 5.0, 6.0);
+        assert_eq!(
+            vector * tuple,
+            vector * check,
+            "inconsistent math implementation"
+        );
+    }
+
+    #[test]
+    fn vector3_tuple_mul_assign() {
+        let mut vector_1 = Vector3::new(1.0, 2.0, 3.0);
+        let mut vector_2 = Vector3::new(1.0, 2.0, 3.0);
+        let tuple = (4.0, 5.0, 6.0);
+        let check = Vector3::new(4.0, 5.0, 6.0);
+        vector_1 *= tuple;
+        vector_2 *= check;
+        assert_eq!(vector_1, vector_2, "inconsistent math implementation");
+    }
+
+    #[test]
+    fn vector3_tuple_div() {
+        let vector = Vector3::new(1.0, 2.0, 3.0);
+        let tuple = (4.0, 5.0, 6.0);
+        let check = Vector3::new(4.0, 5.0, 6.0);
+        assert_eq!(
+            vector / tuple,
+            vector / check,
+            "inconsistent math implementation"
+        );
+    }
+
+    #[test]
+    fn vector3_tuple_div_assign() {
+        let mut vector_1 = Vector3::new(1.0, 2.0, 3.0);
+        let mut vector_2 = Vector3::new(1.0, 2.0, 3.0);
+        let tuple = (4.0, 5.0, 6.0);
+        let check = Vector3::new(4.0, 5.0, 6.0);
+        vector_1 /= tuple;
+        vector_2 /= check;
+        assert_eq!(vector_1, vector_2, "inconsistent math implementation");
+    }
+
+    #[test]
+    fn vector4_tuple_mul() {
+        let vector = Vector4::new(1.0, 2.0, 3.0, 4.0);
+        let tuple = (5.0, 6.0, 7.0, 8.0);
+        let check = Vector4::new(5.0, 6.0, 7.0, 8.0);
+        assert_eq!(
+            vector * tuple,
+            vector * check,
+            "inconsistent math implementation"
+        );
+    }
+
+    #[test]
+    fn vector4_tuple_mul_assign() {
+        let mut vector_1 = Vector4::new(1.0, 2.0, 3.0, 4.0);
+        let mut vector_2 = Vector4::new(1.0, 2.0, 3.0, 4.0);
+        let tuple = (5.0, 6.0, 7.0, 8.0);
+        let check = Vector4::new(5.0, 6.0, 7.0, 8.0);
+        vector_1 *= tuple;
+        vector_2 *= check;
+        assert_eq!(vector_1, vector_2, "inconsistent math implementation");
     }
 }
