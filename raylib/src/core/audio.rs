@@ -4,8 +4,6 @@ use crate::error::{error, Error};
 use crate::ffi;
 use std::ffi::CString;
 use std::marker::PhantomData;
-use std::mem::ManuallyDrop;
-use std::ops::{Deref, DerefMut};
 use std::path::Path;
 
 make_thin_wrapper_lifetime!(Wave, ffi::Wave, RaylibAudio, ffi::UnloadWave);
@@ -19,7 +17,19 @@ make_thin_wrapper_lifetime!(
     ffi::UnloadAudioStream
 );
 
-make_rslice!(WaveSamples, f32, ffi::UnloadWaveSamples);
+pub struct WaveSamples(*mut f32, usize);
+
+impl AsRef<[f32]> for WaveSamples {
+    fn as_ref(&self) -> &[f32] {
+        unsafe { std::slice::from_raw_parts(self.0, self.1) }
+    }
+}
+
+impl Drop for WaveSamples {
+    fn drop(&mut self) {
+        unsafe { ffi::UnloadWaveSamples(self.0) }
+    }
+}
 
 /// A marker trait specifying an audio sample (`u8`, `i16`, or `f32`).
 pub trait AudioSample {}
@@ -52,8 +62,7 @@ impl RaylibAudio {
     #[inline]
     pub fn init_audio_device() -> Result<RaylibAudio, RaylibAudioInitError> {
         unsafe {
-            let t = ffi::IsAudioDeviceReady();
-            if t {
+            if ffi::IsAudioDeviceReady() {
                 return Err(RaylibAudioInitError);
             }
             ffi::InitAudioDevice();
@@ -68,6 +77,7 @@ impl RaylibAudio {
     }
 
     /// Get master volume (listener)
+    #[inline]
     pub fn get_master_volume(&self) -> f32 {
         unsafe { ffi::GetMasterVolume() }
     }
@@ -75,12 +85,11 @@ impl RaylibAudio {
     /// Sets master volume (listener).
     #[inline]
     pub fn set_master_volume(&self, volume: f32) {
-        unsafe {
-            ffi::SetMasterVolume(volume);
-        }
+        unsafe { ffi::SetMasterVolume(volume) }
     }
 
     /// Loads a new sound from file.
+    #[inline]
     pub fn new_sound<'aud>(&'aud self, filename: &str) -> Result<Sound<'aud>, Error> {
         let c_filename = CString::new(filename).unwrap();
         let s = unsafe { ffi::LoadSound(c_filename.as_ptr()) };
@@ -92,6 +101,7 @@ impl RaylibAudio {
     }
 
     /// Loads sound from wave data.
+    #[inline]
     pub fn new_sound_from_wave<'aud>(&'aud self, wave: &Wave) -> Result<Sound<'aud>, Error> {
         let s = unsafe { ffi::LoadSoundFromWave(wave.0) };
         if s.stream.buffer.is_null() {
@@ -111,15 +121,16 @@ impl RaylibAudio {
     }
 
     /// Load wave from memory buffer, fileType refers to extension: i.e. '.wav'
+    #[inline]
     pub fn new_wave_from_memory<'aud>(
         &'aud self,
         filetype: &str,
         bytes: &[u8],
     ) -> Result<Wave<'aud>, Error> {
         let c_filetype = CString::new(filetype).unwrap();
-        let c_bytes = bytes.as_ptr();
-        let w =
-            unsafe { ffi::LoadWaveFromMemory(c_filetype.as_ptr(), c_bytes, bytes.len() as i32) };
+        let w = unsafe {
+            ffi::LoadWaveFromMemory(c_filetype.as_ptr(), bytes.as_ptr(), bytes.len() as i32)
+        };
         if w.data.is_null() {
             return Err(error!("Wave data is null. Check provided buffer data"));
         };
@@ -127,7 +138,7 @@ impl RaylibAudio {
     }
 
     /// Loads music stream from file.
-    // #[inline]
+    #[inline]
     pub fn new_music<'aud>(&'aud self, filename: &str) -> Result<Music<'aud>, Error> {
         let c_filename = CString::new(filename).unwrap();
         let m = unsafe { ffi::LoadMusicStream(c_filename.as_ptr()) };
@@ -138,15 +149,15 @@ impl RaylibAudio {
     }
 
     /// Load music stream from data
+    #[inline]
     pub fn new_music_from_memory<'aud>(
         &'aud self,
         filetype: &str,
         bytes: &Vec<u8>,
     ) -> Result<Music<'aud>, Error> {
         let c_filetype = CString::new(filetype).unwrap();
-        let c_bytes = bytes.as_ptr();
         let w = unsafe {
-            ffi::LoadMusicStreamFromMemory(c_filetype.as_ptr(), c_bytes, bytes.len() as i32)
+            ffi::LoadMusicStreamFromMemory(c_filetype.as_ptr(), bytes.as_ptr(), bytes.len() as i32)
         };
         if w.stream.buffer.is_null() {
             return Err(error!(
@@ -175,9 +186,7 @@ impl RaylibAudio {
 
 impl<'aud> Drop for RaylibAudio {
     fn drop(&mut self) {
-        unsafe {
-            ffi::CloseAudioDevice();
-        }
+        unsafe { ffi::CloseAudioDevice() }
     }
 }
 
@@ -200,6 +209,7 @@ impl<'aud> Wave<'aud> {
         inner
     }
 
+    #[inline]
     pub fn is_wave_valid(&self) -> bool {
         unsafe { ffi::IsWaveValid(self.0) }
     }
@@ -227,17 +237,13 @@ impl<'aud> Wave<'aud> {
     /// Converts wave data to desired format.
     #[inline]
     pub fn format(&mut self, sample_rate: i32, sample_size: i32, channels: i32) {
-        unsafe {
-            ffi::WaveFormat(&mut self.0, sample_rate, sample_size, channels);
-        }
+        unsafe { ffi::WaveFormat(&mut self.0, sample_rate, sample_size, channels) }
     }
 
     /// Crops a wave to defined sample range.
     #[inline]
     pub fn crop(&mut self, init_sample: i32, final_sample: i32) {
-        unsafe {
-            ffi::WaveCrop(&mut self.0, init_sample, final_sample);
-        }
+        unsafe { ffi::WaveCrop(&mut self.0, init_sample, final_sample) }
     }
 
     /// Load samples data from wave as a floats array
@@ -245,14 +251,10 @@ impl<'aud> Wave<'aud> {
     /// NOTE 2: Sample data allocated should be freed with UnloadWaveSamples()
     #[inline]
     pub fn load_samples(&self) -> WaveSamples {
-        let as_slice = unsafe {
-            let data = ffi::LoadWaveSamples(self.0);
-            Box::from_raw(std::slice::from_raw_parts_mut(
-                data,
-                self.frame_count() as usize,
-            ))
-        };
-        WaveSamples(ManuallyDrop::new(as_slice))
+        WaveSamples(
+            unsafe { ffi::LoadWaveSamples(self.0) },
+            self.frameCount as usize,
+        )
     }
 }
 
@@ -285,33 +287,25 @@ impl<'aud> Sound<'aud> {
     /// Plays a sound.
     #[inline]
     pub fn play(&self) {
-        unsafe {
-            ffi::PlaySound(self.0);
-        }
+        unsafe { ffi::PlaySound(self.0) }
     }
 
     /// Pauses a sound.
     #[inline]
     pub fn pause(&self) {
-        unsafe {
-            ffi::PauseSound(self.0);
-        }
+        unsafe { ffi::PauseSound(self.0) }
     }
 
     /// Resumes a paused sound.
     #[inline]
     pub fn resume(&self) {
-        unsafe {
-            ffi::ResumeSound(self.0);
-        }
+        unsafe { ffi::ResumeSound(self.0) }
     }
 
     /// Stops playing a sound.
     #[inline]
     pub fn stop(&self) {
-        unsafe {
-            ffi::StopSound(self.0);
-        }
+        unsafe { ffi::StopSound(self.0) }
     }
 
     /// Checks if a sound is currently playing.
@@ -323,22 +317,18 @@ impl<'aud> Sound<'aud> {
     /// Sets volume for a sound (`1.0` is max level).
     #[inline]
     pub fn set_volume(&self, volume: f32) {
-        unsafe {
-            ffi::SetSoundVolume(self.0, volume);
-        }
+        unsafe { ffi::SetSoundVolume(self.0, volume) }
     }
 
     /// Sets pitch for a sound (`1.0` is base level).
     #[inline]
     pub fn set_pitch(&self, pitch: f32) {
-        unsafe {
-            ffi::SetSoundPitch(self.0, pitch);
-        }
+        unsafe { ffi::SetSoundPitch(self.0, pitch) }
     }
+
+    #[inline]
     pub fn set_pan(&self, pan: f32) {
-        unsafe {
-            ffi::SetSoundPan(self.0, pan);
-        }
+        unsafe { ffi::SetSoundPan(self.0, pan) }
     }
 
     // Uncomment this when Raylib fulfills the todo comment within the original function to make the function safe.
@@ -372,33 +362,25 @@ impl<'aud, 'bind> SoundAlias<'aud, 'bind> {
     /// Plays a sound.
     #[inline]
     pub fn play(&self) {
-        unsafe {
-            ffi::PlaySound(self.0);
-        }
+        unsafe { ffi::PlaySound(self.0) }
     }
 
     /// Pauses a sound.
     #[inline]
     pub fn pause(&self) {
-        unsafe {
-            ffi::PauseSound(self.0);
-        }
+        unsafe { ffi::PauseSound(self.0) }
     }
 
     /// Resumes a paused sound.
     #[inline]
     pub fn resume(&self) {
-        unsafe {
-            ffi::ResumeSound(self.0);
-        }
+        unsafe { ffi::ResumeSound(self.0) }
     }
 
     /// Stops playing a sound.
     #[inline]
     pub fn stop(&self) {
-        unsafe {
-            ffi::StopSound(self.0);
-        }
+        unsafe { ffi::StopSound(self.0) }
     }
 
     /// Checks if a sound is currently playing.
@@ -410,22 +392,18 @@ impl<'aud, 'bind> SoundAlias<'aud, 'bind> {
     /// Sets volume for a sound (`1.0` is max level).
     #[inline]
     pub fn set_volume(&self, volume: f32) {
-        unsafe {
-            ffi::SetSoundVolume(self.0, volume);
-        }
+        unsafe { ffi::SetSoundVolume(self.0, volume) }
     }
 
     /// Sets pitch for a sound (`1.0` is base level).
     #[inline]
     pub fn set_pitch(&self, pitch: f32) {
-        unsafe {
-            ffi::SetSoundPitch(self.0, pitch);
-        }
+        unsafe { ffi::SetSoundPitch(self.0, pitch) }
     }
+
+    #[inline]
     pub fn set_pan(&self, pan: f32) {
-        unsafe {
-            ffi::SetSoundPan(self.0, pan);
-        }
+        unsafe { ffi::SetSoundPan(self.0, pan) }
     }
 }
 
@@ -439,41 +417,31 @@ impl<'aud> Music<'aud> {
     /// Starts music playing.
     #[inline]
     pub fn play_stream(&self) {
-        unsafe {
-            ffi::PlayMusicStream(self.0);
-        }
+        unsafe { ffi::PlayMusicStream(self.0) }
     }
 
     /// Updates buffers for music streaming.
     #[inline]
     pub fn update_stream(&self) {
-        unsafe {
-            ffi::UpdateMusicStream(self.0);
-        }
+        unsafe { ffi::UpdateMusicStream(self.0) }
     }
 
     /// Stops music playing.
     #[inline]
     pub fn stop_stream(&self) {
-        unsafe {
-            ffi::StopMusicStream(self.0);
-        }
+        unsafe { ffi::StopMusicStream(self.0) }
     }
 
     /// Pauses music playing.
     #[inline]
     pub fn pause_stream(&self) {
-        unsafe {
-            ffi::PauseMusicStream(self.0);
-        }
+        unsafe { ffi::PauseMusicStream(self.0) }
     }
 
     /// Resumes playing paused music.
     #[inline]
     pub fn resume_stream(&self) {
-        unsafe {
-            ffi::ResumeMusicStream(self.0);
-        }
+        unsafe { ffi::ResumeMusicStream(self.0) }
     }
 
     /// Checks if music is playing.
@@ -485,17 +453,13 @@ impl<'aud> Music<'aud> {
     /// Sets volume for music (`1.0` is max level).
     #[inline]
     pub fn set_volume(&self, volume: f32) {
-        unsafe {
-            ffi::SetMusicVolume(self.0, volume);
-        }
+        unsafe { ffi::SetMusicVolume(self.0, volume) }
     }
 
     /// Sets pitch for music (`1.0` is base level).
     #[inline]
     pub fn set_pitch(&self, pitch: f32) {
-        unsafe {
-            ffi::SetMusicPitch(self.0, pitch);
-        }
+        unsafe { ffi::SetMusicPitch(self.0, pitch) }
     }
 
     /// Gets music time length in seconds.
@@ -510,18 +474,17 @@ impl<'aud> Music<'aud> {
         unsafe { ffi::GetMusicTimePlayed(self.0) }
     }
 
+    #[inline]
     pub fn seek_stream(&self, position: f32) {
-        unsafe {
-            ffi::SeekMusicStream(self.0, position);
-        }
+        unsafe { ffi::SeekMusicStream(self.0, position) }
     }
 
+    #[inline]
     pub fn set_pan(&self, pan: f32) {
-        unsafe {
-            ffi::SetMusicPan(self.0, pan);
-        }
+        unsafe { ffi::SetMusicPan(self.0, pan) }
     }
 
+    #[inline]
     pub fn is_music_valid(&self) -> bool {
         unsafe { ffi::IsMusicValid(self.0) }
     }
