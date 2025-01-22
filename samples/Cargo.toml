@@ -2,14 +2,14 @@
 name = "raylib-examples"
 version = "5.5.0"
 authors = ["David Ayeke"]
-edition = "2018"
+edition = "2021"
 license = "Zlib"
 readme = "../README.md"
 repository = "https://github.com/raylib-rs/raylib-rs"
 
 
 [dependencies]
-raylib = { version = "5.5.0", path = "../raylib" }
+raylib = { path = "../raylib", version = "5.5.0" }
 structopt = "0.2"
 specs-derive = "0.4.1"
 rand = "0.8"
