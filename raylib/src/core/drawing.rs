@@ -44,6 +44,11 @@ impl<'a> std::ops::Deref for RaylibDrawHandle<'a> {
         &self.0
     }
 }
+impl<'a> std::ops::DerefMut for RaylibDrawHandle<'a> {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.0
+    }
+}
 
 impl<'a> RaylibDraw for RaylibDrawHandle<'a> {}
 
