@@ -73,6 +73,18 @@ fn main() {
 }
 ```
 
+### NixOS
+
+To use raylib-rs on NixOS there's a provided nix-shell file `shell.nix` at the root of the repo that should get you up and running, which can be used like so:
+
+`nix-shell ./shell.nix`
+
+You'll also need to enable the Wayland feature on the raylib crate: 
+
+`cargo add raylib -F wayland`
+
+Contributions are welcome to improve or fix the shell.nix!
+
 # Tech Notes
 
 - Structs holding resources have RAII/move semantics, including: `Image`, `Texture2D`, `RenderTexture2D`, `Font`, `Mesh`, `Shader`, `Material`, and `Model`.
