@@ -21,10 +21,12 @@ cc = "1.0"
 bindgen = "0.70"
 
 [features]
-default = []
-# Build Raylib headless for docs. Up to you to link
+# Build Raylib headless for docs/esoteric platforms. Up to you to link.
 nobuild = []
-
+# Generate bindings automatically.
+# You can turn this off if you wanna go into the source and put in your own bindings.rs, which is
+# useful since bindgen doesn't work on esoteric platforms.
+bindgen = []
 # Build for wayland on linux. Should fix #119
 wayland = []
 

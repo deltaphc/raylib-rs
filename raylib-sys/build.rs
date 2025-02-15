@@ -396,6 +396,7 @@ fn link(platform: Platform, platform_os: PlatformOS) {
     println!("cargo:rustc-link-lib=static=raylib");
 }
 
+#[cfg(not(feature = "nobuild"))]
 fn main() {
     println!("cargo:rerun-if-changed=build.rs");
     println!("cargo:rerun-if-changed=./binding/binding.h");
@@ -427,6 +428,35 @@ fn main() {
     gen_bindings();
 
     link(platform, platform_os);
+
+    gen_rgui();
+
+    gen_imgui();
+}
+
+#[cfg(feature = "nobuild")]
+fn main() {
+    println!("cargo:rerun-if-changed=build.rs");
+    println!("cargo:rerun-if-changed=./binding/binding.h");
+    let target = env::var("TARGET").expect("Cargo build scripts always have TARGET");
+
+    if target.contains("wasm32-unknown-emscripten") {
+        if let Err(e) = env::var("EMCC_CFLAGS") {
+            if e == std::env::VarError::NotPresent {
+                panic!("\nYou must have to set EMCC_CFLAGS yourself to compile for WASM.\n{}{}\"\n",{
+                    #[cfg(target_family = "windows")]
+                    {"set EMCC_CFLAGS="}
+                    #[cfg(not(target_family = "windows"))]
+                    {"export EMCC_CFLAGS="}
+                },"\"-O3 -sUSE_GLFW=3 -sASSERTIONS=1 -sWASM=1 -sASYNCIFY -sGL_ENABLE_GET_PROC_ADDRESS=1\"");
+            } else {
+                panic!("\nError regarding EMCC_CFLAGS: {:?}\n", e);
+            }
+        }
+    }
+
+    #[cfg(feature = "bindgen")]
+    gen_bindings();
 
     gen_rgui();
 
