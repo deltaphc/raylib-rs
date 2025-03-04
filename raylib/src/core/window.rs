@@ -705,7 +705,13 @@ impl RaylibHandle {
         unsafe { ffi::GetRenderWidth() }
     }
 
-    /// Get current screen height which is equal to screen height * dpi scale
+    /// Get current render height which is equal to screen height * dpi scale
+    #[inline]
+    pub fn get_render_height(&self) -> i32 {
+        unsafe { ffi::GetRenderHeight() }
+    }
+
+    /// Gets current screen width.
     #[inline]
     pub fn get_screen_width(&self) -> i32 {
         unsafe { ffi::GetScreenWidth() }
