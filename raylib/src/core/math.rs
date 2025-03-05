@@ -97,6 +97,29 @@ pub fn lerp(v0: f32, v1: f32, amount: f32) -> f32 {
     return v0 + amount * (v1 - v0);
 }
 
+/// Normalize input value within input range
+#[inline]
+pub fn normalize(value: f32, start: f32, end: f32) -> f32 {
+    (value - start)/(end - start)
+}
+
+/// Remap input value within input range to output range
+#[inline]
+pub fn remap(value: f32, input_start: f32, input_end: f32, output_start: f32, output_end: f32) -> f32 {
+    (value - input_start)/(input_end - input_start)*(output_end - output_start) + output_start
+}
+
+/// Wrap input value from min to max
+#[inline]
+pub fn wrap(value: f32, min: f32, max: f32) -> f32 {
+    value - (max - min)*((value - min)/(max - min)).floor()
+}
+
+/// Check whether two given floats are almost equal
+pub fn float_equals(x: f32, y: f32) -> bool {
+    ((x - y).abs()) <= (f32::EPSILON*(1.0f32.max(x.abs().max(y.abs()))))
+}
+
 /// A convenience function for making a new `Vector2`.
 #[inline]
 pub fn rvec2<T1: AsF32, T2: AsF32>(x: T1, y: T2) -> Vector2 {
