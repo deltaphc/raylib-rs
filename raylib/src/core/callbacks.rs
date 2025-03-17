@@ -7,10 +7,14 @@ use std::{
     convert::TryInto,
     ffi::{c_char, c_int, c_void, CStr, CString},
     mem::{size_of, transmute},
+    pin::Pin,
     ptr::null_mut,
     slice::from_raw_parts_mut,
     sync::atomic::{AtomicUsize, Ordering},
 };
+mod stream_processor_with_user_data_wrapper;
+use super::audio::Music;
+use stream_processor_with_user_data_wrapper::*;
 
 type TraceLogCallback = unsafe extern "C" fn(*mut i8, *const i8, ...);
 extern "C" {
@@ -199,6 +203,99 @@ pub fn set_load_file_text_callback<'a>(cb: fn(&str) -> String) -> Result<(), Set
         custom_load_file_text_callback,
         "load file text"
     )
+}
+
+// region: -- AudioStreamProcessorCallback --
+
+/// This struct encapsulates a rust callback
+/// and guarantees the lifetime to be long enough ('a)
+/// (once `get_as_user_data` is called, it the struct
+/// should not be moved again! -> use Pin<..>)
+pub struct AudioStreamProcessorCallback<'a, F>
+where
+    F: FnMut(&mut [f32], u32) -> (),
+{
+    rust_callback: &'a mut F,
+    nb_channels: u32,
+    callback_index: Option<usize>,
+}
+
+impl<'a, F> AudioStreamProcessorCallback<'a, F>
+where
+    F: FnMut(&mut [f32], u32) -> (),
+{
+    fn new(closure: &'a mut F, nb_channels_from_music: u32) -> Self {
+        Self {
+            rust_callback: closure,
+            nb_channels: nb_channels_from_music,
+            callback_index: None,
+        }
+    }
+
+    fn get_as_user_data(&mut self) -> *mut ::std::os::raw::c_void {
+        return self as *mut Self as *mut ::std::os::raw::c_void;
+    }
+
+    fn get_c_callback(
+        &mut self,
+    ) -> extern "C" fn(
+        *mut ::std::os::raw::c_void,
+        *mut ::std::os::raw::c_void,
+        ::std::os::raw::c_uint,
+    ) -> () {
+        Self::c_callback
+    }
+
+    extern "C" fn c_callback(
+        user_data: *mut ::std::os::raw::c_void,
+        data_ptr: *mut ::std::os::raw::c_void,
+        frame_count: ::std::os::raw::c_uint,
+    ) -> () {
+        unsafe {
+            let stream_processor_callback: &mut Self = user_data.cast::<Self>().as_mut().unwrap();
+            let f32_ptr = data_ptr as *mut f32;
+            let data = unsafe {
+                std::slice::from_raw_parts_mut(
+                    f32_ptr,
+                    frame_count as usize * stream_processor_callback.nb_channels as usize,
+                )
+            };
+            (stream_processor_callback.rust_callback)(data, stream_processor_callback.nb_channels);
+        }
+    }
+}
+
+impl<'a, F> Drop for AudioStreamProcessorCallback<'a, F>
+where
+    F: FnMut(&mut [f32], u32) -> (),
+{
+    fn drop(&mut self) {
+        if let Some(index) = self.callback_index {
+            detach_audio_stream_processor_with_user_data(index);
+        }
+    }
+}
+
+// endregion: -- AudioStreamProcessorCallback --
+
+pub fn attach_audio_stream_processor_to_music<'a, F>(
+    music: &'a Music<'a>,
+    processor: &'a mut F,
+) -> Pin<Box<AudioStreamProcessorCallback<'a, F>>>
+where
+    F: FnMut(&mut [f32], u32) -> () + Send + 'static, // static because the function is executed in another thread
+{
+    let mut stream_processor_callback =
+        Box::new(AudioStreamProcessorCallback::<'a, F>::new(processor, 2));
+    stream_processor_callback.callback_index = Some(attach_audio_stream_processor_with_user_data(
+        music.stream,
+        AudioCallbackWithUserData::new(
+            stream_processor_callback.get_as_user_data(), // pass the address of the stream_processor_callback as void*
+            stream_processor_callback.get_c_callback(),
+        ),
+    ));
+    assert!(stream_processor_callback.callback_index.is_some());
+    Box::into_pin(stream_processor_callback)
 }
 
 /// Audio thread callback to request new data
