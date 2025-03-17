@@ -87,6 +87,14 @@ impl RaylibAudio {
     pub fn set_master_volume(&self, volume: f32) {
         unsafe { ffi::SetMasterVolume(volume) }
     }
+    
+    /// Sets default audio buffer size for new audio streams.
+    #[inline]
+    pub fn set_audio_stream_buffer_size_default(&self, size: i32) {
+        unsafe {
+            ffi::SetAudioStreamBufferSizeDefault(size);
+        }
+    }    
 
     /// Loads a new sound from file.
     #[inline]
