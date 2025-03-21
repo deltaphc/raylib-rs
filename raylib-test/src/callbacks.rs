@@ -148,6 +148,4 @@ pub mod callback_tests {
                 .unwrap();
         }
     }
-
-    pub fn set_file_text_loader(_: &RaylibThread) {}
 }

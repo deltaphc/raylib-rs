@@ -7,9 +7,9 @@ license = "Zlib"
 readme = "../README.md"
 repository = "https://github.com/raylib-rs/raylib-rs"
 
-
 [dependencies]
 raylib = { version = "5.5.0", path = "../raylib" }
+raylib_sys = { version = "5.5.0", path = "../raylib-sys" }
 lazy_static = "1.2.0"
 colored = "2.1.0"
 

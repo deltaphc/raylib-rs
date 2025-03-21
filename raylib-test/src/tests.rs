@@ -91,7 +91,6 @@ pub fn test_runner(tests: &[&dyn Testable]) {
     callbacks::callback_tests::set_file_data_saver(&thread);
     callbacks::callback_tests::set_file_text_saver(&thread);
     callbacks::callback_tests::set_file_data_loader(&thread);
-    callbacks::callback_tests::set_file_text_loader(&thread);
 
     let args = std::env::args().collect::<Vec<_>>();
     let opts = match parse_opts(&args) {
