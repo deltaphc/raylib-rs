@@ -29,6 +29,8 @@ nobuild = []
 bindgen = []
 # Build for wayland on linux. Should fix #119
 wayland = []
+# Bindgen is default
+default = ["bindgen"]
 
 # OpenGL stuff, intended for fixing #122
 opengl_33 = []
