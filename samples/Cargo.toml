@@ -1,7 +1,7 @@
 [package]
 name = "raylib-examples"
 version = "5.5.0"
-authors = ["David Ayeke"]
+authors = ["raylib-rs team <https://github.com/raylib-rs/raylib-rs>"]
 edition = "2021"
 license = "Zlib"
 readme = "../README.md"

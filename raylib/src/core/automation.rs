@@ -6,16 +6,10 @@ use std::{
 
 use crate::{ffi, RaylibHandle};
 
-fn unload_automation_event_list(mut s: ffi::AutomationEventList) {
-    unsafe {
-        ffi::UnloadAutomationEventList(s);
-    }
-}
-
 make_thin_wrapper!(
     AutomationEventList,
     ffi::AutomationEventList,
-    unload_automation_event_list,
+    ffi::UnloadAutomationEventList,
     false
 );
 

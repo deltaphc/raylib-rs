@@ -1,7 +1,7 @@
 [package]
 name = "raylib-showcase"
 version = "5.5.0"
-authors = ["David Ayeke"]
+authors = ["raylib-rs team <https://github.com/raylib-rs/raylib-rs>"]
 edition = "2018"
 license = "Zlib"
 readme = "../README.md"

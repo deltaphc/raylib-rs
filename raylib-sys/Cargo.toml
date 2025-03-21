@@ -1,7 +1,7 @@
 [package]
 name = "raylib-sys"
 version = "5.5.0"
-authors = ["DeltaPHC <phclem@protonmail.com>"]
+authors = ["raylib-rs team <https://github.com/raylib-rs/raylib-rs>"]
 license = "Zlib"
 description = "Raw FFI bindings for Raylib"
 documentation = "https://docs.rs/raylib-sys"

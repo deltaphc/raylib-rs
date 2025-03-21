@@ -105,7 +105,7 @@ pub trait RayImGUITrait {
     /// Setup ImGUI then call the closure with the appropriate handle.
     ///
     /// Fails silently if the delta time is negative on any frame other then 0.
-    fn start_imgui(&self, f: impl Fn(&mut Ui)) {
+    fn draw_imgui(&self, f: impl Fn(&mut Ui)) {
         if let Some(mut new_frame) = RayImGUIHandle::new() {
             f(&mut new_frame);
         }
