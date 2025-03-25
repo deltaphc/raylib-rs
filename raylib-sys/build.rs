@@ -431,6 +431,7 @@ fn main() {
 
     gen_rgui();
 
+    #[cfg(feature = "imgui")]
     gen_imgui();
 }
 
@@ -460,6 +461,7 @@ fn main() {
 
     gen_rgui();
 
+    #[cfg(feature = "imgui")]
     gen_imgui();
 }
 
