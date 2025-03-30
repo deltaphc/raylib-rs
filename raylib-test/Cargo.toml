@@ -1,6 +1,6 @@
 [package]
 name = "raylib-test"
-version = "5.5.0"
+version = "5.5.1"
 authors = ["raylib-rs team <https://github.com/raylib-rs/raylib-rs>"]
 edition = "2018"
 license = "Zlib"
@@ -8,8 +8,8 @@ readme = "../README.md"
 repository = "https://github.com/raylib-rs/raylib-rs"
 
 [dependencies]
-raylib = { version = "5.5.0", path = "../raylib" }
-raylib_sys = { version = "5.5.0", path = "../raylib-sys" }
+raylib = { version = "5.5.1", path = "../raylib" }
+raylib_sys = { version = "5.5.1", path = "../raylib-sys" }
 lazy_static = "1.2.0"
 colored = "2.1.0"
 

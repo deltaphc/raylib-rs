@@ -1,6 +1,6 @@
 [package]
 name = "raylib"
-version = "5.5.0"
+version = "5.5.1"
 authors = ["raylib-rs team <https://github.com/raylib-rs/raylib-rs>"]
 license = "Zlib"
 readme = "../README.md"
@@ -13,7 +13,7 @@ edition = "2018"
 autoexamples = false
 
 [dependencies]
-raylib-sys = { version = "5.5.0", path = "../raylib-sys" }
+raylib-sys = { version = "5.5.1", path = "../raylib-sys" }
 cfg-if = "1.0.0"
 serde = { version = "1.0.125", features = ["derive"], optional = true }
 serde_json = { version = "1.0.64", optional = true }
