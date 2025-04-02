@@ -218,8 +218,14 @@ pub trait RaylibDrawGui {
     /// Panel control, useful to group controls
     #[inline]
     fn gui_panel(&mut self, bounds: impl Into<ffi::Rectangle>, text: &str) -> bool {
-        let c_filename = CString::new(text).unwrap();
-        unsafe { ffi::GuiPanel(bounds.into(), c_filename.as_ptr()) > 0 }
+        let cstr: CString;
+        let c_text = if text.is_empty() {
+            std::ptr::null()
+        } else {
+            cstr = CString::new(text).unwrap();
+            cstr.as_ptr()
+        };
+        unsafe { ffi::GuiPanel(bounds.into(), c_text) > 0 }
     }
     /// Scroll Panel control
     #[inline]
