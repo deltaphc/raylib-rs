@@ -37,9 +37,10 @@ impl RaylibHandle {
             ffi::BeginDrawing();
         };
         func(RaylibDrawHandle(self));
-        unsafe {
-            ffi::EndDrawing();
-        };
+        // Uncomment the following if RaylibDrawHandle has been changed to no longer call EndDrawing() in its drop implementation:
+        // unsafe {
+        //     ffi::EndDrawing();
+        // }
     }
 }
 
@@ -128,6 +129,8 @@ where
     ) {
         unsafe { ffi::BeginTextureMode(*framebuffer) }
         func(RaylibTextureMode(self, framebuffer));
+        // Uncomment the following if RaylibTextureMode has been changed to no longer call EndTextureMode() in its drop implementation:
+        // unsafe { ffi::EndTextureMode(); }
     }
 }
 
@@ -175,6 +178,8 @@ where
     ) {
         unsafe { ffi::BeginVrStereoMode(*vr_config.as_ref()) }
         func(RaylibVRMode(&self, vr_config));
+        // Uncomment the following if RaylibVRMode has been changed to no longer call EndTextureMode() in its drop implementation:
+        // unsafe { ffi::EndVrStereoMode(); }
     }
 }
 
@@ -227,9 +232,10 @@ where
             ffi::BeginMode2D(camera.into());
         }
         func(RaylibMode2D(self), camera);
-        unsafe {
-            ffi::EndMode2D();
-        }
+        // Uncomment the following if RaylibMode2D has been changed to no longer call EndMode2D() in its drop implementation:
+        // unsafe {
+        //     ffi::EndMode2D();
+        // }
     }
 }
 
@@ -282,9 +288,10 @@ where
             ffi::BeginMode3D(camera.into());
         }
         func(RaylibMode3D(self), camera);
-        unsafe {
-            ffi::EndMode3D();
-        }
+        // Uncomment the following if RaylibMode3D has been changed to no longer call EndMode3D() in its drop implementation:
+        // unsafe {
+        //     ffi::EndMode3D();
+        // }
     }
 }
 
@@ -333,6 +340,8 @@ where
     ) {
         unsafe { ffi::BeginShaderMode(*shader.as_ref()) }
         func(RaylibShaderMode(self, shader));
+        // Uncomment the following if RaylibShaderMode has been changed to no longer call EndShaderMode() in its drop implementation:
+        // unsafe { ffi::EndShaderMode(); }
     }
 }
 
@@ -380,6 +389,8 @@ where
     ) {
         unsafe { ffi::BeginBlendMode((blend_mode as u32) as i32) }
         func(RaylibBlendMode(self));
+        // Uncomment the following if RaylibBlendMode has been changed to no longer call EndBlendMode() in its drop implementation:
+        // unsafe { ffi::EndBlendMode(); }
     }
 }
 
@@ -436,6 +447,8 @@ where
     ) {
         unsafe { ffi::BeginScissorMode(x, y, width, height) }
         func(RaylibScissorMode(self));
+        // Uncomment the following if RaylibScissorMode has been changed to no longer call EndScissorMode() in its drop implementation:
+        // unsafe { ffi::EndScissorMode(); }
     }
 }
 
