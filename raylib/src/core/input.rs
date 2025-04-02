@@ -318,7 +318,7 @@ impl RaylibHandle {
         unsafe { ffi::GetTouchPointCount() as u32 }
     }
 
-    /// Gets gesture hold time in milliseconds.
+    /// Gets gesture hold time in seconds.
     #[inline]
     pub fn get_gesture_hold_duration(&self) -> f32 {
         unsafe { ffi::GetGestureHoldDuration() }
