@@ -159,7 +159,7 @@ impl Image {
         unsafe { ffi::ImageRotate(&mut self.0, degrees) }
     }
     /// Get image pixel color at (x, y) position
-    pub fn get_color(&mut self, x: i32, y: i32) -> Color {
+    pub fn get_color(&self, x: i32, y: i32) -> Color {
         Color::from(unsafe { ffi::GetImageColor(self.0, x, y) })
     }
     /// Draw circle outline within an image
