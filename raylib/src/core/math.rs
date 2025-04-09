@@ -26,17 +26,10 @@ make_rslice!(RSliceVec4, Vector4, ffi::MemFree);
 
 macro_rules! optional_serde_struct {
     ($def:item) => {
-        cfg_if::cfg_if! {
-            if #[cfg(feature = "with_serde")] {
-                #[repr(C)]
-                #[derive(Default, Debug, Copy, Clone, PartialEq, Serialize, Deserialize)]
-                $def
-            } else {
-                #[repr(C)]
-                #[derive(Default, Debug, Copy, Clone, PartialEq)]
-                $def
-            }
-        }
+        #[repr(C)]
+        #[derive(Default, Debug, Copy, Clone, PartialEq)]
+        #[cfg_attr(feature = "with_serde", derive(Serialize, Deserialize))]
+        $def
     };
 }
 
