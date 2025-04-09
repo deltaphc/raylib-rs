@@ -5,15 +5,6 @@ use crate::ffi;
 use std::ffi::{CStr, CString, IntoStringError, NulError};
 use std::os::raw::c_char;
 
-#[cfg(not(feature = "with_serde"))]
-#[cfg(feature = "serde")]
-use serde::{Deserialize, Serialize};
-
-#[cfg(feature = "with_serde")]
-#[cfg(not(feature = "serde"))]
-use serde::{Deserialize, Serialize};
-
-#[cfg(feature = "with_serde")]
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
 
