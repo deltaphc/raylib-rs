@@ -1677,9 +1677,8 @@ pub trait RaylibDraw3D {
         let tr = transforms
             .iter()
             .map(|f| f.into())
-            .collect::<Vec<ffi::Matrix>>()
-            .as_ptr();
-        unsafe { ffi::DrawMeshInstanced(*mesh.as_ref(), material.0, tr, transforms.len() as i32) }
+            .collect::<Vec<ffi::Matrix>>();
+        unsafe { ffi::DrawMeshInstanced(*mesh.as_ref(), material.0, tr.as_ptr(), transforms.len() as i32) }
     }
 
     /// Draws a sphere.
