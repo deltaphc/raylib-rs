@@ -235,12 +235,12 @@ where
     fn draw_mode2D<'a>(
         &'a mut self,
         camera: Camera2D,
-        func: impl FnOnce(RaylibMode2D<'a, Self>, Camera2D),
+        func: impl FnOnce(RaylibMode2D<'a, Self>),
     ) {
         unsafe {
             ffi::BeginMode2D(camera.into());
         }
-        func(RaylibMode2D(self), camera);
+        func(RaylibMode2D(self));
         // Uncomment the following if RaylibMode2D has been changed to no longer call EndMode2D() in its drop implementation:
         // unsafe {
         //     ffi::EndMode2D();
@@ -291,12 +291,12 @@ where
     fn draw_mode3D<'a>(
         &'a mut self,
         camera: Camera3D,
-        func: impl FnOnce(RaylibMode3D<'a, Self>, Camera3D),
+        func: impl FnOnce(RaylibMode3D<'a, Self>),
     ) {
         unsafe {
             ffi::BeginMode3D(camera.into());
         }
-        func(RaylibMode3D(self), camera);
+        func(RaylibMode3D(self));
         // Uncomment the following if RaylibMode3D has been changed to no longer call EndMode3D() in its drop implementation:
         // unsafe {
         //     ffi::EndMode3D();
