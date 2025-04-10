@@ -29,17 +29,10 @@ impl RaylibHandle {
         let c_vs_filename = vs_filename.map(|f| CString::new(f).unwrap());
         let c_fs_filename = fs_filename.map(|f| CString::new(f).unwrap());
 
-        // Trust me, I have tried ALL the RUST option ergonamics. This is the only way
-        // to get this to work without raylib breaking for whatever reason
-        // UPDATE FOR 2024 FROM ANOTHER PERSON: Yes this is still true, doing although "for some reason" is likely due to the pointer getting freed too early if you don't do it this way.
-        let shader = match (c_vs_filename, c_fs_filename) {
-            (Some(vs), Some(fs)) => unsafe { Shader(ffi::LoadShader(vs.as_ptr(), fs.as_ptr())) },
-            (None, Some(fs)) => unsafe { Shader(ffi::LoadShader(std::ptr::null(), fs.as_ptr())) },
-            (Some(vs), None) => unsafe { Shader(ffi::LoadShader(vs.as_ptr(), std::ptr::null())) },
-            (None, None) => unsafe { Shader(ffi::LoadShader(std::ptr::null(), std::ptr::null())) },
-        };
+        let vs = c_vs_filename.as_ref().map_or_else(std::ptr::null, |s| s.as_ptr());
+        let fs = c_fs_filename.as_ref().map_or_else(std::ptr::null, |s| s.as_ptr());
 
-        return shader;
+        Shader(unsafe { ffi::LoadShader(vs, fs) })
     }
 
     /// Loads shader from code strings and binds default locations.
@@ -51,32 +44,11 @@ impl RaylibHandle {
     ) -> Shader {
         let c_vs_code = vs_code.map(|f| CString::new(f).unwrap());
         let c_fs_code = fs_code.map(|f| CString::new(f).unwrap());
-        return match (c_vs_code, c_fs_code) {
-            (Some(vs), Some(fs)) => unsafe {
-                Shader(ffi::LoadShaderFromMemory(
-                    vs.as_ptr() as *mut c_char,
-                    fs.as_ptr() as *mut c_char,
-                ))
-            },
-            (None, Some(fs)) => unsafe {
-                Shader(ffi::LoadShaderFromMemory(
-                    std::ptr::null_mut(),
-                    fs.as_ptr() as *mut c_char,
-                ))
-            },
-            (Some(vs), None) => unsafe {
-                Shader(ffi::LoadShaderFromMemory(
-                    vs.as_ptr() as *mut c_char,
-                    std::ptr::null_mut(),
-                ))
-            },
-            (None, None) => unsafe {
-                Shader(ffi::LoadShaderFromMemory(
-                    std::ptr::null_mut(),
-                    std::ptr::null_mut(),
-                ))
-            },
-        };
+
+        let vs = c_vs_code.as_ref().map_or_else(std::ptr::null, |s| s.as_ptr());
+        let fs = c_fs_code.as_ref().map_or_else(std::ptr::null, |s| s.as_ptr());
+
+        Shader(unsafe { ffi::LoadShaderFromMemory(vs, fs) })
     }
 
     /// Get default shader. Modifying it modifies everthing that uses that shader
