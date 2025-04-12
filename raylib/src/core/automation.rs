@@ -6,6 +6,64 @@ use std::{
 
 use crate::{ffi, RaylibHandle};
 
+#[derive(Debug, Clone)]
+pub struct AutomationEventIter<'a> {
+    iter: std::slice::Iter<'a, ffi::AutomationEvent>
+}
+impl<'a> AutomationEventIter<'a> {
+    unsafe fn new(events: *mut ffi::AutomationEvent, count: u32) -> Self {
+        // No new items are being created that get dropped here, these are just changes in perspective of how to borrow-check the pointers.
+        assert!(!events.is_null(), "automation event array cannot be null");
+        assert!(events.is_aligned(), "automation event array must be aligned");
+        let iter = unsafe { std::slice::from_raw_parts(events, count as usize) }.iter();
+        Self { iter }
+    }
+    fn func(e: &ffi::AutomationEvent) -> AutomationEvent {
+        // This relies on the fact that `ffi::AutomationEvent` is Copy `unload_automation_event` doesn't actually do anything.
+        AutomationEvent(*e)
+    }
+}
+impl<'a> Iterator for AutomationEventIter<'a> {
+    type Item = AutomationEvent;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        self.iter.next().map(Self::func)
+    }
+
+    #[inline]
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        self.iter.size_hint()
+    }
+
+    #[inline]
+    fn count(self) -> usize {
+        self.len()
+    }
+
+    fn last(self) -> Option<Self::Item> {
+        self.iter.last().map(Self::func)
+    }
+
+    fn nth(&mut self, n: usize) -> Option<Self::Item> {
+        self.iter.nth(n).map(Self::func)
+    }
+}
+impl<'a> DoubleEndedIterator for AutomationEventIter<'a> {
+    fn next_back(&mut self) -> Option<Self::Item> {
+        self.iter.next_back().map(Self::func)
+    }
+
+    fn nth_back(&mut self, n: usize) -> Option<Self::Item> {
+        self.iter.nth_back(n).map(Self::func)
+    }
+}
+impl<'a> ExactSizeIterator for AutomationEventIter<'a> {
+    #[inline]
+    fn len(&self) -> usize {
+        self.iter.len()
+    }
+}
+
 make_thin_wrapper!(
     AutomationEventList,
     ffi::AutomationEventList,
@@ -29,6 +87,10 @@ impl AutomationEventList {
             .iter()
             .map(|f| AutomationEvent(*f))
             .collect()
+    }
+    /// An iterator over the events held in this list.
+    pub fn iter<'a>(&'a self) -> AutomationEventIter<'a> {
+        unsafe { AutomationEventIter::new(self.0.events, self.count()) }
     }
 
     /// Export automation events list as text file

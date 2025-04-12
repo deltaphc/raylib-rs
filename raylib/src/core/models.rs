@@ -532,6 +532,133 @@ pub trait RaylibMaterial: AsRef<ffi::Material> + AsMut<ffi::Material> {
     }
 }
 
+#[derive(Debug, Clone)]
+pub struct FramePoseIter<'a> {
+    iter: std::slice::Iter<'a, Option<&'a [crate::math::Transform]>>,
+    bone_count: usize,
+}
+impl<'a> FramePoseIter<'a> {
+    unsafe fn new(frame_poses: *mut *mut ffi::Transform, frame_count: usize, bone_count: usize) -> Self {
+        // No new items are being created that get dropped here, these are just changes in perspective of how to borrow-check the pointers.
+        assert!(!frame_poses.is_null(), "frame pose array cannot be null");
+        assert!(frame_poses.is_aligned(), "frame pose array must be aligned");
+        let frame_poses = frame_poses.cast::<Option<&'a [crate::math::Transform]>>();
+        let iter = unsafe { std::slice::from_raw_parts(frame_poses, frame_count) }.iter();
+        Self { iter, bone_count }
+    }
+    fn func(tf: &Option<&'a [crate::math::Transform]>, bone_count: usize) -> &'a [crate::math::Transform] {
+        unsafe { std::slice::from_raw_parts(tf.expect("frame pose transform cannot be null").as_ptr(), bone_count) }
+    }
+}
+impl<'a> Iterator for FramePoseIter<'a> {
+    type Item = &'a [crate::math::Transform];
+
+    fn next(&mut self) -> Option<Self::Item> {
+        let bone_count = self.bone_count;
+        self.iter.next().map(move |tf| Self::func(tf, bone_count))
+    }
+
+    #[inline]
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        self.iter.size_hint()
+    }
+
+    #[inline]
+    fn count(self) -> usize {
+        self.len()
+    }
+
+    fn last(self) -> Option<Self::Item> {
+        let bone_count = self.bone_count;
+        self.iter.last().map(move |tf| Self::func(tf, bone_count))
+    }
+
+    fn nth(&mut self, n: usize) -> Option<Self::Item> {
+        let bone_count = self.bone_count;
+        self.iter.nth(n).map(move |tf| Self::func(tf, bone_count))
+    }
+}
+impl<'a> DoubleEndedIterator for FramePoseIter<'a> {
+    fn next_back(&mut self) -> Option<Self::Item> {
+        let bone_count = self.bone_count;
+        self.iter.next_back().map(move |tf| Self::func(tf, bone_count))
+    }
+
+    fn nth_back(&mut self, n: usize) -> Option<Self::Item> {
+        let bone_count = self.bone_count;
+        self.iter.nth_back(n).map(move |tf| Self::func(tf, bone_count))
+    }
+}
+impl<'a> ExactSizeIterator for FramePoseIter<'a> {
+    #[inline]
+    fn len(&self) -> usize {
+        self.iter.len()
+    }
+}
+#[derive(Debug)]
+pub struct FramePoseIterMut<'a> {
+    iter: std::slice::IterMut<'a, Option<&'a mut [crate::math::Transform]>>,
+    bone_count: usize,
+}
+impl<'a> FramePoseIterMut<'a> {
+    unsafe fn new(frame_poses: *mut *mut ffi::Transform, frame_count: usize, bone_count: usize) -> Self {
+        // No new items are being created that get dropped here, these are just changes in perspective of how to borrow-check the pointers.
+        assert!(!frame_poses.is_null(), "frame pose array cannot be null");
+        assert!(frame_poses.is_aligned(), "frame pose array must be aligned");
+        let frame_poses = frame_poses.cast::<Option<&'a mut [crate::math::Transform]>>();
+        let iter = unsafe { std::slice::from_raw_parts_mut(frame_poses, frame_count) }.iter_mut();
+        Self { iter, bone_count }
+    }
+    fn func(tf: &mut Option<&'a mut [crate::math::Transform]>, bone_count: usize) -> &'a mut [crate::math::Transform] {
+        unsafe { std::slice::from_raw_parts_mut(tf.as_mut().expect("frame pose transform cannot be null").as_mut_ptr(), bone_count) }
+    }
+}
+impl<'a> Iterator for FramePoseIterMut<'a> {
+    type Item = &'a mut [crate::math::Transform];
+
+    fn next(&mut self) -> Option<Self::Item> {
+        let bone_count = self.bone_count;
+        self.iter.next().map(move |tf| Self::func(tf, bone_count))
+    }
+
+    #[inline]
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        self.iter.size_hint()
+    }
+
+    #[inline]
+    fn count(self) -> usize {
+        self.len()
+    }
+
+    fn last(self) -> Option<Self::Item> {
+        let bone_count = self.bone_count;
+        self.iter.last().map(move |tf| Self::func(tf, bone_count))
+    }
+
+    fn nth(&mut self, n: usize) -> Option<Self::Item> {
+        let bone_count = self.bone_count;
+        self.iter.nth(n).map(move |tf| Self::func(tf, bone_count))
+    }
+}
+impl<'a> DoubleEndedIterator for FramePoseIterMut<'a> {
+    fn next_back(&mut self) -> Option<Self::Item> {
+        let bone_count = self.bone_count;
+        self.iter.next_back().map(move |tf| Self::func(tf, bone_count))
+    }
+
+    fn nth_back(&mut self, n: usize) -> Option<Self::Item> {
+        let bone_count = self.bone_count;
+        self.iter.nth_back(n).map(move |tf| Self::func(tf, bone_count))
+    }
+}
+impl<'a> ExactSizeIterator for FramePoseIterMut<'a> {
+    #[inline]
+    fn len(&self) -> usize {
+        self.iter.len()
+    }
+}
+
 impl RaylibModelAnimation for ModelAnimation {}
 impl RaylibModelAnimation for WeakModelAnimation {}
 
@@ -577,6 +704,10 @@ pub trait RaylibModelAnimation: AsRef<ffi::ModelAnimation> + AsMut<ffi::ModelAni
 
         top
     }
+    fn frame_poses_iter<'a>(&'a self) -> FramePoseIter<'a> {
+        let anim = self.as_ref();
+        unsafe { FramePoseIter::new(anim.framePoses, anim.frameCount as usize, anim.boneCount as usize) }
+    }
 
     fn frame_poses_mut(&mut self) -> Vec<&mut [crate::math::Transform]> {
         let anim = self.as_ref();
@@ -592,6 +723,10 @@ pub trait RaylibModelAnimation: AsRef<ffi::ModelAnimation> + AsMut<ffi::ModelAni
         }
 
         top
+    }
+    fn frame_poses_iter_mut<'a>(&'a mut self) -> FramePoseIterMut<'a> {
+        let anim = self.as_ref();
+        unsafe { FramePoseIterMut::new(anim.framePoses, anim.frameCount as usize, anim.boneCount as usize) }
     }
 }
 
