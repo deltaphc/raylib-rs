@@ -8,7 +8,7 @@ use std::os::raw::c_char;
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
 
-// MonitorInfo grabs the sizes (virtual and physical) of your monitor
+/// MonitorInfo grabs the sizes (virtual and physical) of your monitor
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct MonitorInfo {
@@ -25,11 +25,12 @@ pub struct MonitorInfo {
 pub struct WindowState(i32);
 
 impl WindowState {
-    pub fn vsync_hint(&self) -> bool {
+    /// Whether to try enabling V-Sync on GPU
+    pub const fn vsync_hint(&self) -> bool {
         self.0 & (ffi::ConfigFlags::FLAG_VSYNC_HINT as i32) != 0
     }
     /// Set to try enabling V-Sync on GPU
-    pub fn set_vsync_hint(mut self, enabled: bool) -> Self {
+    pub const fn set_vsync_hint(mut self, enabled: bool) -> Self {
         if enabled {
             // set the bit
             self.0 |= ffi::ConfigFlags::FLAG_VSYNC_HINT as i32;
@@ -40,11 +41,12 @@ impl WindowState {
         self
     }
 
-    pub fn fullscreen_mode(&self) -> bool {
+    /// Whether to run program in fullscreen
+    pub const fn fullscreen_mode(&self) -> bool {
         self.0 & (ffi::ConfigFlags::FLAG_FULLSCREEN_MODE as i32) != 0
     }
     /// Set to run program in fullscreen
-    pub fn set_fullscreen_mode(mut self, enabled: bool) -> Self {
+    pub const fn set_fullscreen_mode(mut self, enabled: bool) -> Self {
         if enabled {
             // set the bit
             self.0 |= ffi::ConfigFlags::FLAG_FULLSCREEN_MODE as i32;
@@ -55,11 +57,12 @@ impl WindowState {
         self
     }
 
-    pub fn window_resizable(&self) -> bool {
+    /// Whether to allow resizable window
+    pub const fn window_resizable(&self) -> bool {
         self.0 & (ffi::ConfigFlags::FLAG_WINDOW_RESIZABLE as i32) != 0
     }
     /// Set to allow resizable window
-    pub fn set_window_resizable(mut self, enabled: bool) -> Self {
+    pub const fn set_window_resizable(mut self, enabled: bool) -> Self {
         if enabled {
             // set the bit
             self.0 |= ffi::ConfigFlags::FLAG_WINDOW_RESIZABLE as i32;
@@ -70,11 +73,12 @@ impl WindowState {
         self
     }
 
-    pub fn window_undecorated(&self) -> bool {
+    /// Whether to disable window decoration (frame and buttons)
+    pub const fn window_undecorated(&self) -> bool {
         self.0 & (ffi::ConfigFlags::FLAG_WINDOW_UNDECORATED as i32) != 0
     }
     /// Set to disable window decoration (frame and buttons)
-    pub fn set_window_undecorated(mut self, enabled: bool) -> Self {
+    pub const fn set_window_undecorated(mut self, enabled: bool) -> Self {
         if enabled {
             // set the bit
             self.0 |= ffi::ConfigFlags::FLAG_WINDOW_UNDECORATED as i32;
@@ -85,11 +89,12 @@ impl WindowState {
         self
     }
 
-    pub fn window_hidden(&self) -> bool {
+    /// Whether to hide window
+    pub const fn window_hidden(&self) -> bool {
         self.0 & (ffi::ConfigFlags::FLAG_WINDOW_HIDDEN as i32) != 0
     }
     /// Set to hide window
-    pub fn set_window_hidden(mut self, enabled: bool) -> Self {
+    pub const fn set_window_hidden(mut self, enabled: bool) -> Self {
         if enabled {
             // set the bit
             self.0 |= ffi::ConfigFlags::FLAG_WINDOW_HIDDEN as i32;
@@ -100,11 +105,12 @@ impl WindowState {
         self
     }
 
-    pub fn window_minimized(&self) -> bool {
+    /// Whether to minimize window (iconify)
+    pub const fn window_minimized(&self) -> bool {
         self.0 & (ffi::ConfigFlags::FLAG_WINDOW_MINIMIZED as i32) != 0
     }
     /// Set to minimize window (iconify)
-    pub fn set_window_minimized(mut self, enabled: bool) -> Self {
+    pub const fn set_window_minimized(mut self, enabled: bool) -> Self {
         if enabled {
             // set the bit
             self.0 |= ffi::ConfigFlags::FLAG_WINDOW_MINIMIZED as i32;
@@ -115,11 +121,12 @@ impl WindowState {
         self
     }
 
-    pub fn window_maximized(&self) -> bool {
+    /// Whether to maximize window (expanded to monitor)
+    pub const fn window_maximized(&self) -> bool {
         self.0 & (ffi::ConfigFlags::FLAG_WINDOW_MAXIMIZED as i32) != 0
     }
     /// Set to maximize window (expanded to monitor)
-    pub fn set_window_maximized(mut self, enabled: bool) -> Self {
+    pub const fn set_window_maximized(mut self, enabled: bool) -> Self {
         if enabled {
             // set the bit
             self.0 |= ffi::ConfigFlags::FLAG_WINDOW_MAXIMIZED as i32;
@@ -130,11 +137,12 @@ impl WindowState {
         self
     }
 
-    pub fn window_unfocused(&self) -> bool {
+    /// Whether to window non focused
+    pub const fn window_unfocused(&self) -> bool {
         self.0 & (ffi::ConfigFlags::FLAG_WINDOW_UNFOCUSED as i32) != 0
     }
     /// Set to window non focused
-    pub fn set_window_unfocused(mut self, enabled: bool) -> Self {
+    pub const fn set_window_unfocused(mut self, enabled: bool) -> Self {
         if enabled {
             // set the bit
             self.0 |= ffi::ConfigFlags::FLAG_WINDOW_UNFOCUSED as i32;
@@ -145,11 +153,12 @@ impl WindowState {
         self
     }
 
-    pub fn window_topmost(&self) -> bool {
+    /// Whether to window always on top
+    pub const fn window_topmost(&self) -> bool {
         self.0 & (ffi::ConfigFlags::FLAG_WINDOW_TOPMOST as i32) != 0
     }
     /// Set to window always on top
-    pub fn set_window_topmost(mut self, enabled: bool) -> Self {
+    pub const fn set_window_topmost(mut self, enabled: bool) -> Self {
         if enabled {
             // set the bit
             self.0 |= ffi::ConfigFlags::FLAG_WINDOW_TOPMOST as i32;
@@ -160,11 +169,12 @@ impl WindowState {
         self
     }
 
-    pub fn window_always_run(&self) -> bool {
+    /// Whether to allow windows running while minimized
+    pub const fn window_always_run(&self) -> bool {
         self.0 & (ffi::ConfigFlags::FLAG_WINDOW_ALWAYS_RUN as i32) != 0
     }
     /// Set to allow windows running while minimized
-    pub fn set_window_always_run(mut self, enabled: bool) -> Self {
+    pub const fn set_window_always_run(mut self, enabled: bool) -> Self {
         if enabled {
             // set the bit
             self.0 |= ffi::ConfigFlags::FLAG_WINDOW_ALWAYS_RUN as i32;
@@ -175,11 +185,12 @@ impl WindowState {
         self
     }
 
-    pub fn window_transparent(&self) -> bool {
+    /// Whether to allow transparent framebuffer
+    pub const fn window_transparent(&self) -> bool {
         self.0 & (ffi::ConfigFlags::FLAG_WINDOW_TRANSPARENT as i32) != 0
     }
     /// Set to allow transparent framebuffer
-    pub fn set_window_transparent(mut self, enabled: bool) -> Self {
+    pub const fn set_window_transparent(mut self, enabled: bool) -> Self {
         if enabled {
             // set the bit
             self.0 |= ffi::ConfigFlags::FLAG_WINDOW_TRANSPARENT as i32;
@@ -190,11 +201,12 @@ impl WindowState {
         self
     }
 
-    pub fn window_highdpi(&self) -> bool {
+    /// Whether to support HighDPI
+    pub const fn window_highdpi(&self) -> bool {
         self.0 & (ffi::ConfigFlags::FLAG_WINDOW_HIGHDPI as i32) != 0
     }
     /// Set to support HighDPI
-    pub fn set_window_highdpi(mut self, enabled: bool) -> Self {
+    pub const fn set_window_highdpi(mut self, enabled: bool) -> Self {
         if enabled {
             // set the bit
             self.0 |= ffi::ConfigFlags::FLAG_WINDOW_HIGHDPI as i32;
@@ -205,11 +217,12 @@ impl WindowState {
         self
     }
 
-    pub fn msaa(&self) -> bool {
+    /// Whether to try enabling MSAA 4X
+    pub const fn msaa(&self) -> bool {
         self.0 & (ffi::ConfigFlags::FLAG_MSAA_4X_HINT as i32) != 0
     }
     /// Set to try enabling MSAA 4X
-    pub fn set_msaa(mut self, enabled: bool) -> Self {
+    pub const fn set_msaa(mut self, enabled: bool) -> Self {
         if enabled {
             // set the bit
             self.0 |= ffi::ConfigFlags::FLAG_MSAA_4X_HINT as i32;
@@ -220,11 +233,12 @@ impl WindowState {
         self
     }
 
-    pub fn interlaced_hint(&self) -> bool {
+    /// Whether to try enabling interlaced video format (for V3D)
+    pub const fn interlaced_hint(&self) -> bool {
         self.0 & (ffi::ConfigFlags::FLAG_INTERLACED_HINT as i32) != 0
     }
     /// Set to try enabling interlaced video format (for V3D)
-    pub fn set_interlaced_hint(mut self, enabled: bool) -> Self {
+    pub const fn set_interlaced_hint(mut self, enabled: bool) -> Self {
         if enabled {
             // set the bit
             self.0 |= ffi::ConfigFlags::FLAG_INTERLACED_HINT as i32;
@@ -242,13 +256,13 @@ pub fn get_monitor_count() -> i32 {
     unsafe { ffi::GetMonitorCount() }
 }
 
-// Get current connected monitor
+/// Get current connected monitor
 #[inline]
 pub fn get_current_monitor() -> i32 {
     unsafe { ffi::GetCurrentMonitor() }
 }
 
-// Get current connected monitor
+/// Get current connected monitor
 #[inline]
 pub fn get_current_monitor_index() -> i32 {
     unsafe { ffi::GetCurrentMonitor() }
@@ -413,6 +427,7 @@ impl RaylibHandle {
 // Screen-space-related functions
 impl RaylibHandle {
     /// Get a ray trace from screen position (i.e mouse)
+    #[inline]
     pub fn get_screen_to_world_ray(
         &self,
         mouse_position: impl Into<ffi::Vector2>,
@@ -422,6 +437,7 @@ impl RaylibHandle {
     }
 
     /// Get a ray trace from screen position (i.e mouse) in a viewport
+    #[inline]
     pub fn get_screen_to_world_ray_ex(
         &self,
         mouse_position: impl Into<ffi::Vector2>,
@@ -435,6 +451,7 @@ impl RaylibHandle {
     }
 
     /// Returns the screen space position for a 3d world space position
+    #[inline]
     pub fn get_world_to_screen(
         &self,
         position: impl Into<ffi::Vector3>,
@@ -445,6 +462,7 @@ impl RaylibHandle {
 
     /// Returns the screen space position for a 2d camera world space position
     #[allow(non_snake_case)]
+    #[inline]
     pub fn get_world_to_screen2D(
         &self,
         position: impl Into<ffi::Vector2>,
@@ -454,6 +472,7 @@ impl RaylibHandle {
     }
 
     /// Returns size position for a 3d world space position
+    #[inline]
     pub fn get_world_to_screen_ex(
         &self,
         position: impl Into<ffi::Vector3>,
@@ -466,6 +485,7 @@ impl RaylibHandle {
 
     /// Returns the world space position for a 2d camera screen space position
     #[allow(non_snake_case)]
+    #[inline]
     pub fn get_screen_to_world2D(
         &self,
         position: impl Into<ffi::Vector2>,
@@ -478,6 +498,7 @@ impl RaylibHandle {
 // Timing related functions
 impl RaylibHandle {
     /// Set target FPS (maximum)
+    #[inline]
     pub fn set_target_fps(&mut self, fps: u32) {
         unsafe {
             ffi::SetTargetFPS(fps as i32);
@@ -485,16 +506,19 @@ impl RaylibHandle {
     }
 
     /// Returns current FPS
+    #[inline]
     pub fn get_fps(&self) -> u32 {
         unsafe { ffi::GetFPS() as u32 }
     }
 
     /// Returns time in seconds for last frame drawn
+    #[inline]
     pub fn get_frame_time(&self) -> f32 {
         unsafe { ffi::GetFrameTime() }
     }
 
     /// Returns elapsed time in seconds since InitWindow()
+    #[inline]
     pub fn get_time(&self) -> f64 {
         unsafe { ffi::GetTime() }
     }
@@ -563,7 +587,7 @@ impl RaylibHandle {
         unsafe { ffi::IsWindowFullscreen() }
     }
 
-    // Check if window is currently focused (only PLATFORM_DESKTOP)
+    /// Check if window is currently focused (only PLATFORM_DESKTOP)
     #[inline]
     pub fn is_window_focused(&self) -> bool {
         unsafe { ffi::IsWindowFocused() }
@@ -596,11 +620,13 @@ impl RaylibHandle {
     }
 
     /// Set window configuration state using flags
+    #[inline]
     pub fn set_window_state(&mut self, state: WindowState) {
         unsafe { ffi::SetWindowState(state.0 as u32) }
     }
 
     /// Clear window configuration state flags
+    #[inline]
     pub fn clear_window_state(&mut self, state: WindowState) {
         unsafe { ffi::ClearWindowState(state.0 as u32) }
     }
@@ -664,6 +690,7 @@ impl RaylibHandle {
         }
     }
 
+    /// Set icon for window (multiple images, RGBA 32bit)
     #[inline]
     pub fn set_window_icons(&mut self, images: &mut [raylib_sys::Image]) {
         use std::convert::TryInto;
@@ -757,12 +784,14 @@ impl RaylibHandle {
         unsafe { ffi::GetWindowPosition().into() }
     }
 
-    // Toggle window state: borderless windowed (only on desktop platforms).
+    /// Toggle window state: borderless windowed (only on desktop platforms).
+    #[inline]
     pub fn toggle_borderless_windowed(&self) {
         unsafe { ffi::ToggleBorderlessWindowed() }
     }
 
-    // Focus the window (only on desktop platforms)
+    /// Focus the window (only on desktop platforms)
+    #[inline]
     pub fn set_window_focused(&self) {
         unsafe { ffi::SetWindowFocused() }
     }
@@ -816,20 +845,23 @@ impl RaylibHandle {
 }
 
 // Advanced "frame control" functions.
+// NOTE: Those functions are intended for advanced users that want full control over the frame processing
+// By default EndDrawing() does this job: draws everything + SwapScreenBuffer() + manage frame timing + PollInputEvents()
+// To avoid that behaviour and control frame processes manually, enable in config.h: SUPPORT_CUSTOM_FRAME_CONTROL
+#[cfg(feature = "custom_frame_control")]
 impl RaylibHandle {
-    #[cfg(feature = "custom_frame_control")]
     /// Swap back buffer with front buffer (screen drawing)
     /// This function, by default, is already done when the handle is dropped.
     pub fn swap_screen_buffer(&self) {
         unsafe { ffi::SwapScreenBuffer() }
     }
 
-    #[cfg(feature = "custom_frame_control")]
+    /// Register all input events
     pub fn poll_input_events(&self) {
         unsafe { ffi::PollInputEvents() }
     }
 
-    #[cfg(feature = "custom_frame_control")]
+    /// Wait for some time (halt program execution)
     pub fn wait_time(&self, seconds: f64) {
         unsafe { ffi::WaitTime(seconds) }
     }

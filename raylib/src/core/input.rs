@@ -279,11 +279,13 @@ impl RaylibHandle {
     }
 
     /// Set internal gamepad mappings (SDL_GameControllerDB)
+    #[inline]
     pub fn set_gamepad_mappings(&self, bind: &[c_char]) -> i32 {
         unsafe { ffi::SetGamepadMappings(bind.as_ptr()) }
     }
 
     /// Set gamepad vibration for both motors
+    #[inline]
     pub fn set_gamepad_vibration(
         &mut self,
         gamepad: i32,

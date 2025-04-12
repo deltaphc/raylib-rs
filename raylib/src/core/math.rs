@@ -34,8 +34,11 @@ macro_rules! optional_serde_struct {
 }
 
 optional_serde_struct! {
+    /// Vector2, 2 components
     pub struct Vector2 {
+        /// Vector x component
         pub x: f32,
+        /// Vector y component
         pub y: f32,
     }
 }
@@ -81,7 +84,7 @@ impl From<&Vector2> for ffi::Vector2 {
 
 /// A convenience function for linearly interpolating an `f32`.
 #[inline]
-pub fn lerp(v0: f32, v1: f32, amount: f32) -> f32 {
+pub const fn lerp(v0: f32, v1: f32, amount: f32) -> f32 {
     v0 + amount * (v1 - v0)
 }
 
@@ -139,21 +142,25 @@ impl Vector2 {
     }
 
     /// Calculates the vector length.
+    #[inline]
     pub fn length(&self) -> f32 {
         ((self.x * self.x) + (self.y * self.y)).sqrt()
     }
 
     /// Calculates the vector length square (**2);
-    pub fn length_sqr(&self) -> f32 {
+    #[inline]
+    pub const fn length_sqr(&self) -> f32 {
         (self.x * self.x) + (self.y * self.y)
     }
 
     /// Calculates the dot product with vector `v`.
-    pub fn dot(&self, v: Vector2) -> f32 {
+    #[inline]
+    pub const fn dot(&self, v: Vector2) -> f32 {
         self.x * v.x + self.y * v.y
     }
 
     /// Calculates the distance towards vector `v`.
+    #[inline]
     pub fn distance_to(&self, v: Vector2) -> f32 {
         ((self.x - v.x) * (self.x - v.x) + (self.y - v.y) * (self.y - v.y)).sqrt()
     }
@@ -168,16 +175,19 @@ impl Vector2 {
     }
 
     /// Scales the vector by multiplying both components by `scale`.
+    #[inline]
     pub fn scale(&mut self, scale: f32) {
         *self *= scale;
     }
 
     /// Returns a new `Vector2` with components scaled by `scale`.
+    #[inline]
     pub fn scale_by(&self, scale: f32) -> Vector2 {
         *self * scale
     }
 
     /// Normalizes the vector.
+    #[inline]
     pub fn normalize(&mut self) {
         *self = self.normalized();
     }
@@ -217,7 +227,8 @@ impl Vector2 {
     }
 
     /// Returns a new `Vector2` with componenets linearly interpolated by `amount` towards vector `v`.
-    pub fn lerp(&self, v: Vector2, amount: f32) -> Vector2 {
+    #[inline]
+    pub const fn lerp(&self, v: Vector2, amount: f32) -> Vector2 {
         Vector2 {
             x: self.x + amount * (v.x - self.x),
             y: self.y + amount * (v.y - self.y),
@@ -225,7 +236,8 @@ impl Vector2 {
     }
 
     /// Returns a new `Vector2` with componenets clamp to a certain interval.
-    pub fn clamp(&self, num: Range<f32>) -> Vector2 {
+    #[inline]
+    pub const fn clamp(&self, num: Range<f32>) -> Vector2 {
         Vector2 {
             x: self.x.clamp(num.start, num.end),
             y: self.y.clamp(num.start, num.end),
@@ -379,9 +391,13 @@ impl Neg for Vector2 {
 }
 
 optional_serde_struct! {
+    /// Vector3, 3 components
     pub struct Vector3 {
+        /// Vector x component
         pub x: f32,
+        /// Vector y component
         pub y: f32,
+        /// Vector z component
         pub z: f32,
     }
 }
@@ -447,24 +463,33 @@ impl Vector3 {
         Vector3 { x, y, z }
     }
 
-    pub fn up() -> Vector3 {
+    /// Returns a new `Vector3` one positive unit in the Y axis.
+    #[inline]
+    pub const fn up() -> Vector3 {
         Vector3::new(0.0, 1.0, 0.0)
     }
 
-    pub fn forward() -> Vector3 {
+    /// Returns a new `Vector3` one positive unit in the Z axis.
+    #[inline]
+    pub const fn forward() -> Vector3 {
         Vector3::new(0.0, 0.0, 1.0)
     }
 
-    pub fn right() -> Vector3 {
+    /// Returns a new `Vector3` one positive unit in the X axis.
+    #[inline]
+    pub const fn right() -> Vector3 {
         Vector3::new(1.0, 0.0, 0.0)
     }
 
-    pub fn left() -> Vector3 {
+    /// Returns a new `Vector3` one negative unit in the X axis.
+    #[inline]
+    pub const fn left() -> Vector3 {
         Vector3::new(-1.0, 0.0, 0.0)
     }
 
     /// Returns a new `Vector3` with all components set to zero.
-    pub fn zero() -> Vector3 {
+    #[inline]
+    pub const fn zero() -> Vector3 {
         Vector3 {
             x: 0.0,
             y: 0.0,
@@ -473,7 +498,8 @@ impl Vector3 {
     }
 
     /// Returns a new `Vector3` with all components set to one.
-    pub fn one() -> Vector3 {
+    #[inline]
+    pub const fn one() -> Vector3 {
         Vector3 {
             x: 1.0,
             y: 1.0,
@@ -482,7 +508,7 @@ impl Vector3 {
     }
 
     /// Returns a new `Vector3` containing the cross product between `self` and vector `v`.
-    pub fn cross(&self, v: Vector3) -> Vector3 {
+    pub const fn cross(&self, v: Vector3) -> Vector3 {
         Vector3 {
             x: self.y * v.z - self.z * v.y,
             y: self.z * v.x - self.x * v.z,
@@ -491,7 +517,7 @@ impl Vector3 {
     }
 
     /// Returns a new `Vector3` perpendicular to `self`.
-    pub fn perpendicular(&self) -> Vector3 {
+    pub const fn perpendicular(&self) -> Vector3 {
         let mut min = self.x.abs();
         let mut cardinal_axis = Vector3 {
             x: 1.0,
@@ -520,16 +546,19 @@ impl Vector3 {
     }
 
     /// Calculates the vector length.
+    #[inline]
     pub fn length(&self) -> f32 {
         (self.x * self.x + self.y * self.y + self.z * self.z).sqrt()
     }
 
     /// Calculates the dot product with vector `v`.
-    pub fn dot(&self, v: Vector3) -> f32 {
+    #[inline]
+    pub const fn dot(&self, v: Vector3) -> f32 {
         self.x * v.x + self.y * v.y + self.z * v.z
     }
 
     /// Calculates the distance towards vector `v`.
+    #[inline]
     pub fn distance_to(&self, v: Vector3) -> f32 {
         let dx = v.x - self.x;
         let dy = v.y - self.y;
@@ -538,16 +567,19 @@ impl Vector3 {
     }
 
     /// Scales the vector by multiplying both components by `scale`.
+    #[inline]
     pub fn scale(&mut self, scale: f32) {
         *self *= scale;
     }
 
     /// Returns a new `Vector3` with components scaled by `scale`.
+    #[inline]
     pub fn scale_by(&self, scale: f32) -> Vector3 {
         *self * scale
     }
 
     /// Normalizes the current vector.
+    #[inline]
     pub fn normalize(&mut self) {
         *self = self.normalized();
     }
@@ -575,12 +607,13 @@ impl Vector3 {
     }
 
     /// Transforms the current vector using Matrix `mat`.
-    pub fn transform(&mut self, mat: Matrix) {
+    #[inline]
+    pub const fn transform(&mut self, mat: Matrix) {
         *self = self.transform_with(mat);
     }
 
     /// Returns a new `Vector3` containing components transformed by Matrix `mat`.
-    pub fn transform_with(&self, mat: Matrix) -> Vector3 {
+    pub const fn transform_with(&self, mat: Matrix) -> Vector3 {
         Vector3 {
             x: mat.m0 * self.x + mat.m4 * self.y + mat.m8 * self.z + mat.m12,
             y: mat.m1 * self.x + mat.m5 * self.y + mat.m9 * self.z + mat.m13,
@@ -589,12 +622,13 @@ impl Vector3 {
     }
 
     /// Rotates the current vector using Quaternion `q`.
-    pub fn rotate(&mut self, q: Quaternion) {
+    #[inline]
+    pub const fn rotate(&mut self, q: Quaternion) {
         *self = self.rotate_by(q);
     }
 
     /// Returns a new `Vector3` with components rotated by Quaternion `q`.
-    pub fn rotate_by(&self, q: Quaternion) -> Vector3 {
+    pub const fn rotate_by(&self, q: Quaternion) -> Vector3 {
         Vector3 {
             x: self.x * (q.x * q.x + q.w * q.w - q.y * q.y - q.z * q.z)
                 + self.y * (2.0 * q.x * q.y - 2.0 * q.w * q.z)
@@ -609,7 +643,8 @@ impl Vector3 {
     }
 
     /// Returns a new `Vector3` with componenets linearly interpolated by `amount` towards vector `v`.
-    pub fn lerp(&self, v: Vector3, amount: f32) -> Vector3 {
+    #[inline]
+    pub const fn lerp(&self, v: Vector3, amount: f32) -> Vector3 {
         Vector3 {
             x: self.x + amount * (v.x - self.x),
             y: self.y + amount * (v.y - self.y),
@@ -618,12 +653,13 @@ impl Vector3 {
     }
 
     /// Reflects the current vector from `normal`.
-    pub fn reflect(&mut self, normal: Vector3) {
+    #[inline]
+    pub const fn reflect(&mut self, normal: Vector3) {
         *self = self.reflect_from(normal);
     }
 
     /// Returns a new `Vector3` reflected from the current vector using `normal`.
-    pub fn reflect_from(&self, normal: Vector3) -> Vector3 {
+    pub const fn reflect_from(&self, normal: Vector3) -> Vector3 {
         let dot_product = self.dot(normal);
         Vector3 {
             x: self.x - (2.0 * normal.x) * dot_product,
@@ -633,7 +669,8 @@ impl Vector3 {
     }
 
     /// Returns a new `Vector3` containing the minimum of each corresponding component.
-    pub fn min(&self, v: Vector3) -> Vector3 {
+    #[inline]
+    pub const fn min(&self, v: Vector3) -> Vector3 {
         Vector3 {
             x: self.x.min(v.x),
             y: self.y.min(v.y),
@@ -642,7 +679,8 @@ impl Vector3 {
     }
 
     /// Returns a new `Vector3` containing the maximum of each corresponding component.
-    pub fn max(&self, v: Vector3) -> Vector3 {
+    #[inline]
+    pub const fn max(&self, v: Vector3) -> Vector3 {
         Vector3 {
             x: self.x.max(v.x),
             y: self.y.max(v.y),
@@ -651,10 +689,10 @@ impl Vector3 {
     }
 
     /// Returns barycenter coordinates (u, v, w) from point p (current vector) with respect to triangle (`a`, `b`, `c`).
-    pub fn barycenter(&self, a: Vector3, b: Vector3, c: Vector3) -> Vector3 {
-        let v0 = b - a;
-        let v1 = c - a;
-        let v2 = *self - a;
+    pub const fn barycenter(&self, a: Vector3, b: Vector3, c: Vector3) -> Vector3 {
+        let v0 = Vector3::new(b.x - a.x, b.y - a.y, b.z - a.z);
+        let v1 = Vector3::new(c.x - a.x, c.y - a.y, c.z - a.z);
+        let v2 = Vector3::new(self.x - a.x, self.y - a.y, self.z - a.z);
         let d00 = v0.dot(v0);
         let d01 = v0.dot(v1);
         let d11 = v1.dot(v1);
@@ -672,12 +710,14 @@ impl Vector3 {
     }
 
     /// Returns a 3-length `f32` array containing components `[x, y, z]` of the current vector.
-    pub fn to_array(&self) -> [f32; 3] {
+    #[inline]
+    pub const fn to_array(&self) -> [f32; 3] {
         [self.x, self.y, self.z]
     }
 
     /// Returns a new `Vector3` with componenets clamp to a certain interval.
-    pub fn clamp(&self, num: Range<f32>) -> Vector3 {
+    #[inline]
+    pub const fn clamp(&self, num: Range<f32>) -> Vector3 {
         Vector3 {
             x: self.x.clamp(num.start, num.end),
             y: self.y.clamp(num.start, num.end),
@@ -841,14 +881,20 @@ impl Neg for Vector3 {
 }
 
 optional_serde_struct! {
+    /// Vector4, 4 components
     pub struct Vector4 {
+        /// Vector x component
         pub x: f32,
+        /// Vector y component
         pub y: f32,
+        /// Vector z component
         pub z: f32,
+        /// Vector w component
         pub w: f32,
     }
 }
 
+/// Quaternion, 4 components (Vector4 alias)
 pub type Quaternion = Vector4;
 
 #[cfg(feature = "convert_mint")]
@@ -905,7 +951,8 @@ impl Quaternion {
     }
 
     /// Returns the identity quaternion.
-    pub fn identity() -> Quaternion {
+    #[inline]
+    pub const fn identity() -> Quaternion {
         Quaternion {
             x: 0.0,
             y: 0.0,
@@ -1111,6 +1158,7 @@ impl Quaternion {
     }
 
     /// Computes the length of the current quaternion.
+    #[inline]
     pub fn length(&self) -> f32 {
         (self.x * self.x + self.y * self.y + self.z * self.z + self.w * self.w).sqrt()
     }
@@ -1148,7 +1196,8 @@ impl Quaternion {
     }
 
     /// Calculates linear interpolation between current and `q` quaternions.
-    pub fn lerp(&self, q: Quaternion, amount: f32) -> Quaternion {
+    #[inline]
+    pub const fn lerp(&self, q: Quaternion, amount: f32) -> Quaternion {
         Quaternion {
             x: self.x + amount * (q.x - self.x),
             y: self.y + amount * (q.y - self.y),
@@ -1158,6 +1207,7 @@ impl Quaternion {
     }
 
     /// Calculates slerp-optimized interpolation between current and `q` quaternions.
+    #[inline]
     pub fn nlerp(&self, q: Quaternion, amount: f32) -> Quaternion {
         self.lerp(q, amount).normalized()
     }
@@ -1196,7 +1246,7 @@ impl Quaternion {
     }
 
     /// Returns a transformed version of the current quaternion given a transformation matrix.
-    pub fn transform(&self, mat: Matrix) -> Quaternion {
+    pub const fn transform(&self, mat: Matrix) -> Quaternion {
         Quaternion {
             x: mat.m0 * self.x + mat.m4 * self.y + mat.m8 * self.z + mat.m12 * self.w,
             y: mat.m1 * self.x + mat.m5 * self.y + mat.m9 * self.z + mat.m13 * self.w,
@@ -1206,7 +1256,8 @@ impl Quaternion {
     }
 
     /// Returns a new `Quaternion` with componenets clamp to a certain interval.
-    pub fn clamp(&self, num: Range<f32>) -> Quaternion {
+    #[inline]
+    pub const fn clamp(&self, num: Range<f32>) -> Quaternion {
         Quaternion {
             x: self.x.clamp(num.start, num.end),
             y: self.y.clamp(num.start, num.end),
@@ -1277,19 +1328,24 @@ impl MulAssign for Quaternion {
 }
 
 optional_serde_struct! {
+    /// Matrix, 4x4 components, column major, OpenGL style, right-handed
     pub struct Matrix {
+        // Matrix first row (4 components)
         pub m0: f32,
         pub m4: f32,
         pub m8: f32,
         pub m12: f32,
+        // Matrix second row (4 components)
         pub m1: f32,
         pub m5: f32,
         pub m9: f32,
         pub m13: f32,
+        // Matrix third row (4 components)
         pub m2: f32,
         pub m6: f32,
         pub m10: f32,
         pub m14: f32,
+        // Matrix fourth row (4 components)
         pub m3: f32,
         pub m7: f32,
         pub m11: f32,
@@ -1334,7 +1390,8 @@ impl From<&Matrix> for ffi::Matrix {
 
 impl Matrix {
     /// Returns the identity matrix.
-    pub fn identity() -> Matrix {
+    #[inline]
+    pub const fn identity() -> Matrix {
         Matrix {
             m0: 1.0,
             m4: 0.0,
@@ -1356,7 +1413,8 @@ impl Matrix {
     }
 
     /// Returns the zero matriz.
-    pub fn zero() -> Matrix {
+    #[inline]
+    pub const fn zero() -> Matrix {
         Matrix {
             m0: 0.0,
             m4: 0.0,
@@ -1378,7 +1436,8 @@ impl Matrix {
     }
 
     /// Returns a translation matrix.
-    pub fn translate(x: f32, y: f32, z: f32) -> Matrix {
+    #[inline]
+    pub const fn translate(x: f32, y: f32, z: f32) -> Matrix {
         Matrix {
             m0: 1.0,
             m4: 0.0,
@@ -1509,7 +1568,8 @@ impl Matrix {
     }
 
     /// Returns a scaling matrix.
-    pub fn scale(x: f32, y: f32, z: f32) -> Matrix {
+    #[inline]
+    pub const fn scale(x: f32, y: f32, z: f32) -> Matrix {
         Matrix {
             m0: x,
             m4: 0.0,
@@ -1620,7 +1680,7 @@ impl Matrix {
     }
 
     /// Calculates the determinant of the current matrix.
-    pub fn determinant(&self) -> f32 {
+    pub const fn determinant(&self) -> f32 {
         let a00 = self.m0;
         let a01 = self.m1;
         let a02 = self.m2;
@@ -1663,12 +1723,14 @@ impl Matrix {
     }
 
     /// Calculates the trace of the matrix (sum of the values along the diagonal).
-    pub fn trace(&self) -> f32 {
+    #[inline]
+    pub const fn trace(&self) -> f32 {
         self.m0 + self.m5 + self.m10 + self.m15
     }
 
     /// Returns a new `Matrix` transposed from the current one.
-    pub fn transposed(&self) -> Matrix {
+    #[inline]
+    pub const fn transposed(&self) -> Matrix {
         Matrix {
             m0: self.m0,
             m1: self.m4,
@@ -1690,7 +1752,7 @@ impl Matrix {
     }
 
     /// Returns a new `Matrix` inverted from the current one.
-    pub fn inverted(&self) -> Matrix {
+    pub const fn inverted(&self) -> Matrix {
         let a00 = self.m0;
         let a01 = self.m1;
         let a02 = self.m2;
@@ -1745,7 +1807,8 @@ impl Matrix {
     }
 
     /// Returns a new `Matrix` normalized from the current one.
-    pub fn normalized(&self) -> Matrix {
+    #[inline]
+    pub const fn normalized(&self) -> Matrix {
         let det = self.determinant();
         Matrix {
             m0: self.m0 / det,
@@ -1768,7 +1831,8 @@ impl Matrix {
     }
 
     /// Returns a 16-length `f32` array containing the current matrix data.
-    pub fn to_array(&self) -> [f32; 16] {
+    #[inline]
+    pub const fn to_array(&self) -> [f32; 16] {
         [
             self.m0, self.m1, self.m2, self.m3, self.m4, self.m5, self.m6, self.m7, self.m8,
             self.m9, self.m10, self.m11, self.m12, self.m13, self.m14, self.m15,
@@ -1867,8 +1931,11 @@ impl MulAssign for Matrix {
 }
 
 optional_serde_struct! {
+    /// Ray, ray for raycasting
     pub struct Ray {
+        /// Ray position (origin)
         pub position: Vector3,
+        /// Ray direction (normalized)
         pub direction: Vector3,
     }
 }
@@ -1904,10 +1971,15 @@ impl Ray {
 }
 
 optional_serde_struct! {
+    /// Rectangle, 4 components
     pub struct Rectangle {
+        /// Rectangle top-left corner position x
         pub x: f32,
+        /// Rectangle top-left corner position y
         pub y: f32,
+        /// Rectangle width
         pub width: f32,
+        /// Rectangle height
         pub height: f32,
     }
 }
@@ -1948,8 +2020,11 @@ impl Rectangle {
 }
 
 optional_serde_struct! {
+    /// BoundingBox
     pub struct BoundingBox {
+        /// Minimum vertex box-corner
         pub min: Vector3,
+        /// Maximum vertex box-corner
         pub max: Vector3,
     }
 }
@@ -1982,10 +2057,15 @@ impl From<&BoundingBox> for ffi::BoundingBox {
 }
 
 optional_serde_struct! {
+    /// RayCollision, ray hit information
     pub struct RayCollision {
+        /// Did the ray hit something?
         pub hit: bool,
+        /// Distance to the nearest hit
         pub distance: f32,
+        /// Point of the nearest hit
         pub point: Vector3,
+        /// Surface normal of hit
         pub normal: Vector3,
     }
 }
@@ -2014,9 +2094,13 @@ impl From<&RayCollision> for ffi::RayCollision {
 }
 
 optional_serde_struct! {
+    /// Transform, vertex transformation data
     pub struct Transform {
+        /// Translation
         pub translation: Vector3,
+        /// Rotation
         pub rotation: Quaternion,
+        /// Scale
         pub scale: Vector3,
     }
 }

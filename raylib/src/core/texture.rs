@@ -16,14 +16,21 @@ use super::math::Vector2;
 make_rslice!(ImagePalette, Color, ffi::UnloadImagePalette);
 make_rslice!(ImageColors, Color, ffi::UnloadImageColors);
 
+/// NPatchInfo, n-patch layout info
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct NPatchInfo {
+    /// Texture source rectangle
     pub source: Rectangle,
+    /// Left border offset
     pub left: i32,
+    /// Top border offset
     pub top: i32,
+    /// Right border offset
     pub right: i32,
+    /// Bottom border offset
     pub bottom: i32,
+    /// Layout of the n-patch: 3x3, 1x3 or 3x1
     pub layout: crate::consts::NPatchLayout,
 }
 
@@ -53,10 +60,21 @@ impl Into<ffi::NPatchInfo> for &NPatchInfo {
 }
 
 fn no_drop<T>(_thing: T) {}
-make_thin_wrapper!(Image, ffi::Image, ffi::UnloadImage);
-make_thin_wrapper!(Texture2D, ffi::Texture2D, ffi::UnloadTexture);
+make_thin_wrapper!(
+    /// Image, pixel data stored in CPU memory (RAM)
+    Image,
+    ffi::Image,
+    ffi::UnloadImage
+);
+make_thin_wrapper!(
+    /// Texture, tex data stored in GPU memory (VRAM)
+    Texture2D,
+    ffi::Texture2D,
+    ffi::UnloadTexture
+);
 make_thin_wrapper!(WeakTexture2D, ffi::Texture2D, no_drop);
 make_thin_wrapper!(
+    /// RenderTexture, fbo for texture rendering
     RenderTexture2D,
     ffi::RenderTexture2D,
     ffi::UnloadRenderTexture
@@ -81,24 +99,28 @@ impl RaylibRenderTexture2D for WeakRenderTexture2D {}
 impl RaylibRenderTexture2D for RenderTexture2D {}
 
 impl AsRef<ffi::Texture2D> for RenderTexture2D {
+    #[inline]
     fn as_ref(&self) -> &ffi::Texture2D {
         self.texture()
     }
 }
 
 impl AsMut<ffi::Texture2D> for RenderTexture2D {
+    #[inline]
     fn as_mut(&mut self) -> &mut ffi::Texture2D {
         self.texture_mut()
     }
 }
 
 impl AsRef<ffi::Texture2D> for WeakRenderTexture2D {
+    #[inline]
     fn as_ref(&self) -> &ffi::Texture2D {
         self.texture()
     }
 }
 
 impl AsMut<ffi::Texture2D> for WeakRenderTexture2D {
+    #[inline]
     fn as_mut(&mut self) -> &mut ffi::Texture2D {
         self.texture_mut()
     }
@@ -111,58 +133,79 @@ impl RenderTexture2D {
         m
     }
 
+    /// Check if a render texture is valid (loaded in GPU)
+    #[inline]
     pub fn is_render_texture_valid(&self) -> bool {
         unsafe { ffi::IsRenderTextureValid(self.0) }
     }
 }
 
 pub trait RaylibRenderTexture2D: AsRef<ffi::RenderTexture2D> + AsMut<ffi::RenderTexture2D> {
+    /// OpenGL framebuffer object id
+    #[inline]
     fn id(&self) -> u32 {
         self.as_ref().id
     }
 
+    /// Color buffer attachment texture
+    #[inline]
     fn texture(&self) -> &WeakTexture2D {
         unsafe { std::mem::transmute(&self.as_ref().texture) }
     }
 
+    /// Color buffer attachment texture
+    #[inline]
     fn texture_mut(&mut self) -> &mut WeakTexture2D {
         unsafe { std::mem::transmute(&mut self.as_mut().texture) }
     }
 }
 
 impl Clone for Image {
+    /// Create an image duplicate (useful for transformations)
     fn clone(&self) -> Image {
         unsafe { Image(ffi::ImageCopy(self.0)) }
     }
 }
 
 impl Image {
+    /// Image base width
+    #[inline]
     pub fn width(&self) -> i32 {
         self.0.width
     }
+    /// Image base height
+    #[inline]
     pub fn height(&self) -> i32 {
         self.0.height
     }
+    /// Mipmap levels, 1 by default
+    #[inline]
     pub fn mipmaps(&self) -> i32 {
         self.0.mipmaps
     }
+    /// Image raw data
+    #[inline]
     pub unsafe fn data(&self) -> *mut ::std::os::raw::c_void {
         self.0.data
     }
 
     /// Apply Gaussian blur using a box blur approximation
+    #[inline]
     pub fn blur_gaussian(&mut self, blur_size: i32) {
         unsafe { ffi::ImageBlurGaussian(&mut self.0, blur_size) }
     }
     /// Rotate image by input angle in degrees (-359 to 359)
+    #[inline]
     pub fn rotate(&mut self, degrees: i32) {
         unsafe { ffi::ImageRotate(&mut self.0, degrees) }
     }
     /// Get image pixel color at (x, y) position
+    #[inline]
     pub fn get_color(&self, x: i32, y: i32) -> Color {
         Color::from(unsafe { ffi::GetImageColor(self.0, x, y) })
     }
     /// Draw circle outline within an image
+    #[inline]
     pub fn draw_circle_lines(
         &mut self,
         center_x: i32,
@@ -173,6 +216,7 @@ impl Image {
         unsafe { ffi::ImageDrawCircleLines(&mut self.0, center_x, center_y, radius, color.into()) }
     }
     /// Draw circle outline within an image (Vector version)
+    #[inline]
     pub fn draw_circle_lines_v(
         &mut self,
         center: crate::prelude::Vector2,
@@ -182,17 +226,21 @@ impl Image {
         unsafe { ffi::ImageDrawCircleLinesV(&mut self.0, center.into(), center_y, color.into()) }
     }
 
+    /// Data format (PixelFormat type)
     #[inline]
     pub fn format(&self) -> crate::consts::PixelFormat {
         let i: u32 = self.format as u32;
         unsafe { std::mem::transmute(i) }
     }
 
+    /// Create an image from another image piece
     #[inline]
     pub fn from_image(&self, rec: impl Into<ffi::Rectangle>) -> Image {
         unsafe { Image(ffi::ImageFromImage(self.0, rec.into())) }
     }
 
+    /// Create an image from a selected channel of another image (GRAYSCALE)
+    #[inline]
     pub fn from_channel(&self, selected_channel: i32) -> Image {
         unsafe { Image(ffi::ImageFromChannel(self.0, selected_channel)) }
     }
@@ -215,6 +263,7 @@ impl Image {
     }
 
     /// Get pixel data size in bytes (image or texture)
+    #[inline]
     pub fn get_pixel_data_size(&self) -> usize {
         unsafe { ffi::GetPixelDataSize(self.width(), self.height(), self.format() as i32) as usize }
     }
@@ -426,6 +475,7 @@ impl Image {
     }
 
     /// Draw a line (using triangles/quads)
+    #[inline]
     pub fn draw_line_ex(
         &mut self,
         start_pos: impl Into<ffi::Vector2>,
@@ -456,6 +506,7 @@ impl Image {
     }
 
     /// Draw triangle within an image
+    #[inline]
     pub fn draw_triangle(
         &mut self,
         v1: impl Into<ffi::Vector2>,
@@ -469,6 +520,7 @@ impl Image {
     }
 
     /// Draw triangle with interpolated colors within an image
+    #[inline]
     pub fn draw_triangle_ex(
         &mut self,
         v1: impl Into<ffi::Vector2>,
@@ -492,6 +544,7 @@ impl Image {
     }
 
     /// Draw triangle outline within an image
+    #[inline]
     pub fn draw_triangle_lines(
         &mut self,
         v1: impl Into<ffi::Vector2>,
@@ -575,6 +628,7 @@ impl Image {
     }
 
     /// Draw rectangle within an image (Vector version)
+    #[inline]
     pub fn draw_rectangle_v(
         &mut self,
         position: impl Into<ffi::Vector2>,
@@ -587,6 +641,7 @@ impl Image {
     }
 
     /// Draw rectangle within an image (Rectangle version)
+    #[inline]
     pub fn draw_rectangle_rec(
         &mut self,
         rectangle: impl Into<ffi::Rectangle>,
@@ -1016,6 +1071,8 @@ impl Image {
         }
     }
 
+    /// Check if an image is valid (data and parameters)
+    #[inline]
     pub fn is_image_valid(&self) -> bool {
         unsafe { ffi::IsImageValid(self.0) }
     }
@@ -1035,18 +1092,26 @@ impl Texture2D {
 }
 
 pub trait RaylibTexture2D: AsRef<ffi::Texture2D> + AsMut<ffi::Texture2D> {
+    /// Texture base width
+    #[inline]
     fn width(&self) -> i32 {
         self.as_ref().width
     }
 
+    /// Texture base height
+    #[inline]
     fn height(&self) -> i32 {
         self.as_ref().height
     }
 
+    /// Mipmap levels, 1 by default
+    #[inline]
     fn mipmaps(&self) -> i32 {
         self.as_ref().width
     }
 
+    /// Data format (PixelFormat type)
+    #[inline]
     fn format(&self) -> i32 {
         self.as_ref().format
     }
@@ -1085,7 +1150,7 @@ pub trait RaylibTexture2D: AsRef<ffi::Texture2D> + AsMut<ffi::Texture2D> {
         pixels: &[u8],
     ) -> Result<(), Error> {
         let rec = rec.into();
-        
+
         if (rec.x < 0.0) || (rec.y < 0.0) || ((rec.x as i32 + rec.width as i32) > (self.as_ref().width)) || ((rec.y as i32 + rec.height as i32) > (self.as_ref().height)) {
             return Err(error!(
                 "update_texture: Destination rectangle cannot exceed texture bounds."
@@ -1096,7 +1161,7 @@ pub trait RaylibTexture2D: AsRef<ffi::Texture2D> + AsMut<ffi::Texture2D> {
                 "update_texture: Destination rectangle cannot have negative extents."
             ));
         }
-        
+
         let expected_len = unsafe {
             get_pixel_data_size(
                 rec.width as i32,
@@ -1157,6 +1222,8 @@ pub trait RaylibTexture2D: AsRef<ffi::Texture2D> + AsMut<ffi::Texture2D> {
         }
     }
 
+    /// Check if a texture is valid (loaded in GPU)
+    #[inline]
     fn is_texture_valid(&self) -> bool {
         unsafe { ffi::IsTextureValid(*self.as_ref()) }
     }
@@ -1225,6 +1292,7 @@ impl RaylibHandle {
 impl RaylibHandle {
     /// Weak Textures will leak memeory if they are not unlaoded
     /// Unload textures from GPU memory (VRAM)
+    #[inline]
     pub unsafe fn unload_texture(&mut self, _: &RaylibThread, texture: WeakTexture2D) {
         {
             ffi::UnloadTexture(*texture.as_ref())
@@ -1232,6 +1300,7 @@ impl RaylibHandle {
     }
     /// Weak RenderTextures will leak memeory if they are not unlaoded
     /// Unload RenderTextures from GPU memory (VRAM)
+    #[inline]
     pub unsafe fn unload_render_texture(&mut self, _: &RaylibThread, texture: WeakRenderTexture2D) {
         {
             ffi::UnloadRenderTexture(*texture.as_ref())

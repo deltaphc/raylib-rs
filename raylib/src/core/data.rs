@@ -249,7 +249,7 @@ pub fn encode_data_base64(data: &[u8]) -> Vec<c_char> {
     }
 }
 
-// Decode Base64 data
+/// Decode Base64 data
 pub fn decode_data_base64(data: &[u8]) -> Vec<u8> {
     let mut output_size = 0;
 

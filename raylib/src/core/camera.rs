@@ -5,15 +5,22 @@ use crate::core::math::{Vector2, Vector3};
 use crate::core::RaylibHandle;
 use crate::ffi;
 
+/// Camera, defines position/orientation in 3d space
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct Camera3D {
+    /// Camera position
     pub position: Vector3,
+    /// Camera target it looks-at
     pub target: Vector3,
+    /// Camera up vector (rotation over its axis)
     pub up: Vector3,
+    /// Camera field-of-view aperture in Y (degrees) in perspective, used as near plane width in orthographic
     pub fovy: f32,
+    /// Camera projection: CAMERA_PERSPECTIVE or CAMERA_ORTHOGRAPHIC
     projection_: ffi::CameraProjection,
 }
+/// Camera type fallback, defaults to Camera3D
 pub type Camera = Camera3D;
 
 impl From<ffi::Camera3D> for Camera3D {
@@ -40,12 +47,17 @@ impl Into<ffi::Camera3D> for &Camera3D {
     }
 }
 
+/// Camera2D, defines position/orientation in 2d space
 #[repr(C)]
 #[derive(Debug, Copy, Clone, Default)]
 pub struct Camera2D {
+    /// Camera offset (displacement from target)
     pub offset: Vector2,
+    /// Camera target (rotation and zoom origin)
     pub target: Vector2,
+    /// Camera rotation in degrees
     pub rotation: f32,
+    /// Camera zoom (scaling), should be 1.0 by default
     pub zoom: f32,
 }
 
@@ -73,8 +85,9 @@ impl Into<ffi::Camera2D> for &Camera2D {
 }
 
 impl Camera3D {
-    pub fn camera_type(&self) -> crate::consts::CameraProjection {
-        unsafe { std::mem::transmute(self.projection_.clone()) }
+    /// Camera projection: CAMERA_PERSPECTIVE or CAMERA_ORTHOGRAPHIC
+    pub const fn camera_type(&self) -> crate::consts::CameraProjection {
+        unsafe { std::mem::transmute_copy(&self.projection_) }
     }
     /// Create a perspective camera.
     /// fovy is in degrees
@@ -106,7 +119,8 @@ impl RaylibHandle {
             *camera = fficam.into();
         }
     }
-    
+
+    /// Update camera movement/rotation
     pub fn update_camera_pro(&self, camera: &mut Camera3D, movement: Vector3, rotation: Vector3, zoom: f32) {
         unsafe {
             let mut fficam: ffi::Camera3D = (*camera).into();
