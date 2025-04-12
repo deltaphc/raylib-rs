@@ -649,10 +649,8 @@ impl<'aud> AudioStream<'aud> {
     }
 }
 
-impl<'bind> Sound<'_> {
-    /// Clone sound from existing sound data, clone does not own wave data
-    // NOTE: Wave data must be unallocated manually and will be shared across all clones
-    pub fn alias<'snd>(&'snd self) -> Result<SoundAlias<'bind, 'snd>, Error> {
+impl<'bind> Sound<'bind> {
+    pub fn alias<'snd>(&'snd self) -> Result<SoundAlias<'snd, 'bind>, Error> {
         let s = unsafe { ffi::LoadSoundAlias(self.0) };
         if s.stream.buffer.is_null() {
             return Err(error!("failed to load sound from wave"));
