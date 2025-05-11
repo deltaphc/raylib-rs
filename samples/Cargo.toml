@@ -107,3 +107,7 @@ required-features = ["imgui"]
 name = "music_effects"
 path = "music_effects.rs"
 required-features = ["ringbuf"]
+
+[[bin]]
+name = "snake"
+path = "snake.rs"
