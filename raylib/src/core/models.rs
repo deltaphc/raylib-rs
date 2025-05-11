@@ -125,7 +125,7 @@ impl RaylibHandle {
             }
         }
         unsafe {
-            ffi::UnloadModelAnimations(m_ptr, m_size);
+            ffi::MemFree(m_ptr as *mut ::std::os::raw::c_void);
         }
         Ok(m_vec)
     }
