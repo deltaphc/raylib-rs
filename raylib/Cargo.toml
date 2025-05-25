@@ -1,6 +1,6 @@
 [package]
 name = "raylib"
-version = "5.5.2"
+version = "5.6"
 authors = ["raylib-rs team <https://github.com/raylib-rs/raylib-rs>"]
 license = "Zlib"
 readme = "../README.md"
@@ -13,7 +13,7 @@ edition = "2021"
 autoexamples = false
 
 [dependencies]
-raylib-sys = { version = "5.5.2", path = "../raylib-sys", default-features = false }
+raylib-sys = { version = "5.6", path = "../raylib-sys", default-features = false }
 serde = { version = "1.0.125", features = ["derive"], optional = true }
 serde_json = { version = "1.0.64", optional = true }
 imgui = { version = "0.12.0", optional = true, features = [] }
@@ -43,7 +43,7 @@ imgui = ["raylib-sys/imgui", "dep:imgui", "dep:imgui-sys"]
 nobuild = ["raylib-sys/nobuild"]
 
 # opengl stuff
-opengl_11 = ["raylib-sys/opengl_11"] # buggy? might not work with wayland
+opengl_11 = ["raylib-sys/opengl_11"]       # buggy? might not work with wayland
 opengl_21 = ["raylib-sys/opengl_21"]
 opengl_33 = ["raylib-sys/opengl_33"]
 opengl_43 = ["raylib-sys/opengl_43"]
@@ -67,7 +67,7 @@ GLFW_BUILD_X11 = ["raylib-sys/GLFW_BUILD_X11"]
 INCLUDE_EVERYTHING = ["raylib-sys/INCLUDE_EVERYTHING"]
 
 USE_AUDIO = ["raylib-sys/USE_AUDIO"]
-SUPPORT_MODULE_RSHAPES  = ["raylib-sys/SUPPORT_MODULE_RSHAPES"]
+SUPPORT_MODULE_RSHAPES = ["raylib-sys/SUPPORT_MODULE_RSHAPES"]
 SUPPORT_MODULE_RTEXTURES = ["raylib-sys/SUPPORT_MODULE_RTEXTURES"]
 SUPPORT_MODULE_RTEXT = ["raylib-sys/SUPPORT_MODULE_RTEXT"]
 SUPPORT_MODULE_RMODELS = ["raylib-sys/SUPPORT_MODULE_RMODELS"]

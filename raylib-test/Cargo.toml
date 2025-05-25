@@ -8,11 +8,11 @@ readme = "../README.md"
 repository = "https://github.com/raylib-rs/raylib-rs"
 
 [dependencies]
-raylib = { version = "5.5.2", path = "../raylib" }
-raylib_sys = { version = "5.5.2", path = "../raylib-sys" }
+raylib = { version = "5.6", path = "../raylib" }
+raylib_sys = { version = "5.6", path = "../raylib-sys" }
 lazy_static = "1.2.0"
 colored = "1.9.1"
 
 [features]
-SUPPORT_CUSTOM_FRAME_CONTROL  = ["raylib/SUPPORT_CUSTOM_FRAME_CONTROL"]
+SUPPORT_CUSTOM_FRAME_CONTROL = ["raylib/SUPPORT_CUSTOM_FRAME_CONTROL"]
 automation_event_test = []
