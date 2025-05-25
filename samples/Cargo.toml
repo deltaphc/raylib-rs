@@ -1,6 +1,6 @@
 [package]
 name = "raylib-examples"
-version = "5.6"
+version = "5.6.0"
 authors = ["raylib-rs team <https://github.com/raylib-rs/raylib-rs>"]
 edition = "2021"
 license = "Zlib"
@@ -9,7 +9,7 @@ repository = "https://github.com/raylib-rs/raylib-rs"
 
 
 [dependencies]
-raylib = { path = "../raylib", version = "5.6" }
+raylib = { path = "../raylib", version = "5.6.0" }
 structopt = "0.2"
 specs-derive = "0.4.1"
 rand = "0.8"
