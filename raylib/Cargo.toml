@@ -1,6 +1,6 @@
 [package]
 name = "raylib"
-version = "5.5.1"
+version = "5.5.2"
 authors = ["raylib-rs team <https://github.com/raylib-rs/raylib-rs>"]
 license = "Zlib"
 readme = "../README.md"
@@ -9,11 +9,11 @@ documentation = "https://docs.rs/raylib"
 repository = "https://github.com/raylib-rs/raylib-rs"
 keywords = ["bindings", "raylib", "gamedev"]
 categories = ["api-bindings", "game-engines", "graphics"]
-edition = "2018"
+edition = "2021"
 autoexamples = false
 
 [dependencies]
-raylib-sys = { version = "5.5.1", path = "../raylib-sys" }
+raylib-sys = { version = "5.5.2", path = "../raylib-sys", default-features = false }
 serde = { version = "1.0.125", features = ["derive"], optional = true }
 serde_json = { version = "1.0.64", optional = true }
 imgui = { version = "0.12.0", optional = true, features = [] }
@@ -31,19 +31,104 @@ structopt = "0.3"
 rand = "0.8.5"
 
 [features]
-nightly = []
-with_serde = ["serde", "serde_json"]
-wayland = ["raylib-sys/wayland"]
+# use raylib-sys defaults instead of setting it in dependencies so we can turn it off at the raylib crate level since `raylib-sys` is not exposed
+default = ["raylib-sys/default"]
 convert_mint = ["mint"]
-custom_frame_control = ["raylib-sys/custom_frame_control"]
-opengl_33 = ["raylib-sys/opengl_33"]
-opengl_21 = ["raylib-sys/opengl_21"]
-opengl_es_20 = ["raylib-sys/opengl_es_20"]
-opengl_es_30 = ["raylib-sys/opengl_es_30"]
-sdl = ["raylib-sys/sdl"]
-noscreenshot = ["raylib-sys/noscreenshot"]
-nogif = ["raylib-sys/nogif"]
+nightly = []
+serde = ["dep:serde"]
 imgui = ["raylib-sys/imgui", "dep:imgui", "dep:imgui-sys"]
+
+# ----- Copy and paste these from `raylib-sys` for easier maintance
+# Build Raylib headless for docs/esoteric platforms. Up to you to link.
 nobuild = ["raylib-sys/nobuild"]
-bindgen = ["raylib-sys/bindgen"]
-default = ["bindgen"]
+
+# opengl stuff
+opengl_11 = ["raylib-sys/opengl_11"] # buggy? might not work with wayland
+opengl_21 = ["raylib-sys/opengl_21"]
+opengl_33 = ["raylib-sys/opengl_33"]
+opengl_43 = ["raylib-sys/opengl_43"]
+opengl_es_30 = ["raylib-sys/opengl_es_30"]
+opengl_es_20 = ["raylib-sys/opengl_es_20"]
+sdl = ["raylib-sys/sdl"]
+wayland = ["raylib-sys/wayland"]
+
+# extra build profiles:
+release_with_debug_info = ["raylib-sys/release_with_debug_info"]
+min_size_rel = ["raylib-sys/min_size_rel"]
+
+ENABLE_ASAN = ["raylib-sys/ENABLE_ASAN"]
+ENABLE_UBSAN = ["raylib-sys/ENABLE_UBSAN"]
+ENABLE_MSAN = ["raylib-sys/ENABLE_MSAN"]
+WITH_PIC = ["raylib-sys/WITH_PIC"]
+BUILD_SHARED_LIBS = ["raylib-sys/BUILD_SHARED_LIBS"]
+USE_EXTERNAL_GLFW = ["raylib-sys/USE_EXTERNAL_GLFW"]
+GLFW_BUILD_WAYLAND = ["raylib-sys/GLFW_BUILD_WAYLAND"]
+GLFW_BUILD_X11 = ["raylib-sys/GLFW_BUILD_X11"]
+INCLUDE_EVERYTHING = ["raylib-sys/INCLUDE_EVERYTHING"]
+
+USE_AUDIO = ["raylib-sys/USE_AUDIO"]
+SUPPORT_MODULE_RSHAPES  = ["raylib-sys/SUPPORT_MODULE_RSHAPES"]
+SUPPORT_MODULE_RTEXTURES = ["raylib-sys/SUPPORT_MODULE_RTEXTURES"]
+SUPPORT_MODULE_RTEXT = ["raylib-sys/SUPPORT_MODULE_RTEXT"]
+SUPPORT_MODULE_RMODELS = ["raylib-sys/SUPPORT_MODULE_RMODELS"]
+SUPPORT_MODULE_RAUDIO = ["raylib-sys/SUPPORT_MODULE_RAUDIO"]
+SUPPORT_BUSY_WAIT_LOOP = ["raylib-sys/SUPPORT_BUSY_WAIT_LOOP"]
+SUPPORT_CAMERA_SYSTEM = ["raylib-sys/SUPPORT_CAMERA_SYSTEM"]
+SUPPORT_GESTURES_SYSTEM = ["raylib-sys/SUPPORT_GESTURES_SYSTEM"]
+SUPPORT_RPRAND_GENERATOR = ["raylib-sys/SUPPORT_RPRAND_GENERATOR"]
+SUPPORT_MOUSE_GESTURES = ["raylib-sys/SUPPORT_MOUSE_GESTURES"]
+SUPPORT_SSH_KEYBOARD_RPI = ["raylib-sys/SUPPORT_SSH_KEYBOARD_RPI"]
+SUPPORT_WINMM_HIGHRES_TIMER = ["raylib-sys/SUPPORT_WINMM_HIGHRES_TIMER"]
+SUPPORT_PARTIALBUSY_WAIT_LOOP = ["raylib-sys/SUPPORT_PARTIALBUSY_WAIT_LOOP"]
+SUPPORT_GIF_RECORDING = ["raylib-sys/SUPPORT_GIF_RECORDING"]
+SUPPORT_COMPRESSION_API = ["raylib-sys/SUPPORT_COMPRESSION_API"]
+SUPPORT_AUTOMATION_EVENTS = ["raylib-sys/SUPPORT_AUTOMATION_EVENTS"]
+SUPPORT_CUSTOM_FRAME_CONTROL = ["raylib-sys/SUPPORT_CUSTOM_FRAME_CONTROL"]
+SUPPORT_CLIPBOARD_IMAGE = ["raylib-sys/SUPPORT_CLIPBOARD_IMAGE"]
+SUPPORT_QUADS_DRAW_MODE = ["raylib-sys/SUPPORT_QUADS_DRAW_MODE"]
+SUPPORT_FILEFORMAT_PNG = ["raylib-sys/SUPPORT_FILEFORMAT_PNG"]
+SUPPORT_FILEFORMAT_BMP = ["raylib-sys/SUPPORT_FILEFORMAT_BMP"]
+SUPPORT_FILEFORMAT_TGA = ["raylib-sys/SUPPORT_FILEFORMAT_TGA"]
+SUPPORT_FILEFORMAT_JPG = ["raylib-sys/SUPPORT_FILEFORMAT_JPG"]
+SUPPORT_FILEFORMAT_GIF = ["raylib-sys/SUPPORT_FILEFORMAT_GIF"]
+SUPPORT_FILEFORMAT_QOI = ["raylib-sys/SUPPORT_FILEFORMAT_QOI"]
+SUPPORT_FILEFORMAT_PSD = ["raylib-sys/SUPPORT_FILEFORMAT_PSD"]
+SUPPORT_FILEFORMAT_DDS = ["raylib-sys/SUPPORT_FILEFORMAT_DDS"]
+SUPPORT_FILEFORMAT_HDR = ["raylib-sys/SUPPORT_FILEFORMAT_HDR"]
+SUPPORT_FILEFORMAT_PIC = ["raylib-sys/SUPPORT_FILEFORMAT_PIC"]
+SUPPORT_FILEFORMAT_KTX = ["raylib-sys/SUPPORT_FILEFORMAT_KTX"]
+SUPPORT_FILEFORMAT_ASTC = ["raylib-sys/SUPPORT_FILEFORMAT_ASTC"]
+SUPPORT_FILEFORMAT_PKM = ["raylib-sys/SUPPORT_FILEFORMAT_PKM"]
+SUPPORT_FILEFORMAT_PVR = ["raylib-sys/SUPPORT_FILEFORMAT_PVR"]
+SUPPORT_IMAGE_EXPORT = ["raylib-sys/SUPPORT_IMAGE_EXPORT"]
+SUPPORT_IMAGE_GENERATION = ["raylib-sys/SUPPORT_IMAGE_GENERATION"]
+SUPPORT_IMAGE_MANIPULATION = ["raylib-sys/SUPPORT_IMAGE_MANIPULATION"]
+SUPPORT_DEFAULT_FONT = ["raylib-sys/SUPPORT_DEFAULT_FONT"]
+SUPPORT_FILEFORMAT_TTF = ["raylib-sys/SUPPORT_FILEFORMAT_TTF"]
+SUPPORT_FILEFORMAT_FNT = ["raylib-sys/SUPPORT_FILEFORMAT_FNT"]
+SUPPORT_FILEFORMAT_BDF = ["raylib-sys/SUPPORT_FILEFORMAT_BDF"]
+SUPPORT_TEXT_MANIPULATION = ["raylib-sys/SUPPORT_TEXT_MANIPULATION"]
+SUPPORT_FONT_ATLAS_WHITE_REC = ["raylib-sys/SUPPORT_FONT_ATLAS_WHITE_REC"]
+SUPPORT_FILEFORMAT_OBJ = ["raylib-sys/SUPPORT_FILEFORMAT_OBJ"]
+SUPPORT_FILEFORMAT_MTL = ["raylib-sys/SUPPORT_FILEFORMAT_MTL"]
+SUPPORT_FILEFORMAT_IQM = ["raylib-sys/SUPPORT_FILEFORMAT_IQM"]
+SUPPORT_FILEFORMAT_GLTF = ["raylib-sys/SUPPORT_FILEFORMAT_GLTF"]
+SUPPORT_FILEFORMAT_VOX = ["raylib-sys/SUPPORT_FILEFORMAT_VOX"]
+SUPPORT_FILEFORMAT_M3D = ["raylib-sys/SUPPORT_FILEFORMAT_M3D"]
+SUPPORT_MESH_GENERATION = ["raylib-sys/SUPPORT_MESH_GENERATION"]
+SUPPORT_FILEFORMAT_WAV = ["raylib-sys/SUPPORT_FILEFORMAT_WAV"]
+SUPPORT_FILEFORMAT_OGG = ["raylib-sys/SUPPORT_FILEFORMAT_OGG"]
+SUPPORT_FILEFORMAT_MP3 = ["raylib-sys/SUPPORT_FILEFORMAT_MP3"]
+SUPPORT_FILEFORMAT_QOA = ["raylib-sys/SUPPORT_FILEFORMAT_QOA"]
+SUPPORT_FILEFORMAT_FLAC = ["raylib-sys/SUPPORT_FILEFORMAT_FLAC"]
+SUPPORT_FILEFORMAT_XM = ["raylib-sys/SUPPORT_FILEFORMAT_XM"]
+SUPPORT_FILEFORMAT_MOD = ["raylib-sys/SUPPORT_FILEFORMAT_MOD"]
+SUPPORT_STANDARD_FILEIO = ["raylib-sys/SUPPORT_STANDARD_FILEIO"]
+SUPPORT_TRACELOG = ["raylib-sys/SUPPORT_TRACELOG"]
+SUPPORT_SCREEN_CAPTURE = ["raylib-sys/SUPPORT_SCREEN_CAPTURE"]
+SUPPORT_VR_SIMULATOR = ["raylib-sys/SUPPORT_VR_SIMULATOR"]
+SUPPORT_DISTORTION_SHADER = ["raylib-sys/SUPPORT_DISTORTION_SHADER"]
+SUPPORT_FONT_TEXTURE = ["raylib-sys/SUPPORT_FONT_TEXTURE"]
+
+[package.metadata.docs.rs]
+features = ["nobuild"]

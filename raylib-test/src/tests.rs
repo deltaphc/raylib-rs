@@ -66,7 +66,7 @@ pub fn test_runner(tests: &[&dyn Testable]) {
     automation_test(&thread);
 }
 
-#[cfg(feature = "custom_frame_control")]
+#[cfg(feature = "SUPPORT_CUSTOM_FRAME_CONTROL")]
 pub fn test_runner(tests: &[&dyn Testable]) {
     use crate::manual::manual_test::test_manual;
 
@@ -81,7 +81,7 @@ pub fn test_runner(tests: &[&dyn Testable]) {
     test_manual(&thread);
 }
 #[cfg(not(feature = "automation_event_test"))]
-#[cfg(not(feature = "custom_frame_control"))]
+#[cfg(not(feature = "SUPPORT_CUSTOM_FRAME_CONTROL"))]
 pub fn test_runner(tests: &[&dyn Testable]) {
     use crate::callbacks;
 

@@ -74,9 +74,7 @@ pub use crate::core::misc::open_url;
 pub use crate::core::*;
 
 // Re-exports
-#[cfg(feature = "nalgebra_interop")]
-pub use nalgebra as na;
-#[cfg(feature = "with_serde")]
+#[cfg(feature = "serde")]
 pub use serde;
 
 #[cfg(feature = "imgui")]

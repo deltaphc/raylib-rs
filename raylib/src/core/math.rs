@@ -19,7 +19,7 @@ use crate::misc::AsF32;
 use std::f32::consts::PI;
 use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Range, Sub, SubAssign};
 
-#[cfg(feature = "with_serde")]
+#[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
 
 make_rslice!(RSliceVec4, Vector4, ffi::MemFree);
@@ -28,7 +28,7 @@ macro_rules! optional_serde_struct {
     ($def:item) => {
         #[repr(C)]
         #[derive(Default, Debug, Copy, Clone, PartialEq)]
-        #[cfg_attr(feature = "with_serde", derive(Serialize, Deserialize))]
+        #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
         $def
     };
 }
@@ -568,9 +568,13 @@ impl Vector3 {
 
     /// Calculate angle between two vectors
     pub fn angle_to(&self, v2: Vector3) -> f32 {
-        let cross = Vector3 { x: self.y*v2.z - self.z*v2.y, y: self.z*v2.x - self.x*v2.z, z: self.x*v2.y - self.y*v2.x };
-        let len = (cross.x*cross.x + cross.y*cross.y + cross.z*cross.z).sqrt();
-        let dot = self.x*v2.x + self.y*v2.y + self.z*v2.z;
+        let cross = Vector3 {
+            x: self.y * v2.z - self.z * v2.y,
+            y: self.z * v2.x - self.x * v2.z,
+            z: self.x * v2.y - self.y * v2.x,
+        };
+        let len = (cross.x * cross.x + cross.y * cross.y + cross.z * cross.z).sqrt();
+        let dot = self.x * v2.x + self.y * v2.y + self.z * v2.z;
         return len.atan2(dot);
     }
 

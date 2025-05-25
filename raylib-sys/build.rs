@@ -21,9 +21,12 @@ use std::collections::HashSet;
 use std::env;
 use std::path::{Path, PathBuf};
 
-/// latest version on github's release page as of time or writing
-const LATEST_RAYLIB_VERSION: &str = "5.0.0";
-const LATEST_RAYLIB_API_VERSION: &str = "5";
+use cmake::Config;
+
+// What version of raylib is this on? You can check:
+// the github submodule
+// the README or raylib-sys/raylib
+// look at the tracelog when you run your game
 
 #[derive(Debug)]
 struct IgnoreMacros(HashSet<String>);
@@ -61,56 +64,49 @@ fn build_with_cmake(src_path: &str) {
     let (platform, platform_os) = platform_from_target(&target);
 
     let mut conf = cmake::Config::new(src_path);
-    let mut builder;
-    let mut profile = "";
+
+    let profile;
     #[cfg(debug_assertions)]
     {
-        builder = conf.profile("Debug");
-        builder = builder.define("CMAKE_BUILD_TYPE", "Debug");
+        // note: For some extra perf in debug mode, you can change this to Release by default since we're building a static lib ONCE, while your game is in debug, so you get the best of ~both worlds(high perf drawing, debugger info for the rust code)
         profile = "Debug";
     }
-
     #[cfg(not(debug_assertions))]
     {
-        builder = conf.profile("Release");
-        builder = builder.define("CMAKE_BUILD_TYPE", "Release");
         profile = "Release";
     }
-
+    #[cfg(feature = "release_with_debug_info")]
+    {
+        profile = "RelWithDebInfo"
+    }
+    #[cfg(feature = "min_size_rel")]
+    {
+        profile = "MinSizeRel"
+    }
+    let builder = conf.profile(profile);
+    builder.define("CMAKE_BUILD_TYPE", profile);
+    // NOTE(WINDOWS ONLY, linux is fine): Custom builds that turn off modules might not link because the linker tries to find the function def which windowss sometimes does not optimize out
+    // The correct/safe way would be to edit the raylib-rs bindings and feature flag remove calls to things you are opting out of(preferably making them stub and do nothing but still exist) but to atm to fix this dangerously(e.g UB when you call LoadSound() while SUPPORT_MODULE_RAUDIO OFF), create a `build.rs` script for in mygameproject and add the following:
+    //`println!("cargo:rustc-link-arg=/FORCE:UNRESOLVED");`
     builder
         .define("BUILD_EXAMPLES", "OFF")
-        .define("CMAKE_BUILD_TYPE", profile)
-        // turn off until this is fixed
-        .define("SUPPORT_BUSY_WAIT_LOOP", "OFF")
-        .define("SUPPORT_FILEFORMAT_JPG", "ON");
-
-    #[cfg(feature = "custom_frame_control")]
-    {
-        builder.define("SUPPORT_CUSTOM_FRAME_CONTROL", "ON");
-    }
-
-    // Enable wayland cmake flag if feature is specified
-    #[cfg(feature = "wayland")]
-    {
-        builder.define("USE_WAYLAND", "ON");
-        builder.define("USE_EXTERNAL_GLFW", "ON"); // Necessary for wayland support in my testing
-    }
-
-    // This seems redundant, but I felt it was needed incase raylib changes it's default
-    #[cfg(not(feature = "wayland"))]
-    builder.define("USE_WAYLAND", "OFF");
+        .define("CUSTOMIZE_BUILD", "ON"); // MUST BE ON or else it'll ignore all other flags
+    features_from_env(builder);
 
     // Scope implementing flags for forcing OpenGL version
     // See all possible flags at https://github.com/raysan5/raylib/wiki/CMake-Build-Options
     {
+        #[cfg(feature = "opengl_43")]
+        builder.define("OPENGL_VERSION", "4.3");
+
         #[cfg(feature = "opengl_33")]
         builder.define("OPENGL_VERSION", "3.3");
 
         #[cfg(feature = "opengl_21")]
         builder.define("OPENGL_VERSION", "2.1");
 
-        // #[cfg(feature = "opengl_11")]
-        // builder.define("OPENGL_VERSION", "1.1");
+        #[cfg(feature = "opengl_11")]
+        builder.define("OPENGL_VERSION", "1.1");
 
         #[cfg(feature = "opengl_es_20")]
         {
@@ -125,33 +121,6 @@ fn build_with_cmake(src_path: &str) {
             println!("cargo:rustc-link-lib=GLESv2");
             println!("cargo:rustc-link-lib=GLdispatch");
         }
-
-        // Once again felt this was necessary incase a default was changed :)
-        #[cfg(not(any(
-            feature = "opengl_33",
-            feature = "opengl_21",
-            // feature = "opengl_11",
-            feature = "opengl_es_20",
-            feature = "opengl_es_30"
-        )))]
-        builder.define("OPENGL_VERSION", "OFF");
-    }
-
-    // Allows disabling the default maping of screenshot and gif recording in raylib
-    {
-        #[cfg(any(feature = "noscreenshot", feature = "nogif"))]
-        builder.define("CUSTOMIZE_BUILD", "ON");
-
-        #[cfg(feature = "noscreenshot")]
-        builder.define("SUPPORT_SCREEN_CAPTURE", "OFF");
-        #[cfg(feature = "nogif")]
-        builder.define("SUPPORT_GIF_RECORDING", "OFF");
-
-        // Once again felt this was necessary incase a default was changed :)
-        #[cfg(not(feature = "noscreenshot"))]
-        builder.define("SUPPORT_SCREEN_CAPTURE", "ON");
-        #[cfg(not(feature = "nogif"))]
-        builder.define("SUPPORT_GIF_RECORDING", "ON");
     }
 
     match platform {
@@ -231,8 +200,7 @@ fn build_with_cmake(src_path: &str) {
         } else {
             panic!("failed to create windows library");
         }
-    } // on web copy libraylib.bc to libraylib.a
-    if platform == Platform::Web && !Path::new(&dst_lib.join("libraylib.a")).exists() {
+    } else if platform == Platform::Web && !Path::new(&dst_lib.join("libraylib.a")).exists() {
         std::fs::copy(dst_lib.join("libraylib.bc"), dst_lib.join("libraylib.a"))
             .expect("failed to create wasm library");
     }
@@ -396,7 +364,6 @@ fn link(platform: Platform, platform_os: PlatformOS) {
     println!("cargo:rustc-link-lib=static=raylib");
 }
 
-#[cfg(not(feature = "nobuild"))]
 fn main() {
     println!("cargo:rerun-if-changed=build.rs");
     println!("cargo:rerun-if-changed=./binding/binding.h");
@@ -429,36 +396,7 @@ fn main() {
 
     link(platform, platform_os);
 
-    gen_rgui();
-
-    #[cfg(feature = "imgui")]
-    gen_imgui();
-}
-
-#[cfg(feature = "nobuild")]
-fn main() {
-    println!("cargo:rerun-if-changed=build.rs");
-    println!("cargo:rerun-if-changed=./binding/binding.h");
-    let target = env::var("TARGET").expect("Cargo build scripts always have TARGET");
-
-    if target.contains("wasm32-unknown-emscripten") {
-        if let Err(e) = env::var("EMCC_CFLAGS") {
-            if e == std::env::VarError::NotPresent {
-                panic!("\nYou must have to set EMCC_CFLAGS yourself to compile for WASM.\n{}{}\"\n",{
-                    #[cfg(target_family = "windows")]
-                    {"set EMCC_CFLAGS="}
-                    #[cfg(not(target_family = "windows"))]
-                    {"export EMCC_CFLAGS="}
-                },"\"-O3 -sUSE_GLFW=3 -sASSERTIONS=1 -sWASM=1 -sASYNCIFY -sGL_ENABLE_GET_PROC_ADDRESS=1\"");
-            } else {
-                panic!("\nError regarding EMCC_CFLAGS: {:?}\n", e);
-            }
-        }
-    }
-
-    #[cfg(feature = "bindgen")]
-    gen_bindings();
-
+    #[cfg(feature = "raygui")]
     gen_rgui();
 
     #[cfg(feature = "imgui")]
@@ -471,22 +409,6 @@ fn is_directory_empty(path: &str) -> bool {
     match std::fs::read_dir(path) {
         Ok(mut dir) => dir.next().is_none(),
         Err(_) => true,
-    }
-}
-
-// run_command runs a command to completion or panics. Used for running curl and powershell.
-fn run_command(cmd: &str, args: &[&str]) {
-    use std::process::Command;
-    match Command::new(cmd).args(args).output() {
-        Ok(output) => {
-            if !output.status.success() {
-                let error = std::str::from_utf8(&output.stderr).unwrap();
-                panic!("Command '{}' failed: {}", cmd, error);
-            }
-        }
-        Err(error) => {
-            panic!("Error running command '{}': {:#}", cmd, error);
-        }
     }
 }
 
@@ -525,7 +447,7 @@ fn platform_from_target(target: &str) -> (Platform, PlatformOS) {
                 _ => panic!("Unknown platform {}", uname()),
             }
         }
-    } else if platform == Platform::RPI {
+    } else if matches!(platform, Platform::RPI | Platform::Android) {
         let un: &str = &uname();
         if un == "Linux" {
             PlatformOS::Linux
@@ -568,20 +490,88 @@ enum PlatformOS {
     Unknown,
 }
 
-#[derive(Debug, PartialEq)]
-enum LibType {
-    Static,
-    _Shared,
+/// Copied from https://github.com/raysan5/raylib/wiki/CMake-Build-Options and https://github.com/raysan5/raylib/blob/master/src/config.h
+/// You should be copy pasting into both raylib/raylib-sys `Cargo.toml` and here while keeping it as close as possible to raylibs `config.h`` for easy maintance
+#[rustfmt::skip]
+fn features_from_env(cmake: &mut Config) {
+    cmake.define("ENABLE_ASAN", bstr(cfg!(feature = "ENABLE_ASAN")));
+    cmake.define("ENABLE_UBSAN", bstr(cfg!(feature = "ENABLE_UBSAN")));
+    cmake.define("ENABLE_MSAN", bstr(cfg!(feature = "ENABLE_MSAN")));
+    cmake.define("WITH_PIC", bstr(cfg!(feature = "WITH_PIC")));
+    cmake.define("BUILD_SHARED_LIBS", bstr(cfg!(feature = "BUILD_SHARED_LIBS")));
+    cmake.define("USE_EXTERNAL_GLFW", bstr(cfg!(feature = "USE_EXTERNAL_GLFW")));
+    cmake.define("GLFW_BUILD_WAYLAND", bstr(cfg!(feature = "GLFW_BUILD_WAYLAND")));
+    cmake.define("GLFW_BUILD_X11", bstr(cfg!(feature = "GLFW_BUILD_X11")));
+    cmake.define("INCLUDE_EVERYTHING", bstr(cfg!(feature = "INCLUDE_EVERYTHING")));
+    cmake.define("USE_AUDIO", bstr(cfg!(feature = "USE_AUDIO")));
+    cmake.define("SUPPORT_MODULE_RSHAPES", bstr(cfg!(feature = "SUPPORT_MODULE_RSHAPES")));
+    cmake.define("SUPPORT_MODULE_RTEXTURES", bstr(cfg!(feature = "SUPPORT_MODULE_RTEXTURES")));
+    cmake.define("SUPPORT_MODULE_RTEXT", bstr(cfg!(feature = "SUPPORT_MODULE_RTEXT")));
+    cmake.define("SUPPORT_MODULE_RMODELS", bstr(cfg!(feature = "SUPPORT_MODULE_RMODELS")));
+    cmake.define("SUPPORT_MODULE_RAUDIO", bstr(cfg!(feature = "SUPPORT_MODULE_RAUDIO")));
+    cmake.define("SUPPORT_BUSY_WAIT_LOOP", bstr(cfg!(feature = "SUPPORT_BUSY_WAIT_LOOP")));
+    cmake.define("SUPPORT_CAMERA_SYSTEM", bstr(cfg!(feature = "SUPPORT_CAMERA_SYSTEM")));
+    cmake.define("SUPPORT_GESTURES_SYSTEM", bstr(cfg!(feature = "SUPPORT_GESTURES_SYSTEM")));
+    cmake.define("SUPPORT_RPRAND_GENERATOR", bstr(cfg!(feature = "SUPPORT_RPRAND_GENERATOR")));
+    cmake.define("SUPPORT_MOUSE_GESTURES", bstr(cfg!(feature = "SUPPORT_MOUSE_GESTURES")));
+    cmake.define("SUPPORT_SSH_KEYBOARD_RPI", bstr(cfg!(feature = "SUPPORT_SSH_KEYBOARD_RPI")));
+    cmake.define("SUPPORT_WINMM_HIGHRES_TIMER", bstr(cfg!(feature = "SUPPORT_WINMM_HIGHRES_TIMER")));
+    cmake.define("SUPPORT_PARTIALBUSY_WAIT_LOOP", bstr(cfg!(feature = "SUPPORT_PARTIALBUSY_WAIT_LOOP")));
+    cmake.define("SUPPORT_GIF_RECORDING", bstr(cfg!(feature = "SUPPORT_GIF_RECORDING")));
+    cmake.define("SUPPORT_COMPRESSION_API", bstr(cfg!(feature = "SUPPORT_COMPRESSION_API")));
+    cmake.define("SUPPORT_AUTOMATION_EVENTS", bstr(cfg!(feature = "SUPPORT_AUTOMATION_EVENTS")));
+    cmake.define("SUPPORT_CUSTOM_FRAME_CONTROL", bstr(cfg!(feature = "SUPPORT_CUSTOM_FRAME_CONTROL")));
+    cmake.define("SUPPORT_CLIPBOARD_IMAGE", bstr(cfg!(feature = "SUPPORT_CLIPBOARD_IMAGE")));
+    cmake.define("SUPPORT_QUADS_DRAW_MODE", bstr(cfg!(feature = "SUPPORT_QUADS_DRAW_MODE")));
+    cmake.define("SUPPORT_FILEFORMAT_PNG", bstr(cfg!(feature = "SUPPORT_FILEFORMAT_PNG")));
+    cmake.define("SUPPORT_FILEFORMAT_BMP", bstr(cfg!(feature = "SUPPORT_FILEFORMAT_BMP")));
+    cmake.define("SUPPORT_FILEFORMAT_TGA", bstr(cfg!(feature = "SUPPORT_FILEFORMAT_TGA")));
+    cmake.define("SUPPORT_FILEFORMAT_JPG", bstr(cfg!(feature = "SUPPORT_FILEFORMAT_JPG")));
+    cmake.define("SUPPORT_FILEFORMAT_GIF", bstr(cfg!(feature = "SUPPORT_FILEFORMAT_GIF")));
+    cmake.define("SUPPORT_FILEFORMAT_QOI", bstr(cfg!(feature = "SUPPORT_FILEFORMAT_QOI")));
+    cmake.define("SUPPORT_FILEFORMAT_PSD", bstr(cfg!(feature = "SUPPORT_FILEFORMAT_PSD")));
+    cmake.define("SUPPORT_FILEFORMAT_DDS", bstr(cfg!(feature = "SUPPORT_FILEFORMAT_DDS")));
+    cmake.define("SUPPORT_FILEFORMAT_HDR", bstr(cfg!(feature = "SUPPORT_FILEFORMAT_HDR")));
+    cmake.define("SUPPORT_FILEFORMAT_PIC", bstr(cfg!(feature = "SUPPORT_FILEFORMAT_PIC")));
+    cmake.define("SUPPORT_FILEFORMAT_KTX", bstr(cfg!(feature = "SUPPORT_FILEFORMAT_KTX")));
+    cmake.define("SUPPORT_FILEFORMAT_ASTC", bstr(cfg!(feature = "SUPPORT_FILEFORMAT_ASTC")));
+    cmake.define("SUPPORT_FILEFORMAT_PKM", bstr(cfg!(feature = "SUPPORT_FILEFORMAT_PKM")));
+    cmake.define("SUPPORT_FILEFORMAT_PVR", bstr(cfg!(feature = "SUPPORT_FILEFORMAT_PVR")));
+    cmake.define("SUPPORT_IMAGE_EXPORT", bstr(cfg!(feature = "SUPPORT_IMAGE_EXPORT")));
+    cmake.define("SUPPORT_IMAGE_GENERATION", bstr(cfg!(feature = "SUPPORT_IMAGE_GENERATION")));
+    cmake.define("SUPPORT_IMAGE_MANIPULATION", bstr(cfg!(feature = "SUPPORT_IMAGE_MANIPULATION")));
+    cmake.define("SUPPORT_DEFAULT_FONT", bstr(cfg!(feature = "SUPPORT_DEFAULT_FONT")));
+    cmake.define("SUPPORT_FILEFORMAT_TTF", bstr(cfg!(feature = "SUPPORT_FILEFORMAT_TTF")));
+    cmake.define("SUPPORT_FILEFORMAT_FNT", bstr(cfg!(feature = "SUPPORT_FILEFORMAT_FNT")));
+    cmake.define("SUPPORT_FILEFORMAT_BDF", bstr(cfg!(feature = "SUPPORT_FILEFORMAT_BDF")));
+    cmake.define("SUPPORT_TEXT_MANIPULATION", bstr(cfg!(feature = "SUPPORT_TEXT_MANIPULATION")));
+    cmake.define("SUPPORT_FONT_ATLAS_WHITE_REC", bstr(cfg!(feature = "SUPPORT_FONT_ATLAS_WHITE_REC")));
+    cmake.define("SUPPORT_FILEFORMAT_OBJ", bstr(cfg!(feature = "SUPPORT_FILEFORMAT_OBJ")));
+    cmake.define("SUPPORT_FILEFORMAT_MTL", bstr(cfg!(feature = "SUPPORT_FILEFORMAT_MTL")));
+    cmake.define("SUPPORT_FILEFORMAT_IQM", bstr(cfg!(feature = "SUPPORT_FILEFORMAT_IQM")));
+    cmake.define("SUPPORT_FILEFORMAT_GLTF", bstr(cfg!(feature = "SUPPORT_FILEFORMAT_GLTF")));
+    cmake.define("SUPPORT_FILEFORMAT_VOX", bstr(cfg!(feature = "SUPPORT_FILEFORMAT_VOX")));
+    cmake.define("SUPPORT_FILEFORMAT_M3D", bstr(cfg!(feature = "SUPPORT_FILEFORMAT_M3D")));
+    cmake.define("SUPPORT_MESH_GENERATION", bstr(cfg!(feature = "SUPPORT_MESH_GENERATION")));
+    cmake.define("SUPPORT_FILEFORMAT_WAV", bstr(cfg!(feature = "SUPPORT_FILEFORMAT_WAV")));
+    cmake.define("SUPPORT_FILEFORMAT_OGG", bstr(cfg!(feature = "SUPPORT_FILEFORMAT_OGG")));
+    cmake.define("SUPPORT_FILEFORMAT_MP3", bstr(cfg!(feature = "SUPPORT_FILEFORMAT_MP3")));
+    cmake.define("SUPPORT_FILEFORMAT_QOA", bstr(cfg!(feature = "SUPPORT_FILEFORMAT_QOA")));
+    cmake.define("SUPPORT_FILEFORMAT_FLAC", bstr(cfg!(feature = "SUPPORT_FILEFORMAT_FLAC")));
+    cmake.define("SUPPORT_FILEFORMAT_XM", bstr(cfg!(feature = "SUPPORT_FILEFORMAT_XM")));
+    cmake.define("SUPPORT_FILEFORMAT_MOD", bstr(cfg!(feature = "SUPPORT_FILEFORMAT_MOD")));
+    cmake.define("SUPPORT_STANDARD_FILEIO", bstr(cfg!(feature = "SUPPORT_STANDARD_FILEIO")));
+    cmake.define("SUPPORT_TRACELOG", bstr(cfg!(feature = "SUPPORT_TRACELOG")));
+    cmake.define("SUPPORT_SCREEN_CAPTURE", bstr(cfg!(feature = "SUPPORT_SCREEN_CAPTURE")));
+    cmake.define("SUPPORT_VR_SIMULATOR", bstr(cfg!(feature = "SUPPORT_VR_SIMULATOR")));
+    cmake.define("SUPPORT_DISTORTION_SHADER", bstr(cfg!(feature = "SUPPORT_DISTORTION_SHADER")));
+    cmake.define("SUPPORT_FONT_TEXTURE", bstr(cfg!(feature = "SUPPORT_FONT_TEXTURE")));
 }
-
-#[derive(Debug, PartialEq)]
-enum BuildMode {
-    Release,
-    Debug,
-}
-
-struct BuildSettings {
-    pub platform: Platform,
-    pub platform_os: PlatformOS,
-    pub bundled_glfw: bool,
+#[must_use]
+fn bstr(b: bool) -> &'static str {
+    if b {
+        "ON"
+    } else {
+        "OFF"
+    }
 }

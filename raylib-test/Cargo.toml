@@ -2,17 +2,17 @@
 name = "raylib-test"
 version = "5.5.1"
 authors = ["raylib-rs team <https://github.com/raylib-rs/raylib-rs>"]
-edition = "2018"
+edition = "2021"
 license = "Zlib"
 readme = "../README.md"
 repository = "https://github.com/raylib-rs/raylib-rs"
 
 [dependencies]
-raylib = { version = "5.5.1", path = "../raylib" }
-raylib_sys = { version = "5.5.1", path = "../raylib-sys" }
+raylib = { version = "5.5.2", path = "../raylib" }
+raylib_sys = { version = "5.5.2", path = "../raylib-sys" }
 lazy_static = "1.2.0"
-colored = "2.1.0"
+colored = "1.9.1"
 
 [features]
-custom_frame_control = ["raylib/custom_frame_control"]
+SUPPORT_CUSTOM_FRAME_CONTROL  = ["raylib/SUPPORT_CUSTOM_FRAME_CONTROL"]
 automation_event_test = []

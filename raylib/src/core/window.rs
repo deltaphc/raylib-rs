@@ -848,7 +848,7 @@ impl RaylibHandle {
 // NOTE: Those functions are intended for advanced users that want full control over the frame processing
 // By default EndDrawing() does this job: draws everything + SwapScreenBuffer() + manage frame timing + PollInputEvents()
 // To avoid that behaviour and control frame processes manually, enable in config.h: SUPPORT_CUSTOM_FRAME_CONTROL
-#[cfg(feature = "custom_frame_control")]
+#[cfg(feature = "SUPPORT_CUSTOM_FRAME_CONTROL")]
 impl RaylibHandle {
     /// Swap back buffer with front buffer (screen drawing)
     /// This function, by default, is already done when the handle is dropped.
