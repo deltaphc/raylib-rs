@@ -17,6 +17,9 @@ Permission is granted to anyone to use this software for any purpose, including 
 
 extern crate bindgen;
 
+use bindgen::callbacks::DeriveTrait;
+use bindgen::callbacks::ImplementsTrait;
+use bindgen::callbacks::ParseCallbacks;
 use std::collections::HashSet;
 use std::env;
 use std::path::{Path, PathBuf};
@@ -40,6 +43,36 @@ impl bindgen::callbacks::ParseCallbacks for IgnoreMacros {
         }
     }
 }
+
+#[derive(Debug)]
+struct TypeOverrideCallback;
+
+impl ParseCallbacks for TypeOverrideCallback {
+    fn blocklisted_type_implements_trait(
+        &self,
+        name: &str,
+        derive_trait: DeriveTrait,
+    ) -> Option<ImplementsTrait> {
+        const OK_TRAITS: [DeriveTrait; 3] = [
+            DeriveTrait::Copy,
+            DeriveTrait::Debug,
+            DeriveTrait::PartialEqOrPartialOrd,
+        ];
+        let overriden_types = [
+            "Vector2",
+            "Vector3",
+            "Vector4",
+            "Matrix",
+            "Quaternion",
+            "Rectangle",
+            "Color",
+        ];
+
+        (OK_TRAITS.contains(&derive_trait) && overriden_types.contains(&name))
+            .then_some(ImplementsTrait::Yes)
+    }
+}
+
 #[cfg(feature = "nobuild")]
 fn build_with_cmake(_src_path: &str) {}
 
@@ -244,17 +277,23 @@ fn gen_bindings() {
     let mut builder = bindgen::Builder::default()
         .header("binding/binding.h")
         .rustified_enum(".+")
+        .derive_partialeq(true)
+        .derive_default(true)
+        .blocklist_type("Vector2")
+        .blocklist_type("Vector3")
+        .blocklist_type("Vector4")
+        .blocklist_type("Matrix")
+        .blocklist_type("Quaternion")
+        .blocklist_type("Rectangle")
+        .blocklist_type("Color")
+        .parse_callbacks(Box::new(TypeOverrideCallback))
+        // Tell cargo to invalidate the built crate whenever any of the
+        // included header files changed.
+        .parse_callbacks(Box::new(bindgen::CargoCallbacks::new()))
+        .clang_arg("-I../raylib/src")
         .clang_arg("-std=c99")
         .clang_arg(plat)
         .parse_callbacks(Box::new(ignored_macros));
-
-    #[cfg(feature = "imgui")]
-    {
-        builder = builder
-            .clang_arg("-I./binding/imgui/decoy")
-            .clang_arg("-I./raylib/src")
-            .header("binding/rlImGui/rlImGui.h");
-    }
 
     if platform == Platform::Desktop && os == PlatformOS::Windows {
         // odd workaround for booleans being broken
@@ -278,63 +317,22 @@ fn gen_bindings() {
 
 fn gen_rgui() {
     // Compile the code and link with cc crate
-    #[cfg(target_os = "windows")]
-    {
-        cc::Build::new()
-            .files(vec!["binding/rgui_wrapper.cpp"])
-            .include("binding")
-            .warnings(false)
-            // .flag("-std=c99")
-            .extra_warnings(false)
-            .compile("rgui");
-    }
-    #[cfg(not(target_os = "windows"))]
-    {
-        cc::Build::new()
-            .files(vec!["binding/rgui_wrapper.c"])
-            .include("binding")
-            .warnings(false)
-            // .flag("-std=c99")
-            .extra_warnings(false)
-            .compile("rgui");
-    }
-}
-
-fn gen_imgui() {
-    println!("cargo:rustc-link-lib=dylib=stdc++");
-
     cc::Build::new()
-        .define("NO_FONT_AWESOME", "1")
-        .files(vec!["binding/rlImGui/rlImGui.cpp"])
-        .include("binding/imgui")
-        .include("raylib/src")
+        .files(vec!["binding/rgui_wrapper.c"])
+        .include("binding")
         .warnings(false)
         .extra_warnings(false)
-        .compile("rlImGui");
+        .compile("rgui");
 }
 
 fn gen_utils() {
     // Compile the code and link with cc crate
-    #[cfg(target_os = "windows")]
-    {
-        cc::Build::new()
-            .files(vec!["binding/utils_log.cpp"])
-            .include("binding")
-            .warnings(false)
-            // .flag("-std=c99")
-            .extra_warnings(false)
-            .compile("rgui");
-    }
-    #[cfg(not(target_os = "windows"))]
-    {
-        cc::Build::new()
-            .files(vec!["binding/utils_log.c"])
-            .include("binding")
-            .warnings(false)
-            // .flag("-std=c99")
-            .extra_warnings(false)
-            .compile("rgui");
-    }
+    cc::Build::new()
+        .files(vec!["binding/utils_log.c"])
+        .include("binding")
+        .warnings(false)
+        .extra_warnings(false)
+        .compile("utils_log");
 }
 
 #[cfg(feature = "nobuild")]
@@ -351,7 +349,7 @@ fn link(platform: Platform, platform_os: PlatformOS) {
         }
         PlatformOS::Linux => {
             // X11 linking
-            #[cfg(not(feature = "wayland"))]
+            #[cfg(all(not(feature = "wayland"), target_os = "android"))]
             {
                 println!("cargo:rustc-link-search=/usr/local/lib");
                 println!("cargo:rustc-link-lib=X11");
@@ -391,17 +389,32 @@ fn link(platform: Platform, platform_os: PlatformOS) {
 fn main() {
     println!("cargo:rerun-if-changed=build.rs");
     println!("cargo:rerun-if-changed=./binding/binding.h");
+    //for cross compiling on switch arm
+    //https://users.rust-lang.org/t/cross-compiling-arm/96456/10
+    if std::env::var("CROSS_SYSROOT").is_ok() {
+        unsafe {
+            std::env::remove_var("CROSS_SYSROOT");
+        }
+    }
     let target = env::var("TARGET").expect("Cargo build scripts always have TARGET");
 
     if target.contains("wasm32-unknown-emscripten") {
         if let Err(e) = env::var("EMCC_CFLAGS") {
             if e == std::env::VarError::NotPresent {
-                panic!("\nYou must have to set EMCC_CFLAGS yourself to compile for WASM.\n{}{}\"\n",{
-                    #[cfg(target_family = "windows")]
-                    {"set EMCC_CFLAGS="}
-                    #[cfg(not(target_family = "windows"))]
-                    {"export EMCC_CFLAGS="}
-                },"\"-O3 -sUSE_GLFW=3 -sASSERTIONS=1 -sWASM=1 -sASYNCIFY -sGL_ENABLE_GET_PROC_ADDRESS=1\"");
+                panic!(
+                    "\nYou must have to set EMCC_CFLAGS yourself to compile for WASM.\n{}{}\"\n",
+                    {
+                        #[cfg(target_family = "windows")]
+                        {
+                            "set EMCC_CFLAGS="
+                        }
+                        #[cfg(not(target_family = "windows"))]
+                        {
+                            "export EMCC_CFLAGS="
+                        }
+                    },
+                    "\"-O3 -sUSE_GLFW=3 -sASSERTIONS=1 -sWASM=1 -sASYNCIFY -sGL_ENABLE_GET_PROC_ADDRESS=1\""
+                );
             } else {
                 panic!("\nError regarding EMCC_CFLAGS: {:?}\n", e);
             }
@@ -422,9 +435,6 @@ fn main() {
 
     #[cfg(feature = "raygui")]
     gen_rgui();
-
-    #[cfg(feature = "imgui")]
-    gen_imgui();
 
     gen_utils();
 }
@@ -520,14 +530,15 @@ enum PlatformOS {
 /// You should be copy pasting into both raylib/raylib-sys `Cargo.toml` and here while keeping it as close as possible to raylibs `config.h`` for easy maintance
 #[rustfmt::skip]
 fn features_from_env(cmake: &mut Config) {
+    let is_android = cfg!(target_os = "android"); // skip linking to x11 & wayland
     cmake.define("ENABLE_ASAN", bstr(cfg!(feature = "ENABLE_ASAN")));
     cmake.define("ENABLE_UBSAN", bstr(cfg!(feature = "ENABLE_UBSAN")));
     cmake.define("ENABLE_MSAN", bstr(cfg!(feature = "ENABLE_MSAN")));
     cmake.define("WITH_PIC", bstr(cfg!(feature = "WITH_PIC")));
     cmake.define("BUILD_SHARED_LIBS", bstr(cfg!(feature = "BUILD_SHARED_LIBS")));
     cmake.define("USE_EXTERNAL_GLFW", bstr(cfg!(feature = "USE_EXTERNAL_GLFW")));
-    cmake.define("GLFW_BUILD_WAYLAND", bstr(cfg!(feature = "GLFW_BUILD_WAYLAND")));
-    cmake.define("GLFW_BUILD_X11", bstr(cfg!(feature = "GLFW_BUILD_X11")));
+    cmake.define("GLFW_BUILD_WAYLAND", bstr(cfg!(feature = "GLFW_BUILD_WAYLAND") && !is_android));
+    cmake.define("GLFW_BUILD_X11", bstr(cfg!(feature = "GLFW_BUILD_X11") && !is_android));
     cmake.define("INCLUDE_EVERYTHING", bstr(cfg!(feature = "INCLUDE_EVERYTHING")));
     cmake.define("USE_AUDIO", bstr(cfg!(feature = "USE_AUDIO")));
     cmake.define("SUPPORT_MODULE_RSHAPES", bstr(cfg!(feature = "SUPPORT_MODULE_RSHAPES")));
@@ -595,9 +606,5 @@ fn features_from_env(cmake: &mut Config) {
 }
 #[must_use]
 fn bstr(b: bool) -> &'static str {
-    if b {
-        "ON"
-    } else {
-        "OFF"
-    }
+    if b { "ON" } else { "OFF" }
 }

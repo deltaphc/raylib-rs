@@ -273,7 +273,7 @@ fn update_game(game: &mut Game, rl: &RaylibHandle) {
 
 fn draw_game(game: &Game, rl: &mut RaylibHandle, thread: &RaylibThread) {
     let (w, h) = (rl.get_screen_width() as f32, rl.get_screen_height() as f32);
-    rl.start_drawing(thread, |mut d| {
+    rl.draw(thread, |mut d| {
         d.clear_background(Color::RAYWHITE);
         if !game.game_over {
             // Draw player bar

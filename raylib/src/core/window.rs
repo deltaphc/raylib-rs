@@ -1,7 +1,7 @@
 //! Window manipulation functions
 use crate::core::math::{Matrix, Ray, Vector2};
 use crate::core::{RaylibHandle, RaylibThread};
-use crate::ffi;
+use crate::{MintVec2, MintVec3, ffi};
 use std::ffi::{CStr, CString, IntoStringError, NulError};
 use std::os::raw::c_char;
 
@@ -252,24 +252,28 @@ impl WindowState {
 
 /// Get number of connected monitors
 #[inline]
+#[must_use]
 pub fn get_monitor_count() -> i32 {
     unsafe { ffi::GetMonitorCount() }
 }
 
 /// Get current connected monitor
 #[inline]
+#[must_use]
 pub fn get_current_monitor() -> i32 {
     unsafe { ffi::GetCurrentMonitor() }
 }
 
 /// Get current connected monitor
 #[inline]
+#[must_use]
 pub fn get_current_monitor_index() -> i32 {
     unsafe { ffi::GetCurrentMonitor() }
 }
 
 /// Get specified monitor refresh rate
 #[inline]
+#[must_use]
 pub fn get_monitor_refresh_rate(monitor: i32) -> i32 {
     debug_assert!(
         monitor < get_monitor_count() && monitor >= 0,
@@ -282,6 +286,7 @@ pub fn get_monitor_refresh_rate(monitor: i32) -> i32 {
 /// Get width of monitor
 /// Only checks that monitor index is in range in debug mode
 #[inline]
+#[must_use]
 pub fn get_monitor_width(monitor: i32) -> i32 {
     let len = get_monitor_count();
     debug_assert!(monitor < len && monitor >= 0, "monitor index out of range");
@@ -292,6 +297,7 @@ pub fn get_monitor_width(monitor: i32) -> i32 {
 /// Get height of monitor
 /// Only checks that monitor index is in range in debug mode
 #[inline]
+#[must_use]
 pub fn get_monitor_height(monitor: i32) -> i32 {
     let len = get_monitor_count();
     debug_assert!(monitor < len && monitor >= 0, "monitor index out of range");
@@ -302,6 +308,7 @@ pub fn get_monitor_height(monitor: i32) -> i32 {
 /// Get physical width of monitor
 /// Only checks that monitor index is in range in debug mode
 #[inline]
+#[must_use]
 pub fn get_monitor_physical_width(monitor: i32) -> i32 {
     let len = get_monitor_count();
     debug_assert!(monitor < len && monitor >= 0, "monitor index out of range");
@@ -312,6 +319,7 @@ pub fn get_monitor_physical_width(monitor: i32) -> i32 {
 /// Get physical height of monitor
 /// Only checks that monitor index is in range in debug mode
 #[inline]
+#[must_use]
 pub fn get_monitor_physical_height(monitor: i32) -> i32 {
     let len = get_monitor_count();
     debug_assert!(monitor < len && monitor >= 0, "monitor index out of range");
@@ -322,6 +330,7 @@ pub fn get_monitor_physical_height(monitor: i32) -> i32 {
 /// Get name of monitor
 /// Only checks that monitor index is in range in debug mode
 #[inline]
+#[must_use]
 pub fn get_monitor_name(monitor: i32) -> Result<String, IntoStringError> {
     let len = get_monitor_count();
     debug_assert!(monitor < len && monitor >= 0, "monitor index out of range");
@@ -335,6 +344,7 @@ pub fn get_monitor_name(monitor: i32) -> Result<String, IntoStringError> {
 /// Get position of monitor
 /// Only checks that monitor index is in range in debug mode
 #[inline]
+#[must_use]
 pub fn get_monitor_position(monitor: i32) -> Vector2 {
     let len = get_monitor_count();
     debug_assert!(monitor < len && monitor >= 0, "monitor index out of range");
@@ -355,6 +365,7 @@ pub fn get_monitor_position(monitor: i32) -> Vector2 {
 ///     Ok(())
 /// }
 /// ```
+#[must_use]
 pub fn get_monitor_info(monitor: i32) -> Result<MonitorInfo, IntoStringError> {
     let len = get_monitor_count();
     debug_assert!(monitor < len && monitor >= 0, "monitor index out of range");
@@ -374,15 +385,16 @@ pub fn get_monitor_info(monitor: i32) -> Result<MonitorInfo, IntoStringError> {
 /// use raylib::prelude::*;
 /// fn main() {
 ///     let c = Camera::perspective(
-///            Vector3::zero(),
+///            Vector3::new(0.0, 0.0, 0.0),
 ///            Vector3::new(0.0, 0.0, -1.0),
-///            Vector3::up(),
+///            Vector3::new(0.0, 1.0, 0.0),
 ///            90.0,
 ///        );
 ///        let m = get_camera_matrix(&c);
 ///        assert_eq!(m, Matrix::identity());
 /// }
 /// ```
+#[must_use]
 pub fn get_camera_matrix(camera: impl Into<ffi::Camera>) -> Matrix {
     unsafe { ffi::GetCameraMatrix(camera.into()).into() }
 }
@@ -400,11 +412,13 @@ pub fn get_camera_matrix(camera: impl Into<ffi::Camera>) -> Matrix {
 /// }
 /// ```
 #[allow(non_snake_case)]
+#[must_use]
 pub fn get_camera_matrix2D(camera: impl Into<ffi::Camera2D>) -> Matrix {
     unsafe { ffi::GetCameraMatrix2D(camera.into()).into() }
 }
 
 impl RaylibHandle {
+    #[must_use]
     /// Get clipboard text content
     pub fn get_clipboard_text(&self) -> Result<String, std::str::Utf8Error> {
         unsafe {
@@ -428,9 +442,10 @@ impl RaylibHandle {
 impl RaylibHandle {
     /// Get a ray trace from screen position (i.e mouse)
     #[inline]
+    #[must_use]
     pub fn get_screen_to_world_ray(
         &self,
-        mouse_position: impl Into<ffi::Vector2>,
+        mouse_position: impl Into<MintVec2>,
         camera: impl Into<ffi::Camera>,
     ) -> Ray {
         unsafe { ffi::GetScreenToWorldRay(mouse_position.into(), camera.into()).into() }
@@ -438,9 +453,10 @@ impl RaylibHandle {
 
     /// Get a ray trace from screen position (i.e mouse) in a viewport
     #[inline]
+    #[must_use]
     pub fn get_screen_to_world_ray_ex(
         &self,
-        mouse_position: impl Into<ffi::Vector2>,
+        mouse_position: impl Into<MintVec2>,
         camera: impl Into<ffi::Camera>,
         width: i32,
         height: i32,
@@ -452,9 +468,10 @@ impl RaylibHandle {
 
     /// Returns the screen space position for a 3d world space position
     #[inline]
+    #[must_use]
     pub fn get_world_to_screen(
         &self,
-        position: impl Into<ffi::Vector3>,
+        position: impl Into<MintVec3>,
         camera: impl Into<ffi::Camera>,
     ) -> Vector2 {
         unsafe { ffi::GetWorldToScreen(position.into(), camera.into()).into() }
@@ -463,9 +480,10 @@ impl RaylibHandle {
     /// Returns the screen space position for a 2d camera world space position
     #[allow(non_snake_case)]
     #[inline]
+    #[must_use]
     pub fn get_world_to_screen2D(
         &self,
-        position: impl Into<ffi::Vector2>,
+        position: impl Into<MintVec2>,
         camera: impl Into<ffi::Camera2D>,
     ) -> Vector2 {
         unsafe { ffi::GetWorldToScreen2D(position.into(), camera.into()).into() }
@@ -473,9 +491,10 @@ impl RaylibHandle {
 
     /// Returns size position for a 3d world space position
     #[inline]
+    #[must_use]
     pub fn get_world_to_screen_ex(
         &self,
-        position: impl Into<ffi::Vector3>,
+        position: impl Into<MintVec3>,
         camera: impl Into<ffi::Camera>,
         width: i32,
         height: i32,
@@ -486,9 +505,10 @@ impl RaylibHandle {
     /// Returns the world space position for a 2d camera screen space position
     #[allow(non_snake_case)]
     #[inline]
+    #[must_use]
     pub fn get_screen_to_world2D(
         &self,
-        position: impl Into<ffi::Vector2>,
+        position: impl Into<MintVec2>,
         camera: impl Into<ffi::Camera2D>,
     ) -> Vector2 {
         unsafe { ffi::GetScreenToWorld2D(position.into(), camera.into()).into() }
@@ -507,18 +527,21 @@ impl RaylibHandle {
 
     /// Returns current FPS
     #[inline]
+    #[must_use]
     pub fn get_fps(&self) -> u32 {
         unsafe { ffi::GetFPS() as u32 }
     }
 
     /// Returns time in seconds for last frame drawn
     #[inline]
+    #[must_use]
     pub fn get_frame_time(&self) -> f32 {
         unsafe { ffi::GetFrameTime() }
     }
 
     /// Returns elapsed time in seconds since InitWindow()
     #[inline]
+    #[must_use]
     pub fn get_time(&self) -> f64 {
         unsafe { ffi::GetTime() }
     }
@@ -529,12 +552,14 @@ impl RaylibHandle {
     /// Checks if `KEY_ESCAPE` or Close icon was pressed.
     /// Do not call on web unless you are compiling with asyncify.
     #[inline]
+    #[must_use]
     pub fn window_should_close(&self) -> bool {
         unsafe { ffi::WindowShouldClose() }
     }
 
     /// Checks if window has been initialized successfully.
     #[inline]
+    #[must_use]
     pub fn is_window_ready(&self) -> bool {
         unsafe { ffi::IsWindowReady() }
     }
@@ -559,48 +584,56 @@ impl RaylibHandle {
 
     /// Check if window is currently maximized
     #[inline]
+    #[must_use]
     pub fn is_window_maximized(&self) -> bool {
         unsafe { ffi::IsWindowMaximized() }
     }
 
     /// Checks if window has been minimized (or lost focus).
     #[inline]
+    #[must_use]
     pub fn is_window_minimized(&self) -> bool {
         unsafe { ffi::IsWindowMinimized() }
     }
 
     /// Checks if window has been resized.
     #[inline]
+    #[must_use]
     pub fn is_window_resized(&self) -> bool {
         unsafe { ffi::IsWindowResized() }
     }
 
     /// Checks if window has been hidden.
     #[inline]
+    #[must_use]
     pub fn is_window_hidden(&self) -> bool {
         unsafe { ffi::IsWindowHidden() }
     }
 
     /// Returns whether or not window is in fullscreen mode
     #[inline]
+    #[must_use]
     pub fn is_window_fullscreen(&self) -> bool {
         unsafe { ffi::IsWindowFullscreen() }
     }
 
     /// Check if window is currently focused (only PLATFORM_DESKTOP)
     #[inline]
+    #[must_use]
     pub fn is_window_focused(&self) -> bool {
         unsafe { ffi::IsWindowFocused() }
     }
 
     /// Check if window is currently focused (only PLATFORM_DESKTOP)
     #[inline]
+    #[must_use]
     pub fn get_window_scale_dpi(&self) -> Vector2 {
         unsafe { ffi::GetWindowScaleDPI().into() }
     }
 
     /// Check if cursor is on the current screen.
     #[inline]
+    #[must_use]
     pub fn is_cursor_on_screen(&self) -> bool {
         unsafe { ffi::IsCursorOnScreen() }
     }
@@ -632,6 +665,7 @@ impl RaylibHandle {
     }
 
     /// Get the window config state
+    #[must_use]
     pub fn get_window_state(&self) -> WindowState {
         let state = WindowState::default();
         unsafe {
@@ -756,30 +790,35 @@ impl RaylibHandle {
 
     /// Get current render width which is equal to screen width * dpi scale
     #[inline]
+    #[must_use]
     pub fn get_render_width(&self) -> i32 {
         unsafe { ffi::GetRenderWidth() }
     }
 
     /// Get current render width which is equal to screen height * dpi scale
     #[inline]
+    #[must_use]
     pub fn get_render_height(&self) -> i32 {
         unsafe { ffi::GetRenderHeight() }
     }
 
     /// Get current screen height which is equal to screen height * dpi scale
     #[inline]
+    #[must_use]
     pub fn get_screen_width(&self) -> i32 {
         unsafe { ffi::GetScreenWidth() }
     }
 
     /// Gets current screen height.
     #[inline]
+    #[must_use]
     pub fn get_screen_height(&self) -> i32 {
         unsafe { ffi::GetScreenHeight() }
     }
 
     /// Get window position
     #[inline]
+    #[must_use]
     pub fn get_window_position(&self) -> Vector2 {
         unsafe { ffi::GetWindowPosition().into() }
     }
@@ -817,6 +856,7 @@ impl RaylibHandle {
 
     /// Checks if mouse cursor is not visible.
     #[inline]
+    #[must_use]
     pub fn is_cursor_hidden(&self) -> bool {
         unsafe { ffi::IsCursorHidden() }
     }
@@ -839,8 +879,9 @@ impl RaylibHandle {
 
     /// Get native window handle
     #[inline]
+    #[must_use]
     pub unsafe fn get_window_handle(&mut self) -> *mut ::std::os::raw::c_void {
-        ffi::GetWindowHandle()
+        unsafe { ffi::GetWindowHandle() }
     }
 }
 

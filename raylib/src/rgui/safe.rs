@@ -1,9 +1,8 @@
-use crate::core::color::Color;
 use crate::core::drawing::RaylibDraw;
-use crate::core::math::{Rectangle, Vector2};
 use crate::core::text::WeakFont;
 use crate::core::RaylibHandle;
-use crate::ffi;
+use crate::ffi::{Color, Rectangle, Vector2};
+use crate::{ffi, MintVec2};
 
 use std::ffi::{c_char, CStr, CString};
 
@@ -234,7 +233,7 @@ pub trait RaylibDrawGui {
         bounds: impl Into<ffi::Rectangle>,
         text: &str,
         content: impl Into<ffi::Rectangle>,
-        scroll: impl Into<ffi::Vector2>,
+        scroll: impl Into<MintVec2>,
         view: impl Into<ffi::Rectangle>,
     ) -> (bool, Rectangle, Vector2) {
         let mut scroll = scroll.into();
@@ -481,7 +480,7 @@ pub trait RaylibDrawGui {
         subdivs: i32,
     ) -> (bool, Vector2) {
         let c_text = CString::new(text).unwrap();
-        let mut mouseCell = ffi::Vector2 { x: 0.0, y: 0.0 };
+        let mut mouse_cell = MintVec2 { x: 0.0, y: 0.0 };
         (
             unsafe {
                 ffi::GuiGrid(
@@ -489,10 +488,10 @@ pub trait RaylibDrawGui {
                     c_text.as_ptr(),
                     spacing,
                     subdivs,
-                    &mut mouseCell,
+                    &mut mouse_cell,
                 ) > 0
             },
-            mouseCell.into(),
+            mouse_cell.into(),
         )
     }
     /// List View control, returns selected list item index
@@ -600,7 +599,7 @@ pub trait RaylibDrawGui {
         let mut out = color.into();
         let c_text = CString::new(text).unwrap();
 
-        let result = unsafe { ffi::GuiColorPicker(bounds.into(), c_text.as_ptr(), &mut out) };
+        let _result = unsafe { ffi::GuiColorPicker(bounds.into(), c_text.as_ptr(), &mut out) };
         return out.into();
     }
     // Get text with icon id prepended
@@ -731,7 +730,7 @@ impl GuiProperty for crate::consts::GuiSliderProperty {
         self as i32
     }
 }
-impl GuiProperty for crate::consts::GuiSpinnerProperty {
+impl GuiProperty for crate::consts::GuiValueBoxProperty {
     fn as_i32(self) -> i32 {
         self as i32
     }

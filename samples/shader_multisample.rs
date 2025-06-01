@@ -31,14 +31,22 @@ pub fn main() {
         } else if divider_value > 1.0 {
             divider_value = 1.0;
         };
-        rl.start_drawing(&thread, |mut d| {
-            d.start_shader_mode(&mut shader, |mut d, shader| {
-                shader.set_shader_value(divider_loc, divider_value);
-                shader.set_shader_value_texture(tex_blue_loc, &tex_blue);
-
+        rl.draw(&thread, |mut d| {
+            shader.set_shader_value(divider_loc, divider_value);
+            shader.set_shader_value_texture(tex_blue_loc, &tex_blue);
+            {
+                let mut d = d.begin_shader_mode(&mut shader);
                 d.clear_background(Color::WHITE);
                 d.draw_texture(&tex_red, 0, 0, Color::WHITE);
-            });
+            }
+
+            //d.draw_shader_mode(&mut shader, |mut d| {
+            //    // note(jest): setting shader values must be done before starting shader modes or else borrow issues
+            //    shader.set_shader_value(divider_loc, divider_value);
+            //    shader.set_shader_value_texture(tex_blue_loc, &tex_blue);
+            //    d.clear_background(Color::WHITE);
+            //    d.draw_texture(&tex_red, 0, 0, Color::WHITE);
+            //});
 
             d.draw_text(
                 "Use KEY_LEFT/KEY_RIGHT to move texture mixing in shader!",

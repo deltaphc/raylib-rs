@@ -8,13 +8,17 @@ use crate::{ffi, RaylibHandle};
 
 #[derive(Debug, Clone)]
 pub struct AutomationEventIter<'a> {
-    iter: std::slice::Iter<'a, ffi::AutomationEvent>
+    iter: std::slice::Iter<'a, ffi::AutomationEvent>,
 }
 impl<'a> AutomationEventIter<'a> {
+    #[must_use]
     unsafe fn new(events: *mut ffi::AutomationEvent, count: u32) -> Self {
         // No new items are being created that get dropped here, these are just changes in perspective of how to borrow-check the pointers.
         assert!(!events.is_null(), "automation event array cannot be null");
-        assert!(events.is_aligned(), "automation event array must be aligned");
+        assert!(
+            events.is_aligned(),
+            "automation event array must be aligned"
+        );
         let iter = unsafe { std::slice::from_raw_parts(events, count as usize) }.iter();
         Self { iter }
     }
@@ -74,16 +78,19 @@ make_thin_wrapper!(
 impl AutomationEventList {
     /// Length of the automation event list
     #[inline]
+    #[must_use]
     pub const fn count(&self) -> u32 {
         self.0.count
     }
     /// The amount of automation events that can be held in this list.
     #[inline]
+    #[must_use]
     pub const fn capacity(&self) -> u32 {
         self.0.capacity
     }
     /// The events held in this list.
     /// NOTE: This will copy the values into a vector.
+    #[must_use]
     pub fn events(&self) -> Vec<AutomationEvent> {
         unsafe { std::slice::from_raw_parts(self.0.events, self.count() as usize) }
             .iter()
@@ -91,6 +98,7 @@ impl AutomationEventList {
             .collect()
     }
     /// An iterator over the events held in this list.
+    #[must_use]
     pub fn iter<'a>(&'a self) -> AutomationEventIter<'a> {
         unsafe { AutomationEventIter::new(self.0.events, self.count()) }
     }
@@ -112,16 +120,19 @@ make_thin_wrapper!(
 impl AutomationEvent {
     /// Event frame
     #[inline]
+    #[must_use]
     pub const fn frame(&self) -> u32 {
         self.0.frame
     }
     /// Event type (AutomationEventType)
     #[inline]
+    #[must_use]
     pub const fn get_type(&self) -> u32 {
         self.0.type_
     }
     /// Event parameters (if required)
     #[inline]
+    #[must_use]
     pub const fn params(&self) -> [i32; 4] {
         self.0.params
     }
@@ -141,6 +152,7 @@ fn unload_automation_event(_s: ffi::AutomationEvent) {
 
 impl RaylibHandle {
     /// Load automation events list from file, NULL for empty list, capacity = MAX_AUTOMATION_EVENTS
+    #[must_use]
     pub fn load_automation_event_list(&self, file_name: Option<PathBuf>) -> AutomationEventList {
         match file_name {
             Some(a) => {

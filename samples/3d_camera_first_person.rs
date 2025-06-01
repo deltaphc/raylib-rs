@@ -50,11 +50,11 @@ fn main() {
     rl.set_target_fps(60);
 
     while !rl.window_should_close() {
-        rl.update_camera(&mut camera, CameraMode::CAMERA_FIRST_PERSON);
+        camera.update_camera(CameraMode::CAMERA_FIRST_PERSON);
 
-        rl.start_drawing(&thread, |mut d| {
+        rl.draw(&thread, |mut d| {
             d.clear_background(Color::DARKGREEN);
-            d.start_mode3D(camera, |mut d2, _camera| {
+            d.draw_mode3D(camera, |mut d2| {
                 d2.draw_plane(
                     Vector3::new(0.0, 0.0, 0.0),
                     Vector2::new(32.0, 32.0),

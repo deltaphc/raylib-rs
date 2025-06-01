@@ -47,11 +47,12 @@ fn main() {
     let model_position = Vector3::new(0.0, 0.0, 0.0);
 
     while !rl.window_should_close() {
-        rl.update_camera(&mut camera, CameraMode::CAMERA_FREE);
+        camera.update_camera(CameraMode::CAMERA_FREE);
+        //rl.update_camera(&mut camera, CameraMode::CAMERA_FREE);
 
-        rl.start_drawing(&thread, |mut drawing| {
+        rl.draw(&thread, |mut drawing| {
             drawing.clear_background(Color::WHITE);
-            drawing.start_mode3D(camera, |mut mode_3d, _camera| {
+            drawing.draw_mode3D(camera, |mut mode_3d| {
                 mode_3d.draw_model(&model, model_position, 0.2, Color::WHITE);
                 mode_3d.draw_grid(10, 1.0);
             });

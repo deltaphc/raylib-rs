@@ -64,6 +64,7 @@ impl Into<ffi::VrDeviceInfo> for &VrDeviceInfo {
 impl RaylibHandle {
     /// Load VR stereo config for VR simulator device parameters
     #[inline]
+    #[must_use]
     pub fn load_vr_stereo_config(
         &mut self,
         _: &RaylibThread,

@@ -1,27 +1,17 @@
 //! [`Color`] manipulation helpers
-use std::os::raw::c_void;
 
-use crate::core::math::{Vector3, Vector4};
-use crate::ffi;
-
-use raylib_sys::{ColorIsEqual, GetPixelColor, PixelFormat};
+use crate::math::{Vector3, Vector4};
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
-
-use super::RaylibHandle;
 
 /// Color, 4 components, R8G8B8A8 (32bit)
 #[repr(C)]
 #[derive(Debug, Copy, Clone, Default)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct Color {
-    /// Color red value
     pub r: u8,
-    /// Color green value
     pub g: u8,
-    /// Color blue value
     pub b: u8,
-    /// Color alpha value
     pub a: u8,
 }
 
@@ -31,37 +21,25 @@ pub const fn rcolor(r: u8, g: u8, b: u8, a: u8) -> Color {
     Color::new(r, g, b, a)
 }
 
-impl From<ffi::Color> for Color {
-    fn from(v: ffi::Color) -> Color {
-        unsafe { std::mem::transmute(v) }
+impl Into<Vector4> for Color {
+    fn into(self) -> Vector4 {
+        Vector4 {
+            x: self.r as f32 / 255.0,
+            y: self.g as f32 / 255.0,
+            z: self.b as f32 / 255.0,
+            w: self.a as f32 / 255.0,
+        }
     }
 }
 
-impl Into<ffi::Color> for Color {
-    fn into(self) -> ffi::Color {
-        unsafe { std::mem::transmute(self) }
-    }
-}
-
-impl Into<ffi::Color> for &Color {
-    fn into(self) -> ffi::Color {
-        ffi::Color {
+impl Into<Color> for &Color {
+    fn into(self) -> Color {
+        Color {
             r: self.r,
             g: self.g,
             b: self.b,
             a: self.a,
         }
-    }
-}
-
-impl Into<Vector4> for Color {
-    fn into(self) -> Vector4 {
-        Vector4::new(
-            self.r as f32 / 255.0,
-            self.g as f32 / 255.0,
-            self.b as f32 / 255.0,
-            self.a as f32 / 255.0,
-        )
     }
 }
 
@@ -72,18 +50,7 @@ impl From<(u8, u8, u8, u8)> for Color {
 }
 
 impl Color {
-    /// Get color from HEX RGB string
-    /// # Arguments
-    /// * `color_hex_str` - A string slice, 6 characters long
-    /// # Example
-    /// ```
-    ///    use raylib::prelude::*;
-    ///     let color_white = Color::from_hex("FFFFFF").unwrap();
-    ///     let color_black = Color::from_hex("000000").unwrap();
-    ///
-    ///    assert_eq!(color_black, Color::BLACK);
-    ///    assert_eq!(color_white, Color::WHITE);
-    /// ```
+    /// produces Color from a hex string(6 characters long)
     pub fn from_hex(color_hex_str: &str) -> Result<Color, std::num::ParseIntError> {
         let color = i32::from_str_radix(color_hex_str, 16)?;
         let b = color % 0x100;
@@ -106,87 +73,81 @@ impl Color {
     /// Returns hexadecimal value for a Color
     #[inline]
     pub fn color_to_int(&self) -> i32 {
-        unsafe { ffi::ColorToInt(self.into()) }
+        unsafe { super::ColorToInt(self.into()) }
     }
 
     /// Returns color normalized as float [0..1]
     #[inline]
     pub fn color_normalize(&self) -> Vector4 {
-        unsafe { ffi::ColorNormalize(self.into()).into() }
+        unsafe { super::ColorNormalize(self.into()).into() }
     }
 
     /// Returns HSV values for a Color
     #[inline]
     pub fn color_to_hsv(&self) -> Vector3 {
-        unsafe { ffi::ColorToHSV(self.into()).into() }
+        unsafe { super::ColorToHSV(self.into()).into() }
     }
 
     /// Returns a Color from HSV values
     #[inline]
     pub fn color_from_hsv(hue: f32, saturation: f32, value: f32) -> Color {
-        unsafe { ffi::ColorFromHSV(hue, saturation, value).into() }
+        unsafe { super::ColorFromHSV(hue, saturation, value).into() }
     }
 
     /// Returns color from normalized values [0..1]
-    /// ```rust
-    /// use raylib::prelude::*;
-    /// fn main() {
-    ///     assert_eq!(Color::color_from_normalized(Vector4::new(1.0, 1.0, 1.0, 1.0)), Color::new(255, 255, 255, 255));
-    /// }
-    /// ```
     #[inline]
     pub fn color_from_normalized(normalized: Vector4) -> Color {
-        unsafe { ffi::ColorFromNormalized(normalized.into()).into() }
+        unsafe { super::ColorFromNormalized(normalized.into()).into() }
     }
 
     /// Returns a Color struct from hexadecimal value
     #[inline]
     pub fn get_color(hex_value: u32) -> Color {
-        unsafe { ffi::GetColor(hex_value).into() }
+        unsafe { super::GetColor(hex_value).into() }
     }
 
     /// Get color multiplied with another color
     #[inline]
     pub fn tint(&self, color: Self) -> Self {
-        unsafe { ffi::ColorTint(self.into(), color.into()).into() }
+        unsafe { super::ColorTint(self.into(), color.into()).into() }
     }
     /// Get color with brightness correction, brightness factor goes from -1.0f to 1.0f
     #[inline]
     pub fn brightness(&self, factor: f32) -> Self {
-        unsafe { ffi::ColorBrightness(self.into(), factor).into() }
+        unsafe { super::ColorBrightness(self.into(), factor).into() }
     }
     /// Get color with contrast correction, contrast values between -1.0f and 1.0f
     #[inline]
     pub fn contrast(&self, factor: f32) -> Self {
-        unsafe { ffi::ColorContrast(self.into(), factor).into() }
+        unsafe { super::ColorContrast(self.into(), factor).into() }
     }
     /// Get color with alpha applied, alpha goes from 0.0f to 1.0f
     #[inline]
     pub fn alpha(&self, alpha: f32) -> Self {
-        unsafe { ffi::ColorAlpha(self.into(), alpha).into() }
+        unsafe { super::ColorAlpha(self.into(), alpha).into() }
     }
 
     /// Get color with alpha applied, alpha goes from 0.0f to 1.0f
     #[deprecated = "Use Color::alpha instead"]
     pub fn fade(&self, alpha: f32) -> Self {
-        unsafe { ffi::Fade(self.into(), alpha).into() }
+        unsafe { super::Fade(self.into(), alpha).into() }
     }
 
     /// Color fade-in or fade-out, alpha goes from 0.0f to 1.0f
     #[inline]
     pub fn color_alpha_blend(dst: &Color, src: &Color, tint: &Color) -> Color {
-        unsafe { ffi::ColorAlphaBlend(dst.into(), src.into(), tint.into()).into() }
+        unsafe { super::ColorAlphaBlend(dst.into(), src.into(), tint.into()).into() }
     }
     /// Check if color is equal to another.
     #[inline]
-    pub fn is_equal(&self, rhs: impl Into<ffi::Color>) -> bool {
-        unsafe { ffi::ColorIsEqual(self.into(), rhs.into()) }
+    pub fn is_equal(&self, rhs: impl Into<super::Color>) -> bool {
+        unsafe { super::ColorIsEqual(self.into(), rhs.into()) }
     }
 
     /// Get color lerp interpolation between two colors, factor [0.0f..1.0f]
     #[inline]
     pub fn lerp(&self, rhs: Color, factor: f32) -> Color {
-        unsafe { ffi::ColorLerp(self.into(), rhs.into(), factor).into() }
+        unsafe { super::ColorLerp(self.into(), rhs.into(), factor).into() }
     }
 }
 
@@ -199,6 +160,7 @@ impl PartialEq for Color {
 }
 impl Eq for Color {}
 
+#[rustfmt::skip]
 /// Some Basic Colors
 /// NOTE: Custom raylib color palette for amazing visuals on WHITE background
 pub trait RaylibPalette {
@@ -232,6 +194,7 @@ pub trait RaylibPalette {
 }
 impl RaylibPalette for Color {}
 
+#[rustfmt::skip]
 /// CSS Color constants
 pub trait CSSPalette {
     /** #f0f8ffff */ const ALICEBLUE:            Color = Color::new(0xf0, 0xf8, 0xff, 0xff);
@@ -386,6 +349,7 @@ pub trait CSSPalette {
 }
 impl CSSPalette for Color {}
 
+#[rustfmt::skip]
 /// Color constants
 impl Color {
     pub const INDIANRED: Color = Color::new(205, 92, 92, 255);

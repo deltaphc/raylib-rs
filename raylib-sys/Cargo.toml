@@ -1,6 +1,6 @@
 [package]
 name = "raylib-sys"
-version = "5.6.0"
+version = "5.7.0"
 authors = ["raylib-rs team <https://github.com/raylib-rs/raylib-rs>"]
 license = "Zlib"
 description = "Raw FFI bindings for Raylib"
@@ -8,23 +8,22 @@ documentation = "https://docs.rs/raylib-sys"
 repository = "https://github.com/raylib-rs/raylib-rs"
 keywords = ["bindings", "raylib", "gamedev", "ffi"]
 categories = ["external-ffi-bindings"]
-edition = "2021"
+edition = "2024"
 exclude = ["raylib/examples/*", "raylib/projects/*", "raylib/templates/*"]
 
 [dependencies]
-imgui = { version = "0.12.0", optional = true, features = [] }
-imgui-sys = { version = "0.12.0", optional = true }
+mint = { version = "0.5" }
+serde = { version = "1.0", optional = true }
 
 [build-dependencies]
 cmake = "0.1.51"
 cc = { version = "1.0", features = ["parallel"] }
-bindgen = "0.70"
+bindgen = "0.71"
 
 [features]
 # default features follow the cmake version: https://github.com/raysan5/raylib/wiki/CMake-Build-Options
 # NOTE: some are critical, e.g: SUPPORT_STANDARD_FILEIO should always be turned on because many things like `LoadShader()` uses it to read text
 default = [
-  "bindgen",
   "GLFW_BUILD_X11",
   "USE_AUDIO",
   "SUPPORT_MODULE_RSHAPES",
@@ -72,12 +71,11 @@ default = [
   "SUPPORT_STANDARD_FILEIO",
   "SUPPORT_TRACELOG",
 ]
+serde = ["dep:serde", "mint/serde"]
 raygui = []
-# Generate bindings automatically.
-# You can turn this off if you wanna go into the source and put in your own bindings.rs, which is
-# useful since bindgen doesn't work on esoteric platforms.
-bindgen = []
-imgui = ["dep:imgui", "dep:imgui-sys"]
+# Do not autogenerate bindings, instead read an existing one specified by env RAYLIB_BINDGEN_LOCATION
+# useful when bindgen doesn't generate correctly on esoteric platforms and need manual auidting
+nobindgen = []
 
 
 # ----- Copy and paste these from `raylib-sys` for easier maintance

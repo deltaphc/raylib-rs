@@ -175,7 +175,7 @@ fn update_game(game: &mut Game, rl: &RaylibHandle) {
 //
 // // Draw game (one frame)
 fn draw_game(game: &mut Game, rl: &mut RaylibHandle, thread: &RaylibThread) {
-    rl.start_drawing(thread, |mut d| {
+    rl.draw(thread, |mut d| {
         d.clear_background(Color::RAYWHITE);
 
         if !game.game_over {

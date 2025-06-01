@@ -68,6 +68,7 @@ macro_rules! generate_functions {
 
           /// Function to set our context
           /// and returns the slot used to store the context.
+          #[allow(unpredictable_function_pointer_comparisons)]
           fn set_context(audio_callback: AudioCallbackWithUserData) -> usize {
               $(
                   {
@@ -82,6 +83,7 @@ macro_rules! generate_functions {
           }
 
           /// Function to clear our context given the slot of the context.
+          #[allow(unpredictable_function_pointer_comparisons)]
           fn clear_context(index: usize) {
               $(
                   if index == $n {
@@ -103,7 +105,7 @@ macro_rules! generate_functions {
             /// The real callback passed to raylib.
             /// Each callback has a fixed association with
             /// a given context "slot".
-            #[no_mangle]
+            #[unsafe(no_mangle)]
             pub extern "C" fn [< callback_ $n >](data_ptr: *mut ::std::os::raw::c_void, frames: u32) -> () {
               let guard = [< CLOSURE_ $n >].lock().unwrap();
               let audio_callback = &(*guard);

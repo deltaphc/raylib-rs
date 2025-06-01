@@ -14,15 +14,18 @@ Permission is granted to anyone to use this software for any purpose, including 
   3. This notice may not be removed or altered from any source distribution.
 */
 
-use crate::ffi;
 use crate::misc::AsF32;
-use std::f32::consts::PI;
-use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Range, Sub, SubAssign};
+use crate::{ffi, MintVec3};
+use std::ops::{Add, AddAssign, Mul, MulAssign, Range, Sub, SubAssign};
 
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
 
-make_rslice!(RSliceVec4, Vector4, ffi::MemFree);
+pub use glam;
+pub type Vector2 = glam::Vec2;
+pub type Vector3 = glam::Vec3;
+pub type Vector4 = glam::Vec4;
+// note(jest): Transform and Matrix do not use glam because of incompat struct alignment so they are manually implemented below
 
 macro_rules! optional_serde_struct {
     ($def:item) => {
@@ -33,937 +36,40 @@ macro_rules! optional_serde_struct {
     };
 }
 
-optional_serde_struct! {
-    /// Vector2, 2 components
-    pub struct Vector2 {
-        /// Vector x component
-        pub x: f32,
-        /// Vector y component
-        pub y: f32,
-    }
-}
-
-#[cfg(feature = "convert_mint")]
-impl From<mint::Vector2<f32>> for Vector2 {
-    fn from(v: mint::Vector2<f32>) -> Vector2 {
-        Vector2 { x: v.x, y: v.y }
-    }
-}
-
-#[cfg(feature = "convert_mint")]
-impl From<mint::Point2<f32>> for Vector2 {
-    fn from(v: mint::Point2<f32>) -> Vector2 {
-        Vector2 { x: v.x, y: v.y }
-    }
-}
-
-#[cfg(feature = "convert_mint")]
-impl From<Vector2> for mint::Vector2<f32> {
-    fn from(v: Vector2) -> Self {
-        Self { x: v.x, y: v.y }
-    }
-}
-
-impl From<ffi::Vector2> for Vector2 {
-    fn from(v: ffi::Vector2) -> Vector2 {
-        unsafe { std::mem::transmute(v) }
-    }
-}
-
-impl From<Vector2> for ffi::Vector2 {
-    fn from(v: Vector2) -> Self {
-        unsafe { std::mem::transmute(v) }
-    }
-}
-
-impl From<&Vector2> for ffi::Vector2 {
-    fn from(v: &Vector2) -> ffi::Vector2 {
-        ffi::Vector2 { x: v.x, y: v.y }
-    }
-}
-
 /// A convenience function for linearly interpolating an `f32`.
 #[inline]
+#[must_use]
 pub const fn lerp(v0: f32, v1: f32, amount: f32) -> f32 {
     v0 + amount * (v1 - v0)
 }
 
-/// A convenience function for making a new `Vector2`.
-#[inline]
-pub fn rvec2<T1: AsF32, T2: AsF32>(x: T1, y: T2) -> Vector2 {
-    Vector2::new(x.as_f32(), y.as_f32())
-}
-
-/// A convenience function for making a new `Vector3`.
-#[inline]
-pub fn rvec3<T1: AsF32, T2: AsF32, T3: AsF32>(x: T1, y: T2, z: T3) -> Vector3 {
-    Vector3::new(x.as_f32(), y.as_f32(), z.as_f32())
-}
-
 /// A convenience function for making a new `Quaternion`.
 #[inline]
+#[must_use]
 pub fn rquat<T1: AsF32, T2: AsF32, T3: AsF32, T4: AsF32>(x: T1, y: T2, z: T3, w: T4) -> Quaternion {
     Quaternion::new(x.as_f32(), y.as_f32(), z.as_f32(), w.as_f32())
 }
 
-/// A convenience function for making a new `Rectangle`.
-#[inline]
-pub fn rrect<T1: AsF32, T2: AsF32, T3: AsF32, T4: AsF32>(
-    x: T1,
-    y: T2,
-    width: T3,
-    height: T4,
-) -> Rectangle {
-    Rectangle::new(x.as_f32(), y.as_f32(), width.as_f32(), height.as_f32())
-}
-
-impl Vector2 {
-    /// Constant `Vector2` with both components set to zero.
-    const ZERO: Vector2 = Vector2 { x: 0.0, y: 0.0 };
-
-    /// Constant `Vector2` with both components set to one.
-    const ONE: Vector2 = Vector2 { x: 1.0, y: 1.0 };
-
-    /// Returns a new `Vector2` with specified components.
-    pub const fn new(x: f32, y: f32) -> Vector2 {
-        Vector2 { x, y }
-    }
-
-    /// Returns a new `Vector2` with both components set to zero.
-    #[inline]
-    pub const fn zero() -> Vector2 {
-        Vector2 { x: 0.0, y: 0.0 }
-    }
-
-    /// Returns a new `Vector2` with both components set to one.
-    #[inline]
-    pub const fn one() -> Vector2 {
-        Vector2 { x: 1.0, y: 1.0 }
-    }
-
-    /// Calculates the vector length.
-    #[inline]
-    pub fn length(&self) -> f32 {
-        ((self.x * self.x) + (self.y * self.y)).sqrt()
-    }
-
-    /// Calculates the vector length square (**2);
-    #[inline]
-    pub const fn length_sqr(&self) -> f32 {
-        (self.x * self.x) + (self.y * self.y)
-    }
-
-    /// Calculates the dot product with vector `v`.
-    #[inline]
-    pub const fn dot(&self, v: Vector2) -> f32 {
-        self.x * v.x + self.y * v.y
-    }
-
-    /// Calculates the distance towards vector `v`.
-    #[inline]
-    pub fn distance_to(&self, v: Vector2) -> f32 {
-        ((self.x - v.x) * (self.x - v.x) + (self.y - v.y) * (self.y - v.y)).sqrt()
-    }
-
-    /// Calculates the angle towards vector `v` in radians.
-    pub fn angle_to(&self, v: Vector2) -> f32 {
-        let mut result = (v.y - self.y).atan2(v.x - self.x);
-        if result < 0.0 {
-            result += 2.0 * PI;
-        }
-        result
-    }
-
-    /// Scales the vector by multiplying both components by `scale`.
-    #[inline]
-    pub fn scale(&mut self, scale: f32) {
-        *self *= scale;
-    }
-
-    /// Returns a new `Vector2` with components scaled by `scale`.
-    #[inline]
-    pub fn scale_by(&self, scale: f32) -> Vector2 {
-        *self * scale
-    }
-
-    /// Normalizes the vector.
-    #[inline]
-    pub fn normalize(&mut self) {
-        *self = self.normalized();
-    }
-
-    /// Returns a new `Vector2` with normalized components from the current vector.
-    pub fn normalized(&self) -> Vector2 {
-        let length_sqr = self.length_sqr();
-        if length_sqr == 0.0 {
-            return *self;
-        }
-        *self / length_sqr.sqrt()
-    }
-
-    /// Rotates the vector by `angle` radians.
-    pub fn rotate(&mut self, angle: f32) {
-        let cos_res = angle.cos();
-        let sin_res = angle.sin();
-
-        let result = Vector2::new(
-            self.x * cos_res - self.y * sin_res,
-            self.x * sin_res + self.y * cos_res,
-        );
-
-        self.x = result.x;
-        self.y = result.y;
-    }
-
-    /// Returns a new `Vector2` rotated by `angle` radians.
-    pub fn rotated(&self, angle: f32) -> Vector2 {
-        let cos_res = angle.cos();
-        let sin_res = angle.sin();
-
-        Vector2::new(
-            self.x * cos_res - self.y * sin_res,
-            self.x * sin_res + self.y * cos_res,
-        )
-    }
-
-    /// Returns a new `Vector2` with componenets linearly interpolated by `amount` towards vector `v`.
-    #[inline]
-    pub const fn lerp(&self, v: Vector2, amount: f32) -> Vector2 {
-        Vector2 {
-            x: self.x + amount * (v.x - self.x),
-            y: self.y + amount * (v.y - self.y),
-        }
-    }
-
-    /// Returns a new `Vector2` with componenets clamp to a certain interval.
-    #[inline]
-    pub const fn clamp(&self, num: Range<f32>) -> Vector2 {
-        Vector2 {
-            x: self.x.clamp(num.start, num.end),
-            y: self.y.clamp(num.start, num.end),
-        }
-    }
-}
-
-impl From<(f32, f32)> for Vector2 {
-    #[inline]
-    fn from((x, y): (f32, f32)) -> Vector2 {
-        Vector2 { x, y }
-    }
-}
-
-impl Add for Vector2 {
-    type Output = Vector2;
-    fn add(self, v: Vector2) -> Self {
-        Vector2 {
-            x: self.x + v.x,
-            y: self.y + v.y,
-        }
-    }
-}
-
-impl Add<f32> for Vector2 {
-    type Output = Vector2;
-    fn add(self, value: f32) -> Self {
-        Vector2 {
-            x: self.x + value,
-            y: self.y + value,
-        }
-    }
-}
-
-impl AddAssign for Vector2 {
-    fn add_assign(&mut self, v: Vector2) {
-        *self = *self + v;
-    }
-}
-
-impl AddAssign<f32> for Vector2 {
-    fn add_assign(&mut self, value: f32) {
-        *self = *self + value;
-    }
-}
-
-impl Sub for Vector2 {
-    type Output = Vector2;
-    fn sub(self, v: Vector2) -> Self {
-        Vector2 {
-            x: self.x - v.x,
-            y: self.y - v.y,
-        }
-    }
-}
-
-impl Sub<f32> for Vector2 {
-    type Output = Vector2;
-    fn sub(self, value: f32) -> Self {
-        Vector2 {
-            x: self.x - value,
-            y: self.y - value,
-        }
-    }
-}
-
-impl SubAssign for Vector2 {
-    fn sub_assign(&mut self, v: Vector2) {
-        *self = *self - v;
-    }
-}
-
-impl SubAssign<f32> for Vector2 {
-    fn sub_assign(&mut self, value: f32) {
-        *self = *self - value;
-    }
-}
-
-impl Mul for Vector2 {
-    type Output = Vector2;
-    fn mul(self, v: Vector2) -> Self {
-        Vector2 {
-            x: self.x * v.x,
-            y: self.y * v.y,
-        }
-    }
-}
-
-impl Mul<f32> for Vector2 {
-    type Output = Vector2;
-    fn mul(self, value: f32) -> Self {
-        Vector2 {
-            x: self.x * value,
-            y: self.y * value,
-        }
-    }
-}
-
-impl MulAssign for Vector2 {
-    fn mul_assign(&mut self, v: Vector2) {
-        *self = *self * v;
-    }
-}
-
-impl MulAssign<f32> for Vector2 {
-    fn mul_assign(&mut self, value: f32) {
-        *self = *self * value;
-    }
-}
-
-impl Div for Vector2 {
-    type Output = Vector2;
-    fn div(self, v: Vector2) -> Self {
-        Vector2 {
-            x: self.x / v.x,
-            y: self.y / v.y,
-        }
-    }
-}
-
-impl Div<f32> for Vector2 {
-    type Output = Vector2;
-    fn div(self, value: f32) -> Self {
-        Vector2 {
-            x: self.x / value,
-            y: self.y / value,
-        }
-    }
-}
-
-impl DivAssign for Vector2 {
-    fn div_assign(&mut self, v: Vector2) {
-        *self = *self / v;
-    }
-}
-
-impl DivAssign<f32> for Vector2 {
-    fn div_assign(&mut self, value: f32) {
-        *self = *self / value;
-    }
-}
-
-impl Neg for Vector2 {
-    type Output = Vector2;
-    fn neg(self) -> Self {
-        Vector2 {
-            x: -self.x,
-            y: -self.y,
-        }
-    }
-}
-
-optional_serde_struct! {
-    /// Vector3, 3 components
-    pub struct Vector3 {
-        /// Vector x component
-        pub x: f32,
-        /// Vector y component
-        pub y: f32,
-        /// Vector z component
-        pub z: f32,
-    }
-}
-
-#[cfg(feature = "convert_mint")]
-impl From<mint::Vector3<f32>> for Vector3 {
-    fn from(v: mint::Vector3<f32>) -> Vector3 {
-        Vector3 {
-            x: v.x,
-            y: v.y,
-            z: v.z,
-        }
-    }
-}
-
-#[cfg(feature = "convert_mint")]
-impl From<mint::Point3<f32>> for Vector3 {
-    fn from(v: mint::Point3<f32>) -> Vector3 {
-        Vector3 {
-            x: v.x,
-            y: v.y,
-            z: v.z,
-        }
-    }
-}
-
-#[cfg(feature = "convert_mint")]
-impl From<Vector3> for mint::Vector3<f32> {
-    fn from(v: Vector3) -> Self {
-        Self {
-            x: v.x,
-            y: v.y,
-            z: v.z,
-        }
-    }
-}
-
-impl From<ffi::Vector3> for Vector3 {
-    fn from(v: ffi::Vector3) -> Vector3 {
-        unsafe { std::mem::transmute(v) }
-    }
-}
-
-impl From<Vector3> for ffi::Vector3 {
-    fn from(v: Vector3) -> Self {
-        unsafe { std::mem::transmute(v) }
-    }
-}
-
-impl From<&Vector3> for ffi::Vector3 {
-    fn from(v: &Vector3) -> ffi::Vector3 {
-        ffi::Vector3 {
-            x: v.x,
-            y: v.y,
-            z: v.z,
-        }
-    }
-}
-
-impl Vector3 {
-    /// Returns a new `Vector3` with specified components.
-    pub const fn new(x: f32, y: f32, z: f32) -> Vector3 {
-        Vector3 { x, y, z }
-    }
-
-    /// Returns a new `Vector3` one positive unit in the Y axis.
-    #[inline]
-    pub const fn up() -> Vector3 {
-        Vector3::new(0.0, 1.0, 0.0)
-    }
-
-    /// Returns a new `Vector3` one positive unit in the Z axis.
-    #[inline]
-    pub const fn forward() -> Vector3 {
-        Vector3::new(0.0, 0.0, 1.0)
-    }
-
-    /// Returns a new `Vector3` one positive unit in the X axis.
-    #[inline]
-    pub const fn right() -> Vector3 {
-        Vector3::new(1.0, 0.0, 0.0)
-    }
-
-    /// Returns a new `Vector3` one negative unit in the X axis.
-    #[inline]
-    pub const fn left() -> Vector3 {
-        Vector3::new(-1.0, 0.0, 0.0)
-    }
-
-    /// Returns a new `Vector3` with all components set to zero.
-    #[inline]
-    pub const fn zero() -> Vector3 {
-        Vector3 {
-            x: 0.0,
-            y: 0.0,
-            z: 0.0,
-        }
-    }
-
-    /// Returns a new `Vector3` with all components set to one.
-    #[inline]
-    pub const fn one() -> Vector3 {
-        Vector3 {
-            x: 1.0,
-            y: 1.0,
-            z: 1.0,
-        }
-    }
-
-    /// Returns a new `Vector3` containing the cross product between `self` and vector `v`.
-    pub const fn cross(&self, v: Vector3) -> Vector3 {
-        Vector3 {
-            x: self.y * v.z - self.z * v.y,
-            y: self.z * v.x - self.x * v.z,
-            z: self.x * v.y - self.y * v.x,
-        }
-    }
-
-    /// Returns a new `Vector3` perpendicular to `self`.
-    pub const fn perpendicular(&self) -> Vector3 {
-        let mut min = self.x.abs();
-        let mut cardinal_axis = Vector3 {
-            x: 1.0,
-            y: 0.0,
-            z: 0.0,
-        };
-
-        if self.y.abs() < min {
-            min = self.y.abs();
-            cardinal_axis = Vector3 {
-                x: 0.0,
-                y: 1.0,
-                z: 0.0,
-            };
-        }
-
-        if self.z.abs() < min {
-            cardinal_axis = Vector3 {
-                x: 0.0,
-                y: 0.0,
-                z: 1.0,
-            };
-        }
-
-        self.cross(cardinal_axis)
-    }
-
-    /// Calculates the vector length.
-    #[inline]
-    pub fn length(&self) -> f32 {
-        (self.x * self.x + self.y * self.y + self.z * self.z).sqrt()
-    }
-
-    /// Calculates the dot product with vector `v`.
-    #[inline]
-    pub const fn dot(&self, v: Vector3) -> f32 {
-        self.x * v.x + self.y * v.y + self.z * v.z
-    }
-
-    /// Calculates the distance towards vector `v`.
-    #[inline]
-    pub fn distance_to(&self, v: Vector3) -> f32 {
-        let dx = v.x - self.x;
-        let dy = v.y - self.y;
-        let dz = v.z - self.z;
-        (dx * dx + dy * dy + dz * dz).sqrt()
-    }
-
-    /// Calculate angle between two vectors
-    pub fn angle_to(&self, v2: Vector3) -> f32 {
-        let cross = Vector3 {
-            x: self.y * v2.z - self.z * v2.y,
-            y: self.z * v2.x - self.x * v2.z,
-            z: self.x * v2.y - self.y * v2.x,
-        };
-        let len = (cross.x * cross.x + cross.y * cross.y + cross.z * cross.z).sqrt();
-        let dot = self.x * v2.x + self.y * v2.y + self.z * v2.z;
-        return len.atan2(dot);
-    }
-
-    /// Scales the vector by multiplying both components by `scale`.
-    #[inline]
-    pub fn scale(&mut self, scale: f32) {
-        *self *= scale;
-    }
-
-    /// Returns a new `Vector3` with components scaled by `scale`.
-    #[inline]
-    pub fn scale_by(&self, scale: f32) -> Vector3 {
-        *self * scale
-    }
-
-    /// Normalizes the current vector.
-    #[inline]
-    pub fn normalize(&mut self) {
-        *self = self.normalized();
-    }
-
-    /// Returns a new `Vector3` with normalized components from the current vector.
-    pub fn normalized(&self) -> Vector3 {
-        let mut length = self.length();
-        if length == 0.0 {
-            length = 1.0;
-        }
-        let ilength = 1.0 / length;
-
-        Vector3 {
-            x: self.x * ilength,
-            y: self.y * ilength,
-            z: self.z * ilength,
-        }
-    }
-
-    /// Normalizes and changes both `self` and `v` to be orthogonal to eachother.
-    pub fn ortho_normalize(&mut self, v: &mut Vector3) {
-        *self = self.normalized();
-        let vn = self.cross(*v).normalized();
-        *v = vn.cross(*self);
-    }
-
-    /// Transforms the current vector using Matrix `mat`.
-    #[inline]
-    pub const fn transform(&mut self, mat: Matrix) {
-        *self = self.transform_with(mat);
-    }
-
-    /// Returns a new `Vector3` containing components transformed by Matrix `mat`.
-    pub const fn transform_with(&self, mat: Matrix) -> Vector3 {
-        Vector3 {
-            x: mat.m0 * self.x + mat.m4 * self.y + mat.m8 * self.z + mat.m12,
-            y: mat.m1 * self.x + mat.m5 * self.y + mat.m9 * self.z + mat.m13,
-            z: mat.m2 * self.x + mat.m6 * self.y + mat.m10 * self.z + mat.m14,
-        }
-    }
-
-    /// Rotates the current vector using Quaternion `q`.
-    #[inline]
-    pub const fn rotate(&mut self, q: Quaternion) {
-        *self = self.rotate_by(q);
-    }
-
-    /// Returns a new `Vector3` with components rotated by Quaternion `q`.
-    pub const fn rotate_by(&self, q: Quaternion) -> Vector3 {
-        Vector3 {
-            x: self.x * (q.x * q.x + q.w * q.w - q.y * q.y - q.z * q.z)
-                + self.y * (2.0 * q.x * q.y - 2.0 * q.w * q.z)
-                + self.z * (2.0 * q.x * q.z + 2.0 * q.w * q.y),
-            y: self.x * (2.0 * q.w * q.z + 2.0 * q.x * q.y)
-                + self.y * (q.w * q.w - q.x * q.x + q.y * q.y - q.z * q.z)
-                + self.z * (-2.0 * q.w * q.x + 2.0 * q.y * q.z),
-            z: self.x * (-2.0 * q.w * q.y + 2.0 * q.x * q.z)
-                + self.y * (2.0 * q.w * q.x + 2.0 * q.y * q.z)
-                + self.z * (q.w * q.w - q.x * q.x - q.y * q.y + q.z * q.z),
-        }
-    }
-
-    /// Returns a new `Vector3` with componenets linearly interpolated by `amount` towards vector `v`.
-    #[inline]
-    pub const fn lerp(&self, v: Vector3, amount: f32) -> Vector3 {
-        Vector3 {
-            x: self.x + amount * (v.x - self.x),
-            y: self.y + amount * (v.y - self.y),
-            z: self.z + amount * (v.z - self.z),
-        }
-    }
-
-    /// Reflects the current vector from `normal`.
-    #[inline]
-    pub const fn reflect(&mut self, normal: Vector3) {
-        *self = self.reflect_from(normal);
-    }
-
-    /// Returns a new `Vector3` reflected from the current vector using `normal`.
-    pub const fn reflect_from(&self, normal: Vector3) -> Vector3 {
-        let dot_product = self.dot(normal);
-        Vector3 {
-            x: self.x - (2.0 * normal.x) * dot_product,
-            y: self.y - (2.0 * normal.y) * dot_product,
-            z: self.z - (2.0 * normal.z) * dot_product,
-        }
-    }
-
-    /// Returns a new `Vector3` containing the minimum of each corresponding component.
-    #[inline]
-    pub const fn min(&self, v: Vector3) -> Vector3 {
-        Vector3 {
-            x: self.x.min(v.x),
-            y: self.y.min(v.y),
-            z: self.z.min(v.z),
-        }
-    }
-
-    /// Returns a new `Vector3` containing the maximum of each corresponding component.
-    #[inline]
-    pub const fn max(&self, v: Vector3) -> Vector3 {
-        Vector3 {
-            x: self.x.max(v.x),
-            y: self.y.max(v.y),
-            z: self.z.max(v.z),
-        }
-    }
-
-    /// Returns barycenter coordinates (u, v, w) from point p (current vector) with respect to triangle (`a`, `b`, `c`).
-    pub const fn barycenter(&self, a: Vector3, b: Vector3, c: Vector3) -> Vector3 {
-        let v0 = Vector3::new(b.x - a.x, b.y - a.y, b.z - a.z);
-        let v1 = Vector3::new(c.x - a.x, c.y - a.y, c.z - a.z);
-        let v2 = Vector3::new(self.x - a.x, self.y - a.y, self.z - a.z);
-        let d00 = v0.dot(v0);
-        let d01 = v0.dot(v1);
-        let d11 = v1.dot(v1);
-        let d20 = v2.dot(v0);
-        let d21 = v2.dot(v1);
-        let denom = d00 * d11 - d01 * d01;
-
-        let y = (d11 * d20 - d01 * d21) / denom;
-        let z = (d00 * d21 - d01 * d20) / denom;
-        Vector3 {
-            x: 1.0 - (z + y),
-            y,
-            z,
-        }
-    }
-
-    /// Returns a 3-length `f32` array containing components `[x, y, z]` of the current vector.
-    #[inline]
-    pub const fn to_array(&self) -> [f32; 3] {
-        [self.x, self.y, self.z]
-    }
-
-    /// Returns a new `Vector3` with componenets clamp to a certain interval.
-    #[inline]
-    pub const fn clamp(&self, num: Range<f32>) -> Vector3 {
-        Vector3 {
-            x: self.x.clamp(num.start, num.end),
-            y: self.y.clamp(num.start, num.end),
-            z: self.z.clamp(num.start, num.end),
-        }
-    }
-}
-
-impl From<(f32, f32, f32)> for Vector3 {
-    #[inline]
-    fn from((x, y, z): (f32, f32, f32)) -> Vector3 {
-        Vector3 { x, y, z }
-    }
-}
-
-impl Add for Vector3 {
-    type Output = Vector3;
-    fn add(self, v: Vector3) -> Self {
-        Vector3 {
-            x: self.x + v.x,
-            y: self.y + v.y,
-            z: self.z + v.z,
-        }
-    }
-}
-
-impl Add<f32> for Vector3 {
-    type Output = Vector3;
-    fn add(self, value: f32) -> Self {
-        Vector3 {
-            x: self.x + value,
-            y: self.y + value,
-            z: self.z + value,
-        }
-    }
-}
-
-impl AddAssign for Vector3 {
-    fn add_assign(&mut self, v: Vector3) {
-        *self = *self + v;
-    }
-}
-
-impl AddAssign<f32> for Vector3 {
-    fn add_assign(&mut self, value: f32) {
-        *self = *self + value;
-    }
-}
-
-impl Sub for Vector3 {
-    type Output = Vector3;
-    fn sub(self, v: Vector3) -> Self {
-        Vector3 {
-            x: self.x - v.x,
-            y: self.y - v.y,
-            z: self.z - v.z,
-        }
-    }
-}
-
-impl Sub<f32> for Vector3 {
-    type Output = Vector3;
-    fn sub(self, value: f32) -> Self {
-        Vector3 {
-            x: self.x - value,
-            y: self.y - value,
-            z: self.z - value,
-        }
-    }
-}
-
-impl SubAssign for Vector3 {
-    fn sub_assign(&mut self, v: Vector3) {
-        *self = *self - v;
-    }
-}
-
-impl SubAssign<f32> for Vector3 {
-    fn sub_assign(&mut self, value: f32) {
-        *self = *self - value;
-    }
-}
-
-impl Mul for Vector3 {
-    type Output = Vector3;
-    fn mul(self, v: Vector3) -> Self {
-        Vector3 {
-            x: self.x * v.x,
-            y: self.y * v.y,
-            z: self.z * v.z,
-        }
-    }
-}
-
-impl Mul<f32> for Vector3 {
-    type Output = Vector3;
-    fn mul(self, value: f32) -> Self {
-        Vector3 {
-            x: self.x * value,
-            y: self.y * value,
-            z: self.z * value,
-        }
-    }
-}
-
-impl MulAssign for Vector3 {
-    fn mul_assign(&mut self, v: Vector3) {
-        *self = *self * v;
-    }
-}
-
-impl MulAssign<f32> for Vector3 {
-    fn mul_assign(&mut self, value: f32) {
-        *self = *self * value;
-    }
-}
-
-impl Div for Vector3 {
-    type Output = Vector3;
-    fn div(self, v: Vector3) -> Self {
-        Vector3 {
-            x: self.x / v.x,
-            y: self.y / v.y,
-            z: self.z / v.z,
-        }
-    }
-}
-
-impl Div<f32> for Vector3 {
-    type Output = Vector3;
-    fn div(self, value: f32) -> Self {
-        Vector3 {
-            x: self.x / value,
-            y: self.y / value,
-            z: self.z / value,
-        }
-    }
-}
-
-impl DivAssign for Vector3 {
-    fn div_assign(&mut self, v: Vector3) {
-        *self = *self / v;
-    }
-}
-
-impl DivAssign<f32> for Vector3 {
-    fn div_assign(&mut self, value: f32) {
-        *self = *self / value;
-    }
-}
-
-impl Neg for Vector3 {
-    type Output = Vector3;
-    fn neg(self) -> Self {
-        Vector3 {
-            x: -self.x,
-            y: -self.y,
-            z: -self.z,
-        }
-    }
-}
-
-optional_serde_struct! {
-    /// Vector4, 4 components
-    pub struct Vector4 {
-        /// Vector x component
-        pub x: f32,
-        /// Vector y component
-        pub y: f32,
-        /// Vector z component
-        pub z: f32,
-        /// Vector w component
-        pub w: f32,
-    }
-}
-
-/// Quaternion, 4 components (Vector4 alias)
-pub type Quaternion = Vector4;
-
-#[cfg(feature = "convert_mint")]
-impl From<mint::Vector4<f32>> for Vector4 {
-    fn from(v: mint::Vector4<f32>) -> Vector4 {
-        Vector4 {
-            x: v.x,
-            y: v.y,
-            z: v.z,
-            w: v.w,
-        }
-    }
-}
-
-#[cfg(feature = "convert_mint")]
-impl From<Vector4> for mint::Vector4<f32> {
-    fn from(v: Vector4) -> Self {
-        mint::Vector4 {
-            x: v.x,
-            y: v.y,
-            z: v.z,
-            w: v.w,
-        }
-    }
-}
-
-impl From<ffi::Vector4> for Vector4 {
-    fn from(v: ffi::Vector4) -> Vector4 {
-        unsafe { std::mem::transmute(v) }
-    }
-}
-
-impl From<Vector4> for ffi::Vector4 {
-    fn from(v: Vector4) -> ffi::Vector4 {
-        unsafe { std::mem::transmute(v) }
-    }
-}
-
-impl From<&Vector4> for ffi::Vector4 {
-    fn from(v: &Vector4) -> ffi::Vector4 {
-        ffi::Vector4 {
-            x: v.x,
-            y: v.y,
-            z: v.z,
-            w: v.w,
-        }
-    }
-}
+optional_serde_struct!(
+    pub struct Quaternion {
+        x: f32,
+        y: f32,
+        z: f32,
+        w: f32,
+    }
+);
 
 impl Quaternion {
     /// Returns a new `Quaternion` with specified components.
+    #[inline]
+    #[must_use]
     pub const fn new(x: f32, y: f32, z: f32, w: f32) -> Quaternion {
         Quaternion { x, y, z, w }
     }
 
     /// Returns the identity quaternion.
     #[inline]
+    #[must_use]
     pub const fn identity() -> Quaternion {
         Quaternion {
             x: 0.0,
@@ -974,6 +80,8 @@ impl Quaternion {
     }
 
     /// Returns quaternion based on the rotation from one vector to another.
+    #[inline]
+    #[must_use]
     pub fn from_vec3_pair(from: Vector3, to: Vector3) -> Quaternion {
         let cross = from.cross(to);
         Quaternion {
@@ -986,6 +94,8 @@ impl Quaternion {
     }
 
     /// Returns a quaternion for a given rotation matrix.
+    #[inline]
+    #[must_use]
     pub fn from_matrix(mat: Matrix) -> Quaternion {
         let trace = mat.trace();
 
@@ -1037,7 +147,8 @@ impl Quaternion {
             }
         }
     }
-
+    #[inline]
+    #[must_use]
     /// Returns a rotation matrix for the current quaternion.
     pub fn to_matrix(&self) -> Matrix {
         let x = self.x;
@@ -1083,7 +194,8 @@ impl Quaternion {
             m15: 1.0,
         }
     }
-
+    #[inline]
+    #[must_use]
     /// Returns a quaternion equivalent to Euler angles.
     pub fn from_euler(pitch: f32, yaw: f32, roll: f32) -> Quaternion {
         let x0 = (pitch * 0.5).cos();
@@ -1100,7 +212,8 @@ impl Quaternion {
             w: (x0 * y0 * z0) + (x1 * y1 * z1),
         }
     }
-
+    #[inline]
+    #[must_use]
     /// Returns a vector containing Euler angles in radians (roll, pitch, yaw), based on the current quaternion.
     pub fn to_euler(&self) -> Vector3 {
         // roll (x-axis rotation)
@@ -1122,7 +235,8 @@ impl Quaternion {
             z: z0.atan2(z1),
         }
     }
-
+    #[inline]
+    #[must_use]
     /// Returns rotation quaternion for an `axis` and `angle` (in radians).
     pub fn from_axis_angle(axis: Vector3, angle: f32) -> Quaternion {
         let mut result = Quaternion::identity();
@@ -1133,7 +247,7 @@ impl Quaternion {
             angle *= 0.5;
         }
 
-        axis.normalize();
+        axis = axis.normalize();
 
         let sinres = angle.sin();
         let cosres = angle.cos();
@@ -1144,7 +258,8 @@ impl Quaternion {
         result.w = cosres;
         result.normalized()
     }
-
+    #[inline]
+    #[must_use]
     /// Returns a 2-tuple containing the axis (`Vector3`) and angle (`f32` in radians) for the current quaternion.
     pub fn to_axis_angle(&self) -> (Vector3, f32) {
         let mut q = *self;
@@ -1152,7 +267,7 @@ impl Quaternion {
             q = q.normalized();
         }
 
-        let mut res_axis = Vector3::zero();
+        let mut res_axis = Vector3::ZERO;
         let res_angle = 2.0 * q.w.acos();
         let den = (1.0 - q.w * q.w).sqrt();
 
@@ -1171,10 +286,12 @@ impl Quaternion {
 
     /// Computes the length of the current quaternion.
     #[inline]
+    #[must_use]
     pub fn length(&self) -> f32 {
         (self.x * self.x + self.y * self.y + self.z * self.z + self.w * self.w).sqrt()
     }
-
+    #[inline]
+    #[must_use]
     /// Returns a normalized version of the current quaternion.
     pub fn normalized(&self) -> Quaternion {
         let mut length = self.length();
@@ -1190,7 +307,8 @@ impl Quaternion {
             w: self.w * ilength,
         }
     }
-
+    #[inline]
+    #[must_use]
     /// Returns an inverted version of the current quaternion.
     pub fn inverted(&self) -> Quaternion {
         let mut result = *self;
@@ -1206,9 +324,10 @@ impl Quaternion {
         }
         result
     }
-
-    /// Calculates linear interpolation between current and `q` quaternions.
     #[inline]
+    #[must_use]
+    /// Calculates linear interpolation between current and `q` quaternions.
+    /// Returns an inverted version of the current quaternion.
     pub const fn lerp(&self, q: Quaternion, amount: f32) -> Quaternion {
         Quaternion {
             x: self.x + amount * (q.x - self.x),
@@ -1220,11 +339,13 @@ impl Quaternion {
 
     /// Calculates slerp-optimized interpolation between current and `q` quaternions.
     #[inline]
+    #[must_use]
     pub fn nlerp(&self, q: Quaternion, amount: f32) -> Quaternion {
         self.lerp(q, amount).normalized()
     }
 
     /// Calculates spherical linear interpolation between current and `q` quaternions.
+    #[must_use]
     pub fn slerp(&self, q: Quaternion, amount: f32) -> Quaternion {
         let cos_half_theta = self.x * q.x + self.y * q.y + self.z * q.z + self.w * q.w;
 
@@ -1258,6 +379,7 @@ impl Quaternion {
     }
 
     /// Returns a transformed version of the current quaternion given a transformation matrix.
+    #[must_use]
     pub const fn transform(&self, mat: Matrix) -> Quaternion {
         Quaternion {
             x: mat.m0 * self.x + mat.m4 * self.y + mat.m8 * self.z + mat.m12 * self.w,
@@ -1269,6 +391,7 @@ impl Quaternion {
 
     /// Returns a new `Quaternion` with componenets clamp to a certain interval.
     #[inline]
+    #[must_use]
     pub const fn clamp(&self, num: Range<f32>) -> Quaternion {
         Quaternion {
             x: self.x.clamp(num.start, num.end),
@@ -1279,32 +402,16 @@ impl Quaternion {
     }
 }
 
-#[cfg(feature = "convert_mint")]
-impl From<mint::Quaternion<f32>> for Quaternion {
-    fn from(q: mint::Quaternion<f32>) -> Quaternion {
-        Quaternion {
-            x: q.v.x,
-            y: q.v.y,
-            z: q.v.z,
-            w: q.s,
-        }
+impl From<ffi::Quaternion> for Quaternion {
+    fn from(q: ffi::Quaternion) -> Quaternion {
+        unsafe { std::mem::transmute(q) }
     }
 }
-
-#[cfg(feature = "convert_mint")]
-impl From<Quaternion> for mint::Quaternion<f32> {
-    fn from(q: Quaternion) -> Self {
-        Self {
-            v: mint::Vector3 {
-                x: q.x,
-                y: q.y,
-                z: q.z,
-            },
-            s: q.w,
-        }
+impl From<Quaternion> for ffi::Quaternion {
+    fn from(value: Quaternion) -> Self {
+        unsafe { std::mem::transmute(value) }
     }
 }
-
 impl From<(f32, f32, f32, f32)> for Quaternion {
     #[inline]
     fn from((x, y, z, w): (f32, f32, f32, f32)) -> Quaternion {
@@ -1379,30 +486,14 @@ impl From<Matrix> for ffi::Matrix {
 
 impl From<&Matrix> for ffi::Matrix {
     fn from(v: &Matrix) -> Self {
-        ffi::Matrix {
-            m0: v.m0,
-            m4: v.m4,
-            m8: v.m8,
-            m12: v.m12,
-            m1: v.m1,
-            m5: v.m5,
-            m9: v.m9,
-            m13: v.m13,
-            m2: v.m2,
-            m6: v.m6,
-            m10: v.m10,
-            m14: v.m14,
-            m3: v.m3,
-            m7: v.m7,
-            m11: v.m11,
-            m15: v.m15,
-        }
+        unsafe { std::mem::transmute(*v) }
     }
 }
 
 impl Matrix {
     /// Returns the identity matrix.
     #[inline]
+    #[must_use]
     pub const fn identity() -> Matrix {
         Matrix {
             m0: 1.0,
@@ -1426,6 +517,7 @@ impl Matrix {
 
     /// Returns the zero matriz.
     #[inline]
+    #[must_use]
     pub const fn zero() -> Matrix {
         Matrix {
             m0: 0.0,
@@ -1449,6 +541,7 @@ impl Matrix {
 
     /// Returns a translation matrix.
     #[inline]
+    #[must_use]
     pub const fn translate(x: f32, y: f32, z: f32) -> Matrix {
         Matrix {
             m0: 1.0,
@@ -1471,6 +564,7 @@ impl Matrix {
     }
 
     /// Returns a rotation matrix.
+    #[must_use]
     pub fn rotate(axis: Vector3, angle: f32) -> Matrix {
         let mut x = axis.x;
         let mut y = axis.y;
@@ -1511,6 +605,7 @@ impl Matrix {
         }
     }
 
+    #[must_use]
     /// Returns a translation matrix around the X axis.
     pub fn rotate_x(angle: f32) -> Matrix {
         let mut result = Matrix::identity();
@@ -1525,6 +620,7 @@ impl Matrix {
         result
     }
 
+    #[must_use]
     /// Returns a translation matrix around the Y axis.
     pub fn rotate_y(angle: f32) -> Matrix {
         let mut result = Matrix::identity();
@@ -1539,6 +635,7 @@ impl Matrix {
         result
     }
 
+    #[must_use]
     /// Returns a translation matrix around the Z axis.
     pub fn rotate_z(angle: f32) -> Matrix {
         let mut result = Matrix::identity();
@@ -1553,6 +650,7 @@ impl Matrix {
         result
     }
 
+    #[must_use]
     /// Returns xyz-rotation matrix (angles in radians)
     pub fn rotate_xyz(ang: Vector3) -> Self {
         let mut result = Self::identity();
@@ -1579,6 +677,7 @@ impl Matrix {
         result
     }
 
+    #[must_use]
     /// Returns a scaling matrix.
     #[inline]
     pub const fn scale(x: f32, y: f32, z: f32) -> Matrix {
@@ -1602,6 +701,7 @@ impl Matrix {
         }
     }
 
+    #[must_use]
     /// Returns perspective projection matrix based on frustum parameters.
     pub fn frustum(left: f32, right: f32, bottom: f32, top: f32, near: f32, far: f32) -> Matrix {
         let rl = right - left;
@@ -1631,6 +731,7 @@ impl Matrix {
         }
     }
 
+    #[must_use]
     /// Returns perspective projection matrix.
     pub fn perspective(fovy: f32, aspect: f32, near: f32, far: f32) -> Matrix {
         let top = near * (fovy * 0.5).tan();
@@ -1638,6 +739,7 @@ impl Matrix {
         Matrix::frustum(-right, right, -top, top, near, far)
     }
 
+    #[must_use]
     /// Returns orthographic projection matrix.
     pub fn ortho(left: f32, right: f32, bottom: f32, top: f32, near: f32, far: f32) -> Matrix {
         let rl = right - left;
@@ -1664,11 +766,12 @@ impl Matrix {
         }
     }
 
+    #[must_use]
     /// Returns camera look-at matrix (view matrix).
     pub fn look_at(eye: Vector3, target: Vector3, up: Vector3) -> Matrix {
-        let z = (eye - target).normalized();
-        let x = up.cross(z).normalized();
-        let y = z.cross(x).normalized();
+        let z = (eye - target).normalize();
+        let x = up.cross(z).normalize();
+        let y = z.cross(x).normalize();
 
         Matrix {
             m0: x.x,
@@ -1691,6 +794,7 @@ impl Matrix {
         .inverted()
     }
 
+    #[must_use]
     /// Calculates the determinant of the current matrix.
     pub const fn determinant(&self) -> f32 {
         let a00 = self.m0;
@@ -1733,15 +837,16 @@ impl Matrix {
             - a10 * a01 * a22 * a33
             + a00 * a11 * a22 * a33
     }
-
-    /// Calculates the trace of the matrix (sum of the values along the diagonal).
+    #[must_use]
     #[inline]
+    /// Calculates the trace of the matrix (sum of the values along the diagonal).
     pub const fn trace(&self) -> f32 {
         self.m0 + self.m5 + self.m10 + self.m15
     }
 
-    /// Returns a new `Matrix` transposed from the current one.
+    #[must_use]
     #[inline]
+    /// Returns a new `Matrix` transposed from the current one.
     pub const fn transposed(&self) -> Matrix {
         Matrix {
             m0: self.m0,
@@ -1762,7 +867,7 @@ impl Matrix {
             m15: self.m15,
         }
     }
-
+    #[must_use]
     /// Returns a new `Matrix` inverted from the current one.
     pub const fn inverted(&self) -> Matrix {
         let a00 = self.m0;
@@ -1820,6 +925,7 @@ impl Matrix {
 
     /// Returns a new `Matrix` normalized from the current one.
     #[inline]
+    #[must_use]
     pub const fn normalized(&self) -> Matrix {
         let det = self.determinant();
         Matrix {
@@ -1844,6 +950,7 @@ impl Matrix {
 
     /// Returns a 16-length `f32` array containing the current matrix data.
     #[inline]
+    #[must_use]
     pub const fn to_array(&self) -> [f32; 16] {
         [
             self.m0, self.m1, self.m2, self.m3, self.m4, self.m5, self.m6, self.m7, self.m8,
@@ -1966,14 +1073,13 @@ impl From<Ray> for ffi::Ray {
 
 impl From<&Ray> for ffi::Ray {
     fn from(v: &Ray) -> ffi::Ray {
-        ffi::Ray {
-            position: v.position.into(),
-            direction: v.direction.into(),
-        }
+        unsafe { std::mem::transmute(*v) }
     }
 }
 
 impl Ray {
+    #[must_use]
+    #[inline]
     pub const fn new(position: Vector3, direction: Vector3) -> Self {
         Self {
             position,
@@ -1982,54 +1088,7 @@ impl Ray {
     }
 }
 
-optional_serde_struct! {
-    /// Rectangle, 4 components
-    pub struct Rectangle {
-        /// Rectangle top-left corner position x
-        pub x: f32,
-        /// Rectangle top-left corner position y
-        pub y: f32,
-        /// Rectangle width
-        pub width: f32,
-        /// Rectangle height
-        pub height: f32,
-    }
-}
-
-impl From<ffi::Rectangle> for Rectangle {
-    fn from(r: ffi::Rectangle) -> Rectangle {
-        unsafe { std::mem::transmute(r) }
-    }
-}
-
-impl From<Rectangle> for ffi::Rectangle {
-    fn from(v: Rectangle) -> ffi::Rectangle {
-        unsafe { std::mem::transmute(v) }
-    }
-}
-
-impl From<&Rectangle> for ffi::Rectangle {
-    fn from(v: &Rectangle) -> ffi::Rectangle {
-        ffi::Rectangle {
-            x: v.x,
-            y: v.y,
-            width: v.width,
-            height: v.height,
-        }
-    }
-}
-
-impl Rectangle {
-    pub const EMPTY: Rectangle = Rectangle::new(0.0, 0.0, 0.0, 0.0);
-    pub const fn new(x: f32, y: f32, width: f32, height: f32) -> Self {
-        Self {
-            x,
-            y,
-            width,
-            height,
-        }
-    }
-}
+pub type Rectangle = ffi::Rectangle;
 
 optional_serde_struct! {
     /// BoundingBox
@@ -2042,6 +1101,8 @@ optional_serde_struct! {
 }
 
 impl BoundingBox {
+    #[must_use]
+    #[inline]
     pub fn new(min: Vector3, max: Vector3) -> BoundingBox {
         BoundingBox { min, max }
     }
@@ -2061,10 +1122,34 @@ impl From<BoundingBox> for ffi::BoundingBox {
 
 impl From<&BoundingBox> for ffi::BoundingBox {
     fn from(v: &BoundingBox) -> ffi::BoundingBox {
-        ffi::BoundingBox {
-            min: v.min.into(),
-            max: v.max.into(),
-        }
+        unsafe { std::mem::transmute(*v) }
+    }
+}
+
+impl BoundingBox {
+    /// Detects collision between two boxes.
+    #[inline]
+    #[must_use]
+    pub fn check_collision_boxes(&self, box2: BoundingBox) -> bool {
+        unsafe { ffi::CheckCollisionBoxes(self.into(), box2.into()) }
+    }
+
+    /// Detects collision between box and sphere.
+    #[inline]
+    #[must_use]
+    pub fn check_collision_box_sphere(
+        &self,
+        center_sphere: impl Into<MintVec3>,
+        radius_sphere: f32,
+    ) -> bool {
+        unsafe { ffi::CheckCollisionBoxSphere(self.into(), center_sphere.into(), radius_sphere) }
+    }
+
+    /// Detects collision between ray and box.
+    #[inline]
+    #[must_use]
+    pub fn get_ray_collision_box(&self, ray: Ray) -> RayCollision {
+        unsafe { ffi::GetRayCollisionBox(ray.into(), self.into()).into() }
     }
 }
 
@@ -2096,12 +1181,7 @@ impl From<RayCollision> for ffi::RayCollision {
 
 impl From<&RayCollision> for ffi::RayCollision {
     fn from(v: &RayCollision) -> ffi::RayCollision {
-        ffi::RayCollision {
-            hit: v.hit,
-            distance: v.distance,
-            point: v.point.into(),
-            normal: v.normal.into(),
-        }
+        unsafe { std::mem::transmute(*v) }
     }
 }
 
@@ -2131,18 +1211,14 @@ impl From<Transform> for ffi::Transform {
 
 impl From<&Transform> for ffi::Transform {
     fn from(v: &Transform) -> ffi::Transform {
-        ffi::Transform {
-            translation: v.translation.into(),
-            rotation: v.rotation.into(),
-            scale: v.scale.into(),
-        }
+        unsafe { std::mem::transmute(*v) }
     }
 }
 
 #[cfg(test)]
 mod math_test {
     use super::{Ray, Vector2, Vector3, Vector4};
-    use crate::ffi;
+    use crate::{ffi, math::Matrix};
 
     #[test]
     fn test_into() {
@@ -2160,13 +1236,7 @@ mod math_test {
             "bad memory transmutation"
         );
 
-        let v4: ffi::Vector4 = (Vector4 {
-            x: 1.0,
-            y: 2.0,
-            z: 3.0,
-            w: 4.0,
-        })
-        .into();
+        let v4: ffi::Vector4 = (Vector4::new(1.0, 2.0, 3.0, 4.0)).into();
         assert!(
             v4.x == 1.0 && v4.y == 2.0 && v4.z == 3.0 && v4.w == 4.0,
             "bad memory transmutation"
@@ -2189,6 +1259,14 @@ mod math_test {
                 && r.direction.y == 2.0
                 && r.direction.z == 1.0,
             "bad memory transmutation"
-        )
+        );
+        let identity_mat: ffi::Matrix = Matrix::identity().into();
+        let ffi_identity_mat = ffi::Matrix {
+            x: ffi::Vector4::from([1.0, 0.0, 0.0, 0.0]),
+            y: ffi::Vector4::from([0.0, 1.0, 0.0, 0.0]),
+            z: ffi::Vector4::from([0.0, 0.0, 1.0, 0.0]),
+            w: ffi::Vector4::from([0.0, 0.0, 0.0, 1.0]),
+        };
+        assert!(identity_mat == ffi_identity_mat, "bad memory transmutation");
     }
 }

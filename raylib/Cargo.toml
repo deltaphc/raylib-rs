@@ -1,6 +1,6 @@
 [package]
 name = "raylib"
-version = "5.6.0"
+version = "5.7.0"
 authors = ["raylib-rs team <https://github.com/raylib-rs/raylib-rs>"]
 license = "Zlib"
 readme = "../README.md"
@@ -9,38 +9,38 @@ documentation = "https://docs.rs/raylib"
 repository = "https://github.com/raylib-rs/raylib-rs"
 keywords = ["bindings", "raylib", "gamedev"]
 categories = ["api-bindings", "game-engines", "graphics"]
-edition = "2021"
+edition = "2024"
 autoexamples = false
 
 [dependencies]
-raylib-sys = { version = "5.6.0", path = "../raylib-sys", default-features = false }
+raylib-sys = { version = "5.7.0", path = "../raylib-sys", default-features = false }
 serde = { version = "1.0.125", features = ["derive"], optional = true }
 serde_json = { version = "1.0.64", optional = true }
-imgui = { version = "0.12.0", optional = true, features = [] }
-imgui-sys = { version = "0.12.0", optional = true }
 
-mint = { version = "0.5.9", optional = true }
+glam = { version = "0.30", features = ["mint"] }
 
-thiserror = "1.0.61"
+thiserror = "2.0.12"
 
 paste = "1.0"
 seq-macro = "0.3.5"
 
 [dev-dependencies]
 structopt = "0.3"
-rand = "0.8.5"
+rand = "0.9"
 
 [features]
 # use raylib-sys defaults instead of setting it in dependencies so we can turn it off at the raylib crate level since `raylib-sys` is not exposed
 default = ["raylib-sys/default"]
-convert_mint = ["mint"]
 nightly = []
-serde = ["dep:serde"]
-imgui = ["raylib-sys/imgui", "dep:imgui", "dep:imgui-sys"]
+serde = ["dep:serde", "raylib-sys/serde", "glam/serde"]
 
+raygui = ["raylib-sys/raygui"]
 # ----- Copy and paste these from `raylib-sys` for easier maintance
 # Build Raylib headless for docs/esoteric platforms. Up to you to link.
 nobuild = ["raylib-sys/nobuild"]
+# Do not autogenerate bindings, instead read an existing one specified by env RAYLIB_BINDGEN_LOCATION
+# useful when bindgen doesn't generate correctly on esoteric platforms and need manual auidting
+nobindgen = ["raylib-sys/nobindgen"]
 
 # opengl stuff
 opengl_11 = ["raylib-sys/opengl_11"]       # buggy? might not work with wayland

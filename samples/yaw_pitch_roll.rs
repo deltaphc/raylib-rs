@@ -95,7 +95,7 @@ fn main() {
         pitch_offset *= 10.0;
 
         // Detect window close button or ESC key
-        rl.start_drawing(&thread, |mut d| {
+        rl.draw(&thread, |mut d| {
             d.clear_background(ray_white);
 
             let mat = Matrix::rotate_xyz(Vector3::new(
@@ -111,8 +111,8 @@ fn main() {
             let center_y = (framebuffer.texture().height() / 2) as f32;
             let scale_factor = 0.5;
             {
-                d.start_texture_mode(&thread, &mut framebuffer, |mut d, _framebuffer| {
-                    d.start_blend_mode(BlendMode::BLEND_ALPHA, |mut d| {
+                d.draw_texture_mode(&thread, &mut framebuffer, |mut d| {
+                    d.draw_blend_mode(BlendMode::BLEND_ALPHA, |mut d| {
                         d.draw_texture_pro(
                             &tex_background,
                             Rectangle::new(
@@ -184,7 +184,7 @@ fn main() {
                 });
             }
             // Draw 3D model (recomended to draw 3D always before 2D)
-            d.start_mode3D(camera, |mut d, _camera| {
+            d.draw_mode3D(camera, |mut d| {
                 d.draw_model(&model, Vector3::new(0.0, 6.0, 0.0), 1.0, Color::WHITE); // Draw 3d model with texture
                 d.draw_grid(10, 10.0);
             });

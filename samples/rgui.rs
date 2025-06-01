@@ -44,7 +44,9 @@ pub fn main() {
     let mut textBoxText = String::from("Text box");
     let mut textBoxEditMode = false;
 
-    let mut textBoxMultiText = String::from("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.\n\nDuis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat Nonea pariatur.\n\nThisisastringlongerthanexpectedwithoutspacestotestcharbreaksforthosecases,checkingifworkingasexpected.\n\nExcepteur slet occaecatcupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.");
+    let mut textBoxMultiText = String::from(
+        "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.\n\nDuis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat Nonea pariatur.\n\nThisisastringlongerthanexpectedwithoutspacestotestcharbreaksforthosecases,checkingifworkingasexpected.\n\nExcepteur slet occaecatcupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
+    );
     let mut textBoxMultiEditMode = false;
 
     let mut listViewScrollIndex = 0;
@@ -359,8 +361,8 @@ pub fn main() {
             Rectangle::new(560.0, 25.0, 102.0, 354.0),
             "",
             Rectangle::new(560.0, 25.0, 300.0, 1200.0),
-            &viewScroll,
-            &view,
+            viewScroll,
+            view,
         );
 
         let mouseCell = Vector2::new(0.0, 0.0);

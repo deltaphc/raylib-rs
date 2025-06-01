@@ -19,7 +19,7 @@ fn main() {
     rl.set_target_fps(60);
     while !rl.window_should_close() {
         // Detect window close button or ESC key
-        rl.start_drawing(&thread, |mut d| {
+        rl.draw(&thread, |mut d| {
             d.clear_background(Color::BLACK);
             d.draw_texture(&t, 0, 0, Color::WHITE);
         });

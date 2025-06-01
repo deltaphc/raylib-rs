@@ -6,7 +6,10 @@ pub mod automation;
 pub mod callbacks;
 pub mod camera;
 pub mod collision;
-pub mod color;
+pub mod color {
+    #[allow(unused_imports)]
+    pub use crate::ffi::Color;
+}
 pub mod data;
 pub mod drawing;
 pub mod error;
@@ -87,10 +90,9 @@ pub struct RaylibBuilder {
     width: i32,
     height: i32,
     title: String,
-    #[cfg(feature = "imgui")]
-    imgui_theme: crate::imgui::ImGuiTheme,
 }
-
+#[inline]
+#[must_use]
 /// Creates a `RaylibBuilder` for choosing window options before initialization.
 pub fn init() -> RaylibBuilder {
     RaylibBuilder {
@@ -168,13 +170,6 @@ impl RaylibBuilder {
         self
     }
 
-    #[cfg(feature = "imgui")]
-    /// Set the theme to be used for imgui.
-    pub fn imgui_theme(&mut self, theme: crate::imgui::ImGuiTheme) -> &mut Self {
-        self.imgui_theme = theme;
-        self
-    }
-
     /// Builds and initializes a Raylib window.
     ///
     /// # Panics
@@ -211,11 +206,6 @@ impl RaylibBuilder {
         }
 
         let rl = init_window(self.width, self.height, &self.title);
-
-        #[cfg(feature = "imgui")]
-        unsafe {
-            crate::imgui::init_imgui_context(self.imgui_theme == crate::imgui::ImGuiTheme::Dark);
-        }
 
         (rl, RaylibThread(PhantomData))
     }

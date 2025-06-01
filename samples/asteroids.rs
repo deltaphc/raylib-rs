@@ -536,7 +536,7 @@ fn update_game(game: &mut Game, rl: &RaylibHandle) {
 
 fn draw_game(game: &Game, rl: &mut RaylibHandle, thread: &RaylibThread) {
     let (width, height) = (rl.get_screen_width(), rl.get_screen_height());
-    rl.start_drawing(thread, |mut d| {
+    rl.draw(thread, |mut d| {
         let half_width = width / 2;
         let half_height = height / 2;
 
