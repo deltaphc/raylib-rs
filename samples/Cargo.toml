@@ -35,6 +35,7 @@ path = "./specs.rs"
 [[bin]]
 name = "rgui"
 path = "./rgui.rs"
+required-features = ["raylib/raygui"]
 
 [[bin]]
 name = "arkanoid"
