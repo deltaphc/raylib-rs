@@ -632,13 +632,12 @@ pub trait RaylibDrawGui {
         &mut self,
         bounds: impl Into<ffi::Rectangle>,
         text: &str,
-        color: impl Into<ffi::Color>,
-    ) -> Color {
-        let mut out = color.into();
+        color: &mut Color,
+    ) -> i32 {
         let c_text = CString::new(text).unwrap();
 
-        let _result = unsafe { ffi::GuiColorPicker(bounds.into(), c_text.as_ptr(), &mut out) };
-        return out.into();
+        let result = unsafe { ffi::GuiColorPicker(bounds.into(), c_text.as_ptr(), &mut *color) };
+        return result;
     }
     // Get text with icon id prepended
     // NOTE: Useful to add icons by name id (enum) instead of
