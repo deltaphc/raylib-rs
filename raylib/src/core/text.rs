@@ -103,6 +103,8 @@ impl Drop for Codepoints {
     }
 }
 
+const TOO_MANY_CODEPOINTS: &str = "fonts exceeding 2,147,483,647 characters are not supported; at most 1,112,064 characters can possibly be encoded in utf-8.";
+
 impl RaylibHandle {
     #[must_use]
     /// Load all codepoints from a UTF-8 text string, codepoints count returned by parameter
@@ -113,7 +115,7 @@ impl RaylibHandle {
 
         unsafe {
             Codepoints(std::mem::ManuallyDrop::new(Box::from_raw(
-                std::slice::from_raw_parts_mut(u, text.len()),
+                std::slice::from_raw_parts_mut(u, len.try_into().expect("codepoint count should never be negative")),
             )))
         }
     }
@@ -166,7 +168,7 @@ impl RaylibHandle {
                         c_filename.as_ptr(),
                         font_size,
                         co.0.as_mut_ptr(),
-                        c.len() as i32,
+                        co.0.len().try_into().expect(TOO_MANY_CODEPOINTS),
                     )
                 }
                 None => ffi::LoadFontEx(c_filename.as_ptr(), font_size, std::ptr::null_mut(), 0),
@@ -220,7 +222,7 @@ impl RaylibHandle {
                         file_data.len() as i32,
                         font_size,
                         co.0.as_mut_ptr(),
-                        c.len() as i32,
+                        co.0.len().try_into().expect(TOO_MANY_CODEPOINTS),
                     )
                 }
                 None => ffi::LoadFontFromMemory(
@@ -257,7 +259,7 @@ impl RaylibHandle {
                         data.len() as i32,
                         font_size,
                         co.0.as_mut_ptr(),
-                        c.len() as i32,
+                        co.0.len().try_into().expect(TOO_MANY_CODEPOINTS),
                         sdf,
                     )
                 }
