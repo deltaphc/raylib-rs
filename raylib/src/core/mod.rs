@@ -6,10 +6,15 @@ pub mod automation;
 pub mod callbacks;
 pub mod camera;
 pub mod collision;
-pub mod color;
+pub mod color {
+    #[allow(unused_imports)]
+    pub use crate::ffi::Color;
+}
 pub mod data;
 pub mod drawing;
+pub mod error;
 pub mod file;
+
 pub mod input;
 pub mod logging;
 pub mod math;
@@ -65,6 +70,8 @@ impl Drop for RaylibHandle {
         unsafe {
             if ffi::IsWindowReady() {
                 ffi::CloseWindow();
+                // NOTE(IOI_XD): If imgui is enabled, we don't call the destructor here because we're using a context that Rust expects to free, and the only other thing in that function is the free'ing of FontTexture...an action which causes a segfault.
+                // It then gets successfully replaced if rlImGuiReloadFonts is called, so we'll take it.
             }
         }
     }
@@ -84,7 +91,8 @@ pub struct RaylibBuilder {
     height: i32,
     title: String,
 }
-
+#[inline]
+#[must_use]
 /// Creates a `RaylibBuilder` for choosing window options before initialization.
 pub fn init() -> RaylibBuilder {
     RaylibBuilder {
@@ -196,7 +204,9 @@ impl RaylibBuilder {
         unsafe {
             ffi::SetTraceLogLevel(self.log_level as i32);
         }
+
         let rl = init_window(self.width, self.height, &self.title);
+
         (rl, RaylibThread(PhantomData))
     }
 }
@@ -217,6 +227,7 @@ fn init_window(width: i32, height: i32, title: &str) -> RaylibHandle {
         if !unsafe { ffi::IsWindowReady() } {
             panic!("Attempting to create window failed!");
         }
+
         RaylibHandle(())
     }
 }

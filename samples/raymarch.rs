@@ -37,7 +37,7 @@ pub fn main() {
     while !rl.window_should_close() {
         // Update
         //----------------------------------------------------------------------------------
-        rl.update_camera(&mut camera, CameraMode::CAMERA_FREE);
+        camera.update_camera(CameraMode::CAMERA_FREE);
 
         let camera_pos = Vector3::new(camera.position.x, camera.position.y, camera.position.z);
         let camera_target = Vector3::new(camera.target.x, camera.target.y, camera.target.z);
@@ -56,24 +56,25 @@ pub fn main() {
 
         // Draw
         //----------------------------------------------------------------------------------
-        let mut d = rl.begin_drawing(&thread);
+        rl.draw(&thread, |mut d| {
+            d.clear_background(Color::RAYWHITE);
 
-        d.clear_background(Color::RAYWHITE);
+            // We only draw a white full-screen rectangle,
+            // frame is generated in shader using raymarching
+            {
+                d.draw_shader_mode(&mut shader, |mut d| {
+                    d.draw_rectangle(0, 0, w, h, Color::WHITE);
+                });
+            }
 
-        // We only draw a white full-screen rectangle,
-        // frame is generated in shader using raymarching
-        {
-            let mut d = d.begin_shader_mode(&shader);
-            d.draw_rectangle(0, 0, w, h, Color::WHITE);
-        }
-
-        d.draw_text(
-            "(c) Raymarching shader by Iñigo Quilez. MIT License.",
-            w - 280,
-            h - 20,
-            10,
-            Color::GRAY,
-        );
+            d.draw_text(
+                "(c) Raymarching shader by Iñigo Quilez. MIT License.",
+                w - 280,
+                h - 20,
+                10,
+                Color::GRAY,
+            );
+        });
 
         //----------------------------------------------------------------------------------
     }

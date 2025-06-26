@@ -1,8 +1,9 @@
 macro_rules! make_thin_wrapper {
-    ($name:ident, $t:ty, $dropfunc:expr) => {
-        make_thin_wrapper!($name, $t, $dropfunc, true);
+    ($(#[$attrs:meta])* $name:ident, $t:ty, $dropfunc:expr) => {
+        make_thin_wrapper!($(#[$attrs])* $name, $t, $dropfunc, true);
     };
-    ($name:ident, $t:ty, $dropfunc:expr, false) => {
+    ($(#[$attrs:meta])* $name:ident, $t:ty, $dropfunc:expr, false) => {
+        $(#[$attrs])*
         #[repr(transparent)]
         #[derive(Debug)]
         pub struct $name(pub(crate) $t);
@@ -10,7 +11,8 @@ macro_rules! make_thin_wrapper {
         impl_wrapper!($name, $t, $dropfunc, 0);
         gen_from_raw_wrapper!($name, $t, $dropfunc, 0);
     };
-    ($name:ident, $t:ty, $dropfunc:expr, true) => {
+    ($(#[$attrs:meta])* $name:ident, $t:ty, $dropfunc:expr, true) => {
+        $(#[$attrs])*
         #[repr(transparent)]
         #[derive(Debug)]
         pub struct $name(pub(crate) $t);
@@ -22,16 +24,16 @@ macro_rules! make_thin_wrapper {
 }
 
 macro_rules! make_thin_wrapper_lifetime {
-    ($name:ident, $t1:ty, $t2:ty, $dropfunc:expr) => {
+    ($(#[$attrs:meta])* $name:ident, $t1:ty, $t2:ty, $dropfunc:expr) => {
         make_thin_wrapper_lifetime!($name, $t1, $t2, $dropfunc, true);
     };
-    ($name:ident, $t1:ty, $t2:ty,$dropfunc:expr, false) => {
+    ($(#[$attrs:meta])* $name:ident, $t1:ty, $t2:ty,$dropfunc:expr, false) => {
         #[derive(Debug)]
         pub struct $name<'a>(pub(crate) $t1, &'a $t2);
 
         impl_wrapper!($name, $t1, $dropfunc, 0);
     };
-    ($name:ident, $t1:ty, $t2:ty, $dropfunc:expr, true) => {
+    ($(#[$attrs:meta])* $name:ident, $t1:ty, $t2:ty, $dropfunc:expr, true) => {
         #[derive(Debug)]
         pub struct $name<'a>(pub(crate) $t1, &'a $t2);
 
@@ -115,7 +117,8 @@ macro_rules! deref_impl_wrapper {
     };
 }
 macro_rules! make_rslice {
-    ($name:ident, $t:ty, $dropfunc:expr) => {
+    ($(#[$attrs:meta])* $name:ident, $t:ty, $dropfunc:expr) => {
+        $(#[$attrs])*
         #[repr(transparent)]
         #[derive(Debug)]
         pub struct $name(pub(crate) std::mem::ManuallyDrop<std::boxed::Box<[$t]>>);

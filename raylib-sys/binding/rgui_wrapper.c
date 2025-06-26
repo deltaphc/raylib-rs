@@ -4,3 +4,4 @@
 #define RLGL_IMPLEMENTATION
 #define RLGL_SUPPORT_TRACELOG
 #include "raygui.h"
+#undef RAYGUI_IMPLEMENTATION

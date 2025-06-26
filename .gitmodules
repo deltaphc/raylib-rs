@@ -1,3 +1,5 @@
 [submodule "raylib-sys/raylib"]
 	path = raylib-sys/raylib
 	url = https://github.com/raysan5/raylib
+	commit = "5.5"
+	shallow = true

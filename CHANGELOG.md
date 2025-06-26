@@ -1,6 +1,26 @@
 # raylib-rs Changelog
 
-## 3.7.0 (WIP)
+## 5.7.0
+- More improved ergonomics
+- REFACTOR: Everything that interfaces with `raylib-sys` **has to use mint vectors** because as it has the most common supported interface type in the rust ecosystem. (tl;dr Replaced `ffi::Vectors -> mint::Vectors`)
+- REFACTOR: Everything that interfaces with raylib safe bindings will often **take as input mint vectors but output/store glam-rs vectors**(storing them in Camera, Mesh, Boundingbox, etc), This can easily be swapped out. (tl;dr Replaced: `math::core::Vectors -> glam::Vectors`. glam Matrix and Quat however are incompatible so these stay as is)
+	- BREAKING: Code that uses `Vector4` constructors break, instead use `Vector4::new()
+- REFACTOR:  `Camera3D` ported methods in favor of calling ffi for easier maintenance reasons
+- REFACTOR: trace_log from needing to be on the RaylibHandle and take &self
+- MOVED: `color.rs` to `raylib-sys` because having 2 versions of this simple structure is pointless
+- MOVED: `Rectangle` to `raylib-sys` because having 2 versions of this simple structure is pointless
+- REMOVED: needless `target_os = windows` for rlgl getting&setting matrix functions
+- BUGFIX : `build.rs` gen_utils function generated the `util_log.c` as `rgui`making raygui not work
+- Removed: Removed imgui from being a feature on `raylib-sys`, instead check [imgui example](https://github.com/raylib-rs/raylib-rs/blob/unstable/samples/imgui.rs) for integration
+## build script changes:
+- Blacklist Vector2, Vector3, Vector4, Matrix, Quaternion, Rectangle, Color from generating in bindgen as they are replaced by mint and manual implementations
+- BUGFIX: Fixed bug where `utils_log` compiled as "rgui" making the rust build fail in some cases
+- Prevent android builds from turning on GLFW flags
+- Added/exposed various feature flags
+- Invert `bindgen` feature flag to `nobindgen` since its a more saner default
+
+
+## 3.7.0
 
 - [core] ADDED: LoadVrStereoConfig()
 - [core] ADDED: UnloadVrStereoConfig()

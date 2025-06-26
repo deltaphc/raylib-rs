@@ -22,7 +22,7 @@ mod random_test {
         rl.set_random_seed(1);
 
         let rnd = rl.load_random_sequence(1..10, 10);
-        let exp_rnd = vec![-8, 7, 0, 4, 8, -6, -3, 5, 6, 10];
+        let exp_rnd = vec![8, 7, 6, 4, 10, 3, 5, 1, 2, 9];
         let mut i = 0;
         for r in rnd {
             assert!(r == *exp_rnd.get(i).unwrap());

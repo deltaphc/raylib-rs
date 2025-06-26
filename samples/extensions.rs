@@ -6,7 +6,14 @@ mod options;
 
 trait RaylibDrawExt: RaylibDraw {
     fn custom_draw(&mut self, font: &WeakFont) {
-        self.draw_text_ex(font, "custom", rvec2(0, 0), 16.0, 0.0, Color::GREEN);
+        self.draw_text_ex(
+            font,
+            "custom",
+            Vector2::new(0.0, 0.0),
+            16.0,
+            0.0,
+            Color::GREEN,
+        );
     }
 }
 
@@ -18,8 +25,9 @@ fn main() {
     let font = rl.get_font_default();
     while !rl.window_should_close() {
         // Detect window close button or ESC key
-        let mut d = rl.begin_drawing(&thread);
-        d.clear_background(Color::WHITE);
-        d.custom_draw(&font);
+        rl.draw(&thread, |mut d| {
+            d.clear_background(Color::WHITE);
+            d.custom_draw(&font);
+        });
     }
 }

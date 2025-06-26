@@ -1,19 +1,69 @@
 //! Utility code for using Raylib [`Camera3D`] and [`Camera2D`]
 use raylib_sys::CameraMode;
+use std::mem::transmute;
 
-use crate::core::math::{Vector2, Vector3};
-use crate::core::RaylibHandle;
-use crate::ffi;
+use crate::ffi::{self, CameraProjection};
+use crate::math::{Vector2, Vector3};
+use crate::MintVec3;
 
+use super::math::Matrix;
+
+/// Camera2D, defines position/orientation in 2d space
+#[repr(C)]
+#[derive(Debug, Copy, Clone, Default)]
+pub struct Camera2D {
+    /// Camera offset (displacement from target)
+    pub offset: Vector2,
+    /// Camera target (rotation and zoom origin)
+    pub target: Vector2,
+    /// Camera rotation in degrees
+    pub rotation: f32,
+    /// Camera zoom (scaling), should be 1.0 by default
+    pub zoom: f32,
+}
+impl Camera2D {
+    #[must_use]
+    #[inline(always)]
+    #[allow(dead_code)]
+    fn get_camera_matrix_2d(camera: impl Into<ffi::Camera2D>) -> Matrix {
+        unsafe { ffi::GetCameraMatrix2D(camera.into()).into() }
+    }
+}
+
+impl From<ffi::Camera2D> for Camera2D {
+    fn from(v: ffi::Camera2D) -> Self {
+        unsafe { std::mem::transmute(v) }
+    }
+}
+
+impl Into<ffi::Camera2D> for Camera2D {
+    fn into(self) -> ffi::Camera2D {
+        unsafe { std::mem::transmute(self) }
+    }
+}
+
+impl Into<ffi::Camera2D> for &Camera2D {
+    fn into(self) -> ffi::Camera2D {
+        unsafe { std::mem::transmute(*self) }
+    }
+}
+
+/// Camera, defines position/orientation in 3d space
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct Camera3D {
+    /// Camera position
     pub position: Vector3,
+    /// Camera target it looks-at
     pub target: Vector3,
+    /// Camera up vector (rotation over its axis)
     pub up: Vector3,
+    /// Camera field-of-view aperture in Y (degrees) in perspective, used as near plane width in orthographic
     pub fovy: f32,
-    projection_: ffi::CameraProjection,
+    /// Camera projection: CAMERA_PERSPECTIVE or CAMERA_ORTHOGRAPHIC
+    pub projection: CameraProjection,
 }
+/// Camera type fallback, defaults to Camera3D
 pub type Camera = Camera3D;
 
 impl From<ffi::Camera3D> for Camera3D {
@@ -30,52 +80,30 @@ impl Into<ffi::Camera3D> for Camera3D {
 
 impl Into<ffi::Camera3D> for &Camera3D {
     fn into(self) -> ffi::Camera3D {
-        ffi::Camera3D {
-            position: self.position.into(),
-            target: self.target.into(),
-            up: self.up.into(),
-            fovy: self.fovy,
-            projection: (self.projection_ as u32) as i32,
-        }
+        unsafe { std::mem::transmute(*self) }
     }
 }
 
-#[repr(C)]
-#[derive(Debug, Copy, Clone, Default)]
-pub struct Camera2D {
-    pub offset: Vector2,
-    pub target: Vector2,
-    pub rotation: f32,
-    pub zoom: f32,
-}
-
-impl From<ffi::Camera2D> for Camera2D {
-    fn from(v: ffi::Camera2D) -> Camera2D {
-        unsafe { std::mem::transmute(v) }
+impl Into<ffi::Camera3D> for &mut Camera3D {
+    fn into(self) -> ffi::Camera3D {
+        unsafe { std::mem::transmute(*self) }
     }
 }
-
-impl Into<ffi::Camera2D> for Camera2D {
-    fn into(self) -> ffi::Camera2D {
-        unsafe { std::mem::transmute(self) }
-    }
-}
-
-impl Into<ffi::Camera2D> for &Camera2D {
-    fn into(self) -> ffi::Camera2D {
-        ffi::Camera2D {
-            offset: self.offset.into(),
-            target: self.target.into(),
-            rotation: self.rotation,
-            zoom: self.zoom,
-        }
+impl From<&mut Camera3D> for *mut ffi::Camera3D {
+    fn from(val: &mut Camera3D) -> Self {
+        unsafe { std::mem::transmute(val) }
     }
 }
 
 impl Camera3D {
-    pub fn camera_type(&self) -> crate::consts::CameraProjection {
-        unsafe { std::mem::transmute(self.projection_.clone()) }
+    #[must_use]
+    #[inline(always)]
+    pub fn camera_type(&self) -> CameraProjection {
+        unsafe { transmute(self.projection as u32) }
     }
+
+    #[must_use]
+    #[inline(always)]
     /// Create a perspective camera.
     /// fovy is in degrees
     pub fn perspective(position: Vector3, target: Vector3, up: Vector3, fovy: f32) -> Camera3D {
@@ -84,42 +112,103 @@ impl Camera3D {
             target,
             up,
             fovy,
-            projection_: ffi::CameraProjection::CAMERA_PERSPECTIVE,
+            projection: CameraProjection::CAMERA_PERSPECTIVE,
         }
     }
+
+    #[must_use]
+    #[inline(always)]
     /// Create a orthographic camera.
     /// fovy is in degrees
     pub fn orthographic(position: Vector3, target: Vector3, up: Vector3, fovy: f32) -> Camera3D {
         let mut c = Self::perspective(position, target, up, fovy);
-        c.projection_ = ffi::CameraProjection::CAMERA_ORTHOGRAPHIC;
+        c.projection = CameraProjection::CAMERA_ORTHOGRAPHIC;
         c
     }
-}
 
-impl RaylibHandle {
-    /// Updates camera position for selected mode.
-    #[inline]
-    pub fn update_camera(&self, camera: &mut Camera3D, mode: CameraMode) {
+    #[must_use]
+    #[inline(always)]
+    pub fn forward(&self) -> Vector3 {
+        unsafe { ffi::GetCameraForward(self as *const _ as *mut _).into() }
+    }
+
+    #[must_use]
+    #[inline(always)]
+    pub fn up(&self) -> Vector3 {
+        unsafe { ffi::GetCameraUp(self as *const _ as *mut _).into() }
+    }
+
+    #[inline(always)]
+    pub fn move_forward(&mut self, distance: f32, in_world_plane: bool) {
+        unsafe { ffi::CameraMoveForward(self.into(), distance, in_world_plane) }
+    }
+
+    #[inline(always)]
+    pub fn move_up(&mut self, distance: f32) {
+        unsafe { ffi::CameraMoveUp(self.into(), distance) }
+    }
+
+    #[inline(always)]
+    pub fn move_right(&mut self, distance: f32, in_world_plane: bool) {
+        unsafe { ffi::CameraMoveRight(self.into(), distance, in_world_plane) }
+    }
+
+    #[inline(always)]
+    pub fn move_to_target(&mut self, delta: f32) {
+        unsafe { ffi::CameraMoveToTarget(self.into(), delta) }
+    }
+
+    #[inline(always)]
+    pub fn yaw(&mut self, angle: f32, rotate_around_target: bool) {
+        unsafe { ffi::CameraYaw(self.into(), angle, rotate_around_target) }
+    }
+
+    #[inline(always)]
+    pub fn pitch(
+        &mut self,
+        angle: f32,
+        lock_view: bool,
+        rotate_around_target: bool,
+        rotate_up: bool,
+    ) {
         unsafe {
-            let mut fficam: ffi::Camera3D = (*camera).into();
-            ffi::UpdateCamera(&mut fficam, mode as i32);
-            *camera = fficam.into();
+            ffi::CameraPitch(
+                self.into(),
+                angle,
+                lock_view,
+                rotate_around_target,
+                rotate_up,
+            )
         }
     }
 
+    #[inline(always)]
+    pub fn roll(&mut self, angle: f32) {
+        unsafe { ffi::CameraRoll(self.into(), angle) }
+    }
+
+    #[must_use]
+    #[inline(always)]
+    pub fn view_matrix(&self) -> Matrix {
+        unsafe { ffi::GetCameraViewMatrix(self as *const _ as *mut _).into() }
+    }
+    #[must_use]
+    #[inline(always)]
+    pub fn projection_matrix(&self, aspect: f32) -> Matrix {
+        unsafe { ffi::GetCameraProjectionMatrix(self as *const _ as *mut _, aspect).into() }
+    }
+    /// Updates camera position for selected mode.
+    #[inline(always)]
+    pub fn update_camera(&mut self, mode: CameraMode) {
+        unsafe { ffi::UpdateCamera(self.into(), mode as i32) }
+    }
+    #[inline(always)]
     pub fn update_camera_pro(
-        &self,
-        camera: &mut Camera3D,
-        movement: Vector3,
-        rotation: Vector3,
+        &mut self,
+        movement: impl Into<MintVec3>,
+        rotation: impl Into<MintVec3>,
         zoom: f32,
     ) {
-        let mut fficam: ffi::Camera3D = (*camera).into();
-        let ffimov: ffi::Vector3 = (movement).into();
-        let ffirot: ffi::Vector3 = (rotation).into();
-
-        unsafe {
-            ffi::UpdateCameraPro(&mut fficam, ffimov, ffirot, zoom);
-        }
+        unsafe { ffi::UpdateCameraPro(self.into(), movement.into(), rotation.into(), zoom) }
     }
 }
