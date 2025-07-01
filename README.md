@@ -19,7 +19,7 @@ Though this binding tries to stay close to the simple C API, it makes some chang
 </tr>
 </table>
 
-Most development happens over at: https://github.com/raylib-rs/raylib-rs
+# All development happens over at: https://github.com/raylib-rs/raylib-rs
 
 Versions normally match Raylib's own, with the minor number incremented for any patches (i.e. 5.5.1 for Raylib v5.5). On occassion, if enough breaking changes are made in between Raylib releases, we'll release a 5.6, which is 5.5 but with breaking changes.
 
