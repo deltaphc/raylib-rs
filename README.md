@@ -28,6 +28,12 @@ Though this binding tries to stay close to the simple C API, it makes some chang
 </tr>
 </table>
 
+# **!!unmaintained!!**
+
+this repository contains a fork of an old version of [`raylib-rs`](https://github.com/raylib-rs/raylib-rs). as old problems got fixed, i no longer need to use this fork in my new projects, but i will be keeping this repository up to make sure old versions can be recompiled. use https://github.com/raylib-rs/raylib-rs
+
+---
+
 Most development happens over at: https://github.com/raylib-rs/raylib-rs
 
 
