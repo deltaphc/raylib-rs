@@ -16,7 +16,7 @@ pub struct VrDeviceInfo {
     /// Horizontal resolution in pixels
     pub h_resolution: i32,
     /// Vertical resolution in pixels
-    pub v_esolution: i32,
+    pub v_resolution: i32,
     /// Horizontal size in meters
     pub h_screen_size: f32,
     /// Vertical size in meters
@@ -49,7 +49,7 @@ impl Into<ffi::VrDeviceInfo> for &VrDeviceInfo {
     fn into(self) -> ffi::VrDeviceInfo {
         ffi::VrDeviceInfo {
             hResolution: self.h_resolution,  // Horizontal resolution in pixels
-            vResolution: self.v_esolution,   // Vertical resolution in pixels
+            vResolution: self.v_resolution,   // Vertical resolution in pixels
             hScreenSize: self.h_screen_size, // Horizontal size in meters
             vScreenSize: self.v_screen_size, // Vertical size in meters
             eyeToScreenDistance: self.eye_to_screen_distance, // Distance between eye and display in meters

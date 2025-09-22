@@ -85,7 +85,7 @@ const LEVEL_UP_FACTOR: i32 = 150;
 const LEVEL_SCREEN_WIDTH: i32 = 40;
 
 const CHARACTER_SCREEN_WIDTH: i32 = 30;
-// We can add custom methods to raylib types with extention traits
+// We can add custom methods to raylib types with extension traits
 pub trait RectExt: std::ops::Deref<Target = Rectangle> {
     fn center(&self) -> (i32, i32) {
         let r: &Rectangle = self.deref();
@@ -219,7 +219,7 @@ impl From<Color> for Col {
 }
 
 /// Objects in the game. Items, monsters and the player. Items go in inventory.
-/// insead of the objects vector
+/// instead of the objects vector
 #[derive(Clone, Debug, Serialize, Deserialize)]
 struct Object {
     x: i32,
@@ -932,7 +932,7 @@ fn play_game(
     objects: &mut Vec<Object>,
 ) {
     // force FOV "recompute" through the game loop
-    let previous_player_positon = (-1, -1);
+    let previous_player_position = (-1, -1);
 
     while !rl.window_should_close() {
         // logic
@@ -960,7 +960,7 @@ fn play_game(
         let mut d = rl.begin_drawing(thread);
         d.clear_background(Color::GRAY);
         let player = &objects[PLAYER];
-        let fov_recompute = previous_player_positon != (player.x, player.y);
+        let fov_recompute = previous_player_position != (player.x, player.y);
         render_all(tcod, &mut d, game, objects, fov_recompute);
     }
 }
@@ -1280,7 +1280,7 @@ fn cast_confuse(
         );
         UseResult::UsedUp
     } else {
-        // no enemy fonud within maximum range
+        // no enemy found within maximum range
         game.messages
             .add("No enemy is close enough to strike.", Color::RED);
         UseResult::Cancelled
@@ -1441,7 +1441,7 @@ fn move_towards(id: usize, target_x: i32, target_y: i32, map: &Map, objects: &mu
     let dy = target_y - objects[id].y;
     let distance = ((dx.pow(2) + dy.pow(2)) as f32).sqrt();
 
-    // normalize it to length 1 (preseving direction), then round it
+    // normalize it to length 1 (preserving direction), then round it
     // convert to integer so the movement is restricted to the map grid
     let dx = (dx as f32 / distance).round() as i32;
     let dy = (dy as f32 / distance).round() as i32;

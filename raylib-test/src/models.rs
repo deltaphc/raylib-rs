@@ -37,7 +37,7 @@ mod model_test {
         let mesh = unsafe { Mesh::gen_mesh_cube(&thread, 1.0, 1.0, 1.0).make_weak() };
         let model = rl.load_model_from_mesh(&thread, mesh).unwrap();
 
-        let zero = Vector3::zero();
+        let zero = Vector3::ZERO;
 
         let camera = Camera3D::perspective(zero, zero, zero, 10.0);
 

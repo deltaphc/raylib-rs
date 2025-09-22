@@ -27,7 +27,7 @@ mod text_test {
         let f = rl
             .load_font(thread, "resources/alagard.png")
             .expect("couldn't load font");
-        f.export_as_code("test_out/font.h");
+        let _ = f.export_font_as_code("test_out/font.h");
     }
 
     ray_draw_test!(test_default_font);

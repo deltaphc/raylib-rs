@@ -91,7 +91,7 @@ impl RaylibHandle {
     }
     #[inline]
     #[must_use]
-    /// Get default shader. Modifying it modifies everthing that uses that shader
+    /// Get default shader. Modifying it modifies everything that uses that shader
     pub fn get_shader_default() -> WeakShader {
         unsafe {
             WeakShader(ffi::Shader {

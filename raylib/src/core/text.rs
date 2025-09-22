@@ -115,7 +115,11 @@ impl RaylibHandle {
 
         unsafe {
             Codepoints(std::mem::ManuallyDrop::new(Box::from_raw(
-                std::slice::from_raw_parts_mut(u, len.try_into().expect("codepoint count should never be negative")),
+                std::slice::from_raw_parts_mut(
+                    u,
+                    len.try_into()
+                        .expect("codepoint count should never be negative"),
+                ),
             )))
         }
     }
@@ -200,7 +204,7 @@ impl RaylibHandle {
     }
     /// Load font data from a given memory buffer.
     /// `file_type` refers to the extension, e.g. ".ttf".
-    /// You can pass Some(...) to chars to get the desired charaters, or None to get the whole set.
+    /// You can pass Some(...) to chars to get the desired characters, or None to get the whole set.
     #[inline]
     #[must_use]
     pub fn load_font_from_memory(
@@ -249,9 +253,9 @@ impl RaylibHandle {
         font_size: i32,
         chars: Option<&str>,
         sdf: i32,
-    ) -> Option<RSliceGlyphInfo> {
+    ) -> Option<GlyphInfo> {
         unsafe {
-            let ci_arr_ptr = match chars {
+            let glyph_info = match chars {
                 Some(c) => {
                     let mut co = self.load_codepoints(c);
                     ffi::LoadFontData(
@@ -272,14 +276,11 @@ impl RaylibHandle {
                     sdf,
                 ),
             };
-            let ci_size = if let Some(c) = chars { c.len() } else { 95 }; // raylib assumes 95 if none given
-            if ci_arr_ptr.is_null() {
-                None
-            } else {
-                Some(RSliceGlyphInfo(std::mem::ManuallyDrop::new(Box::from_raw(
-                    std::slice::from_raw_parts_mut(ci_arr_ptr as *mut _, ci_size),
-                ))))
+            if glyph_info.is_null() {
+                return None;
             }
+
+            return Some(GlyphInfo::from_raw(*glyph_info));
         }
     }
 }

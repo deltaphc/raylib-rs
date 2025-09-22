@@ -28,10 +28,14 @@ pub use crate::callbacks::*;
 pub use crate::consts::*;
 pub use crate::core::audio::*;
 pub use crate::core::automation::*;
+
+#[cfg(not(feature = "nobuild"))]
 pub use crate::core::camera::*;
+
 pub use crate::core::collision::*;
 pub use crate::core::color::*;
 pub use crate::core::data::*;
+pub use crate::core::databuf::*;
 pub use crate::core::drawing::*;
 pub use crate::core::file::*;
 pub use crate::core::input::*;
@@ -45,5 +49,8 @@ pub use crate::core::texture::*;
 pub use crate::core::vr::*;
 pub use crate::core::window::*;
 pub use crate::core::*;
+
+#[cfg(not(feature = "nobuild"))]
 pub use crate::rgui::*;
+
 pub use crate::*;

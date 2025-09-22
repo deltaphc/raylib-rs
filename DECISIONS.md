@@ -1,7 +1,7 @@
 Document where I put all the little design decisions that go into this library.
 
 1. Allocations
-   A few functiosn in raylib return a buffer that should be deallocated by the user. Previously, we copied this data into a Vector and then freed with libc::free.
+   A few functions in raylib return a buffer that should be deallocated by the user. Previously, we copied this data into a Vector and then freed with libc::free.
 
 If the user had a custom alocator or some other strange linking strategy, this would free an invalid pointer.
 

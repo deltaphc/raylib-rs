@@ -51,6 +51,8 @@ opengl_es_30 = ["raylib-sys/opengl_es_30"]
 opengl_es_20 = ["raylib-sys/opengl_es_20"]
 sdl = ["raylib-sys/sdl"]
 wayland = ["raylib-sys/wayland"]
+legacy_rpi = ["raylib-sys/legacy_rpi"]
+drm = ["raylib-sys/drm"]
 
 # extra build profiles:
 release_with_debug_info = ["raylib-sys/release_with_debug_info"]

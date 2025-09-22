@@ -46,7 +46,7 @@
   [core] REVIEWED: HighDPI support on macOS retina (#1510)
   [core] REDESIGNED: GetFileExtension(), includes the .dot
   [core] REDESIGNED: IsFileExtension(), includes the .dot
-  [core] REDESIGNED: Compresion API to use sdefl/sinfl libs
+  [core] REDESIGNED: Compression API to use sdefl/sinfl libs
 - [rlgl] ADDED: SUPPORT_GL_DETAILS_INFO config flag
   [rlgl] REMOVED: GenTexture\*() functions (#721)
   [rlgl] REVIEWED: rlLoadShaderDefault()
@@ -118,7 +118,7 @@ Added: Vector2Reflect
 Added: Vector2LengthSqr
 Added: Vector2MoveTowards
 Added: UnloadFontData
-Added: LoadFontFromMemmory(ttf)
+Added: LoadFontFromMemory(ttf)
 Added: ColorAlphaBlend
 Added: GetPixelColor
 Added: SetPixelColor

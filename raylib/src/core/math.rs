@@ -389,7 +389,7 @@ impl Quaternion {
         }
     }
 
-    /// Returns a new `Quaternion` with componenets clamp to a certain interval.
+    /// Returns a new `Quaternion` with components clamp to a certain interval.
     #[inline]
     #[must_use]
     pub const fn clamp(&self, num: Range<f32>) -> Quaternion {

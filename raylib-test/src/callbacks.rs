@@ -101,7 +101,7 @@ pub mod callback_tests {
             let mut handle = TEST_HANDLE.write().unwrap();
             let rl = handle.as_mut().unwrap();
             {
-                rl.set_trace_log_callback(custom_callback).unwrap();
+                set_trace_log_callback(custom_callback).unwrap();
                 for _ in 0..5 {
                     let noise = Image::gen_image_white_noise(10, 10, 1.0);
                     let _ = rl.load_texture_from_image(&thread, &noise).unwrap();
@@ -115,10 +115,8 @@ pub mod callback_tests {
             "\n{}\n",
             "Setting file data saver callback".bold().underline(),
         );
-        let mut handle = TEST_HANDLE.write().unwrap();
-        let rl = handle.as_mut().unwrap();
         {
-            rl.set_save_file_data_callback(custom_save_file_data_callback)
+            set_save_file_data_callback(custom_save_file_data_callback)
                 .unwrap();
         }
     }
@@ -128,10 +126,8 @@ pub mod callback_tests {
             "\n{}\n",
             "Setting file text saver callback".bold().underline(),
         );
-        let mut handle = TEST_HANDLE.write().unwrap();
-        let rl = handle.as_mut().unwrap();
         {
-            rl.set_save_file_text_callback(custom_save_file_text_callback)
+            set_save_file_text_callback(custom_save_file_text_callback)
                 .unwrap();
         }
     }
@@ -141,10 +137,8 @@ pub mod callback_tests {
             "\n{}\n",
             "Setting file data loader callback".bold().underline(),
         );
-        let mut handle = TEST_HANDLE.write().unwrap();
-        let rl = handle.as_mut().unwrap();
         {
-            rl.set_load_file_data_callback(custom_read_file_data_callback)
+            set_load_file_data_callback(custom_read_file_data_callback)
                 .unwrap();
         }
     }
