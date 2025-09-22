@@ -91,6 +91,8 @@ opengl_es_20 = []
 opengl_es_30 = []
 sdl = []
 wayland = []
+legacy_rpi = []
+drm = []
 
 # extra build profiles:
 release_with_debug_info = []

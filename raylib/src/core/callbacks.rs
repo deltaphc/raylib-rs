@@ -112,11 +112,11 @@ extern "C" fn custom_load_file_data_callback(path: *const c_char, size: *mut c_i
     }
 }
 
-extern "C" fn custom_save_file_text_callback(a: *const c_char, b: *mut c_char) -> bool {
+extern "C" fn custom_save_file_text_callback(a: *const c_char, b: *const c_char) -> bool {
     let save_file_text = save_file_text_callback().unwrap();
     let a = unsafe { CStr::from_ptr(a) };
     let b = unsafe { CStr::from_ptr(b) };
-    return save_file_text(a.to_str().unwrap(), b.to_str().unwrap());
+    save_file_text(a.to_str().unwrap(), b.to_str().unwrap())
 }
 extern "C" fn custom_load_file_text_callback(a: *const c_char) -> *mut c_char {
     let load_file_text = load_file_text_callback().unwrap();
@@ -157,6 +157,7 @@ macro_rules! safe_callback_set_func {
 /// Set custom trace log
 pub fn set_trace_log_callback<'a>(cb: fn(TraceLogLevel, &str)) -> Result<(), SetLogError<'a>> {
     TRACE_LOG_CALLBACK.store(cb as usize, Ordering::Relaxed);
+    #[cfg(not(feature = "nobuild"))]
     unsafe { ffi::setLogCallbackWrapper() };
     Ok(())
 }
@@ -313,17 +314,17 @@ impl RaylibHandle {
     /// Set custom trace log
     #[deprecated = "Decoupled from RaylibHandle. Use [set_trace_log_callback](core::callbacks::set_trace_log_callback) instead."]
     pub fn set_trace_log_callback(
-        &mut self,
+        &'_ mut self,
         cb: fn(TraceLogLevel, &str),
-    ) -> Result<(), SetLogError> {
+    ) -> Result<(), SetLogError<'_>> {
         set_trace_log_callback(cb)
     }
     /// Set custom file binary data saver
     #[deprecated = "Decoupled from RaylibHandle. Use [set_save_file_data_callback](core::callbacks::set_save_file_data_callback) instead."]
     pub fn set_save_file_data_callback(
-        &mut self,
+        &'_ mut self,
         cb: fn(&str, &[u8]) -> bool,
-    ) -> Result<(), SetLogError> {
+    ) -> Result<(), SetLogError<'_>> {
         set_save_file_data_callback(cb)
     }
     /// Set custom file binary data loader
@@ -331,17 +332,17 @@ impl RaylibHandle {
     /// Whatever you return from your callback will be intentionally leaked as Raylib is relied on to free it.
     #[deprecated = "Decoupled from RaylibHandle. Use [set_load_file_data_callback](core::callbacks::set_load_file_data_callback) instead."]
     pub fn set_load_file_data_callback<'b>(
-        &mut self,
+        &'_ mut self,
         cb: fn(&str) -> Vec<u8>,
-    ) -> Result<(), SetLogError> {
+    ) -> Result<(), SetLogError<'_>> {
         set_load_file_data_callback(cb)
     }
     /// Set custom file text data saver
     #[deprecated = "Decoupled from RaylibHandle. Use [set_save_file_text_callback](core::callbacks::set_save_file_text_callback) instead."]
     pub fn set_save_file_text_callback(
-        &mut self,
+        &'_ mut self,
         cb: fn(&str, &str) -> bool,
-    ) -> Result<(), SetLogError> {
+    ) -> Result<(), SetLogError<'_>> {
         set_save_file_text_callback(cb)
     }
     /// Set custom file text data loader
@@ -349,19 +350,19 @@ impl RaylibHandle {
     /// Whatever you return from your callback will be intentionally leaked as Raylib is relied on to free it.
     #[deprecated = "Decoupled from RaylibHandle. Use [set_load_file_text_callback](core::callbacks::set_load_file_text_callback) instead."]
     pub fn set_load_file_text_callback(
-        &mut self,
+        &'_ mut self,
         cb: fn(&str) -> String,
-    ) -> Result<(), SetLogError> {
+    ) -> Result<(), SetLogError<'_>> {
         set_load_file_text_callback(cb)
     }
 
     /// Audio thread callback to request new data
     #[deprecated = "Decoupled from RaylibHandle. Use [set_audio_stream_callback](core::callbacks::set_audio_stream_callback) instead."]
     pub fn set_audio_stream_callback(
-        &mut self,
+        &'_ mut self,
         stream: AudioStream,
         cb: fn(&[u8]),
-    ) -> Result<(), SetLogError> {
+    ) -> Result<(), SetLogError<'_>> {
         if AUDIO_STREAM_CALLBACK.load(Ordering::Acquire) == 0 {
             AUDIO_STREAM_CALLBACK.store(cb as _, Ordering::Release);
             unsafe { ffi::SetAudioStreamCallback(stream.0, Some(custom_audio_stream_callback)) }

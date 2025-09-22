@@ -30,7 +30,7 @@ fn main() {
                 .unwrap();
             t.gen_texture_mipmaps();
             t.unwrap()
-            // Because we are unwraping we are required to manually unload the texture and can't rely on Drop.
+            // Because we are unwrapping we are required to manually unload the texture and can't rely on Drop.
             // We don't do that here since we don't need to unload until the end of main anyway.
         };
         mats[raylib::consts::MaterialMapIndex::MATERIAL_MAP_ALBEDO as usize].texture = texture;
@@ -183,7 +183,7 @@ fn main() {
                     })
                 });
             }
-            // Draw 3D model (recomended to draw 3D always before 2D)
+            // Draw 3D model (recommended to draw 3D always before 2D)
             d.draw_mode3D(camera, |mut d| {
                 d.draw_model(&model, Vector3::new(0.0, 6.0, 0.0), 1.0, Color::WHITE); // Draw 3d model with texture
                 d.draw_grid(10, 10.0);

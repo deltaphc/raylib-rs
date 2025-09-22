@@ -20,14 +20,14 @@ mod core_test {
         let handle = TEST_HANDLE.read().unwrap();
         let rl = handle.as_ref().unwrap();
         let c = Camera::orthographic(
-            Vector3::zero(),
+            Vector3::ZERO,
             Vector3::new(0.0, 0.0, 1.0),
-            Vector3::up(),
+            Vector3::Y,
             90.0,
         );
-        let _ = rl.get_mouse_ray(Vector2::zero(), &c);
+        let _ = rl.get_screen_to_world_ray(Vector2::ZERO, &c);
         // Should be the middle of the screen
-        let _ = rl.get_world_to_screen(Vector3::zero(), &c);
+        let _ = rl.get_world_to_screen(Vector3::ZERO, &c);
     }
 
     #[test]

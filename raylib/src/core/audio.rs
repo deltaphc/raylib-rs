@@ -1,7 +1,7 @@
 //! Contains code related to audio. [`RaylibAudio`] plays sounds and music.
 
 use crate::{
-    error::{AudioInitError, LoadSoundError},
+    error::{AudioInitError, LoadSoundError, UpdateAudioStreamError},
     ffi,
 };
 use std::ffi::{CStr, CString};
@@ -301,7 +301,7 @@ impl<'aud> Wave<'aud> {
     /// Copies a wave to a new wave.
     #[inline]
     #[must_use]
-    pub(crate) fn copy(&self) -> Wave {
+    pub(crate) fn copy(&'_ self) -> Wave<'_> {
         unsafe { Wave(ffi::WaveCopy(self.0), self.1) }
     }
 
@@ -413,18 +413,44 @@ impl<'aud> Sound<'aud> {
         unsafe { ffi::SetSoundPan(self.0, pan) }
     }
 
-    // Uncomment this when Raylib fulfills the todo comment within the original function to make the function safe.
-    // /// Updates sound buffer with new data.
-    // #[inline]
-    // pub fn update<T: AudioSample>(&mut self, data: &[T]) {
-    //     unsafe {
-    //         ffi::UpdateSound(
-    //             self.0,
-    //             data.as_ptr() as *const std::os::raw::c_void,
-    //             (data.len() * std::mem::size_of::<T>()) as i32,
-    //         );
-    //     }
-    // }}
+    /// Updates sound buffer with new data.
+    /// **Notes** (iann):
+    /// 1. raylib’s `UpdateSound` is a raw `memcpy` without size checks, we add safety checks to  here to prevent invalid memory writes.
+    ///     - potential upstream raylib discussion: "too many frames" doesn't exist for the `Sound`'s `AudioStream`
+    ///     - potential upstream raylib discussion: adding sampleSize checks for the `memcpy`
+    /// 2. raylib's `Sound`'s `AudioStream` always gets 32-bit sample size (so we always catch non-32-bit `Sound`'s with a `SampleSizeMismatch`)
+    ///     - 32-bit fixed in config here: https://github.com/raysan5/raylib/blob/master/src/config.h#L282
+    ///     - device format set here: https://github.com/raysan5/raylib/blob/master/src/raudio.c#L288
+    ///     - potential upstream raylib discussion: allowing for other samplesSizes for `Sound`
+    #[inline]
+    pub fn update<T: AudioSample>(&mut self, data: &[T]) -> Result<(), UpdateAudioStreamError> {
+        let expected_sample_size_bits =
+            usize::try_from(self.stream.sampleSize).expect("sampleSize should be 8, 16, or 32");
+        let provided_sample_size_bits = size_of::<T>() * u8::BITS as usize;
+        if provided_sample_size_bits != expected_sample_size_bits {
+            return Err(UpdateAudioStreamError::SampleSizeMismatch {
+                expected: expected_sample_size_bits,
+                provided: provided_sample_size_bits,
+            });
+        }
+        let max_frame_count = usize::try_from(self.frameCount)
+            .expect("frameCount should be a valid memory allocation size");
+        let provided_frame_count = data.len();
+        if provided_frame_count > max_frame_count {
+            return Err(UpdateAudioStreamError::TooManyFrames {
+                max: max_frame_count,
+                provided: provided_frame_count,
+            });
+        }
+        unsafe {
+            ffi::UpdateSound(
+                self.0,
+                data.as_ptr() as *const std::os::raw::c_void,
+                provided_frame_count.try_into().unwrap(),
+            );
+        }
+        Ok(())
+    }
 }
 
 impl<'aud, 'bind> SoundAlias<'aud, 'bind> {
@@ -623,14 +649,26 @@ impl<'aud> AudioStream<'aud> {
 
     /// Updates audio stream buffers with data.
     #[inline]
-    pub fn update<T: AudioSample>(&mut self, data: &[T]) {
+    pub fn update<T: AudioSample>(&mut self, data: &[T]) -> Result<(), UpdateAudioStreamError> {
+        let expected_sample_size =
+            usize::try_from(self.sampleSize).expect("sampleSize should be 8, 16, or 32");
+        let provided_sample_size_bits = size_of::<T>() * u8::BITS as usize;
+        if provided_sample_size_bits != expected_sample_size {
+            return Err(UpdateAudioStreamError::SampleSizeMismatch {
+                expected: expected_sample_size,
+                provided: provided_sample_size_bits,
+            });
+        }
+        let provided_frame_count = data.len();
+
         unsafe {
             ffi::UpdateAudioStream(
                 self.0,
                 data.as_ptr() as *const std::os::raw::c_void,
-                (data.len() * std::mem::size_of::<T>()) as i32,
+                provided_frame_count.try_into().unwrap(),
             );
         }
+        Ok(())
     }
 
     /// Plays audio stream.

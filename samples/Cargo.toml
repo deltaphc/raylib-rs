@@ -112,3 +112,7 @@ required-features = ["ringbuf"]
 [[bin]]
 name = "snake"
 path = "snake.rs"
+
+[[bin]]
+name = "audio_raw_stream"
+path = "./audio_raw_stream.rs"

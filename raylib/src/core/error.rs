@@ -1,4 +1,4 @@
-//! Definitions for error types used throught the crate
+//! Definitions for error types used throughout the crate
 
 use thiserror::Error;
 
@@ -34,22 +34,44 @@ pub enum LoadSoundError {
     MusicNull,
 }
 
+/// Errors that can occur when pushing new audio data into a `Sound` or `AudioStream`.
+/// **Notes** (iann): if raylib upstream discussion introduces any of these checks, we might simplify these to avoid any redundancy i think
+/// 1. `SampleSizeMismatch` is raylib-rs only, raylib does not do sampleSize matching checks.
+/// 2. `TooManyFrames` comes from the WARNING behavior in raylib `UpdateAudioStreamInLockedState`: https://github.com/raysan5/raylib/blob/master/src/raudio.c#L2662
+#[derive(Error, Debug)]
+pub enum UpdateAudioStreamError {
+    #[error("update data format must match sound: expected {expected} bits, got {provided} bits")]
+    SampleSizeMismatch { expected: usize, provided: usize },
+    #[error("Attempting to write too many frames to buffer: provided {provided}, max {max}")]
+    TooManyFrames { max: usize, provided: usize },
+}
+
 #[derive(Error, Debug)]
 pub enum AllocationError {
-    #[error("memory request does not produce a valid layout")]
-    InvalidLayout,
+    /// [`MemAlloc`](crate::ffi::MemAlloc) returned null.
     #[error("memory request exceeds capacity")]
-    ExceedsCapacity,
-    #[error("memory request exceeds unsigned integer maximum")]
-    ExceedsUIntMax,
-    #[error("cannot allocate less than 1 element")]
-    SubMinSize,
+    NullAlloc,
+    /// The size of `[T; count]` in bytes exceeds [`u32::MAX`]
+    /// (the largest value [`MemAlloc`](crate::ffi::MemAlloc) can be passed).
+    #[error("memory request in bytes exceeds unsigned integer maximum")]
+    IntoUIntFailed,
+    /// Attempted to pass 0 to [`MemAlloc`](crate::ffi::MemAlloc).
+    #[error("requested zero bytes of memory")]
+    ZeroBytes,
 }
 
 #[derive(Error, Debug)]
 pub enum CompressionError {
     #[error("could not compress data")]
     CompressionFailed,
+}
+
+#[derive(Error, Debug)]
+pub enum Base64Error {
+    #[error("could not decode base64 data")]
+    DecodeFailed,
+    #[error("could not encode base64 data")]
+    EncodeFailed,
 }
 
 #[derive(Error, Debug)]

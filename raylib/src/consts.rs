@@ -23,25 +23,29 @@ pub use ffi::DEG2RAD;
 // TODO Fix when rlgl bindings are in
 pub const MAX_MATERIAL_MAPS: u32 = 12;
 pub const MAX_SHADER_LOCATIONS: u32 = 32;
-pub use ffi::GuiCheckBoxProperty;
-pub use ffi::GuiColorPickerProperty;
-pub use ffi::GuiComboBoxProperty;
-pub use ffi::GuiControl;
-pub use ffi::GuiControlProperty;
-pub use ffi::GuiDefaultProperty;
-pub use ffi::GuiDropdownBoxProperty;
-pub use ffi::GuiIconName;
-pub use ffi::GuiListViewProperty;
-pub use ffi::GuiProgressBarProperty;
-pub use ffi::GuiScrollBarProperty;
-pub use ffi::GuiSliderProperty;
-pub use ffi::GuiState;
-pub use ffi::GuiTextAlignment;
-pub use ffi::GuiTextAlignmentVertical;
-pub use ffi::GuiTextBoxProperty;
-pub use ffi::GuiTextWrapMode;
-pub use ffi::GuiToggleProperty;
-pub use ffi::GuiValueBoxProperty;
+
+#[cfg(not(feature = "nobuild"))]
+pub use ffi::{
+    GuiCheckBoxProperty,
+    GuiColorPickerProperty,
+    GuiComboBoxProperty,
+    GuiControl,
+    GuiControlProperty,
+    GuiDefaultProperty,
+    GuiDropdownBoxProperty,
+    GuiIconName,
+    GuiListViewProperty,
+    GuiProgressBarProperty,
+    GuiScrollBarProperty,
+    GuiSliderProperty,
+    GuiState,
+    GuiTextAlignment,
+    GuiTextAlignmentVertical,
+    GuiTextBoxProperty,
+    GuiTextWrapMode,
+    GuiToggleProperty,
+    GuiValueBoxProperty,
+};
 pub use ffi::MouseCursor;
 pub use ffi::PI;
 pub use ffi::RAD2DEG;

@@ -156,7 +156,7 @@ pub fn test_runner(tests: &[&dyn Testable]) {
         }
 
         // take_screenshot takes the last frames screenshot
-        rl.take_screenshot(&thread, &format!("{}.png", t.name));
+        rl.take_screenshot(&thread, &format!("test_out/{}.png", t.name));
         {
             let mut d = rl.begin_drawing(&thread);
             d.clear_background(Color::WHITE);
@@ -180,7 +180,7 @@ pub fn test_runner(tests: &[&dyn Testable]) {
             (t.test)(&mut d, &thread, &assets);
         }
         // take_screenshot takes the last frames screenshot
-        rl.take_screenshot(&thread, &format!("{}.png", t.name));
+        rl.take_screenshot(&thread, &format!("test_out/{}.png", t.name));
         {
             let mut d_ = rl.begin_drawing(&thread);
             let mut d = d_.begin_mode3D(&camera);

@@ -50,7 +50,7 @@ pub struct RaylibDrawHandle<'a>(&'a mut RaylibHandle);
 impl<'a> RaylibDrawHandle<'a> {
     #[deprecated = "Calling begin_drawing within RaylibDrawHandle will result in a runtime error."]
     #[doc(hidden)]
-    pub fn begin_drawing(&mut self, _: &RaylibThread) -> RaylibDrawHandle {
+    pub fn begin_drawing(&'_ mut self, _: &RaylibThread) -> RaylibDrawHandle<'_> {
         panic!("Nested begin_drawing call")
     }
     #[deprecated = "Calling draw within RaylibDrawHandle will result in a runtime error."]

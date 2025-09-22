@@ -823,7 +823,7 @@ impl Image {
         }
     }
 
-    /// Searches `image` for all occurences of `color` and replaces them with `replace` color.
+    /// Searches `image` for all occurrences of `color` and replaces them with `replace` color.
     #[inline]
     pub fn color_replace(&mut self, color: impl Into<ffi::Color>, replace: impl Into<ffi::Color>) {
         unsafe {
@@ -1009,7 +1009,7 @@ impl Image {
 
     /// Get clipboard image.
     ///
-    /// NOTE: Only avaliable on Windows. Do not use if you plan to compile to other platforms.
+    /// NOTE: Only available on Windows. Do not use if you plan to compile to other platforms.
     #[cfg(target_os = "windows")]
     #[must_use]
     pub fn get_clipboard_image(&mut self) -> Result<Image, InvalidImageError> {
@@ -1359,13 +1359,13 @@ impl RaylibHandle {
 }
 
 impl RaylibHandle {
-    /// Weak Textures will leak memeory if they are not unloaded
+    /// Weak Textures will leak memory if they are not unloaded
     /// Unload textures from GPU memory (VRAM)
     #[inline]
     pub unsafe fn unload_texture(&mut self, _: &RaylibThread, texture: WeakTexture2D) {
         unsafe { ffi::UnloadTexture(*texture.as_ref()) }
     }
-    /// Weak RenderTextures will leak memeory if they are not unloaded
+    /// Weak RenderTextures will leak memory if they are not unloaded
     /// Unload RenderTextures from GPU memory (VRAM)
     #[inline]
     pub unsafe fn unload_render_texture(&mut self, _: &RaylibThread, texture: WeakRenderTexture2D) {

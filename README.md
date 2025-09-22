@@ -21,7 +21,7 @@ Though this binding tries to stay close to the simple C API, it makes some chang
 
 # All development happens over at: https://github.com/raylib-rs/raylib-rs
 
-Versions normally match Raylib's own, with the minor number incremented for any patches (i.e. 5.5.1 for Raylib v5.5). On occassion, if enough breaking changes are made in between Raylib releases, we'll release a 5.6, which is 5.5 but with breaking changes.
+Versions normally match Raylib's own, with the minor number incremented for any patches (i.e. 5.5.1 for Raylib v5.5). On occasion, if enough breaking changes are made in between Raylib releases, we'll release a 5.6, which is 5.5 but with breaking changes.
 
 # Installation
 
@@ -124,7 +124,7 @@ The `raygui.h` file has to have this ifdef modified to point to where `raylib.h`
 # Safe Binding characteristics
 - Resources are automatically cleaned up when they go out of scope (or when `std::mem::drop` is called). This is essentially RAII. This means that "Unload" functions are not exposed (and not necessary unless you obtain a `Weak` resource using make_weak()).
 - Most of the Raylib API is exposed through `RaylibHandle`, which is for enforcing that Raylib is only initialized once, and for making sure the window is closed properly. RaylibHandle has no size and goes away at compile time. Because of mutability rules, Raylib-rs is thread safe!
-- A `RaylibHandle` and `RaylibThread` are obtained through `raylib::init_window(...)` or through the newer `init()` function which will allow you to `build` up some window options before initialization (replaces `set_config_flags`). RaylibThread should not be sent to any other threads, or used in a any syncronization primitives (Mutex, Arc) etc.
+- A `RaylibHandle` and `RaylibThread` are obtained through `raylib::init_window(...)` or through the newer `init()` function which will allow you to `build` up some window options before initialization (replaces `set_config_flags`). RaylibThread should not be sent to any other threads, or used in a any synchronization primitives (Mutex, Arc) etc.
 - Manually closing the window is unnecessary, because `CloseWindow` is automatically called when `RaylibHandle` goes out of scope.
 - `Model::set_material`, `Material::set_shader`, and `MaterialMap::set_texture` methods were added since one cannot set the fields directly. Also enforces correct ownership semantics.
 - `Font::from_data`, `Font::set_chars`, and `Font::set_texture` methods were added to create a `Font` from loaded `CharInfo` data.
@@ -139,6 +139,7 @@ The `raygui.h` file has to have this ifdef modified to point to where `raylib.h`
 - In C, `LoadDroppedFiles` returns a pointer to an array of strings owned by raylib. Again, for safety and also ease of use, this binding copies said array into a `Vec<String>` which is returned to the caller.
 - I've tried to make linking automatic, though I've only tested on Windows 10, Ubuntu, and MacOS 15. Other platforms may have other considerations.
 - OpenGL 3.3, 2.1, and ES 2.0 may be forced via adding `["opengl_33"]`, `["opengl_21"]` or `["opengl_es_20]` to the `features` array in your Cargo.toml dependency definition.
+- DRM build to render graphics in a tty can be enabled by adding `["drm", "opengl_es_20"]` to `features`. Note that `drm` should usually be used together with `opengl_es_20`.
 
 # Testing
 
