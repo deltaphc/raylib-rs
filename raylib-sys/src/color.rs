@@ -152,7 +152,7 @@ impl Color {
 }
 
 /// NOTE(IOI_XD): We manually implement PartialEq as of 5.5 to use Raylib's function. It's very unlikely it will ever
-/// change or do anything different, but in the ultra rare case that it does, we want to mimick Raylib's behavior.
+/// change or do anything different, but in the ultra rare case that it does, we want to mimic Raylib's behavior.
 impl PartialEq for Color {
     fn eq(&self, other: &Self) -> bool {
         return self.is_equal(other);

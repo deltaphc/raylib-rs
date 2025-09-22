@@ -4,13 +4,16 @@ mod macros;
 pub mod audio;
 pub mod automation;
 pub mod callbacks;
+#[cfg(not(feature = "nobuild"))]
 pub mod camera;
+
 pub mod collision;
 pub mod color {
     #[allow(unused_imports)]
     pub use crate::ffi::Color;
 }
 pub mod data;
+pub mod databuf;
 pub mod drawing;
 pub mod error;
 pub mod file;

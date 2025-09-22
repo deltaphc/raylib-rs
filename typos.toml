@@ -1,0 +1,25 @@
+[files]
+extend-exclude = [
+    "target/*",
+    "raylib-sys/raylib/*",
+    "raylib-sys/binding/*",
+    "docs/*",
+    "showcase/*",
+    "samples/static/*",
+    "*/*.png",
+    "*/*.fs",
+]
+
+# Match Inside a Word - Case Insensitive
+[default.extend-words]
+ease = "ease"
+easer = "easer"
+
+[type.fs]
+extend-glob = ["*.fs"]
+check-file = false
+
+
+[type.png]
+extend-glob = ["*.png"]
+check-file = false

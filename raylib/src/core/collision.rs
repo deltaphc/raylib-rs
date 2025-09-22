@@ -5,7 +5,7 @@ use crate::ffi;
 use crate::math::{Matrix, RayCollision};
 use crate::models::Mesh;
 
-/// Check if circle collides with a line created betweeen two points [p1] and [p2]
+/// Check if circle collides with a line created between two points [p1] and [p2]
 #[inline]
 #[must_use]
 pub fn check_collision_circle_line(

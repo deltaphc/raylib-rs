@@ -33,7 +33,7 @@ pub(crate) mod automation_test {
         let mut events = aelist.events();
 
         while !rl.window_should_close() {
-            rl.update_camera(&mut camera, CameraMode::CAMERA_FIRST_PERSON);
+            camera.update_camera(CameraMode::CAMERA_FIRST_PERSON);
 
             if rl.is_key_released(KeyboardKey::KEY_SPACE) {
                 if !is_recording {

@@ -9,7 +9,7 @@ repository = "https://github.com/raylib-rs/raylib-rs"
 
 [dependencies]
 raylib = { version = "5.7.0", path = "../raylib" }
-raylib_sys = { version = "5.7.0", path = "../raylib-sys" }
+raylib-sys = { version = "5.7.0", path = "../raylib-sys" }
 lazy_static = "1.2.0"
 colored = "1.9.1"
 

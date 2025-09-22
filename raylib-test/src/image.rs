@@ -32,7 +32,7 @@ mod image_test {
 
             d.draw_texture(&tex, 0, 0, Color::WHITE);
         }
-        rl.take_screenshot(&thread, &format!("test_image_{}.png", name));
+        rl.take_screenshot(&thread, &format!("test_out/test_image_{}.png", name));
         {
             let mut d = rl.begin_drawing(&thread);
 
