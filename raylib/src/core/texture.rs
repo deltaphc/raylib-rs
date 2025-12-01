@@ -889,7 +889,6 @@ impl Image {
     }
     /// Generate image: perlin noise
     pub fn gen_image_perlin_noise(
-        &self,
         width: i32,
         height: i32,
         offset_x: i32,
